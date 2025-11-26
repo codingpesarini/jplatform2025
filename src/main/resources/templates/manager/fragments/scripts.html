@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<th:block th:fragment="scripts">
+    <!-- Required Js -->
+    <script th:src="@{/manager/assets/js/plugins/popper.min.js}"></script>
+    <script th:src="@{/manager/assets/js/plugins/simplebar.min.js}"></script>
+    <script th:src="@{/manager/assets/js/plugins/bootstrap.min.js}"></script>
+    <script th:src="@{/manager/assets/js/icon/custom-font.js}"></script>
+    <script th:src="@{/manager/assets/js/script.js}"></script>
+    <script th:src="@{/manager/assets/js/theme.js}"></script>
+    <script th:src="@{/manager/assets/js/plugins/feather.min.js}"></script>
+
+    <!-- Init Theme -->
+    <script>
+       
+        change_box_container('false');
+        layout_caption_change('true');
+        layout_rtl_change('false');
+        preset_change('preset-1');
+        main_layout_change('vertical');
+    </script>
+
+
+</th:block>
+
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{manager/layout/template}">
+
+<head>
+    <title>Dashboard Amministrazione</title>
+</head>
+
+<body>
+
+<div layout:fragment="content">
+
+    <!-- Welcome Banner -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card welcome-banner bg-blue-800">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="p-4">
+                                <h2 class="text-white">Benvenuto, <span th:text="${config.amministratore?.nomeCompleto}">Admin</span>!</h2>
+                                <p class="text-white">Pannello di amministrazione JPlatform</p>
+                                <p class="text-white-50">
+                                    Ultimo accesso: <span th:text="${config.amministratore?.dataultimoaccesso}">-</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 text-center">
+                            <div class="img-welcome-banner">
+                                <img th:src="@{/manager/assets/images/widget/welcome-banner.png}"
+                                     alt="img"
+                                     class="img-fluid" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="col-md-6 col-xxl-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="avtar avtar-s bg-light-primary">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path d="M13 9H7" stroke="#4680FF" stroke-width="1.5"/>
+                                    <path d="M22 10.97V13.03C22 13.58 21.56 14.03 21 14.05H19.04C17.96 14.05 16.97 13.26 16.88 12.18C16.82 11.55 17.06 10.96 17.48 10.55C17.85 10.17 18.36 9.95 18.92 9.95H21C21.56 9.97 22 10.42 22 10.97Z" stroke="#4680FF" stroke-width="1.5"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0">Utenti Totali</h6>
+                        </div>
+                    </div>
+                    <div class="bg-body p-3 mt-3 rounded">
+                        <div class="mt-3 row align-items-center">
+                            <div class="col-7">
+                                <div id="all-earnings-graph"></div>
+                            </div>
+                            <div class="col-5">
+                                <h5 class="mb-1">1,234</h5>
+                                <p class="text-primary mb-0"><i class="ti ti-arrow-up-right"></i> 30.6%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xxl-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="avtar avtar-s bg-light-warning">
+                                <i class="ti ti-file-text f-20"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0">Contenuti</h6>
+                        </div>
+                    </div>
+                    <div class="bg-body p-3 mt-3 rounded">
+                        <div class="mt-3 row align-items-center">
+                            <div class="col-7">
+                                <div id="page-views-graph"></div>
+                            </div>
+                            <div class="col-5">
+                                <h5 class="mb-1">567</h5>
+                                <p class="text-warning mb-0"><i class="ti ti-arrow-up-right"></i> 12%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xxl-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="avtar avtar-s bg-light-success">
+                                <i class="ti ti-check f-20"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0">Tasks Completate</h6>
+                        </div>
+                    </div>
+                    <div class="bg-body p-3 mt-3 rounded">
+                        <div class="mt-3 row align-items-center">
+                            <div class="col-7">
+                                <div id="total-task-graph"></div>
+                            </div>
+                            <div class="col-5">
+                                <h5 class="mb-1">839</h5>
+                                <p class="text-success mb-0"><i class="ti ti-arrow-up-right"></i> Nuove</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xxl-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="avtar avtar-s bg-light-danger">
+                                <i class="ti ti-download f-20"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0">Download</h6>
+                        </div>
+                    </div>
+                    <div class="bg-body p-3 mt-3 rounded">
+                        <div class="mt-3 row align-items-center">
+                            <div class="col-7">
+                                <div id="download-graph"></div>
+                            </div>
+                            <div class="col-5">
+                                <h5 class="mb-1">2,067</h5>
+                                <p class="text-danger mb-0"><i class="ti ti-arrow-down-right"></i> 5.3%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Azioni rapide</h5>
+                </div>
+                <div class="card-body">
+                    <div class="btn-group" role="group">
+                        <a href="#" class="btn btn-primary">
+                            <i class="ti ti-plus me-2"></i> Nuovo contenuto
+                        </a>
+                        <a href="#" class="btn btn-success">
+                            <i class="ti ti-user-plus me-2"></i> Nuovo utente
+                        </a>
+                        <a href="#" class="btn btn-info">
+                            <i class="ti ti-settings me-2"></i> Impostazioni
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Extra CSS -->
+<th:block layout:fragment="extra-css">
+    <!-- ApexCharts CSS se necessario -->
+</th:block>
+
+<!-- Extra JS -->
+<th:block layout:fragment="extra-js">
+    <!-- ApexCharts -->
+    <script th:src="@{/manager/assets/js/plugins/apexcharts.min.js}"></script>
+    <script th:src="@{/manager/assets/js/widgets/all-earnings-graph.js}"></script>
+    <script th:src="@{/manager/assets/js/widgets/page-views-graph.js}"></script>
+    <script th:src="@{/manager/assets/js/widgets/total-task-graph.js}"></script>
+    <script th:src="@{/manager/assets/js/widgets/download-graph.js}"></script>
+</th:block>
+
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<footer th:fragment="footer" class="site-footer bg-dark text-white mt-5">
+    <div class="container py-4">
+        <div class="row">
+
+            <!-- Info -->
+            <div class="col-md-4 mb-3">
+                <h5 th:text="${config.sito.descrizione}">ARDSU Basilicata</h5>
+                <p class="text-muted">
+                    Azienda Regionale per il Diritto allo Studio Universitario
+                </p>
+            </div>
+
+            <!-- Link utili -->
+            <div class="col-md-4 mb-3">
+                <h6>Link utili</h6>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-white-50">Chi siamo</a></li>
+                    <li><a href="#" class="text-white-50">Contatti</a></li>
+                    <li><a href="#" class="text-white-50">Privacy</a></li>
+                    <li><a href="#" class="text-white-50">Note legali</a></li>
+                </ul>
+            </div>
+
+            <!-- Contatti -->
+            <div class="col-md-4 mb-3">
+                <h6>Contatti</h6>
+                <p class="text-muted mb-1">
+                    <i class="fas fa-envelope me-2"></i>
+                    <span th:text="${config.sito.emailrisposta}">info@ardsu.it</span>
+                </p>
+                <p class="text-muted">
+                    <i class="fas fa-phone me-2"></i> +39 0971 000000
+                </p>
+            </div>
+
+        </div>
+
+        <hr class="bg-secondary">
+
+        <div class="text-center text-muted">
+            <small>&copy; 2025 <span th:text="${config.sito.descrizione}">ARDSU Basilicata</span>.
+                Tutti i diritti riservati.
+            </small>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<aside th:fragment="sidebar" class="sidebar">
+    <div class="sidebar-content">
+
+        <h5>Menu</h5>
+
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/cms/front}">
+                    <i class="fas fa-home me-2"></i> Home
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-newspaper me-2"></i> Notizie
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-file-alt me-2"></i> Documenti
+                </a>
+            </li>
+        </ul>
+
+    </div>
+</aside>
+
+</body>
+</html>

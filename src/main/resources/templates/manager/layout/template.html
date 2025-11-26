@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="it"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      data-pc-preset="preset-1"
+      data-pc-sidebar-caption="true"
+      data-pc-layout="vertical"
+      data-pc-direction="ltr"
+      data-pc-theme="light">
+
+<head>
+    <th:block th:replace="~{manager/fragments/head :: head}"></th:block>
+    <th:block layout:fragment="extra-css"></th:block>
+</head>
+
+<body>
+<!-- Preloader -->
+<div class="loader-bg">
+    <div class="loader-track">
+        <div class="loader-fill"></div>
+    </div>
+</div>
+
+<!-- Sidebar -->
+<th:block th:replace="~{manager/fragments/sidebar :: sidebar}"></th:block>
+
+<!-- Header -->
+<th:block th:replace="~{manager/fragments/header :: header}"></th:block>
+
+<!-- Main Content -->
+<div class="pc-container">
+    <div class="pc-content">
+        <div layout:fragment="content">
+            <p>Contenuto pagina</p>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<th:block th:replace="~{manager/fragments/footer :: footer}"></th:block>
+
+<!-- Customizer -->
+<th:block th:replace="~{manager/fragments/customizer :: customizer}"></th:block>
+
+<!-- Scripts -->
+<th:block th:replace="~{manager/fragments/scripts :: scripts}"></th:block>
+<th:block layout:fragment="extra-js"></th:block>
+</body>
+
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<header th:fragment="header" class="site-header">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+
+            <!-- Logo con path corretto -->
+            <a class="navbar-brand d-flex align-items-center" th:href="@{/cms/front}">
+                <img th:src="@{/site01/assets/images/logo.png}"
+                     alt="Logo"
+                     height="40"
+                     class="me-2">
+                <span th:text="${config.sito.descrizione}">ARDSU Basilicata</span>
+            </a>
+
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/cms/front}">
+                            <i class="fas fa-home me-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/cms/ricerca}">
+                            <i class="fas fa-search me-1"></i> Ricerca
+                        </a>
+                    </li>
+
+                    <!-- Utente loggato -->
+                    <li class="nav-item dropdown" th:if="${config.utenteLoggato != null}">
+                        <a class="nav-link dropdown-toggle"
+                           href="#"
+                           role="button"
+                           data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>
+                            <span th:text="${config.utenteLoggato.nomeCompleto}">Utente</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" th:href="@{/area-utente}">
+                                    <i class="fas fa-user-circle me-2"></i> Profilo
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" th:href="@{/logout}">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Login -->
+                    <li class="nav-item" th:unless="${config.utenteLoggato != null}">
+                        <a class="nav-link" th:href="@{/login}">
+                            <i class="fas fa-sign-in-alt me-1"></i> Login
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </nav>
+</header>
+
+</body>
+</html>

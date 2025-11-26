@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title th:text="${pageTitle != null ? pageTitle : 'Dashboard'}">Dashboard</title>
+
+    <!-- Favicon -->
+    <link rel="icon" th:href="@{/manager/assets/images/favicon.svg}" type="image/x-icon" />
+
+    <!-- Fonts -->
+    <link rel="stylesheet" th:href="@{/manager/assets/fonts/inter/inter.css}" id="main-font-link" />
+    <link rel="stylesheet" th:href="@{/manager/assets/fonts/phosphor/duotone/style.css}" />
+    <link rel="stylesheet" th:href="@{/manager/assets/fonts/tabler-icons.min.css}" />
+    <link rel="stylesheet" th:href="@{/manager/assets/fonts/feather.css}" />
+    <link rel="stylesheet" th:href="@{/manager/assets/fonts/fontawesome.css}" />
+    <link rel="stylesheet" th:href="@{/manager/assets/fonts/material.css}" />
+
+    <!-- CSS -->
+    <link rel="stylesheet" th:href="@{/manager/assets/css/style.css}" id="main-style-link" />
+    <link rel="stylesheet" th:href="@{/manager/assets/css/style-preset.css}" />
+</head>
+</html>

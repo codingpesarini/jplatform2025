@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<footer th:fragment="footer" class="pc-footer">
+    <div class="footer-wrapper container-fluid">
+        <div class="row">
+            <div class="col my-1">
+                <p class="m-0">© <span th:text="${config.sito?.descrizione ?: 'JPlatform'}">JPlatform</span> 2025</p>
+            </div>
+            <div class="col-auto my-1">
+                <ul class="list-inline footer-link mb-0">
+                    <li class="list-inline-item"><a th:href="@{/}">Home</a></li>
+                    <li class="list-inline-item"><a href="#">Documentazione</a></li>
+                    <li class="list-inline-item"><a href="#">Support</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

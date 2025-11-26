@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="customizer" class="customizer" id="customizer">
+    <div class="customizer-toggle" onclick="toggleCustomizer()">
+        <i class="fas fa-cog"></i>
+    </div>
+
+    <div class="customizer-content">
+        <h5>Personalizza</h5>
+
+        <!-- Opzioni tema -->
+        <div class="mb-3">
+            <label>Tema</label>
+            <select class="form-select" id="themeSelector">
+                <option value="light">Chiaro</option>
+                <option value="dark">Scuro</option>
+            </select>
+        </div>
+
+        <!-- Dimensione font -->
+        <div class="mb-3">
+            <label>Dimensione testo</label>
+            <input type="range" class="form-range" min="12" max="20" value="16" id="fontSizeRange">
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleCustomizer() {
+        document.getElementById('customizer').classList.toggle('active');
+    }
+</script>
+
+</body>
+</html>

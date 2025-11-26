@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title th:text="${pageTitle != null ? pageTitle + ' - ' + config.sito.descrizione : config.sito.descrizione}">
+        ARDSU Basilicata
+    </title>
+
+    <meta name="description" th:content="${pageDescription ?: 'ARDSU Basilicata'}">
+    <meta name="keywords" th:content="${config.sito.keywords}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" th:href="@{/site01/assets/images/favicon.png}">
+
+    <!-- CSS -->
+    <link rel="stylesheet" th:href="@{/site01/assets/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/site01/assets/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+</html>
