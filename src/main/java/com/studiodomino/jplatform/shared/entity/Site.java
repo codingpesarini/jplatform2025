@@ -347,13 +347,43 @@ public class Site implements Serializable {
             case 0 -> "Non assegnato";
             case 1 -> "Pannello amministrazione base";
             case 2 -> "Interfaccia portale web";
-            case 3 -> "Gestione Protocollo";
-            case 4 -> "Borse di studio";
-            case 5 -> "Servizio mensa";
-            case 6 -> "Alloggi";
-            case 7 -> "Workflow";
-            case 8 -> "CRM";
-            default -> "Gestionale " + (accesso - 3);
+            default -> "Gestionale " + (accesso );
         };
+    }
+
+    /**
+     * Verifica se il sito è pubblico (accesso = 2)
+     */
+    @Transient
+    public boolean isPublic() {
+        return accesso != null && accesso == 2;
+    }
+
+    /**
+     * Verifica se il sito richiede autenticazione (accesso = 1)
+     */
+    @Transient
+    public boolean requiresAuth() {
+        return accesso != null && accesso == 1;
+    }
+
+    /**
+     * Ottiene il template folder per questo sito pubblico
+     * Usa path2 se valorizzato, altrimenti default "site01"
+     */
+    @Transient
+    public String getPublicTemplateFolder() {
+        if (path2 != null && !path2.isEmpty()) {
+            return path2;
+        }
+        return "site01"; // Default
+    }
+
+    /**
+     * Ottiene il codice del sito (usa type)
+     */
+    @Transient
+    public String getCodice() {
+        return type != null ? type : "default";
     }
 }

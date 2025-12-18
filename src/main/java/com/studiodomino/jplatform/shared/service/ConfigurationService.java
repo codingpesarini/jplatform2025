@@ -1,190 +1,334 @@
 package com.studiodomino.jplatform.shared.service;
 
-import com.studiodomino.jplatform.shared.config.AppConfiguration;
-import com.studiodomino.jplatform.shared.config.JplatformProperties;
+import com.studiodomino.jplatform.shared.config.ConfigurazioneCore;
 import com.studiodomino.jplatform.shared.entity.Site;
 import com.studiodomino.jplatform.shared.entity.Utente;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service per gestione ConfigurazioneCore in sessione
+ * Centralizza TUTTI gli accessi alla configurazione
+ */
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class ConfigurationService {
 
-    @Autowired
-    private SiteService siteService;
+    private static final String CONFIG_KEY = "configCore";
+    private static final String REQUESTED_SITE_KEY = "requestedSiteId";
 
-    @Autowired
-    private GruppoService gruppoService;
+    private final SiteService siteService;
 
-    @Autowired
-    private RuoloService ruoloService;
-
-    @Autowired
-    private JplatformProperties jplatformProperties;
-
-    private static final String CONFIG_SESSION_KEY = "appConfig";
+    // ========================================
+    // CONFIGURAZIONE CORE
+    // ========================================
 
     /**
-     * Ottieni o crea la configurazione dalla sessione
+     * Ottiene ConfigurazioneCore dalla sessione
+     * Se non esiste, ne crea una nuova
      */
-    public AppConfiguration getOrCreateConfiguration(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        AppConfiguration config = (AppConfiguration) session.getAttribute(CONFIG_SESSION_KEY);
+    public ConfigurazioneCore getConfig(HttpSession session) {
+        ConfigurazioneCore config = (ConfigurazioneCore) session.getAttribute(CONFIG_KEY);
 
-        String requestedSiteId = getSiteIdFromRequest(request);
-
-        if (config == null || config.getSito() == null ||
-                !config.getIdSito().equals(requestedSiteId)) {
-
-            config = loadBaseConfiguration(request, requestedSiteId);
-            session.setAttribute(CONFIG_SESSION_KEY, config);
+        if (config == null) {
+            log.debug("ConfigurazioneCore non presente, creo nuova istanza");
+            config = createNewConfig();
+            session.setAttribute(CONFIG_KEY, config);
         }
 
         return config;
     }
 
     /**
-     * Carica la configurazione base dal database
+     * Ottiene config da HttpServletRequest
      */
-    public AppConfiguration loadBaseConfiguration(HttpServletRequest request, String siteId) {
-        AppConfiguration config = new AppConfiguration();
+    public ConfigurazioneCore getOrCreateConfiguration(HttpServletRequest request) {
+        return getConfig(request.getSession());
+    }
 
-        // Usa site_id passato o default da properties
-        if (siteId == null || siteId.isEmpty()) {
-            siteId = jplatformProperties.getSite().getDefaultId();
-        }
+    /**
+     * Crea una nuova ConfigurazioneCore con valori di default
+     */
+    private ConfigurazioneCore createNewConfig() {
+        ConfigurazioneCore config = new ConfigurazioneCore();
 
+        // Carica sito default
         try {
-            Site site = siteService.getSiteById(Integer.parseInt(siteId));
-
-            if (site == null) {
-                // Se site non esiste, carica default da properties
-                site = siteService.getSiteById(
-                        Integer.parseInt(jplatformProperties.getSite().getDefaultId())
-                );
-            }
-
-            if (site != null) {
-                config.setSito(site);
-            }
-
-        } catch (NumberFormatException e) {
-            Site site = siteService.getSiteById(
-                    Integer.parseInt(jplatformProperties.getSite().getDefaultId())
-            );
-            if (site != null) {
-                config.setSito(site);
-            }
+            Site defaultSite = siteService.findById(1);
+            config.setSito(defaultSite);
+            log.info("Sito default caricato in nuovo config: {}", defaultSite.getType());
+        } catch (Exception e) {
+            log.warn("Impossibile caricare sito default: {}", e.getMessage());
         }
 
-        config.setGruppi(gruppoService.getAllGruppi());
-        config.setRuoli(ruoloService.getAllRuoli());
-        config.setAmministratore(null);
-        config.setUtente(null);
+        // Imposta locale
+        config.setLocale("it_IT");
 
         return config;
     }
 
     /**
-     * Ottieni site_id dalla request
+     * Salva ConfigurazioneCore in sessione
      */
-    private String getSiteIdFromRequest(HttpServletRequest request) {
+    public void saveConfig(HttpSession session, ConfigurazioneCore config) {
+        session.setAttribute(CONFIG_KEY, config);
+        log.debug("ConfigurazioneCore salvata in sessione");
+    }
 
-        // 1. Parametro GET/POST "site"
-        String siteId = request.getParameter("site");
-        if (siteId != null && !siteId.isEmpty()) {
-            return siteId;
-        }
+    // ========================================
+    // GESTIONE SITO
+    // ========================================
 
-        // 2. Attributo request "site"
-        Object siteAttr = request.getAttribute("site");
-        if (siteAttr != null) {
-            return siteAttr.toString();
-        }
+    /**
+     * Imposta il sito corrente (con HttpSession)
+     */
+    public void setSite(HttpSession session, Site site) {
+        ConfigurazioneCore config = getConfig(session);
+        config.setSito(site);
 
-        // 3. Parametro context (per retrocompatibilità)
-        String contextSiteId = request.getSession().getServletContext()
-                .getInitParameter("IDSITE");
-        if (contextSiteId != null && !contextSiteId.isEmpty()) {
-            return contextSiteId;
-        }
+        // Imposta anche IDSITE per compatibilità
+        session.setAttribute("IDSITE", site.getId().toString());
 
-        // 4. Default da properties
-        return jplatformProperties.getSite().getDefaultId();
+        saveConfig(session, config);
+        log.info("Sito impostato: id={}, type={}, accesso={}",
+                site.getId(), site.getType(), site.getAccesso());
     }
 
     /**
-     * Refresh configurazione
+     * Imposta il sito corrente (con HttpServletRequest)
      */
-    public AppConfiguration refreshConfiguration(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        session.removeAttribute(CONFIG_SESSION_KEY);
-
-        String siteId = getSiteIdFromRequest(request);
-        AppConfiguration config = loadBaseConfiguration(request, siteId);
-        session.setAttribute(CONFIG_SESSION_KEY, config);
-
-        return config;
+    public void setSite(HttpServletRequest request, Site site) {
+        setSite(request.getSession(), site);
     }
 
     /**
-     * Cambia site attivo
+     * Ottiene il sito corrente (con HttpSession)
      */
-    public AppConfiguration changeSite(HttpServletRequest request, String newSiteId) {
-        HttpSession session = request.getSession();
-        session.removeAttribute(CONFIG_SESSION_KEY);
-
-        AppConfiguration config = loadBaseConfiguration(request, newSiteId);
-        session.setAttribute(CONFIG_SESSION_KEY, config);
-
-        return config;
+    public Site getCurrentSite(HttpSession session) {
+        ConfigurazioneCore config = getConfig(session);
+        return config.getSito();
     }
 
     /**
-     * Salva utente loggato in configurazione
+     * Ottiene il sito corrente (con HttpServletRequest)
      */
-    public void setUtenteLoggato(HttpServletRequest request, Utente utente) {
-        HttpSession session = request.getSession();
-        AppConfiguration config = getOrCreateConfiguration(request);
+    public Site getCurrentSite(HttpServletRequest request) {
+        return getCurrentSite(request.getSession());
+    }
 
-        if (utente.getRole1() != null &&
-                (utente.getRole1().equals("a") || utente.getRole1().equals("s"))) {
+    // ========================================
+    // GESTIONE UTENTE
+    // ========================================
+
+    /**
+     * Imposta l'utente loggato (con HttpSession)
+     */
+    public void setUtente(HttpSession session, Utente utente) {
+        ConfigurazioneCore config = getConfig(session);
+
+        // Determina se è admin o utente normale basato sul ruolo
+        boolean isAdmin = false;
+        if (utente.getRole1() != null) {
+            String nomeRuolo = utente.getRole1();
+            isAdmin = "ADMIN".equalsIgnoreCase(nomeRuolo) ||
+                    "AMMINISTRATORE".equalsIgnoreCase(nomeRuolo);
+        }
+
+        if (isAdmin) {
             config.setAmministratore(utente);
             config.setUtente(null);
+            log.info("Amministratore impostato: {}", utente.getUsername());
         } else {
             config.setUtente(utente);
             config.setAmministratore(null);
+            log.info("Utente impostato: {}", utente.getUsername());
         }
 
-        session.setAttribute(CONFIG_SESSION_KEY, config);
+        saveConfig(session, config);
     }
 
     /**
-     * Ottieni URL di redirect
+     * Imposta l'utente loggato (con HttpServletRequest)
+     * ALIAS: setUtenteLoggato
      */
-    public String getStartupRedirect(AppConfiguration config) {
-        if (config == null || config.getSito() == null) {
-            return "/login";
-        }
+    public void setUtenteLoggato(HttpServletRequest request, Utente utente) {
+        setUtente(request.getSession(), utente);
+    }
 
-        Integer accesso = config.getSito().getAccesso();
-        if (accesso == null) {
-            accesso = 0;
-        }
+    /**
+     * Imposta l'utente loggato (con HttpSession)
+     * ALIAS: setUtenteLoggato
+     */
+    public void setUtenteLoggato(HttpSession session, Utente utente) {
+        setUtente(session, utente);
+    }
 
-        return switch (accesso) {
-            case 0 -> "/login";
-            case 1 -> "/admin";
-            case 2 -> "/cms/front";
-            case 3 -> "/protocollo";
-            case 4 -> "/ardsu/borse";
-            case 5 -> "/ardsu/mensa";
-            case 6 -> "/ardsu/alloggi";
-            case 7 -> "/workflow";
-            case 8 -> "/crm";
-            default -> "/login";
-        };
+    /**
+     * Ottiene l'utente loggato (con HttpSession)
+     */
+    public Utente getUtente(HttpSession session) {
+        ConfigurazioneCore config = getConfig(session);
+        return config.getUtenteLoggato();
+    }
+
+    /**
+     * Ottiene l'utente loggato (con HttpServletRequest)
+     */
+    public Utente getUtente(HttpServletRequest request) {
+        return getUtente(request.getSession());
+    }
+
+    /**
+     * Ottiene l'utente loggato (con HttpSession)
+     * ALIAS: getUtenteLoggato
+     */
+    public Utente getUtenteLoggato(HttpSession session) {
+        return getUtente(session);
+    }
+
+    /**
+     * Ottiene l'utente loggato (con HttpServletRequest)
+     * ALIAS: getUtenteLoggato
+     */
+    public Utente getUtenteLoggato(HttpServletRequest request) {
+        return getUtente(request.getSession());
+    }
+
+    /**
+     * Verifica se l'utente è loggato (con HttpSession)
+     */
+    public boolean isUserLoggedIn(HttpSession session) {
+        return getUtente(session) != null;
+    }
+
+    /**
+     * Verifica se l'utente è loggato (con HttpServletRequest)
+     */
+    public boolean isUserLoggedIn(HttpServletRequest request) {
+        return isUserLoggedIn(request.getSession());
+    }
+
+    /**
+     * Rimuove l'utente dalla sessione (logout)
+     */
+    public void clearUtente(HttpSession session) {
+        ConfigurazioneCore config = getConfig(session);
+        config.setAmministratore(null);
+        config.setUtente(null);
+        saveConfig(session, config);
+        log.info("Utente rimosso dalla sessione");
+    }
+
+    /**
+     * Rimuove l'utente dalla sessione (logout) - con HttpServletRequest
+     */
+    public void clearUtente(HttpServletRequest request) {
+        clearUtente(request.getSession());
+    }
+
+    // ========================================
+    // GESTIONE SITO RICHIESTO (per redirect post-login)
+    // ========================================
+
+    /**
+     * Memorizza il sito richiesto prima del login
+     */
+    public void setRequestedSite(HttpSession session, Integer siteId) {
+        session.setAttribute(REQUESTED_SITE_KEY, siteId);
+        log.debug("RequestedSiteId memorizzato: {}", siteId);
+    }
+
+    /**
+     * Memorizza il sito richiesto prima del login - con HttpServletRequest
+     */
+    public void setRequestedSite(HttpServletRequest request, Integer siteId) {
+        setRequestedSite(request.getSession(), siteId);
+    }
+
+    /**
+     * Ottiene il sito richiesto
+     */
+    public Integer getRequestedSite(HttpSession session) {
+        return (Integer) session.getAttribute(REQUESTED_SITE_KEY);
+    }
+
+    /**
+     * Ottiene il sito richiesto - con HttpServletRequest
+     */
+    public Integer getRequestedSite(HttpServletRequest request) {
+        return getRequestedSite(request.getSession());
+    }
+
+    /**
+     * Ottiene e rimuove il sito richiesto
+     */
+    public Integer getAndClearRequestedSite(HttpSession session) {
+        Integer siteId = (Integer) session.getAttribute(REQUESTED_SITE_KEY);
+        if (siteId != null) {
+            session.removeAttribute(REQUESTED_SITE_KEY);
+            log.debug("RequestedSiteId recuperato e rimosso: {}", siteId);
+        }
+        return siteId;
+    }
+
+    /**
+     * Ottiene e rimuove il sito richiesto - con HttpServletRequest
+     */
+    public Integer getAndClearRequestedSite(HttpServletRequest request) {
+        return getAndClearRequestedSite(request.getSession());
+    }
+
+    /**
+     * Pulisce il sito richiesto
+     */
+    public void clearRequestedSite(HttpSession session) {
+        session.removeAttribute(REQUESTED_SITE_KEY);
+        log.debug("RequestedSiteId rimosso");
+    }
+
+    /**
+     * Pulisce il sito richiesto - con HttpServletRequest
+     */
+    public void clearRequestedSite(HttpServletRequest request) {
+        clearRequestedSite(request.getSession());
+    }
+
+    // ========================================
+    // SESSIONE
+    // ========================================
+
+    /**
+     * Invalida completamente la sessione
+     */
+    public void invalidateSession(HttpSession session) {
+        session.invalidate();
+        log.info("Sessione invalidata");
+    }
+
+    /**
+     * Invalida completamente la sessione - con HttpServletRequest
+     */
+    public void invalidateSession(HttpServletRequest request) {
+        invalidateSession(request.getSession());
+    }
+
+    /**
+     * Pulisce tutti i dati dalla sessione (soft logout)
+     */
+    public void clearSession(HttpSession session) {
+        clearUtente(session);
+        clearRequestedSite(session);
+        log.info("Sessione pulita (soft clear)");
+    }
+
+    /**
+     * Pulisce tutti i dati dalla sessione (soft logout) - con HttpServletRequest
+     */
+    public void clearSession(HttpServletRequest request) {
+        clearSession(request.getSession());
     }
 }

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- start section -->
+<section th:fragment="banner" class="p-0 overflow-hidden bg-dark-gray full-screen ipad-top-space-margin md-h-auto position-relative md-pb-70px sm-pb-40px cover-background" th:style="'background-image: url(' + @{/site01/images/demo-elearning-hero-bg.jpg} + ')'">
+    <div class="background-position-center-top h-100 w-100 position-absolute left-0px top-0" th:style="'background-image: url(' + @{/site01/images/vertical-line-bg-small.svg} + ')'"></div>
+    <div id="particles-style-01" class="h-100 position-absolute left-0px top-0 w-100" data-particle="true" data-particle-options='{"particles": {"number": {"value": 6,"density": {"enable": true,"value_area": 2000}},"color": {"value": ["#d5d52b", "#d5d52b", "#d5d52b", "#d5d52b", "#d5d52b"]},"shape": {"type": "circle","stroke":{"width":0,"color":"#000000"}},"opacity": {"value": 1,"random": false,"anim": {"enable": false,"speed": 1,"sync": false}},"size": {"value": 8,"random": true,"anim": {"enable": false,"sync": true}},"line_linked":{"enable":false,"distance":0,"color":"#ffffff","opacity":1,"width":1},"move": {"enable": true,"speed":1,"direction": "right","random": false,"straight": false}},"interactivity": {"detect_on": "canvas","events": {"onhover": {"enable": false,"mode": "repulse"},"onclick": {"enable": false,"mode": "push"},"resize": true}},"retina_detect": false}'></div>
+    <div class="position-absolute left-minus-80px top-25" data-bottom-top="transform: translateY(-80px)" data-top-bottom="transform: translateY(80px)">
+        <img th:src="@{/site01/images/demo-elearning-01.png}" alt="">
+    </div>
+    <div class="container h-100">
+        <div class="row align-items-center justify-content-center h-100">
+            <div class="col-xl-5 col-lg-6 col-md-12 text-white text-center text-lg-start position-relative z-index-1 d-flex flex-column justify-content-center h-100 md-mt-50px md-mb-20px xs-mb-10px" data-anime='{ "el": "childs", "opacity": [0, 1], "rotateY": [90, 0], "rotateZ": [-10, 0], "translateY": [80, 0], "translateZ": [50, 0], "staggervalue": 200, "duration": 600, "delay": 100, "easing": "easeOutCirc" }'>
+                <span class="alt-font fs-75 lh-65 sm-fs-60 fw-500 mb-25px ls-minus-2px">Best online platform for education.</span>
+                <div class="mb-30px w-80 md-w-60 sm-w-100 d-block mx-auto mx-lg-0 overflow-hidden">
+                    <span class="fs-18 fw-300 opacity-5 d-inline-block">Online courses from the world's leading experts. Join 17 million learners today.</span>
+                </div>
+                <div class="overflow-hidden">
+                    <a href="demo-elearning-contact.html" class="btn btn-extra-large btn-base-color btn-rounded btn-switch-text fw-600 d-inline-block me-25px sm-me-10px align-middle left-icon">
+                        <span>
+                            <span><i class="feather icon-feather-thumbs-up"></i></span>
+                            <span class="btn-double-text ls-minus-05px" data-text="Get started">Get started</span>
+                        </span>
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=cfXHhfNy7tU" class="btn btn-link btn-hover-animation-switch btn-extra-large text-white popup-youtube btn-icon-left">
+                        <span>
+                            <span class="btn-text">How it works</span>
+                            <span class="btn-icon"><i class="feather icon-feather-youtube"></i></span>
+                            <span class="btn-icon"><i class="feather icon-feather-youtube"></i></span>
+                        </span>
+                    </a>
+                </div>
+                <div class="row row-cols-3 justify-content-center counter-style-04 w-100 md-w-auto position-absolute lg-position-relative bottom-80px lg-bottom-0px lg-mt-50px">
+                    <!-- start counter item -->
+                    <div class="col text-center text-lg-start">
+                        <h5 class="vertical-counter d-inline-flex alt-font text-white fw-600 mb-10px" data-text="+" data-to="260"></h5>
+                        <div class="divider-style-03 divider-style-03-01 border-2 border-color-base-color mb-5px w-80 xs-w-90 md-mx-auto"></div>
+                        <span class="fw-300 text-white opacity-5">Tutors</span>
+                    </div>
+                    <!-- end counter item -->
+                    <!-- start counter item -->
+                    <div class="col text-center text-lg-start">
+                        <h5 class="vertical-counter d-inline-flex alt-font text-white fw-600 mb-10px" data-text="+" data-to="5340"></h5>
+                        <div class="divider-style-03 divider-style-03-01 border-2 border-color-base-color mb-5px w-80 xs-w-90 md-mx-auto"></div>
+                        <span class="fw-300 text-white opacity-5">Students</span>
+                    </div>
+                    <!-- end counter item -->
+                    <!-- start counter item -->
+                    <div class="col text-center text-lg-start">
+                        <h5 class="vertical-counter d-inline-flex alt-font text-white fw-600 mb-10px" data-text="+" data-to="280"></h5>
+                        <div class="divider-style-03 divider-style-03-01 border-2 border-color-base-color mb-5px w-80 xs-w-90 md-mx-auto"></div>
+                        <span class="fw-300 text-white opacity-5">Courses</span>
+                    </div>
+                    <!-- end counter item -->
+                </div>
+            </div>
+            <div class="col-xl-7 col-lg-6 pt-30px lg-pt-0">
+                <div class="position-relative outside-box-right-10 md-outside-box-right-0 atropos" data-atropos>
+                    <div class="atropos-scale">
+                        <div class="atropos-rotate">
+                            <div class="atropos-inner text-center w-100">
+                                <div data-atropos-offset="-1" class="position-absolute left-0px right-0px">
+                                    <img src="https://placehold.co/975x990" alt="">
+                                </div>
+                                <img data-atropos-offset="1" class="position-relative z-index-9 animation-float" th:src="@{/site01/images/demo-elearning-hero-banner-02.png}" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- end section -->
+</body>
+</html>

@@ -1,32 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-
 <th:block th:fragment="scripts">
-
-    <!-- jQuery -->
-    <script th:src="@{/site01.assets/js/jquery.min.js}"></script>
-
-    <!-- Bootstrap Bundle -->
-    <script th:src="@{/site01.assets/js/bootstrap.bundle.min.js}"></script>
-
-    <!-- Custom JS -->
-    <script th:src="@{/site01.assets/js/main.js}"></script>
-
-    <!-- Global variables -->
-    <script th:inline="javascript">
-        // Variabili globali disponibili in tutto il sito
-        var APP_CONFIG = {
-            siteId: /*[[${config.idSito}]]*/ '1',
-            siteName: /*[[${config.sito.descrizione}]]*/ 'Site',
-            baseUrl: /*[[@{/}]]*/ '/',
-            assetUrl: /*[[@{/site01.assets/}]]*/ '/site01.assets/',
-            isAuthenticated: /*[[${config.utenteLoggato != null}]]*/ false,
-            userId: /*[[${config.utenteLoggato?.id}]]*/ null
-        };
-    </script>
-
+    <!-- javascript libraries -->
+    <script type="text/javascript" th:src="@{/site01/js/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/site01/js/vendors.min.js}"></script>
+    <script type="text/javascript" th:src="@{/site01/js/main.js}"></script>
 </th:block>
-
 </body>
 </html>

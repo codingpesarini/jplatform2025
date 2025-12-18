@@ -1,6 +1,6 @@
 package com.studiodomino.jplatform.shared.util;
 
-import com.studiodomino.jplatform.shared.config.AppConfiguration;
+import com.studiodomino.jplatform.shared.config.ConfigurazioneCore;
 import com.studiodomino.jplatform.shared.entity.Site;
 
 /**
@@ -15,7 +15,7 @@ public class ViewUtils {
      * - resolveTemplate(config, "front/home") → "site01/front/home"
      * - resolveTemplate(config, "front/home") → "site02/front/home"
      */
-    public static String resolveTemplate(AppConfiguration config, String templatePath) {
+    public static String resolveTemplate(ConfigurazioneCore config, String templatePath) {
         if (config == null || config.getSito() == null) {
             return "error/500";
         }
@@ -23,7 +23,7 @@ public class ViewUtils {
         Site site = config.getSito();
         Integer siteId = site.getId();
 
-        String siteFolder = getSiteFolder(siteId);
+        String siteFolder = config.getSito().getPath2();
 
         return siteFolder + "/" + templatePath;
     }
@@ -44,7 +44,7 @@ public class ViewUtils {
      * Esempio:
      * - resolveAsset(config, "css/style.css") → "/site01/assets/css/style.css"
      */
-    public static String resolveAsset(AppConfiguration config, String assetPath) {
+    public static String resolveAsset(ConfigurazioneCore config, String assetPath) {
         if (config == null || config.getSito() == null) {
             return "/common/" + assetPath;
         }
@@ -63,21 +63,6 @@ public class ViewUtils {
         return "/manager/assets/" + assetPath;
     }
 
-    /**
-     * Mappa Site.id → cartella template
-     */
-    private static String getSiteFolder(Integer siteId) {
-        if (siteId == null) {
-            return "site01";
-        }
-
-        return switch (siteId) {
-            case 1 -> "site01";
-            case 2 -> "site02";
-            case 3 -> "site03";
-            default -> "site01";
-        };
-    }
 
     /**
      * Mappa Site.id → cartella assets
@@ -98,11 +83,54 @@ public class ViewUtils {
     /**
      * Ottieni base URL per assets (per usare in template)
      */
-    public static String getAssetBaseUrl(AppConfiguration config) {
+    public static String getAssetBaseUrl(ConfigurazioneCore config) {
         if (config == null || config.getSito() == null) {
             return "/common";
         }
 
         return "/" + getAssetFolder(config.getSito().getId());
+    }
+
+    /**
+     * Risolve template per SITI PUBBLICI (accesso = 2)
+     * Usa il campo path2
+     *
+     * @param site Site entity
+     * @param viewName Nome vista (es. "front/home")
+     * @return Path completo template (es. "site01/front/home")
+     */
+    public static String resolvePublicTemplate(Site site, String viewName) {
+        if (site == null) {
+            return "error/404";
+        }
+
+        String templateFolder = site.getPublicTemplateFolder();
+        return templateFolder + "/" + viewName;
+    }
+
+    /**
+     * Risolve template per APPLICAZIONI PROTETTE (accesso = 1)
+     * Usa sempre "manager" come folder
+     *
+     * @param viewName Nome vista
+     * @return Path completo template (es. "manager/front/dashboard")
+     */
+    public static String resolveProtectedTemplate(String viewName) {
+        return "manager/" + viewName;
+    }
+
+    /**
+     * Risolve path assets per siti pubblici
+     */
+    public static String resolvePublicAsset(Site site, String assetPath) {
+        String folder = site != null ? site.getPublicTemplateFolder() : "site01";
+        return "/" + folder + "/assets/" + assetPath;
+    }
+
+    /**
+     * Risolve path assets per applicazioni protette
+     */
+    public static String resolveProtectedAsset(String assetPath) {
+        return "/manager/assets/" + assetPath;
     }
 }

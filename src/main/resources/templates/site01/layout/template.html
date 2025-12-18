@@ -1,31 +1,32 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<body>
+<html class="no-js" lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <th:block th:replace="~{site01/fragments/head :: head}"></th:block>
+</head>
+<body data-mobile-nav-trigger-alignment="right" data-mobile-nav-style="modern" data-mobile-nav-bg-color="#313e3b">
+<!-- start header -->
+<th:block th:replace="~{site01/fragments/header :: header}"></th:block>
+<!-- end header -->
 
-<th:block th:fragment="scripts">
+<!-- Main Content -->
+<main layout:fragment="content">
+    <!-- Content will be injected here -->
+</main>
 
-    <!-- jQuery -->
-    <script th:src="@{/site01/assets/js/jquery.min.js}"></script>
+<!-- start footer -->
+<th:block th:replace="~{site01/fragments/footer :: footer}"></th:block>
+<!-- end footer -->
 
-    <!-- Bootstrap -->
-    <script th:src="@{/site01/assets/js/bootstrap.bundle.min.js}"></script>
+<!-- start scroll progress -->
+<div class="scroll-progress d-none d-xxl-block">
+    <a href="#" class="scroll-top" aria-label="scroll">
+        <span class="scroll-text">Scroll</span><span class="scroll-line"><span class="scroll-point"></span></span>
+    </a>
+</div>
+<!-- end scroll progress -->
 
-    <!-- Custom JS -->
-    <script th:src="@{/site01/assets/js/main.js}"></script>
-
-    <!-- Global variables -->
-    <script th:inline="javascript">
-        var APP_CONFIG = {
-            siteId: /*[[${config.idSito}]]*/ '1',
-            siteName: /*[[${config.sito.descrizione}]]*/ 'Site',
-            baseUrl: /*[[@{/}]]*/ '/',
-            assetUrl: /*[[@{/site01/assets/}]]*/ '/site01/assets/',
-            isAuthenticated: /*[[${config.utenteLoggato != null}]]*/ false,
-            userId: /*[[${config.utenteLoggato?.id}]]*/ null
-        };
-    </script>
-
-</th:block>
-
+<!-- Scripts -->
+<th:block th:replace="~{site01/fragments/scripts :: scripts}"></th:block>
 </body>
 </html>

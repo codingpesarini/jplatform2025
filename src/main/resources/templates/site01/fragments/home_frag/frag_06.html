@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<section th:fragment="home_06" class="bg-gradient-tranquil-white overflow-hidden position-relative overlap-height pb-5 md-pb-7 xs-pb-50px">
+    <div class="container overlap-gap-section">
+        <div class="row justify-content-center align-items-center mb-4 text-center text-md-start">
+            <div class="col-xxl-8 col-md-7 sm-mb-10px">
+                <h2 class="alt-font text-dark-gray fw-600 ls-minus-3px mb-0">Latest articles</h2>
+            </div>
+            <div class="col-xxl-4 col-md-5 text-center text-md-end" data-anime='{ "translateX": [-50, 0], "opacity": [0,1], "duration": 600, "delay": 0, "staggervalue": 300, "easing": "easeOutQuad" }'>
+                <a href="demo-elearning-blog.html" class="btn btn-link btn-hover-animation-switch btn-extra-large text-dark-gray fw-600">
+                            <span>
+                                <span class="btn-text">Explore all articles</span>
+                                <span class="btn-icon"><i class="fa-solid fa-arrow-right"></i></span>
+                                <span class="btn-icon"><i class="fa-solid fa-arrow-right"></i></span>
+                            </span>
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <ul class="blog-masonry blog-wrapper grid-loading grid grid-3col xl-grid-3col lg-grid-3col md-grid-2col sm-grid-1col xs-grid-1col gutter-extra-large" data-anime='{ "el": "childs", "translateY": [50, 0], "opacity": [0,1], "duration": 1200, "delay": 0, "staggervalue": 150, "easing": "easeOutQuad" }'>
+                    <li class="grid-sizer"></li>
+                    <!-- start blog item -->
+                    <li class="grid-item">
+                        <div class="card border-0 border-radius-4px overflow-hidden box-shadow-large box-shadow-extra-large-hover">
+                            <div class="card-top d-flex align-items-center">
+                                <a href="demo-elearning-blog.html"><img src="https://placehold.co/125x125" class="avtar" alt=""></a>
+                                <span class="fs-16">By <a href="demo-elearning-blog.html" class="text-dark-gray fw-600">Andy glamer</a></span>
+                                <div class="like-count ms-auto fs-14">
+                                    <a href="#"><i class="fa-regular fa-heart text-red d-inline-block"></i><span class="text-dark-gray fw-600">65</span></a>
+                                </div>
+                            </div>
+                            <div class="blog-image position-relative overflow-hidden">
+                                <a href="demo-elearning-blog-single-simple.html"><img src="https://placehold.co/600x425" alt="" /></a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="post-content p-11 md-p-9">
+                                    <a href="demo-elearning-blog-single-simple.html" class="card-title mb-10px fw-600 fs-19 lh-28 text-dark-gray d-inline-block">How to evaluate the effective of training programs.</a>
+                                    <p class="mb-0">Lorem ipsum has been industry standard dummy text ever...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- end blog item -->
+                    <!-- start blog item -->
+                    <li class="grid-item">
+                        <div class="card border-0 border-radius-4px overflow-hidden box-shadow-large box-shadow-extra-large-hover">
+                            <div class="card-top d-flex align-items-center">
+                                <a href="demo-elearning-blog.html"><img src="https://placehold.co/125x125" class="avtar" alt=""></a>
+                                <span class="fs-16">By <a href="demo-elearning-blog.html" class="text-dark-gray fw-600">Den viliamson</a></span>
+                                <div class="like-count ms-auto fs-14">
+                                    <a href="#"><i class="fa-regular fa-heart text-red d-inline-block"></i><span class="text-dark-gray fw-600">35</span></a>
+                                </div>
+                            </div>
+                            <div class="blog-image position-relative overflow-hidden">
+                                <a href="demo-elearning-blog-single-simple.html"><img src="https://placehold.co/600x425" alt="" /></a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="post-content p-11 md-p-9">
+                                    <a href="demo-elearning-blog-single-simple.html" class="card-title mb-10px fw-600 fs-19 lh-28 text-dark-gray d-inline-block">Experience the breathtaking views and perspectives.</a>
+                                    <p class="mb-0">Lorem ipsum has been industry standard dummy text ever...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- end blog item -->
+                    <!-- start blog item -->
+                    <li class="grid-item">
+                        <div class="card border-0 border-radius-4px overflow-hidden box-shadow-large box-shadow-extra-large-hover">
+                            <div class="card-top d-flex align-items-center">
+                                <a href="demo-elearning-blog.html"><img src="https://placehold.co/125x125" class="avtar" alt=""></a>
+                                <span class="fs-16">By <a href="demo-elearning-blog.html" class="text-dark-gray fw-600">Jones robbert</a></span>
+                                <div class="like-count ms-auto fs-14">
+                                    <a href="#"><i class="fa-regular fa-heart text-red d-inline-block"></i><span class="text-dark-gray fw-600">58</span></a>
+                                </div>
+                            </div>
+                            <div class="blog-image position-relative overflow-hidden">
+                                <a href="demo-elearning-blog-single-simple.html"><img src="https://placehold.co/600x425" alt="" /></a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="post-content p-11 md-p-9">
+                                    <a href="demo-elearning-blog-single-simple.html" class="card-title mb-10px fw-600 fs-19 lh-28 text-dark-gray d-inline-block">Build up healthy habits and strong peaceful life.</a>
+                                    <p class="mb-0">Lorem ipsum has been industry standard dummy text ever...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- end blog item -->
+                </ul>
+            </div>
+        </div>
+        <div class="row justify-content-center mt-5">
+            <!-- start features box item -->
+            <div class="col-auto icon-with-text-style-08 md-mb-10px xs-mb-15px pe-25px md-pe-15px" data-anime='{ "translateX": [-50, 0], "opacity": [0,1], "duration": 600, "delay": 0, "staggervalue": 300, "easing": "easeOutQuad" }'>
+                <div class="feature-box feature-box-left-icon-middle xs-lh-28">
+                    <div class="feature-box-icon me-10px">
+                        <i class="feather icon-feather-mail fs-20 text-dark-gray"></i>
+                    </div>
+                    <div class="feature-box-content">
+                        <span class="text-dark-gray fw-500 fs-20 xs-fs-18 ls-minus-05px">Looking for help? <a href="demo-elearning-contact.html" class="text-decoration-line-bottom-medium text-dark-gray fw-600">Contact us today</a></span>
+                    </div>
+                </div>
+            </div>
+            <!-- end features box item -->
+            <!-- start features box item -->
+            <div class="col-auto icon-with-text-style-08 ps-25px md-ps-15px md-pe-15px" data-anime='{ "translateX": [50, 0], "opacity": [0,1], "duration": 600, "delay": 0, "staggervalue": 300, "easing": "easeOutQuad" }'>
+                <div class="feature-box feature-box-left-icon-middle xs-lh-28">
+                    <div class="feature-box-icon me-10px">
+                        <i class="feather icon-feather-thumbs-up fs-20 text-dark-gray"></i>
+                    </div>
+                    <div class="feature-box-content">
+                        <span class="text-dark-gray fw-500 fs-20 xs-fs-18 ls-minus-05px">Keep in Touch. <a href="#" class="text-decoration-line-bottom-medium text-dark-gray fw-600">Like us on Facebook</a></span>
+                    </div>
+                </div>
+            </div>
+            <!-- end features box item -->
+        </div>
+    </div>
+</section>
+</body>
+</html>

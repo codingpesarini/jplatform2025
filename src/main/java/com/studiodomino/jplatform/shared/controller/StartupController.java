@@ -1,141 +1,116 @@
 package com.studiodomino.jplatform.shared.controller;
 
-import com.studiodomino.jplatform.shared.config.AppConfiguration;
+import com.studiodomino.jplatform.shared.config.ConfigurazioneCore;
+import com.studiodomino.jplatform.shared.entity.Site;
 import com.studiodomino.jplatform.shared.entity.Utente;
+import com.studiodomino.jplatform.shared.enums.ModuloApplicativo;
 import com.studiodomino.jplatform.shared.service.ConfigurationService;
-import com.studiodomino.jplatform.shared.service.UtenteService;
-import com.studiodomino.jplatform.shared.util.CryptBean;
-import jakarta.servlet.http.Cookie;
+import com.studiodomino.jplatform.shared.service.SiteService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
+@RequiredArgsConstructor
+@Slf4j
 public class StartupController {
 
-    @Autowired
-    private ConfigurationService configurationService;
+    private final SiteService siteService;
+    private final ConfigurationService configurationService;
 
-    @Autowired
-    private UtenteService utenteService;
-
-    private static final String COOKIE_NAME = "JPlatformEdit";
-
-    /**
-     * PUNTO DI INGRESSO PRINCIPALE
-     * Equivalente di /Startup.do in Struts
-     *
-     * Esempi:
-     * http://localhost:8080/                  → carica site id=1 (default)
-     * http://localhost:8080/?site=2           → carica site id=2
-     * http://localhost:8080/?site=3&reload=true → carica site id=3 e ricarica config
-     */
     @GetMapping("/")
-    public String startup(
-            @RequestParam(required = false) String site,
-            @RequestParam(required = false) Boolean reload,
+    public String startupDefault(
+            HttpServletRequest request,
+            HttpServletResponse response) {
+        return startup("1", null, request, response);
+    }
+
+    @GetMapping("/{idsite}")
+    public String startupConIdsite(
+            @PathVariable String idsite,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+        return startup(idsite, null, request, response);
+    }
+
+    @GetMapping("/{idsite}/{uscita}")
+    public String startupCompleto(
+            @PathVariable String idsite,
+            @PathVariable Boolean uscita,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+        return startup(idsite, uscita, request, response);
+    }
+
+    private String startup(
+            String idsite,
+            Boolean uscita,
             HttpServletRequest request,
             HttpServletResponse response) {
 
+        log.info("=== STARTUP === idsite: {}, uscita: {}", idsite, uscita);
+
         HttpSession session = request.getSession();
 
-        // 1. Carica o aggiorna configurazione (gestisce automaticamente site)
-        AppConfiguration config = configurationService.getOrCreateConfiguration(request);
-
-        // Se richiesto reload esplicito, forza ricarica
-        if (reload != null && reload) {
-            config = configurationService.refreshConfiguration(request);
+        if (Boolean.TRUE.equals(uscita)) {
+            configurationService.invalidateSession(session);
+            return "redirect:/";
         }
 
-        // 2. Controlla se c'è un utente loggato in sessione
-        Utente utente = (Utente) session.getAttribute("utente");
+        ConfigurazioneCore configCore = configurationService.getOrCreateConfiguration(request);
 
-        // 3. Se non c'è utente in sessione, prova con cookie
-        if (utente == null) {
-            utente = loginFromCookie(request, response);
-            if (utente != null && utente.getStatoaccesso() == 0) {
-                session.setAttribute("utente", utente);
-                configurationService.setUtenteLoggato(request, utente);
-            }
-        }
-
-        // 4. Se ancora non c'è utente → redirect al login
-        if (utente == null || utente.getStatoaccesso() != 0) {
-            return "redirect:/login";
-        }
-
-        // 5. Utente loggato → redirect in base a configurazione
-        String redirectUrl = getRedirectUrl(utente, config);
-
-        return "redirect:" + redirectUrl;
-    }
-
-    /**
-     * Cambia site attivo
-     * Esempio: http://localhost:8080/changeSite?site=2
-     */
-    @GetMapping("/changeSite")
-    public String changeSite(
-            @RequestParam String site,
-            HttpServletRequest request) {
-
-        // Cambia site in sessione
-        configurationService.changeSite(request, site);
-
-        // Redirect alla home per ricaricare
-        return "redirect:/";
-    }
-
-    /**
-     * Tenta login automatico da cookie
-     */
-    private Utente loginFromCookie(HttpServletRequest request, HttpServletResponse response) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
-            return null;
-        }
-
-        for (Cookie cookie : cookies) {
-            if (COOKIE_NAME.equals(cookie.getName())) {
-                try {
-                    String encryptedId = cookie.getValue();
-                    String userId = CryptBean.hexToString(encryptedId);
-
-                    Utente utente = utenteService.loginByCookie(userId, "1", request);
-
-                    if (utente != null && utente.getStatoaccesso() == 0) {
-                        return utente;
-                    }
-                } catch (Exception e) {
-                    // Cookie non valido, cancellalo
-                    cookie.setMaxAge(0);
-                    cookie.setPath("/");
-                    response.addCookie(cookie);
+        // Carica sito specifico se richiesto
+        if (idsite != null && !idsite.isEmpty()) {
+            try {
+                Integer accessoId = Integer.parseInt(idsite);
+                Site site = siteService.findById(accessoId);
+                if (site != null) {
+                    configurationService.setSite(session, site);
+                    configCore = configurationService.getConfig(session);
+                }
+            } catch (NumberFormatException e) {
+                Site site = siteService.findByType(idsite);
+                if (site != null) {
+                    configurationService.setSite(session, site);
+                    configCore = configurationService.getConfig(session);
                 }
             }
         }
 
-        return null;
-    }
+        Site site = configCore.getSito();
 
-    /**
-     * Determina URL di redirect in base a utente e configurazione
-     */
-    private String getRedirectUrl(Utente utente, AppConfiguration config) {
+        log.info("Sito: id={}, type={}, idsite={}",
+                site.getId(), site.getType(), site.getAccesso());
 
-        // PRIORITÀ 1: Se utente ha L2 specifico, usa quello
-        String l2 = utente.getL2();
-        if (l2 != null && !l2.isEmpty() && !"0".equals(l2)) {
-            return "/dashboard/" + l2;
+        // Routing
+        if (site.getAccesso() != null && site.getAccesso() == 2) {
+            log.info("→ SITO PUBBLICO");
+            return "redirect:/front";
+
+        } else if (site.getAccesso() != null && site.getAccesso() == 1) {
+            Utente utente = configurationService.getUtente(session);
+
+            if (utente != null) {
+                log.info("→ Utente loggato: {}", utente.getUsername());
+                String endpoint = ModuloApplicativo.getEndpoint(utente.getL2());
+                return "redirect:/" + endpoint;
+            } else {
+                log.info("→ Login richiesto");
+
+                // ✅ MEMORIZZA IL SITO RICHIESTO per redirect post-login
+                configurationService.setRequestedSite(session, site.getId());
+
+                return "redirect:/login";
+            }
+        } else {
+            log.error("Valore idsite non valido: {}", site.getAccesso());
+            return "redirect:/error";
         }
-
-        // PRIORITÀ 2: Usa "accesso" dal Site
-        String redirectUrl = configurationService.getStartupRedirect(config);
-
-        return redirectUrl;
     }
 }

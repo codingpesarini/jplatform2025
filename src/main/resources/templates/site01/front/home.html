@@ -1,92 +1,24 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{site01/layout/template}">
-
-<head>
-    <title>Home</title>
-</head>
-
 <body>
+<main layout:fragment="content">
+    <!-- Hero Section -->
+    <th:block th:replace="~{site01/fragments/home_frag/frag_01 :: banner}"></th:block>
 
-<div layout:fragment="content">
+    <!-- Features Section -->
+    <th:block th:replace="~{site01/fragments/home_frag/frag_02 :: home_02}"></th:block>
 
-    <!-- Hero -->
-    <section class="hero-section mb-5">
-        <div class="jumbotron bg-light p-5 rounded">
-            <h1 class="display-4">Benvenuto</h1>
-            <p class="lead" th:text="${'Portale ' + config.sito.descrizione}">
-                Portale ARDSU Basilicata
-            </p>
-            <hr class="my-4">
-            <p>Accedi ai servizi per gli studenti universitari</p>
-            <a class="btn btn-primary btn-lg" th:href="@{/cms/ricerca}" role="button">
-                Esplora
-            </a>
-        </div>
-    </section>
+    <!-- Popular Courses Section -->
+    <th:block th:replace="~{site01/fragments/home_frag/frag_03 :: home_03}"></th:block>
 
-    <!-- Notizie -->
-    <section class="news-section mb-5">
-        <h2>Ultime notizie</h2>
+    <th:block th:replace="~{site01/fragments/home_frag/frag_04 :: home_04}"></th:block>
 
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <!-- Immagine con path corretto -->
-                    <img th:src="@{/site01/assets/images/placeholder.jpg}"
-                         class="card-img-top"
-                         alt="News">
-                    <div class="card-body">
-                        <h5 class="card-title">Titolo notizia</h5>
-                        <p class="card-text">Anteprima della notizia...</p>
-                        <a href="#" class="btn btn-primary">Leggi tutto</a>
-                    </div>
-                    <div class="card-footer text-muted">
-                        <small><i class="fas fa-calendar me-1"></i> 22/11/2025</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <th:block th:replace="~{site01/fragments/home_frag/frag_05 :: home_05}"></th:block>
 
-    <!-- Area utente -->
-    <section class="user-area mb-5" th:if="${config.utenteLoggato != null}">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <h3>Benvenuto, <span th:text="${config.utenteLoggato.nomeCompleto}">Utente</span>!</h3>
-                <p>Accedi alla tua area riservata</p>
-                <a th:href="@{/area-utente}" class="btn btn-light">
-                    Area riservata <i class="fas fa-arrow-right ms-2"></i>
-                </a>
-            </div>
-        </div>
-    </section>
+    <th:block th:replace="~{site01/fragments/home_frag/frag_06 :: home_06}"></th:block>
 
-</div>
-
-<th:block layout:fragment="extra-css">
-    <style>
-        .hero-section .jumbotron {
-            border-left: 5px solid #0d6efd;
-        }
-        .card {
-            transition: transform 0.2s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-    </style>
-</th:block>
-
-<th:block layout:fragment="extra-js">
-    <script>
-        console.log('Home page loaded');
-        console.log('Site ID:', APP_CONFIG.siteId);
-        console.log('Asset URL:', APP_CONFIG.assetUrl);
-    </script>
-</th:block>
-
+</main>
 </body>
 </html>

@@ -1,23 +1,25 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:fragment="head">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-
-    <title th:text="${pageTitle != null ? pageTitle + ' - ' + config.sito.descrizione : config.sito.descrizione}">
-        ARDSU Basilicata
-    </title>
-
-    <meta name="description" th:content="${pageDescription ?: 'ARDSU Basilicata'}">
-    <meta name="keywords" th:content="${config.sito.keywords}">
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" th:href="@{/site01/assets/images/favicon.png}">
-
-    <!-- CSS -->
-    <link rel="stylesheet" th:href="@{/site01/assets/css/bootstrap.min.css}">
-    <link rel="stylesheet" th:href="@{/site01/assets/css/style.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Crafto - The Multipurpose HTML5 Template</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="author" content="ThemeZaa">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <meta name="description" content="Elevate your online presence with Crafto - a modern, versatile, multipurpose Bootstrap 5 responsive HTML5, SCSS template using highly creative 56+ ready demos.">
+    <!-- favicon icon -->
+    <link rel="shortcut icon" th:href="@{/site01/images/favicon.png}">
+    <link rel="apple-touch-icon" th:href="@{/site01/images/apple-touch-icon-57x57.png}">
+    <link rel="apple-touch-icon" sizes="72x72" th:href="@{/site01/images/apple-touch-icon-72x72.png}">
+    <link rel="apple-touch-icon" sizes="114x114" th:href="@{/site01/images/apple-touch-icon-114x114.png}">
+    <!-- google fonts preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- style sheets and font icons  -->
+    <link rel="stylesheet" th:href="@{/site01/css/vendors.min.css}"/>
+    <link rel="stylesheet" th:href="@{/site01/css/icon.min.css}"/>
+    <link rel="stylesheet" th:href="@{/site01/css/style.css}"/>
+    <link rel="stylesheet" th:href="@{/site01/css/responsive.css}"/>
+    <link rel="stylesheet" th:href="@{/site01/demos/elearning/elearning.css}" />
 </head>
 </html>

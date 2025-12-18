@@ -1,39 +1,42 @@
 package com.studiodomino.jplatform.cms.admin.controller;
-import com.studiodomino.jplatform.shared.config.AppConfiguration;
-import com.studiodomino.jplatform.shared.entity.Utente;
+
+import com.studiodomino.jplatform.shared.config.ConfigurazioneCore;
 import com.studiodomino.jplatform.shared.service.ConfigurationService;
 import com.studiodomino.jplatform.shared.util.ViewUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/admin")
+@RequiredArgsConstructor
+@Slf4j
 public class AdminController {
 
-    @Autowired
-    private ConfigurationService configurationService;
+    private final ConfigurationService configurationService;
 
-    @GetMapping("")
-    public String dashboard(HttpServletRequest request, HttpSession session, Model model) {
+    @GetMapping
+    public String dashboard(HttpServletRequest request, Model model) {
+        HttpSession session = request.getSession();
 
-        Utente utente = (Utente) session.getAttribute("utente");
+        // ✅ OTTIENE ConfigurazioneCore
+        ConfigurazioneCore configCore = configurationService.getConfig(session);
 
-        if (utente == null || !utente.isAmministratore()) {
+        // Verifica login
+        if (!configCore.isLogged()) {
             return "redirect:/login";
         }
 
-        AppConfiguration config = configurationService.getOrCreateConfiguration(request);
+        log.info("=== ADMIN DASHBOARD === user: {}", configCore.getUsername());
 
-        model.addAttribute("config", config);
-        model.addAttribute("pageTitle", "Dashboard Amministrazione");
+        // ✅ PASSA ConfigurazioneCore al template
+        model.addAttribute("config", configCore);
 
-        // Sempre: manager/front/dashboard (non dipende da site)
-        return ViewUtils.resolveManagerTemplate("front/dashboard");
+        return ViewUtils.resolveProtectedTemplate("front/dashboard");
     }
 }

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- start section -->
+<section th:fragment="home_02" id="down-section" class="background-position-left-top background-no-repeat position-relative" th:style="'background-image: url(' + @{/site01/images/demo-elearning-02.png} + ')'">
+    <div class="position-absolute right-0px top-30px" data-bottom-top="transform: translateY(80px)" data-top-bottom="transform: translateY(-80px)">
+        <img th:src="@{/site01/images/demo-elearning-04.png}" alt="">
+    </div>
+    <div class="container">
+        <div class="text-center position-absolute top-minus-40px left-0px right-0px z-index-1 d-none d-md-inline-block" data-anime='{ "opacity": [0, 1], "translate": [0, 0], "staggervalue": 100, "easing": "easeOutQuad" }'>
+            <a href="#down-section" class="d-block section-link">
+                <div class="d-flex justify-content-center align-items-center mx-auto box-shadow-medium-bottom rounded-circle h-70px w-70px text-dark-gray bg-white">
+                    <i class="bi bi-mouse icon-very-medium lh-0px"></i>
+                </div>
+            </a>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-10 position-relative md-mb-40px sm-mb-25px" data-anime='{ "opacity": [0,1], "duration": 600, "delay":100, "staggervalue": 300, "easing": "easeOutQuad" }'>
+                <div class="icon-with-text-style-08 mb-20px">
+                    <div class="feature-box feature-box-left-icon-middle">
+                        <div class="feature-box-icon feature-box-icon-rounded w-55px h-55px rounded-circle bg-yellow me-15px">
+                            <i class="bi bi-award d-inline-block icon-extra-medium text-dark-gray"></i>
+                        </div>
+                        <div class="feature-box-content last-paragraph-no-margin">
+                            <span class="d-inline-block alt-font fs-19 fw-500 ls-minus-05px text-dark-gray">Guaranteed and certified</span>
+                        </div>
+                    </div>
+                </div>
+                <h2 class="alt-font text-dark-gray fw-600 ls-minus-3px mx-auto">Online learning wherever and whenever.</h2>
+                <a href="demo-elearning-about.html" class="btn btn-large btn-dark-gray btn-box-shadow btn-rounded btn-switch-text">
+                    <span>
+                        <span class="btn-double-text" data-text="Learn more">Learn more</span>
+                        <span><i class="fa-solid fa-arrow-right"></i></span>
+                    </span>
+                </a>
+                <div class="d-flex align-items-center fw-500 text-dark-gray w-100 position-absolute md-position-relative bottom-0 left-minus-5px md-mt-15px"><img src="https://placehold.co/156x113" alt=""><span class="d-inline-block position-relative lh-24">Online courses from <a href="demo-elearning-instructors.html" class="fw-600 text-decoration-line-bottom text-dark-gray ">experts.</a></span></div>
+            </div>
+            <div class="col-xl-6 col-lg-7 col-md-10 offset-xl-1 position-relative mt-minus-1">
+                <div class="row row-cols-auto row-cols-sm-2" data-anime='{ "el": "childs", "translateX": [30, 0], "translateY": [30, 0], "opacity": [0,1], "duration": 600, "delay":100, "staggervalue": 300, "easing": "easeOutQuad" }'>
+                    <!-- start features box item -->
+                    <div class="col align-self-start">
+                        <div class="feature-box text-start ps-30px pe-30px xl-pe-5px sm-pe-0">
+                            <div class="feature-box-icon position-absolute left-0px top-0px">
+                                <h2 class="alt-font fs-100 fw-700 ls-minus-1px opacity-1 mb-0">01</h2>
+                            </div>
+                            <div class="feature-box-content last-paragraph-no-margin pt-30 md-pt-21 sm-pt-40px">
+                                <span class="text-dark-gray fs-20 d-inline-block fw-600 mb-5px">Flexible schedule</span>
+                                <p>eLearning allows learners to quickly and more easily complete their training.</p>
+                                <span class="w-60px h-3px bg-yellow d-inline-block"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end features box item -->
+                    <!-- start features box item -->
+                    <div class="col align-self-end mt-25 xs-mt-30px">
+                        <div class="feature-box text-start ps-30px pe-30px xl-pe-5px sm-pe-0">
+                            <div class="feature-box-icon position-absolute left-0px top-0px">
+                                <h2 class="alt-font fs-100 fw-700 ls-minus-1px opacity-1 mb-0">02</h2>
+                            </div>
+                            <div class="feature-box-content last-paragraph-no-margin pt-30 md-pt-21 sm-pt-40px">
+                                <span class="text-dark-gray fs-20 d-inline-block fw-600 mb-5px">Pocket friendly</span>
+                                <p>eLearning allows learners to quickly and more easily complete their training.</p>
+                                <span class="w-60px h-3px bg-yellow d-inline-block"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end features box item -->
+                    <!-- start features box item -->
+                    <div class="col align-self-start mt-minus-12 xs-mt-30px">
+                        <div class="feature-box text-start ps-30px pe-30px xl-pe-5px sm-pe-0">
+                            <div class="feature-box-icon position-absolute left-0px top-0px">
+                                <h2 class="alt-font fs-100 fw-700 ls-minus-1px opacity-1 mb-0">03</h2>
+                            </div>
+                            <div class="feature-box-content last-paragraph-no-margin pt-30 md-pt-21 sm-pt-40px">
+                                <span class="text-dark-gray fs-20 d-inline-block fw-600 mb-5px">Expert Instructor</span>
+                                <p>eLearning allows learners to quickly and more easily complete their training.</p>
+                                <span class="w-60px h-3px bg-yellow d-inline-block"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end features box item -->
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- end section -->
+</body>
+</html>

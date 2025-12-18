@@ -1,72 +1,84 @@
 package com.studiodomino.jplatform.shared.util;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Utility per gestione date in formato String MySQL
+ */
 public class DateUtils {
 
-    public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    public static final DateTimeFormatter DATETIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    public static final DateTimeFormatter ITALIAN_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    public static final DateTimeFormatter ITALIAN_DATETIME_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+    // Formato MySQL datetime: "yyyy-MM-dd HH:mm:ss"
+    private static final DateTimeFormatter MYSQL_DATETIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    // Formato data italiana: "dd/MM/yyyy HH:mm"
+    private static final DateTimeFormatter ITALIAN_DATETIME_FORMATTER =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+    // Formato data italiana solo data: "dd/MM/yyyy"
+    private static final DateTimeFormatter ITALIAN_DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     /**
-     * Ottieni data/ora corrente in formato SQL
+     * Converte LocalDateTime in String formato MySQL
      */
-    public static String now() {
-        return LocalDateTime.now().format(DATETIME_FORMAT);
+    public static String toMySQLDateTimeString(LocalDateTime dateTime) {
+        if (dateTime == null) {
+            return null;
+        }
+        return dateTime.format(MYSQL_DATETIME_FORMATTER);
     }
 
     /**
-     * Ottieni data corrente in formato SQL
+     * Converte String MySQL in LocalDateTime
      */
-    public static String today() {
-        return LocalDate.now().format(DATE_FORMAT);
-    }
-
-    /**
-     * Formatta data in formato italiano
-     */
-    public static String toItalianDate(String sqlDate) {
-        if (sqlDate == null || sqlDate.isEmpty()) {
-            return "";
+    public static LocalDateTime fromMySQLDateTimeString(String dateTimeString) {
+        if (dateTimeString == null || dateTimeString.isEmpty()) {
+            return null;
         }
         try {
-            LocalDate date = LocalDate.parse(sqlDate, DATE_FORMAT);
-            return date.format(ITALIAN_DATE_FORMAT);
+            return LocalDateTime.parse(dateTimeString, MYSQL_DATETIME_FORMATTER);
         } catch (Exception e) {
-            return sqlDate;
+            return null;
         }
     }
 
     /**
-     * Formatta data/ora in formato italiano
+     * Ottiene data/ora corrente in formato MySQL String
      */
-    public static String toItalianDateTime(String sqlDateTime) {
-        if (sqlDateTime == null || sqlDateTime.isEmpty()) {
-            return "";
-        }
-        try {
-            LocalDateTime dateTime = LocalDateTime.parse(sqlDateTime, DATETIME_FORMAT);
-            return dateTime.format(ITALIAN_DATETIME_FORMAT);
-        } catch (Exception e) {
-            return sqlDateTime;
-        }
+    public static String nowAsMySQLString() {
+        return toMySQLDateTimeString(LocalDateTime.now());
     }
 
     /**
-     * Converte data italiana in formato SQL
+     * Formatta data String MySQL in formato italiano
+     * Es: "2025-11-26 15:30:45" → "26/11/2025 15:30"
      */
-    public static String fromItalianDate(String italianDate) {
-        if (italianDate == null || italianDate.isEmpty()) {
+    public static String formatToItalian(String mysqlDateTime) {
+        LocalDateTime dateTime = fromMySQLDateTimeString(mysqlDateTime);
+        if (dateTime == null) {
             return "";
         }
-        try {
-            LocalDate date = LocalDate.parse(italianDate, ITALIAN_DATE_FORMAT);
-            return date.format(DATE_FORMAT);
-        } catch (Exception e) {
-            return italianDate;
+        return dateTime.format(ITALIAN_DATETIME_FORMATTER);
+    }
+
+    /**
+     * Formatta data String MySQL in formato italiano solo data
+     * Es: "2025-11-26 15:30:45" → "26/11/2025"
+     */
+    public static String formatToItalianDateOnly(String mysqlDateTime) {
+        LocalDateTime dateTime = fromMySQLDateTimeString(mysqlDateTime);
+        if (dateTime == null) {
+            return "";
         }
+        return dateTime.format(ITALIAN_DATE_FORMATTER);
+    }
+
+    /**
+     * Verifica se una stringa data è valida
+     */
+    public static boolean isValidMySQLDateTime(String dateTimeString) {
+        return fromMySQLDateTimeString(dateTimeString) != null;
     }
 }
