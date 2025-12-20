@@ -7,6 +7,7 @@ import com.studiodomino.jplatform.cms.front.dto.Tag;
 import com.studiodomino.jplatform.cms.mapper.ContentToDatiBaseMapper;
 import com.studiodomino.jplatform.cms.mapper.ContentToSectionMapper;
 import com.studiodomino.jplatform.cms.repository.ContentRepository;
+import com.studiodomino.jplatform.shared.entity.UtenteEsterno;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -610,11 +611,14 @@ public class ContentService {
     /**
      * Ottieni tag cloud con conteggi
      */
-    public List<Tag> getTagCloud(String filtro) {
-        log.debug("Caricamento tag cloud con filtro: {}", filtro);
+    /**
+     * Ottieni tag cloud con conteggi
+     */
+    public List<Tag> getTagCloud(String idSite) {
+        log.debug("Caricamento tag cloud per sito: {}", idSite);
 
         // Trova tutti i tag distinti con conteggio
-        List<Object[]> tagCounts = contentRepository.findTagCloud();
+        List<Object[]> tagCounts = contentRepository.findTagCloud(idSite);
 
         List<Tag> tagCloud = new ArrayList<>();
         for (Object[] row : tagCounts) {
@@ -760,4 +764,109 @@ public class ContentService {
         if (i2 == null) return -1;
         return i1.compareTo(i2);
     }
+    // ========================================
+// METODI PER MENU E NAVIGAZIONE
+// ========================================
+
+    /**
+     * Trova il menu pubblico del sito
+     * Sezioni con: stato='1', privato='0', menu1='1'
+     * Ordinate per position
+     */
+    public List<Section> findPublicMenu(String idSite) {
+        log.debug("Loading public menu for site: {}", idSite);
+
+        List<Content> menuContents = contentRepository.findPublicMenu(idSite);
+        List<Section> menuSections = sectionMapper.toSectionList(menuContents);
+
+        // Carica ricorsivamente le sottosezioni del menu
+        for (Section section : menuSections) {
+            loadMenuSubsections(section, idSite);
+        }
+
+        log.debug("Public menu loaded: {} sections", menuSections.size());
+        return menuSections;
+    }
+
+    /**
+     * Trova il menu privato del sito per utente autenticato
+     * Sezioni con: stato='1', privato='1', gruppi compatibili con utente
+     */
+    public List<Section> findPrivateMenu(String idSite, UtenteEsterno utente) {
+        log.debug("Loading private menu for site: {} and user: {}",
+                idSite, utente.getUsername());
+
+        if (utente == null) {
+            return new ArrayList<>();
+        }
+
+        // Ottieni i gruppi dell'utente
+        String gruppiSql = utente.GruppiSqlCond();
+
+        List<Content> menuContents = contentRepository.findPrivateMenu(idSite, gruppiSql);
+        List<Section> menuSections = sectionMapper.toSectionList(menuContents);
+
+        // Carica ricorsivamente le sottosezioni del menu
+        for (Section section : menuSections) {
+            loadMenuSubsections(section, idSite);
+        }
+
+        log.debug("Private menu loaded: {} sections", menuSections.size());
+        return menuSections;
+    }
+
+    /**
+     * Trova la sezione home page del sito
+     * Prima sezione con: idRoot=-1, idParent='0' o '0', firstPage='1'
+     */
+    public Section findHomePage(String idSite) {
+        log.debug("Loading home page for site: {}", idSite);
+
+        // Cerca sezione marcata come firstPage
+        Optional<Content> homeOpt = contentRepository.findHomePage(idSite);
+
+        if (homeOpt.isPresent()) {
+            Section home = sectionMapper.toSection(homeOpt.get());
+
+            // Carica contenuti della home
+            home.setContenuti(findPublishedContentsBySection(idSite, home.getId()));
+
+            log.debug("Home page loaded: {}", home.getTitolo());
+            return home;
+        }
+
+        // Fallback: prima sezione radice
+        log.warn("No home page found, using first root section");
+        List<Content> rootSections = contentRepository.findRootSectionsBySite(idSite);
+
+        if (!rootSections.isEmpty()) {
+            Section home = sectionMapper.toSection(rootSections.get(0));
+            home.setContenuti(findPublishedContentsBySection(idSite, home.getId()));
+            return home;
+        }
+
+        // Fallback finale: sezione vuota
+        log.warn("No sections found for site: {}", idSite);
+        return new Section();
+    }
+
+    /**
+     * Carica ricorsivamente le sottosezioni del menu
+     * (solo primo livello per performance - espansione lazy nel frontend)
+     */
+    private void loadMenuSubsections(Section section, String idSite) {
+        List<Section> subsections = findSubsections(idSite, section.getId().toString())
+                .stream()
+                .filter(s -> "1".equals(s.getMenu1())) // Solo sezioni nel menu
+                .collect(Collectors.toList());
+
+        section.setSubsection(subsections);
+
+        // Opzionale: carica anche secondo livello se necessario
+        // for (Section sub : subsections) {
+        //     loadMenuSubsections(sub, idSite);
+        // }
+    }
+
+
 }

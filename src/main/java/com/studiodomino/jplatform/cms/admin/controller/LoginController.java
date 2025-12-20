@@ -4,7 +4,7 @@ import com.studiodomino.jplatform.shared.config.ConfigurazioneCore;
 import com.studiodomino.jplatform.shared.entity.Site;
 import com.studiodomino.jplatform.shared.entity.Utente;
 import com.studiodomino.jplatform.shared.enums.ModuloApplicativo;
-import com.studiodomino.jplatform.shared.service.ConfigurationService;
+import com.studiodomino.jplatform.shared.service.ConfigurazioneService;
 import com.studiodomino.jplatform.shared.service.SiteService;
 import com.studiodomino.jplatform.shared.service.UtenteService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class LoginController {
 
     private final UtenteService utenteService;
-    private final ConfigurationService configurationService;
+    private final ConfigurazioneService configurazioneService;
     private final SiteService siteService;
 
     /**
@@ -32,10 +32,10 @@ public class LoginController {
     @GetMapping("/login")
     public String showLogin(HttpServletRequest request, Model model) {
         HttpSession session = request.getSession();
-        ConfigurazioneCore configCore = configurationService.getOrCreateConfiguration(request);
+        ConfigurazioneCore configCore = configurazioneService.getOrCreateConfiguration(request);
 
         // Se già loggato, redirect
-        Utente utente = configurationService.getUtente(session);
+        Utente utente = configurazioneService.getUtente(session);
         if (utente != null) {
             String endpoint = ModuloApplicativo.getEndpoint(utente.getL2());
             log.info("Utente già loggato, redirect a: {}", endpoint);
@@ -60,7 +60,7 @@ public class LoginController {
         log.info("=== LOGIN === username: {}", username);
 
         HttpSession session = request.getSession();
-        ConfigurazioneCore configCore = configurationService.getOrCreateConfiguration(request);
+        ConfigurazioneCore configCore = configurazioneService.getOrCreateConfiguration(request);
 
         // Autentica
         Utente utente = utenteService.authenticate(username, password);
@@ -72,7 +72,7 @@ public class LoginController {
             utenteService.aggiornaStatisticheAccesso(utente, request);
 
             // Imposta utente in sessione
-            configurationService.setUtente(session, utente);
+            configurazioneService.setUtente(session, utente);
 
             // Cookie "remember me"
             if (remember) {
@@ -84,14 +84,14 @@ public class LoginController {
             // ════════════════════════════════════════════════════
 
             // 1. Controlla se c'era un sito richiesto prima del login
-            Integer requestedSiteId = configurationService.getAndClearRequestedSite(session);
+            Integer requestedSiteId = configurazioneService.getAndClearRequestedSite(session);
 
             if (requestedSiteId != null) {
                 Site requestedSite = siteService.findById(requestedSiteId);
 
                 if (requestedSite != null) {
                     log.info("→ Redirect a sito richiesto: {}", requestedSite.getType());
-                    configurationService.setSite(session, requestedSite);
+                    configurazioneService.setSite(session, requestedSite);
                     String endpoint = ModuloApplicativo.getEndpoint(utente.getL2());
                     return "redirect:/" + endpoint;
                 }
@@ -121,7 +121,7 @@ public class LoginController {
     public String logout(HttpServletRequest request) {
         log.info("=== LOGOUT ===");
         HttpSession session = request.getSession();
-        configurationService.invalidateSession(session);
+        configurazioneService.invalidateSession(session);
         return "redirect:/?uscita=true";
     }
 }

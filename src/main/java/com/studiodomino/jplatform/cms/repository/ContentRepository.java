@@ -335,4 +335,57 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
             "GROUP BY c.tag " +
             "ORDER BY COUNT(c) DESC")
     List<Object[]> findTagCloud();
+
+    /**
+     * Trova menu pubblico
+     * Sezioni con: stato='1', privato='0', menu1='1'
+     */
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite " +
+            "AND c.idRoot = -1 " +
+            "AND c.stato = '1' " +
+            "AND c.privato = '0' " +
+            "AND c.menu1 = '1' " +
+            "AND (c.idParent IS NULL OR c.idParent = '' OR c.idParent = '0') " +
+            "ORDER BY c.position ASC")
+    List<Content> findPublicMenu(@Param("idSite") String idSite);
+
+    /**
+     * Trova menu privato per gruppi utente
+     */
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite " +
+            "AND c.idRoot = -1 " +
+            "AND c.stato = '1' " +
+            "AND c.privato = '1' " +
+            "AND c.menu1 = '1' " +
+            "AND (c.idParent IS NULL OR c.idParent = '' OR c.idParent = '0') " +
+            "AND (:gruppiSql IS NULL OR c.idGruppo IN :gruppiSql) " +
+            "ORDER BY c.position ASC")
+    List<Content> findPrivateMenu(
+            @Param("idSite") String idSite,
+            @Param("gruppiSql") String gruppiSql
+    );
+
+    /**
+     * Trova home page
+     */
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite " +
+            "AND c.idRoot = -1 " +
+            "AND c.firstPage = '1' " +
+            "AND c.stato = '1' " +
+            "ORDER BY c.position ASC " +
+            "LIMIT 1")
+    Optional<Content> findHomePage(@Param("idSite") String idSite);
+
+    /**
+     * Trova tag cloud con conteggi
+     * Estrae tutti i tag distinti con il numero di occorrenze
+     */
+    @Query("SELECT c.tag, COUNT(c) FROM Content c " +
+            "WHERE c.idSite = :idSite " +
+            "AND c.tag IS NOT NULL " +
+            "AND c.tag != '' " +
+            "AND c.stato = '1' " +
+            "GROUP BY c.tag " +
+            "ORDER BY COUNT(c) DESC")
+    List<Object[]> findTagCloud(@Param("idSite") String idSite);
 }

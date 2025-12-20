@@ -1,10 +1,10 @@
 package com.studiodomino.jplatform.cms.front.service;
-
 import com.studiodomino.jplatform.cms.entity.DatiBase;
 import com.studiodomino.jplatform.cms.entity.Section;
 import com.studiodomino.jplatform.cms.front.dto.ExtraTag;
 import com.studiodomino.jplatform.cms.service.ContentService;
-import com.studiodomino.jplatform.shared.config.ConfigurazioneCore;
+
+import com.studiodomino.jplatform.shared.config.Configurazione;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,7 +35,7 @@ public class ExtraTagService {
             DatiBase base,
             String ordine,
             String max,
-            ConfigurazioneCore appConfig) {
+            Configurazione appConfig) {
 
         ExtraTag extraTag = new ExtraTag();
 
@@ -97,7 +97,7 @@ public class ExtraTagService {
             Section section,
             String ordine,
             String max,
-            ConfigurazioneCore appConfig) {
+            Configurazione appConfig) {
 
         ExtraTag extraTag = new ExtraTag();
 

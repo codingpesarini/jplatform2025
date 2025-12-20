@@ -184,6 +184,10 @@ public class ContentToSectionMapper {
         section.setModificato(content.getModificato());
         section.setModificatoDa(content.getModificatoDa());
         section.setSectionType(content.getSectionType());
+
+        // ========== REGOLE EXTRA TAG ==========
+        section.setRegolaExtraTag1(content.getRegolaExtraTag1());
+        section.setRegolaExtraTag2(content.getRegolaExtraTag2());
     }
 
     /**

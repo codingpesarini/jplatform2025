@@ -574,6 +574,8 @@ public class DatiBase implements Serializable {
         return numeratore5;
     }
 
+
+
     // ========================================
     // METODI ALLEGATI E GALLERY
     // ========================================

@@ -5,7 +5,7 @@ import com.studiodomino.jplatform.cms.front.dto.ExtraTag;
 import com.studiodomino.jplatform.cms.front.dto.FrontContentFilter;
 import com.studiodomino.jplatform.cms.service.ContentService;
 import com.studiodomino.jplatform.cms.front.dto.Breadcrumb;
-import com.studiodomino.jplatform.shared.config.ConfigurazioneCore;
+import com.studiodomino.jplatform.shared.config.Configurazione;
 import com.studiodomino.jplatform.shared.entity.Site;
 import com.studiodomino.jplatform.shared.entity.UtenteEsterno;
 import lombok.RequiredArgsConstructor;
@@ -301,7 +301,7 @@ public class FrontDispatchService {
      */
     public ExtraTag loadExtraTagsForSection(
             Section section,
-            ConfigurazioneCore configCore) {
+            Configurazione configCore) {
 
         if (section == null) {
             return new ExtraTag();
@@ -320,7 +320,7 @@ public class FrontDispatchService {
      */
     public ExtraTag loadExtraTagsForContent(
             DatiBase base,
-            ConfigurazioneCore configCore) {
+            Configurazione configCore) {
 
         if (base == null) {
             return new ExtraTag();
@@ -344,7 +344,7 @@ public class FrontDispatchService {
      */
     public void buildPagination(
             Section section,
-            ConfigurazioneCore configCore,
+            Configurazione configCore,
             HttpServletRequest request) {
 
         try {
@@ -416,7 +416,7 @@ public class FrontDispatchService {
      */
     private String generatePaginationHtml(
             String page, int pagineTotali, String url,
-            ConfigurazioneCore configCore, int totalItems, int itemPage) {
+            Configurazione configCore, int totalItems, int itemPage) {
 
         StringBuilder html = new StringBuilder();
         int currentPage = (page != null) ? Integer.parseInt(page) : 1;

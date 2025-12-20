@@ -1,12 +1,11 @@
 package com.studiodomino.jplatform.cms.front.controller;
 
-
-import com.studiodomino.jplatform.cms.entity.Configurazione;
 import com.studiodomino.jplatform.cms.entity.DatiBase;
 import com.studiodomino.jplatform.cms.entity.Section;
+import com.studiodomino.jplatform.cms.front.dto.ExtraTag;
+import com.studiodomino.jplatform.cms.front.dto.FrontContentFilter;
 import com.studiodomino.jplatform.cms.front.service.*;
-import com.studiodomino.jplatform.shared.config.ConfigurazioneCore;
-import com.studiodomino.jplatform.shared.entity.Site;
+import com.studiodomino.jplatform.shared.config.Configurazione;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -18,11 +17,14 @@ import jakarta.servlet.http.HttpSession;
 
 /**
  * FrontController - Entry point principale front-end pubblico
- * Gestisce navigazione sezioni e documenti
+ * Gestisce navigazione sezioni e documenti del CMS
+ *
+ * SCOPE SESSIONE: Configurazione (utente, sito, locale, gruppi/ruoli)
+ * SCOPE REQUEST:  Configurazione (menu, sezioni, contenuti, slot, tag cloud)
  */
 @Controller
 @RequestMapping("/front")
-@SessionAttributes("configCore")
+@SessionAttributes("config")
 @RequiredArgsConstructor
 @Slf4j
 public class FrontController {
@@ -33,7 +35,20 @@ public class FrontController {
 
     /**
      * Entry point unico front-end
-     * Equivalente a Dispatch.unspecified()
+     * Equivalente legacy: Dispatch.unspecified()
+     *
+     * @param pid ID del contenuto da visualizzare (sezione o documento)
+     * @param ordinamento Campo di ordinamento custom
+     * @param anno Filtro anno (per archivio)
+     * @param mese Filtro mese (per archivio)
+     * @param stato Filtro stato (0=bozza, 1=pubblicato, 2=evidenza, etc.)
+     * @param privato Filtro contenuti privati (true/false)
+     * @param my Filtro "miei contenuti" (true/false)
+     * @param archivio Modalità archivio (true/false)
+     * @param sqlContenuto Query SQL custom per filtrare contenuti
+     * @param frompid ID contenuto di provenienza (per tracking click)
+     * @param returnParam Override view da restituire
+     * @param config Configurazione unificata (da sessione)
      */
     @GetMapping
     public String dispatch(
@@ -42,9 +57,12 @@ public class FrontController {
             @RequestParam(required = false) String ordinamento,
 
             // Parametri filtro
+            @RequestParam(required = false) String anno,
+            @RequestParam(required = false) String mese,
             @RequestParam(required = false) String stato,
             @RequestParam(required = false) String privato,
             @RequestParam(required = false) String my,
+            @RequestParam(required = false) String archivio,
             @RequestParam(required = false) String sqlContenuto,
 
             // Click tracking
@@ -53,104 +71,86 @@ public class FrontController {
             // Override return
             @RequestParam(required = false, name = "return") String returnParam,
 
-            // Sessione e request
-            @SessionAttribute ConfigurazioneCore configCore,
+            // Configurazione unificata (SESSIONE + REQUEST)
+            @SessionAttribute Configurazione config,
             HttpServletRequest request,
             HttpServletResponse response,
             HttpSession session,
             Model model) {
 
-        log.debug("=== FRONT DISPATCH === pid: {}", pid);
+        log.debug("=== FRONT DISPATCH === pid: {}, sito: {}",
+                pid, config.getSito().getId());
 
-        String returnAction = "homePortal";
-        String statoArchivio = "1"; // Default: pubblicato
+        String returnView = "homePortal";
 
         try {
             // ===== 1. INIZIALIZZA PORTALE =====
-            // Carica menu, home, contenuti comuni, tag cloud
-            Configurazione configPortal = portalConfigService.initializePortal(
-                    request, response, configCore
-            );
+            // Popola parti REQUEST: menu, home, slot contenuti, tag cloud
+            portalConfigService.initializePortal(request, response, config);
 
-            // ===== 2. ORDINAMENTO =====
-            String orderBy = resolveOrdinamento(ordinamento, configCore.getSito());
-
-            // ===== 3. CLICK TRACKING (Newsletter) =====
+            // ===== 2. CLICK TRACKING (Newsletter) =====
             if (frompid != null && !frompid.isEmpty()) {
                 dispatchService.trackClick(frompid);
             }
 
-            // ===== 4. SE NESSUN PID → HOME =====
+            // ===== 3. SE NESSUN PID → MOSTRA HOME =====
             if (pid == null || pid.isEmpty()) {
-                // Paginazione home (se necessario)
-                dispatchService.buildPagination(configPortal, configCore, request);
-
-                session.setAttribute("configCore", configCore);
-                model.addAttribute("configPortal", configPortal);
-
-                return getTemplatePath(configCore, returnAction);
+                log.debug("Nessun PID specificato, mostrando home page");
+                model.addAttribute("config", config);
+                return resolveTemplate(config, returnView);
             }
 
-            // ===== 5. ELABORAZIONE PID =====
-
-            // 5a. Carica oggetto base
+            // ===== 4. CARICA OGGETTO BASE =====
             DatiBase base = dispatchService.getOggettoBase(pid);
 
             if (base == null) {
                 log.warn("Oggetto non trovato per pid: {}", pid);
-                session.setAttribute("configCore", configCore);
-                model.addAttribute("configPortal", configPortal);
-                return getTemplatePath(configCore, "homePortal");
+                model.addAttribute("config", config);
+                return resolveTemplate(config, "homePortal");
             }
 
-            // 5b. Aggiorna breadcrumb
-            configCore.setBreadcrumb(dispatchService.getBreadcrumbs(pid));
+            // ===== 5. AGGIORNA BREADCRUMB =====
+            config.setBreadcrumb(dispatchService.getBreadcrumbs(pid));
 
-            // 5c. Aggiorna profilo navigazione (cookie ultimi 12 contenuti)
-            cookieService.updateNavigationProfile(request, response, pid, configCore);
+            // ===== 6. AGGIORNA PROFILO NAVIGAZIONE (cookie) =====
+            cookieService.updateNavigationProfile(request, response, pid, config);
 
-            // 5d. Verifica stato pubblicazione
-            if (!isContenutoAccessibile(base, stato)) {
-                log.warn("Contenuto non accessibile: pid={}, stato={}", pid, base.getStato());
-                session.setAttribute("configCore", configCore);
-                model.addAttribute("configPortal", configPortal);
-                return getTemplatePath(configCore, "homePortal");
+            // ===== 7. VERIFICA ACCESSIBILITÀ CONTENUTO =====
+            if (!dispatchService.isPublished(base, stato)) {
+                log.warn("Contenuto non accessibile: pid={}, stato={}",
+                        pid, base.getStato());
+                model.addAttribute("config", config);
+                return resolveTemplate(config, "homePortal");
             }
 
-            // ===== 6. ROUTING: SEZIONE vs DOCUMENTO =====
-
+            // ===== 8. ROUTING: SEZIONE vs DOCUMENTO =====
             if ("-1".equals(base.getIdRoot())) {
-                // È una SEZIONE
-                returnAction = handleSection(
-                        pid, orderBy, stato, privato, my, sqlContenuto,
-                        base, configPortal, configCore, request
+                // È una SEZIONE (contenitore)
+                returnView = handleSection(
+                        pid, anno, mese, stato, privato, my, archivio,
+                        sqlContenuto, ordinamento, base, config, request, model
                 );
-                statoArchivio = determineStatoArchivio(stato);
-
             } else {
-                // È un DOCUMENTO
-                returnAction = handleDocument(
-                        pid, orderBy, base, configPortal, configCore, request
+                // È un DOCUMENTO (contenuto foglia)
+                returnView = handleDocument(
+                        pid, ordinamento, base, config, request, model
                 );
             }
 
-            // ===== 7. PAGINAZIONE =====
-            dispatchService.buildPagination(configPortal, configCore, request);
-
-            // ===== 8. OVERRIDE RETURN =====
+            // ===== 9. OVERRIDE RETURN (se specificato) =====
             if (returnParam != null && !returnParam.isEmpty()) {
-                returnAction = returnParam;
+                returnView = returnParam;
             }
 
-            // ===== 9. SALVA SESSIONE/REQUEST =====
-            session.setAttribute("configCore", configCore);
-            model.addAttribute("configPortal", configPortal);
-
-            return getTemplatePath(configCore, returnAction);
+            // ===== 10. FINALIZZA RISPOSTA =====
+            model.addAttribute("config", config);
+            return resolveTemplate(config, returnView);
 
         } catch (Exception e) {
-            log.error("Errore in front dispatch", e);
-            return "redirect:/error";
+            log.error("Errore in front dispatch per pid: {}", pid, e);
+            model.addAttribute("config", config);
+            model.addAttribute("errorMessage", "Errore durante il caricamento della pagina");
+            return "error/500";
         }
     }
 
@@ -160,60 +160,81 @@ public class FrontController {
 
     /**
      * Gestisce visualizzazione SEZIONE
+     *
+     * Una sezione è un contenitore che può avere:
+     * - Sotto-sezioni (navigazione gerarchica)
+     * - Contenuti/documenti (elementi foglia)
+     * - ExtraTag (contenuti correlati per tag)
+     * - Archivio (filtro anno/mese)
+     * - Paginazione
      */
     private String handleSection(
             String pid,
-            String orderBy,
+            String anno,
+            String mese,
             String stato,
             String privato,
             String my,
+            String archivio,
             String sqlContenuto,
+            String ordinamento,
             DatiBase base,
-            Configurazione configPortal,
-            ConfigurazioneCore configCore,
-            HttpServletRequest request) {
+            Configurazione config,
+            HttpServletRequest request,
+            Model model) {
 
-        log.debug("Handling SECTION: pid={}", pid);
+        log.debug("Gestione SEZIONE: pid={}", pid);
 
-        // Reset ricerca
-        configPortal.setRicerca(null);
+        try {
+            Integer idSito = config.getSito().getId();
 
-        // ===== COSTRUZIONE FILTRI SQL =====
-
-        String contSql = buildContentSql(stato, privato, configCore);
-        String contSql2 = buildMySql(my, configCore);
-        String myFlag = (my != null && "true".equals(my)) ? "true" : "false";
-
-        // ===== CARICAMENTO SEZIONE =====
-
-        Section section;
-
-        if (sqlContenuto != null && !sqlContenuto.isEmpty()) {
-            // MODALITÀ 1: SQL CUSTOM
-            section = dispatchService.loadSectionWithCustomSql(
-                    pid, orderBy, contSql, sqlContenuto, myFlag,
-                    configCore.getImagesRepositoryWeb()
+            // ===== 1. COSTRUISCI FILTRO CONTENUTI =====
+            String orderBy = dispatchService.resolveOrdinamento(
+                    ordinamento, config.getSito()
             );
 
-        } else {
-            // MODALITÀ 2: NORMALE
-            section = dispatchService.loadSection(
-                    pid, orderBy, contSql, contSql2, myFlag,
-                    configCore.getImagesRepositoryWeb()
+            FrontContentFilter filter = dispatchService.buildContentFilter(
+                    anno, mese, stato, privato, my, archivio,
+                    orderBy, sqlContenuto, config.getUtente()
             );
+
+            // ===== 2. CARICA SEZIONE COMPLETA =====
+            Section section = dispatchService.loadSection(
+                    pid,
+                    filter,
+                    config.getImagesRepositoryWeb(),
+                    idSito
+            );
+
+            if (section == null) {
+                log.warn("Sezione non trovata: {}", pid);
+                return "homePortal";
+            }
+
+            // ===== 3. CARICA EXTRATAG (contenuti correlati) =====
+            if ("1".equals(base.getRegolaExtraTag1())) {
+                ExtraTag extraTag = dispatchService.loadExtraTagsForSection(
+                        section, config
+                );
+                section.setExtratag(extraTag);
+            }
+
+            // ===== 4. PAGINAZIONE =====
+            dispatchService.buildPagination(section, config, request);
+
+            // ===== 5. IMPOSTA IN CONFIGURAZIONE E MODEL =====
+            config.setActualSection(section);
+            config.setContenutiActualSection(section.getContenuti());
+
+            model.addAttribute("section", section);
+            model.addAttribute("contents", section.getContenuti());
+
+            return "sectionDetail";
+
+        } catch (Exception e) {
+            log.error("Errore caricamento sezione: {}", pid, e);
+            return "homePortal";
         }
-
-        configPortal.setActualSection(section);
-
-        // ===== EXTRATAG (contenuti correlati) =====
-
-        if ("1".equals(base.getRegolaExtraTag1())) {
-            dispatchService.loadExtraTags(
-                    base, base, configPortal, configCore
-            );
-        }
-
-        return "sectionDetail";
     }
 
     // ========================================
@@ -222,50 +243,133 @@ public class FrontController {
 
     /**
      * Gestisce visualizzazione DOCUMENTO
+     *
+     * Un documento è un contenuto foglia dentro una sezione.
+     * Può avere:
+     * - Allegati
+     * - Gallery di immagini
+     * - ExtraTag (contenuti correlati)
+     * - Sezione parent (per breadcrumb e navigazione)
      */
     private String handleDocument(
             String pid,
-            String orderBy,
+            String ordinamento,
             DatiBase base,
-            Configurazione configPortal,
-            ConfigurazioneCore configCore,
-            HttpServletRequest request) {
+            Configurazione config,
+            HttpServletRequest request,
+            Model model) {
 
-        log.debug("Handling DOCUMENT: pid={}, parent={}", pid, base.getId_root());
+        log.debug("Gestione DOCUMENTO: pid={}, parent={}", pid, base.getIdRoot());
 
-        // ===== CARICA SEZIONE PARENT =====
-        // (senza caricare i contenuti figli)
-
-        Section parentSection = dispatchService.loadSectionSimple(
-                base.getId_root(), orderBy, configCore.getImagesRepositoryWeb()
-        );
-        configPortal.setActualSection(parentSection);
-
-        // ===== CARICA DOCUMENTO =====
-
-        DatiBase document = dispatchService.loadDocument(
-                pid, configCore.getImagesRepositoryWeb()
-        );
-        configPortal.setActualDocument(document);
-
-        // ===== EXTRATAG =====
-        // Priorità: 1) Sezione (se doc non ha), 2) Documento
-
-        if ("1".equals(parentSection.getRegolaExtraTag1())
-                && "0".equals(base.getRegolaExtraTag1())) {
-            // Usa ExtraTag della SEZIONE
-            dispatchService.loadExtraTags(
-                    parentSection, parentSection, configPortal, configCore
+        try {
+            // ===== 1. CARICA DOCUMENTO COMPLETO =====
+            DatiBase document = dispatchService.loadDocument(
+                    pid,
+                    config.getImagesRepositoryWeb()
             );
 
-        } else if ("1".equals(base.getRegolaExtraTag1())) {
-            // Usa ExtraTag del DOCUMENTO
-            dispatchService.loadExtraTags(
-                    parentSection, base, configPortal, configCore
+            if (document == null) {
+                log.warn("Documento non trovato: {}", pid);
+                return "homePortal";
+            }
+
+            // ===== 2. CARICA SEZIONE PARENT (per breadcrumb e context) =====
+            Section parentSection = loadParentSection(
+                    base, ordinamento, config
             );
+
+            // Imposta parent section in config per breadcrumb
+            if (parentSection != null) {
+                config.setActualSection(parentSection);
+            }
+
+            // ===== 3. CARICA EXTRATAG (contenuti correlati) =====
+            loadDocumentExtraTag(document, parentSection, config);
+
+            // ===== 4. IMPOSTA IN CONFIGURAZIONE E MODEL =====
+            config.setActualDocument(document);
+
+            model.addAttribute("document", document);
+            model.addAttribute("content", document); // Alias per compatibilità template
+
+            if (parentSection != null) {
+                model.addAttribute("parentSection", parentSection);
+            }
+
+            return "documentDetail";
+
+        } catch (Exception e) {
+            log.error("Errore caricamento documento: {}", pid, e);
+            return "homePortal";
+        }
+    }
+
+    /**
+     * Carica la sezione parent di un documento
+     */
+    private Section loadParentSection(
+            DatiBase base,
+            String ordinamento,
+            Configurazione config) {
+
+        if (base.getIdRoot() == null || base.getIdRoot().isEmpty()) {
+            return null;
         }
 
-        return "documentDetail";
+        try {
+            String orderBy = dispatchService.resolveOrdinamento(
+                    ordinamento, config.getSito()
+            );
+
+            FrontContentFilter emptyFilter = FrontContentFilter.builder()
+                    .ordinamento(orderBy)
+                    .build();
+
+            return dispatchService.loadSection(
+                    base.getIdRoot(),
+                    emptyFilter,
+                    config.getImagesRepositoryWeb(),
+                    config.getSito().getId()
+            );
+
+        } catch (Exception e) {
+            log.warn("Errore caricamento sezione parent: {}", base.getIdRoot(), e);
+            return null;
+        }
+    }
+
+    /**
+     * Carica ExtraTag per documento
+     * Priorità: 1) ExtraTag del documento, 2) ExtraTag della sezione parent
+     */
+    private void loadDocumentExtraTag(
+            DatiBase document,
+            Section parentSection,
+            Configurazione config) {
+
+        boolean hasDocumentExtraTag = "1".equals(document.getRegolaExtraTag1());
+        boolean hasParentExtraTag = parentSection != null &&
+                "1".equals(parentSection.getRegolaExtraTag1());
+
+        try {
+            if (hasDocumentExtraTag) {
+                // Usa ExtraTag del documento
+                ExtraTag extraTag = dispatchService.loadExtraTagsForContent(
+                        document, config
+                );
+                document.setExtratag(extraTag);
+
+            } else if (hasParentExtraTag) {
+                // Usa ExtraTag della sezione parent
+                ExtraTag extraTag = dispatchService.loadExtraTagsForSection(
+                        parentSection, config
+                );
+                document.setExtratag(extraTag);
+            }
+
+        } catch (Exception e) {
+            log.warn("Errore caricamento ExtraTag per documento: {}", document.getId(), e);
+        }
     }
 
     // ========================================
@@ -273,98 +377,18 @@ public class FrontController {
     // ========================================
 
     /**
-     * Risolve ordinamento: parametro request o default sito
+     * Risolve il path del template in base al sito
+     *
+     * Esempi:
+     * - Sito 1 (path2='site01') + "homePortal" → "site01/homePortal"
+     * - Sito 2 (path2='site02') + "sectionDetail" → "site02/sectionDetail"
+     *
+     * @param config Configurazione con sito corrente
+     * @param viewName Nome della view (es: "homePortal", "sectionDetail")
+     * @return Path completo del template
      */
-    private String resolveOrdinamento(String ordinamento, Site site) {
-        if (ordinamento != null && !ordinamento.isEmpty()) {
-            return " order by " + ordinamento;
-        }
-        // Default dal sito (campo libero7)
-        return " order by " + (site.getLibero7() != null ? site.getLibero7() : "id desc");
-    }
-
-    /**
-     * Costruisce SQL filtro contenuti (stato/privato)
-     */
-    private String buildContentSql(String stato, String privato, ConfigurazioneCore configCore) {
-        StringBuilder sql = new StringBuilder();
-
-        // Filtro per STATO
-        if (stato != null && !"-1".equals(stato)) {
-            sql.append(" and (stato='").append(stato).append("')");
-            sql.append(" and privato='0'");
-            return sql.toString();
-        }
-
-        // Filtro per PRIVATO (gruppi utente)
-        if ("true".equals(privato) && configCore.getUtente() != null) {
-            sql.append(" and (stato='1') and privato!='0'");
-            sql.append(configCore.getUtente().GruppiSqlCond());
-            return sql.toString();
-        }
-
-        return sql.toString();
-    }
-
-    /**
-     * Costruisce SQL filtro "miei contenuti"
-     */
-    private String buildMySql(String my, ConfigurazioneCore configCore) {
-        if ("true".equals(my) && configCore.getUtente() != null) {
-            return " and apertoda='" + configCore.getUtente().getId() + "'";
-        }
-        return null;
-    }
-
-    /**
-     * Verifica se contenuto è accessibile
-     */
-    private boolean isContenutoAccessibile(DatiBase base, String statoParam) {
-        // Se non specificato stato, contenuto deve essere pubblicato
-        if (statoParam == null) {
-            String stato = base.getStato();
-            return !"0".equals(stato) && !"4".equals(stato);
-        }
-
-        // Se specificato stato, verifica che base sia in quello stato
-        // NOTA: Logica legacy permette accesso se stato richiesto != 0,4
-        if (!"0".equals(statoParam) && !"4".equals(statoParam)) {
-            String stato = base.getStato();
-            return !"0".equals(stato) && !"4".equals(stato);
-        }
-
-        return true;
-    }
-
-    /**
-     * Determina stato archivio da parametro stato
-     */
-    private String determineStatoArchivio(String stato) {
-        if (stato != null && !"-1".equals(stato)) {
-            return stato;
-        }
-        return "1"; // Default: pubblicato
-    }
-
-    /**
-     * Determina path template dal Site
-     */
-    private String getTemplatePath(ConfigurazioneCore configCore, String viewName) {
-        String templateFolder = determineTemplateFolder(configCore.getSito());
+    private String resolveTemplate(Configurazione config, String viewName) {
+        String templateFolder = config.getPublicTemplateFolder();
         return templateFolder + "/" + viewName;
-    }
-
-    /**
-     * Estrae template folder dal Site
-     * TODO: Implementare strategia corretta
-     */
-    private String determineTemplateFolder(Site site) {
-        // OPZIONI:
-        // 1. Campo dedicato: site.getTemplateFolder()
-        // 2. Convenzione: "site" + padLeft(site.getId(), 2, '0')
-        // 3. Campo type: site.getType()
-
-        // Per ora uso convenzione site + id
-        return String.format("site%02d", site.getId());
     }
 }

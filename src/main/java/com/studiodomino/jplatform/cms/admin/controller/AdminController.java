@@ -1,7 +1,7 @@
 package com.studiodomino.jplatform.cms.admin.controller;
 
 import com.studiodomino.jplatform.shared.config.ConfigurazioneCore;
-import com.studiodomino.jplatform.shared.service.ConfigurationService;
+import com.studiodomino.jplatform.shared.service.ConfigurazioneService;
 import com.studiodomino.jplatform.shared.util.ViewUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -18,14 +18,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Slf4j
 public class AdminController {
 
-    private final ConfigurationService configurationService;
+    private final ConfigurazioneService configurazioneService;
 
     @GetMapping
     public String dashboard(HttpServletRequest request, Model model) {
         HttpSession session = request.getSession();
 
         // ✅ OTTIENE ConfigurazioneCore
-        ConfigurazioneCore configCore = configurationService.getConfig(session);
+        ConfigurazioneCore configCore = configurazioneService.getConfig(session);
 
         // Verifica login
         if (!configCore.isLogged()) {
