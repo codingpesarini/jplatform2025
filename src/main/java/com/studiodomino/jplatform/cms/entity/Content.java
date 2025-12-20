@@ -1,5 +1,6 @@
 package com.studiodomino.jplatform.cms.entity;
 
+import com.studiodomino.jplatform.cms.front.dto.ExtraTag;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.io.Serializable;

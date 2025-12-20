@@ -1,7 +1,10 @@
 package com.studiodomino.jplatform.cms.entity;
 
+import com.studiodomino.jplatform.cms.front.dto.ExtraTag;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.beans.Transient;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -848,5 +851,23 @@ public class DatiBase implements Serializable {
         }
 
         return wordsList.toArray(new String[0]);
+    }
+
+    // In DatiBase.java e Section.java
+    @Transient
+    public String getExtraTag(int numero) {
+        return switch (numero) {
+            case 1 -> extratag1;
+            case 2 -> extratag2;
+            case 3 -> extratag3;
+            case 4 -> extratag4;
+            case 5 -> extratag5;
+            case 6 -> extratag6;
+            case 7 -> extratag7;
+            case 8 -> extratag8;
+            case 9 -> extratag9;
+            case 10 -> extratag10;
+            default -> null;
+        };
     }
 }

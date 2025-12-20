@@ -3,6 +3,7 @@ package com.studiodomino.jplatform.cms.service;
 import com.studiodomino.jplatform.cms.entity.Content;
 import com.studiodomino.jplatform.cms.entity.DatiBase;
 import com.studiodomino.jplatform.cms.entity.Section;
+import com.studiodomino.jplatform.cms.front.dto.Tag;
 import com.studiodomino.jplatform.cms.mapper.ContentToDatiBaseMapper;
 import com.studiodomino.jplatform.cms.mapper.ContentToSectionMapper;
 import com.studiodomino.jplatform.cms.repository.ContentRepository;
@@ -71,6 +72,16 @@ public class ContentService {
     public Optional<Section> findSectionById(Integer id, String idSite) {
         log.debug("Finding section by id: {} and site: {}", id, idSite);
         return contentRepository.findByIdAndSite(id, idSite)
+                .filter(Content::isSection)
+                .map(sectionMapper::toSection);
+    }
+
+    /**
+     * Trova una sezione per ID (senza filtro sito)
+     */
+    public Optional<Section> findSectionById(Integer id) {
+        log.debug("Finding section by id: {}", id);
+        return contentRepository.findById(id)
                 .filter(Content::isSection)
                 .map(sectionMapper::toSection);
     }
@@ -184,6 +195,40 @@ public class ContentService {
     }
 
     /**
+     * Trova contenuti di una sezione con filtri custom
+     */
+    public List<DatiBase> findContentsBySection(
+            Integer idSito,
+            Integer idRoot,
+            String whereCondition,
+            String orderBy,
+            Integer limit) {
+
+        log.debug("Finding contents for section {} with custom filters", idRoot);
+
+        // Per ora usa il metodo base e applica filtri in memoria
+        // TODO: Creare query custom nel repository per performance migliori
+        List<Content> contents = contentRepository.findPublishedContentsBySection(
+                idSito.toString(),
+                idRoot
+        );
+
+        // Applica ordinamento
+        if (orderBy != null && !orderBy.isEmpty()) {
+            contents = sortContents(contents, orderBy);
+        }
+
+        // Applica limit
+        if (limit != null && limit > 0) {
+            contents = contents.stream()
+                    .limit(limit)
+                    .collect(Collectors.toList());
+        }
+
+        return datiBaseMapper.toDatiBaseList(contents);
+    }
+
+    /**
      * Trova contenuti pubblicati di una sezione
      */
     public List<DatiBase> findPublishedContentsBySection(String idSite, Integer idRoot) {
@@ -198,6 +243,17 @@ public class ContentService {
     public Optional<DatiBase> findContentById(Integer id, String idSite) {
         log.debug("Finding content by id: {} and site: {}", id, idSite);
         return contentRepository.findByIdAndSite(id, idSite)
+                .filter(Content::isContent)
+                .map(datiBaseMapper::toDatiBase);
+    }
+
+    /**
+     * Trova un DatiBase per ID (senza filtro sito)
+     * Alias di findContentById per compatibilità
+     */
+    public Optional<DatiBase> findDatiBaseById(Integer id) {
+        log.debug("Finding DatiBase by id: {}", id);
+        return contentRepository.findById(id)
                 .filter(Content::isContent)
                 .map(datiBaseMapper::toDatiBase);
     }
@@ -472,5 +528,236 @@ public class ContentService {
      */
     public Optional<Content> findContentEntityById(Integer id) {
         return contentRepository.findById(id);
+    }
+
+    // ========================================
+    // METODI PER FRONT-END PORTAL
+    // ========================================
+
+    /**
+     * Ordina tutti i contenuti del sito per position
+     */
+    @Transactional
+    public void ordinaContenuti(Integer idSito) {
+        log.debug("Ordinamento contenuti per sito: {}", idSito);
+        // TODO: Implementare riordinamento automatico
+        // Per ora non fa nulla - ordine gestito già dalle query
+    }
+
+    /**
+     * Ottieni sezione home del sito
+     */
+    public Section getSezioneHome(Integer idSito) {
+        log.debug("Caricamento sezione home per sito: {}", idSito);
+
+        // Cerca sezione con id_root = "0" o id_parent = "0"
+        Optional<Content> homeOpt = contentRepository.findRootSectionsBySite(idSito.toString())
+                .stream()
+                .filter(c -> "0".equals(c.getIdParent()) || "-1".equals(c.getIdRoot()))
+                .findFirst();
+
+        return homeOpt.map(sectionMapper::toSection)
+                .orElse(new Section()); // Ritorna sezione vuota se non trovata
+    }
+
+    /**
+     * Ottieni struttura menu gerarchica
+     */
+    public List<Section> getStrutturaMenu(
+            Integer idSito,
+            String idRoot,
+            String privato,
+            String stato,
+            String idParent,
+            String orderBy,
+            boolean loadSubsections) {
+
+        log.debug("Caricamento struttura menu: sito={}, idRoot={}, privato={}, stato={}",
+                idSito, idRoot, privato, stato);
+
+        // Trova sezioni radice del menu
+        List<Content> sections = contentRepository.findMenuSections(
+                idSito.toString(),
+                stato,
+                privato
+        );
+
+        List<Section> menuSections = sectionMapper.toSectionList(sections);
+
+        // Carica ricorsivamente le sottosezioni se richiesto
+        if (loadSubsections) {
+            for (Section section : menuSections) {
+                loadSubsectionsRecursive(section, idSito.toString());
+            }
+        }
+
+        return menuSections;
+    }
+
+    /**
+     * Carica ricorsivamente le sottosezioni
+     */
+    private void loadSubsectionsRecursive(Section section, String idSito) {
+        List<Section> subsections = findSubsections(idSito, section.getId().toString());
+        section.setSubsection(subsections);
+
+        // Ricorsione sulle sottosezioni
+        for (Section sub : subsections) {
+            loadSubsectionsRecursive(sub, idSito);
+        }
+    }
+
+    /**
+     * Ottieni tag cloud con conteggi
+     */
+    public List<Tag> getTagCloud(String filtro) {
+        log.debug("Caricamento tag cloud con filtro: {}", filtro);
+
+        // Trova tutti i tag distinti con conteggio
+        List<Object[]> tagCounts = contentRepository.findTagCloud();
+
+        List<Tag> tagCloud = new ArrayList<>();
+        for (Object[] row : tagCounts) {
+            String tagName = (String) row[0];
+            Long count = (Long) row[1];
+
+            Tag tag = Tag.builder()
+                    .nome(tagName)
+                    .occorrenze(count.intValue())
+                    .peso(calculateTagWeight(count.intValue()))
+                    .cssClass(calculateTagCssClass(count.intValue()))
+                    .build();
+
+            tagCloud.add(tag);
+        }
+
+        return tagCloud;
+    }
+
+    /**
+     * Calcola peso tag per visualizzazione
+     */
+    private int calculateTagWeight(int occorrenze) {
+        if (occorrenze > 20) return 5;
+        if (occorrenze > 15) return 4;
+        if (occorrenze > 10) return 3;
+        if (occorrenze > 5) return 2;
+        return 1;
+    }
+
+    /**
+     * Calcola CSS class per tag
+     */
+    private String calculateTagCssClass(int occorrenze) {
+        return "tag-weight-" + calculateTagWeight(occorrenze);
+    }
+
+    /**
+     * Ottieni contenuti front-end con filtri avanzati
+     */
+    public List<DatiBase> getContenutiFront(
+            Integer idSito,
+            String fieldFilter,     // es: "id_root", "id"
+            String valueFilter,     // es: "5", "10,20,30"
+            String extraCondition,  // es: " or l2='1' "
+            String orderBy,         // es: "titolo", "data"
+            String maxResults) {    // es: "12"
+
+        log.debug("Caricamento contenuti front: sito={}, field={}, value={}, order={}, max={}",
+                idSito, fieldFilter, valueFilter, orderBy, maxResults);
+
+        List<Content> contents;
+
+        if ("id_root".equals(fieldFilter)) {
+            // Contenuti per sezione
+            try {
+                Integer idRoot = Integer.parseInt(valueFilter);
+                contents = contentRepository.findPublishedContentsBySection(
+                        idSito.toString(), idRoot
+                );
+            } catch (NumberFormatException e) {
+                log.warn("Invalid id_root: {}", valueFilter);
+                return List.of();
+            }
+
+        } else if ("id".equals(fieldFilter)) {
+            // Contenuti per lista ID (es: profilo navigazione)
+            String[] ids = valueFilter.split(",");
+            contents = new ArrayList<>();
+
+            for (String idStr : ids) {
+                try {
+                    Integer id = Integer.parseInt(idStr.trim());
+                    contentRepository.findByIdAndSite(id, idSito.toString())
+                            .ifPresent(contents::add);
+                } catch (NumberFormatException e) {
+                    log.warn("Invalid id: {}", idStr);
+                }
+            }
+
+        } else {
+            // Fallback: tutti i contenuti pubblicati
+            contents = contentRepository.findPublicContents(idSito.toString());
+        }
+
+        // Applica extra condition se presente
+        if (extraCondition != null && !extraCondition.isEmpty()) {
+            // TODO: Implementare filtro extra condition
+            // Per ora ignoriamo - richiede query custom
+        }
+
+        // Ordina
+        contents = sortContents(contents, orderBy);
+
+        // Limita risultati
+        if (maxResults != null && !maxResults.isEmpty()) {
+            try {
+                int max = Integer.parseInt(maxResults);
+                contents = contents.stream().limit(max).collect(Collectors.toList());
+            } catch (NumberFormatException e) {
+                log.warn("Invalid maxResults: {}", maxResults);
+            }
+        }
+
+        return datiBaseMapper.toDatiBaseList(contents);
+    }
+
+    /**
+     * Ordina lista contenuti per campo
+     */
+    private List<Content> sortContents(List<Content> contents, String orderBy) {
+        if (orderBy == null || orderBy.isEmpty()) {
+            return contents;
+        }
+
+        return contents.stream()
+                .sorted((c1, c2) -> {
+                    return switch (orderBy.toLowerCase()) {
+                        case "titolo" -> compareStrings(c1.getTitolo(), c2.getTitolo());
+                        case "data" -> compareStrings(c2.getData(), c1.getData()); // Decrescente
+                        case "data desc" -> compareStrings(c2.getData(), c1.getData());
+                        case "data asc" -> compareStrings(c1.getData(), c2.getData());
+                        case "position" -> compareIntegers(c1.getPosition(), c2.getPosition());
+                        case "id" -> compareIntegers(c2.getId(), c1.getId()); // Decrescente
+                        case "id desc" -> compareIntegers(c2.getId(), c1.getId());
+                        case "id asc" -> compareIntegers(c1.getId(), c2.getId());
+                        default -> 0;
+                    };
+                })
+                .collect(Collectors.toList());
+    }
+
+    private int compareStrings(String s1, String s2) {
+        if (s1 == null && s2 == null) return 0;
+        if (s1 == null) return 1;
+        if (s2 == null) return -1;
+        return s1.compareTo(s2);
+    }
+
+    private int compareIntegers(Integer i1, Integer i2) {
+        if (i1 == null && i2 == null) return 0;
+        if (i1 == null) return 1;
+        if (i2 == null) return -1;
+        return i1.compareTo(i2);
     }
 }

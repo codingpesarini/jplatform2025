@@ -1,8 +1,10 @@
 package com.studiodomino.jplatform.cms.front.service;
 
 import com.studiodomino.jplatform.cms.entity.*;
+import com.studiodomino.jplatform.cms.front.dto.ExtraTag;
 import com.studiodomino.jplatform.cms.front.dto.FrontContentFilter;
-import com.studiodomino.jplatform.shared.config.Breadcrumb;
+import com.studiodomino.jplatform.cms.service.ContentService;
+import com.studiodomino.jplatform.cms.front.dto.Breadcrumb;
 import com.studiodomino.jplatform.shared.config.ConfigurazioneCore;
 import com.studiodomino.jplatform.shared.entity.Site;
 import com.studiodomino.jplatform.shared.entity.UtenteEsterno;
@@ -13,71 +15,32 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 
+/**
+ * FrontDispatchService - Logica di dispatch per controller pubblico
+ * Gestisce caricamento contenuti, filtri, paginazione
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class FrontDispatchService {
 
-     private final ExtraTagService extraTagService;
+    private final ContentService contentService;
+    private final ExtraTagService extraTagService;
+
+    // ========================================
+    // ORDINAMENTO E FILTRI
+    // ========================================
 
     /**
      * Risolve ordinamento: da parametro o default sito
      */
     public String resolveOrdinamento(String ordinamento, Site site) {
         if (ordinamento != null && !ordinamento.isEmpty()) {
-            return " order by " + ordinamento;
+            return ordinamento;
         }
         // Default dal sito (campo libero7)
-        return " order by " + site.getLibero7();
-    }
-
-    /**
-     * Click tracking per newsletter
-     */
-    public void trackClick(String frompid) {
-        try {
-            daoPubblico.clicca(frompid);
-        } catch (Exception e) {
-            log.error("Errore in trackClick", e);
-        }
-    }
-
-    /**
-     * Carica oggetto base per ID
-     */
-    public DatiBase getOggettoBase(String pid) {
-        return daoPubblico.getOggettoBaseId(pid);
-    }
-
-    /**
-     * Carica breadcrumb per oggetto
-     */
-    public Breadcrumb getBreadcrumbs(String pid) {
-        return daoPubblico.getBreadcrumbs(pid);
-    }
-
-    /**
-     * Carica archivio per anno/mese
-     */
-    public List<Archivio> getArchivio(String pid, String anno, String mese) {
-        return daoPubblico.getArchiviobyId(
-                pid, "-1", "-1", false, anno, mese
-        );
-    }
-
-    /**
-     * Verifica se contenuto è pubblicato
-     */
-    public boolean isPublished(DatiBase base, String statoParam) {
-        if (statoParam == null) {
-            // Se non specificato stato, controlla lo stato del base
-            String stato = base.getStato();
-            return !"0".equals(stato) && !"4".equals(stato);
-        }
-
-        // Se specificato stato, verifica che base sia in quello stato
-        String stato = base.getStato();
-        return !("0".equals(stato) || "4".equals(stato));
+        String defaultOrder = site.getLibero(7);
+        return (defaultOrder != null && !defaultOrder.isEmpty()) ? defaultOrder : "data desc";
     }
 
     /**
@@ -101,97 +64,308 @@ public class FrontDispatchService {
                 .build();
     }
 
+    // ========================================
+    // CARICAMENTO CONTENUTI
+    // ========================================
+
     /**
-     * Carica sezione completa
+     * Carica oggetto base per ID
+     */
+    public DatiBase getOggettoBase(String pid) {
+        try {
+            Integer id = Integer.parseInt(pid);
+            return contentService.findDatiBaseById(id).orElse(null);
+        } catch (NumberFormatException e) {
+            log.error("ID non valido: {}", pid);
+            return null;
+        }
+    }
+
+    /**
+     * Carica sezione completa con contenuti
      */
     public Section loadSection(
             String pid,
             FrontContentFilter filter,
-            String imagesRepositoryWeb) {
+            String imagesRepositoryWeb,
+            Integer idSito) {
 
-        String orderBy = filter.getOrdinamento();
-        String contSql = buildContentSql(filter);
-        String contSql2 = buildMySql(filter);
-        String myFlag = filter.getMy() != null ? filter.getMy() : "false";
+        try {
+            Integer sectionId = Integer.parseInt(pid);
 
-        Section section;
+            // Carica sezione base
+            Section section = contentService.findSectionById(sectionId)
+                    .orElseThrow(() -> new IllegalArgumentException("Sezione non trovata: " + pid));
 
-        // Gestione archivio
-        if (filter.getArchivio() != null) {
-            section = daoSection.getSezioneFrontbyId(
-                    pid, true, true, orderBy, "", contSql,
-                    imagesRepositoryWeb, "true"
-            );
-        } else if (filter.getSqlContenuto() != null) {
-            // SQL personalizzato
-            section = daoSection.getSezioneFrontbyIdSqlContenuto(
-                    pid, true, true, orderBy, contSql,
-                    filter.getSqlContenuto(), imagesRepositoryWeb, myFlag
-            );
-        } else {
-            // Standard
-            section = daoSection.getSezioneFrontbyId(
-                    pid, true, true, orderBy, contSql, contSql2,
-                    imagesRepositoryWeb, myFlag
-            );
+            // Carica contenuti secondo filtri
+            List<DatiBase> contenuti = loadSectionContents(section, filter, idSito);
+            section.setContenuti(contenuti);
+
+            // Imposta stato archivio
+            if (filter.getStato() != null && !"-1".equals(filter.getStato())) {
+                section.setStatoArchivio(filter.getStato());
+            } else {
+                section.setStatoArchivio("1");
+            }
+
+            return section;
+
+        } catch (NumberFormatException e) {
+            log.error("ID sezione non valido: {}", pid);
+            throw new IllegalArgumentException("ID sezione non valido: " + pid);
         }
-
-        // Imposta stato archivio
-        if (filter.getStato() != null && !"-1".equals(filter.getStato())) {
-            section.setStatoArchivio(filter.getStato());
-        } else {
-            section.setStatoArchivio("1");
-        }
-
-        return section;
     }
 
     /**
-     * Carica documento
+     * Carica contenuti sezione secondo filtri
      */
-    public DatiBase loadDocument(String pid, String imagesRepositoryWeb) {
-        return daoDocumenti.getDocumentoFrontbyId(pid, imagesRepositoryWeb);
-    }
-
-    /**
-     * Carica ExtraTag (delega a ExtraTagService)
-     */
-    public void loadExtraTags(
+    private List<DatiBase> loadSectionContents(
             Section section,
-            DatiBase base,
-            Configurazione configPortal,
-            ConfigurazioneCore configCore) {
+            FrontContentFilter filter,
+            Integer idSito) {
 
-        extraTagService.elaboraExtraTag(
-                section, base, configPortal, configCore
+        // Costruisci condizioni WHERE
+        String whereCondition = buildContentWhereCondition(filter, section.getId());
+        String orderBy = filter.getOrdinamento() != null ? filter.getOrdinamento() : "data desc";
+
+        // Carica contenuti
+        return contentService.findContentsBySection(
+                idSito,
+                section.getId(),
+                whereCondition,
+                orderBy,
+                null // Nessun limite per ora (paginazione gestita dopo)
         );
     }
+
+    /**
+     * Carica documento singolo
+     */
+    public DatiBase loadDocument(String pid, String imagesRepositoryWeb) {
+        try {
+            Integer id = Integer.parseInt(pid);
+            return contentService.findDatiBaseById(id).orElse(null);
+        } catch (NumberFormatException e) {
+            log.error("ID documento non valido: {}", pid);
+            return null;
+        }
+    }
+
+    // ========================================
+    // BREADCRUMB E NAVIGAZIONE
+    // ========================================
+
+    /**
+     * Carica breadcrumb per oggetto
+     */
+    public Breadcrumb getBreadcrumbs(String pid) {
+        try {
+            Integer id = Integer.parseInt(pid);
+
+            // Carica sezione o datibase
+            Section section = contentService.findSectionById(id).orElse(null);
+            if (section != null) {
+                return buildSectionBreadcrumb(section);
+            }
+
+            DatiBase base = contentService.findDatiBaseById(id).orElse(null);
+            if (base != null) {
+                return buildContentBreadcrumb(base);
+            }
+
+            return new Breadcrumb();
+
+        } catch (NumberFormatException e) {
+            log.error("ID non valido per breadcrumb: {}", pid);
+            return new Breadcrumb();
+        }
+    }
+
+    /**
+     * Costruisce breadcrumb per sezione
+     */
+    private Breadcrumb buildSectionBreadcrumb(Section section) {
+        Breadcrumb breadcrumb = new Breadcrumb();
+        breadcrumb.add("Home", "/");
+
+        // TODO: Implementare caricamento gerarchia completa
+        breadcrumb.add(section.getTitolo(), "/front/section/" + section.getId());
+
+        return breadcrumb;
+    }
+
+    /**
+     * Costruisce breadcrumb per contenuto
+     */
+    private Breadcrumb buildContentBreadcrumb(DatiBase base) {
+        Breadcrumb breadcrumb = new Breadcrumb();
+        breadcrumb.add("Home", "/");
+
+        // Carica sezione parent
+        if (base.getIdRoot() != null) {
+            try {
+                Integer idRoot = Integer.parseInt(base.getIdRoot());
+                Section section = contentService.findSectionById(idRoot).orElse(null);
+                if (section != null) {
+                    breadcrumb.add(section.getTitolo(), "/front/section/" + section.getId());
+                }
+            } catch (NumberFormatException e) {
+                log.warn("ID root non valido: {}", base.getIdRoot());
+            }
+        }
+
+        breadcrumb.add(base.getTitolo(), "/front/content/" + base.getId());
+
+        return breadcrumb;
+    }
+
+    // ========================================
+    // ARCHIVIO
+    // ========================================
+
+    /**
+     * Carica archivio per anno/mese
+     */
+    public List<DatiBase> getArchivio(String pid, String anno, String mese, Integer idSito) {
+        try {
+            Integer sectionId = Integer.parseInt(pid);
+
+            // Costruisci condizione WHERE per archivio
+            StringBuilder where = new StringBuilder();
+            where.append(" AND (stato='1' OR stato='3') AND privato='0'");
+
+            if (anno != null && !anno.isEmpty() && !"-1".equals(anno)) {
+                where.append(" AND anno='").append(anno).append("'");
+            }
+
+            if (mese != null && !mese.isEmpty() && !"-1".equals(mese)) {
+                where.append(" AND mese='").append(mese).append("'");
+            }
+
+            return contentService.findContentsBySection(
+                    idSito,
+                    sectionId,
+                    where.toString(),
+                    "data desc",
+                    null
+            );
+
+        } catch (NumberFormatException e) {
+            log.error("ID non valido per archivio: {}", pid);
+            return List.of();
+        }
+    }
+
+    // ========================================
+    // STATO E PUBBLICAZIONE
+    // ========================================
+
+    /**
+     * Verifica se contenuto è pubblicato
+     */
+    public boolean isPublished(DatiBase base, String statoParam) {
+        if (base == null) return false;
+
+        String stato = base.getStato();
+
+        // Stati NON pubblicati: 0=bozza, 4=eliminato
+        if ("0".equals(stato) || "4".equals(stato)) {
+            return false;
+        }
+
+        // Se specificato stato, verifica match
+        if (statoParam != null && !statoParam.isEmpty() && !"-1".equals(statoParam)) {
+            return statoParam.equals(stato);
+        }
+
+        // Default: pubblicato se stato = 1 o 3
+        return "1".equals(stato) || "3".equals(stato);
+    }
+
+    /**
+     * Verifica se sezione è pubblicata
+     */
+    public boolean isPublished(Section section) {
+        if (section == null) return false;
+
+        String stato = section.getStato();
+        return "1".equals(stato) || "3".equals(stato);
+    }
+
+    // ========================================
+    // EXTRA TAG
+    // ========================================
+
+    /**
+     * Carica ExtraTag per sezione
+     */
+    public ExtraTag loadExtraTagsForSection(
+            Section section,
+            ConfigurazioneCore configCore) {
+
+        if (section == null) {
+            return new ExtraTag();
+        }
+
+        return extraTagService.elaboraExtraTagSection(
+                section,
+                section.getOrdineExtraTag(),
+                section.getMaxExtraTag(),
+                configCore
+        );
+    }
+
+    /**
+     * Carica ExtraTag per contenuto
+     */
+    public ExtraTag loadExtraTagsForContent(
+            DatiBase base,
+            ConfigurazioneCore configCore) {
+
+        if (base == null) {
+            return new ExtraTag();
+        }
+
+        // TODO: Implementare getOrdineExtraTag e getMaxExtraTag in DatiBase
+        return extraTagService.elaboraExtraTagDatiBase(
+                base,
+                "data desc", // Default ordering
+                "5",         // Default max
+                configCore
+        );
+    }
+
+    // ========================================
+    // PAGINAZIONE
+    // ========================================
 
     /**
      * Genera HTML paginazione
      */
     public void buildPagination(
-            Configurazione configPortal,
+            Section section,
             ConfigurazioneCore configCore,
             HttpServletRequest request) {
 
         try {
-            if (configPortal.getActualSection() == null) return;
+            if (section == null || section.getContenuti() == null) {
+                configCore.setPaginationBar("");
+                return;
+            }
 
             String page = request.getParameter("page");
             String mese = request.getParameter("mese");
-            String url = configPortal.getActualSection().getUrlRWPages();
+            String anno = request.getParameter("anno");
 
-            // Gestione URL archivio
-            if (mese != null && !"-1".equals(mese)) {
-                String anno = request.getParameter("anno");
-                configPortal.getActualSection().setAnnoTemp(anno);
-                configPortal.getActualSection().setMeseTemp(mese);
-                url = configPortal.getActualSection().getUrlRWArchivio();
-            }
+            // Determina URL base
+            String url = buildPaginationUrl(section, mese, anno);
 
             // Configurazione paginazione
-            String itemsPerPage = configCore.getSito().getLibero6();
+            String itemsPerPage = configCore.getSito().getLibero(6);
+            if (itemsPerPage == null || itemsPerPage.isEmpty()) {
+                itemsPerPage = "10"; // Default
+            }
+
             configCore.setItemsPage(itemsPerPage);
             configCore.setPageNumber("1");
             configCore.setStartItems("0");
@@ -199,11 +373,7 @@ public class FrontDispatchService {
 
             // Calcolo pagine totali
             int itemPage = Integer.parseInt(itemsPerPage);
-            int totalItems = 0;
-
-            if (configPortal.getActualSection().getContenuti() != null) {
-                totalItems = configPortal.getActualSection().getContenuti().size();
-            }
+            int totalItems = section.getContenuti().size();
 
             int pagineIncomplete = (totalItems % itemPage > 0) ? 1 : 0;
             int pagineTotali = (totalItems / itemPage) + pagineIncomplete;
@@ -221,7 +391,24 @@ public class FrontDispatchService {
 
         } catch (Exception e) {
             log.error("Errore in buildPagination", e);
+            configCore.setPaginationBar("");
         }
+    }
+
+    /**
+     * Costruisce URL per paginazione
+     */
+    private String buildPaginationUrl(Section section, String mese, String anno) {
+        // TODO: Implementare URL rewriting quando disponibile
+        String baseUrl = "/front/section/" + section.getId();
+
+        // Gestione archivio
+        if (mese != null && !"-1".equals(mese)) {
+            baseUrl += "?anno=" + anno + "&mese=" + mese + "&page=";
+            return baseUrl;
+        }
+
+        return baseUrl + "?page=";
     }
 
     /**
@@ -252,74 +439,103 @@ public class FrontDispatchService {
 
         // Genera link pagine
         if (pagineTotali > 1) {
+            html.append("<ul class=\"pagination\">");
+
             // Prev
             if (currentPage > 1) {
-                html.append("<li><a href=\"../").append(url).append(currentPage - 1)
-                        .append("\"><i class=\"icon icon-chevron-left\"></i></a></li>");
+                html.append("<li><a href=\"").append(url).append(currentPage - 1)
+                        .append("\"><i class=\"fa fa-chevron-left\"></i></a></li>");
             }
 
-            // Numeri pagina
-            for (int i = 1; i <= pagineTotali; i++) {
+            // Numeri pagina (max 10 visibili)
+            int startPage = Math.max(1, currentPage - 5);
+            int endPage = Math.min(pagineTotali, currentPage + 4);
+
+            for (int i = startPage; i <= endPage; i++) {
                 if (i == currentPage) {
-                    html.append("<li class=\"active\"><a href=\"../")
-                            .append(url).append(i).append("\">")
-                            .append(i).append("</a></li>");
+                    html.append("<li class=\"active\"><a href=\"").append(url)
+                            .append(i).append("\">").append(i).append("</a></li>");
                 } else {
-                    html.append("<li><a href=\"../")
-                            .append(url).append(i).append("\">")
-                            .append(i).append("</a></li>");
+                    html.append("<li><a href=\"").append(url)
+                            .append(i).append("\">").append(i).append("</a></li>");
                 }
             }
 
             // Next
             if (currentPage < pagineTotali) {
-                html.append("<li><a href=\"../").append(url).append(pagineTotali)
-                        .append("\"><i class=\"icon icon-chevron-right\"></i></a></li>");
+                html.append("<li><a href=\"").append(url).append(currentPage + 1)
+                        .append("\"><i class=\"fa fa-chevron-right\"></i></a></li>");
             }
+
+            html.append("</ul>");
         }
 
         return html.toString();
     }
 
-    /**
-     * Costruisce SQL filtro contenuti
-     */
-    private String buildContentSql(FrontContentFilter filter) {
-        StringBuilder sql = new StringBuilder();
+    // ========================================
+    // UTILITY - COSTRUZIONE SQL
+    // ========================================
 
-        // Filtro anno/mese
+    /**
+     * Costruisce condizione WHERE per filtro contenuti
+     */
+    private String buildContentWhereCondition(FrontContentFilter filter, Integer sectionId) {
+        StringBuilder where = new StringBuilder();
+
+        // Filtro anno/mese (archivio)
         if (filter.getAnno() != null && filter.getMese() != null
                 && !"-1".equals(filter.getMese())) {
-            sql.append(" and (stato='1' or stato='3') and privato='0'");
-            sql.append(" and anno='").append(filter.getAnno()).append("'");
-            sql.append(" and mese='").append(filter.getMese()).append("'");
-            return sql.toString();
+            where.append(" AND (stato='1' OR stato='3') AND privato='0'");
+            where.append(" AND anno='").append(filter.getAnno()).append("'");
+            where.append(" AND mese='").append(filter.getMese()).append("'");
+            return where.toString();
         }
 
-        // Filtro stato
+        // Filtro stato specifico
         if (filter.getStato() != null && !"-1".equals(filter.getStato())) {
-            sql.append(" and (stato='").append(filter.getStato()).append("')");
-            sql.append(" and privato='0'");
-            return sql.toString();
+            where.append(" AND stato='").append(filter.getStato()).append("'");
+            where.append(" AND privato='0'");
+            return where.toString();
         }
 
-        // Filtro privato (gruppi utente)
+        // Filtro "miei contenuti"
+        if ("true".equals(filter.getMy()) && filter.getUtente() != null) {
+            where.append(" AND stato='1'");
+            where.append(" AND apertoda='").append(filter.getUtente().getId()).append("'");
+            return where.toString();
+        }
+
+        // Filtro contenuti privati (con gruppi utente)
         if ("true".equals(filter.getPrivato()) && filter.getUtente() != null) {
-            sql.append(" and (stato='1') and privato!='0'");
-            sql.append(filter.getUtente().GruppiSqlCond());
-            return sql.toString();
+            where.append(" AND stato='1' AND privato!='0'");
+            // TODO: Implementare GruppiSqlCond() in UtenteEsterno
+            // where.append(filter.getUtente().GruppiSqlCond());
+            return where.toString();
         }
 
-        return sql.toString();
+        // Default: solo pubblicati pubblici
+        where.append(" AND (stato='1' OR stato='3') AND privato='0'");
+
+        return where.toString();
     }
 
+    // ========================================
+    // TRACKING (NEWSLETTER)
+    // ========================================
+
     /**
-     * Costruisce SQL filtro "miei contenuti"
+     * Click tracking per newsletter
      */
-    private String buildMySql(FrontContentFilter filter) {
-        if ("true".equals(filter.getMy()) && filter.getUtente() != null) {
-            return " and apertoda='" + filter.getUtente().getId() + "'";
+    public void trackClick(String frompid) {
+        // TODO: Implementare tracking click quando serve
+        try {
+            if (frompid != null && !frompid.isEmpty()) {
+                log.debug("Tracking click from newsletter: {}", frompid);
+                // Incrementa contatore click in DB
+            }
+        } catch (Exception e) {
+            log.error("Errore in trackClick", e);
         }
-        return null;
     }
 }

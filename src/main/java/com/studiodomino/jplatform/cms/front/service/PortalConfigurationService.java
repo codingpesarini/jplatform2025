@@ -1,6 +1,7 @@
 package com.studiodomino.jplatform.cms.front.service;
 
 import com.studiodomino.jplatform.cms.entity.*;
+import com.studiodomino.jplatform.cms.front.dto.ExtraTag;
 import com.studiodomino.jplatform.cms.service.ContentService;
 import com.studiodomino.jplatform.shared.config.ConfigurazioneCore;
 import com.studiodomino.jplatform.shared.entity.Site;

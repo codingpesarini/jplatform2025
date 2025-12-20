@@ -4,10 +4,18 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.io.Serializable;
 
+/**
+ * Site Entity - Configurazione siti multi-tenant
+ * Gestisce configurazione, email, SMS, PEC, front-end slots
+ */
 @Entity
 @Table(name = "site")
 @Data
 public class Site implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    // ========== IDENTIFICAZIONE ==========
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +35,7 @@ public class Site implements Serializable {
     private String check = "0";
 
     // ========== KEYWORDS E CSS ==========
+
     @Column(columnDefinition = "TEXT")
     private String keywords;
 
@@ -34,6 +43,7 @@ public class Site implements Serializable {
     private String css;
 
     // ========== EMAIL CONFIGURATION ==========
+
     private String emailpop;
     private String emailsmtp;
     private String emailsmtpauth;
@@ -47,6 +57,7 @@ public class Site implements Serializable {
     private String idAccountEmail;
 
     // ========== SMS CONFIGURATION ==========
+
     @Column(name = "sms_status")
     private String smsStatus = "";
 
@@ -63,6 +74,7 @@ public class Site implements Serializable {
     private String smsSender;
 
     // ========== PEC CONFIGURATION ==========
+
     @Column(name = "pecEmail")
     private String pecEmail = "";
 
@@ -106,6 +118,7 @@ public class Site implements Serializable {
     private String idAccountPec;
 
     // ========== PROXY CONFIGURATION ==========
+
     private String proxy = "0";
     private String proxyip = "0";
     private String proxyport = "0";
@@ -113,11 +126,13 @@ public class Site implements Serializable {
     private String proxypassword = "0";
 
     // ========== SERVICES CONFIGURATION ==========
+
     private String servicesserver;
     private String servicesuser;
     private String servicespassword;
 
     // ========== SERVIZI (1-10) ==========
+
     private String servizi1 = "0";
     private String servizi2 = "0";
     private String servizi3 = "0";
@@ -130,6 +145,7 @@ public class Site implements Serializable {
     private String servizi10 = "0";
 
     // ========== CAMPI LIBERI (1-10) ==========
+
     private String libero1 = "0";
     private String libero2 = "0";
     private String libero3 = "0";
@@ -142,6 +158,7 @@ public class Site implements Serializable {
     private String libero10 = "0";
 
     // ========== ANALYTICS & TRACKING ==========
+
     @Column(columnDefinition = "TEXT")
     private String stat;
 
@@ -152,6 +169,7 @@ public class Site implements Serializable {
     private String adsense;
 
     // ========== HTML BLOCKS (1-5) ==========
+
     @Column(columnDefinition = "TEXT")
     private String html1;
 
@@ -168,6 +186,7 @@ public class Site implements Serializable {
     private String html5;
 
     // ========== TEXT BLOCKS (1-5) ==========
+
     @Column(columnDefinition = "TEXT")
     private String text1;
 
@@ -184,6 +203,7 @@ public class Site implements Serializable {
     private String text5;
 
     // ========== PATHS ==========
+
     @Column(name = "pathRepository", columnDefinition = "TEXT")
     private String pathRepository;
 
@@ -206,87 +226,98 @@ public class Site implements Serializable {
     private String path5;
 
     // ========== CMS FRONT CONFIGURATION (1-10) ==========
-    @Column(name = "contenutiFront1")
-    private String contenutiFront1;
 
-    @Column(name = "contenutiOrdineFront1")
-    private String contenutiOrdineFront1;
+    // Slot 01
+    @Column(name = "contenutiFront01")
+    private String contenutiFront01;
 
-    @Column(name = "maxContenutiFront1")
-    private String maxContenutiFront1;
+    @Column(name = "contenutiOrdineFront01")
+    private String contenutiOrdineFront01;
 
-    @Column(name = "contenutiFront2")
-    private String contenutiFront2;
+    @Column(name = "maxContenutiFront01")
+    private String maxContenutiFront01;
 
-    @Column(name = "contenutiOrdineFront2")
-    private String contenutiOrdineFront2;
+    // Slot 02
+    @Column(name = "contenutiFront02")
+    private String contenutiFront02;
 
-    @Column(name = "maxContenutiFront2")
-    private String maxContenutiFront2;
+    @Column(name = "contenutiOrdineFront02")
+    private String contenutiOrdineFront02;
 
-    @Column(name = "contenutiFront3")
-    private String contenutiFront3;
+    @Column(name = "maxContenutiFront02")
+    private String maxContenutiFront02;
 
-    @Column(name = "contenutiOrdineFront3")
-    private String contenutiOrdineFront3;
+    // Slot 03
+    @Column(name = "contenutiFront03")
+    private String contenutiFront03;
 
-    @Column(name = "maxContenutiFront3")
-    private String maxContenutiFront3;
+    @Column(name = "contenutiOrdineFront03")
+    private String contenutiOrdineFront03;
 
-    @Column(name = "contenutiFront4")
-    private String contenutiFront4;
+    @Column(name = "maxContenutiFront03")
+    private String maxContenutiFront03;
 
-    @Column(name = "contenutiOrdineFront4")
-    private String contenutiOrdineFront4;
+    // Slot 04
+    @Column(name = "contenutiFront04")
+    private String contenutiFront04;
 
-    @Column(name = "maxContenutiFront4")
-    private String maxContenutiFront4;
+    @Column(name = "contenutiOrdineFront04")
+    private String contenutiOrdineFront04;
 
-    @Column(name = "contenutiFront5")
-    private String contenutiFront5;
+    @Column(name = "maxContenutiFront04")
+    private String maxContenutiFront04;
 
-    @Column(name = "contenutiOrdineFront5")
-    private String contenutiOrdineFront5;
+    // Slot 05
+    @Column(name = "contenutiFront05")
+    private String contenutiFront05;
 
-    @Column(name = "maxContenutiFront5")
-    private String maxContenutiFront5;
+    @Column(name = "contenutiOrdineFront05")
+    private String contenutiOrdineFront05;
 
-    @Column(name = "contenutiFront6")
-    private String contenutiFront6;
+    @Column(name = "maxContenutiFront05")
+    private String maxContenutiFront05;
 
-    @Column(name = "contenutiOrdineFront6")
-    private String contenutiOrdineFront6;
+    // Slot 06
+    @Column(name = "contenutiFront06")
+    private String contenutiFront06;
 
-    @Column(name = "maxContenutiFront6")
-    private String maxContenutiFront6;
+    @Column(name = "contenutiOrdineFront06")
+    private String contenutiOrdineFront06;
 
-    @Column(name = "contenutiFront7")
-    private String contenutiFront7;
+    @Column(name = "maxContenutiFront06")
+    private String maxContenutiFront06;
 
-    @Column(name = "contenutiOrdineFront7")
-    private String contenutiOrdineFront7;
+    // Slot 07
+    @Column(name = "contenutiFront07")
+    private String contenutiFront07;
 
-    @Column(name = "maxContenutiFront7")
-    private String maxContenutiFront7;
+    @Column(name = "contenutiOrdineFront07")
+    private String contenutiOrdineFront07;
 
-    @Column(name = "contenutiFront8")
-    private String contenutiFront8;
+    @Column(name = "maxContenutiFront07")
+    private String maxContenutiFront07;
 
-    @Column(name = "contenutiOrdineFront8")
-    private String contenutiOrdineFront8;
+    // Slot 08
+    @Column(name = "contenutiFront08")
+    private String contenutiFront08;
 
-    @Column(name = "maxContenutiFront8")
-    private String maxContenutiFront8;
+    @Column(name = "contenutiOrdineFront08")
+    private String contenutiOrdineFront08;
 
-    @Column(name = "contenutiFront9")
-    private String contenutiFront9;
+    @Column(name = "maxContenutiFront08")
+    private String maxContenutiFront08;
 
-    @Column(name = "contenutiOrdineFront9")
-    private String contenutiOrdineFront9;
+    // Slot 09
+    @Column(name = "contenutiFront09")
+    private String contenutiFront09;
 
-    @Column(name = "maxContenutiFront9")
-    private String maxContenutiFront9;
+    @Column(name = "contenutiOrdineFront09")
+    private String contenutiOrdineFront09;
 
+    @Column(name = "maxContenutiFront09")
+    private String maxContenutiFront09;
+
+    // Slot 10
     @Column(name = "contenutiFront10")
     private String contenutiFront10;
 
@@ -297,11 +328,13 @@ public class Site implements Serializable {
     private String maxContenutiFront10;
 
     // ========== LEGACY FIELDS ==========
+
     private String idnewsprima;
     private String idarticoloprima;
     private String numeroarticoliprima;
 
     // ========== LANGUAGE ==========
+
     private String lang;
 
     private String ok;
@@ -347,7 +380,13 @@ public class Site implements Serializable {
             case 0 -> "Non assegnato";
             case 1 -> "Pannello amministrazione base";
             case 2 -> "Interfaccia portale web";
-            default -> "Gestionale " + (accesso );
+            case 3 -> "Gestione Protocollo";
+            case 4 -> "Borse di studio";
+            case 5 -> "Servizio mensa";
+            case 6 -> "Alloggi";
+            case 7 -> "Workflow";
+            case 8 -> "CRM";
+            default -> "Gestionale " + (accesso - 3);
         };
     }
 
@@ -385,5 +424,114 @@ public class Site implements Serializable {
     @Transient
     public String getCodice() {
         return type != null ? type : "default";
+    }
+
+    /**
+     * Ottieni contenutiFront per numero slot (1-10)
+     */
+    @Transient
+    public String getContenutiFrontBySlot(int slot) {
+        return switch (slot) {
+            case 1 -> contenutiFront01;
+            case 2 -> contenutiFront02;
+            case 3 -> contenutiFront03;
+            case 4 -> contenutiFront04;
+            case 5 -> contenutiFront05;
+            case 6 -> contenutiFront06;
+            case 7 -> contenutiFront07;
+            case 8 -> contenutiFront08;
+            case 9 -> contenutiFront09;
+            case 10 -> contenutiFront10;
+            default -> null;
+        };
+    }
+
+    /**
+     * Ottieni contenutiOrdineFront per numero slot (1-10)
+     */
+    @Transient
+    public String getContenutiOrdineFrontBySlot(int slot) {
+        return switch (slot) {
+            case 1 -> contenutiOrdineFront01;
+            case 2 -> contenutiOrdineFront02;
+            case 3 -> contenutiOrdineFront03;
+            case 4 -> contenutiOrdineFront04;
+            case 5 -> contenutiOrdineFront05;
+            case 6 -> contenutiOrdineFront06;
+            case 7 -> contenutiOrdineFront07;
+            case 8 -> contenutiOrdineFront08;
+            case 9 -> contenutiOrdineFront09;
+            case 10 -> contenutiOrdineFront10;
+            default -> null;
+        };
+    }
+
+    /**
+     * Ottieni maxContenutiFront per numero slot (1-10)
+     */
+    @Transient
+    public String getMaxContenutiFrontBySlot(int slot) {
+        return switch (slot) {
+            case 1 -> maxContenutiFront01;
+            case 2 -> maxContenutiFront02;
+            case 3 -> maxContenutiFront03;
+            case 4 -> maxContenutiFront04;
+            case 5 -> maxContenutiFront05;
+            case 6 -> maxContenutiFront06;
+            case 7 -> maxContenutiFront07;
+            case 8 -> maxContenutiFront08;
+            case 9 -> maxContenutiFront09;
+            case 10 -> maxContenutiFront10;
+            default -> null;
+        };
+    }
+
+    /**
+     * Ottieni libero per numero (1-10)
+     */
+    @Transient
+    public String getLibero(int numero) {
+        return switch (numero) {
+            case 1 -> libero1;
+            case 2 -> libero2;
+            case 3 -> libero3;
+            case 4 -> libero4;
+            case 5 -> libero5;
+            case 6 -> libero6;
+            case 7 -> libero7;
+            case 8 -> libero8;
+            case 9 -> libero9;
+            case 10 -> libero10;
+            default -> "0";
+        };
+    }
+
+    /**
+     * Ottieni servizio per numero (1-10)
+     */
+    @Transient
+    public String getServizio(int numero) {
+        return switch (numero) {
+            case 1 -> servizi1;
+            case 2 -> servizi2;
+            case 3 -> servizi3;
+            case 4 -> servizi4;
+            case 5 -> servizi5;
+            case 6 -> servizi6;
+            case 7 -> servizi7;
+            case 8 -> servizi8;
+            case 9 -> servizi9;
+            case 10 -> servizi10;
+            default -> "0";
+        };
+    }
+
+    /**
+     * Verifica se servizio è abilitato
+     */
+    @Transient
+    public boolean isServizioAbilitato(int numero) {
+        String servizio = getServizio(numero);
+        return "1".equals(servizio);
     }
 }

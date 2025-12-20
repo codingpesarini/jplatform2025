@@ -1,5 +1,9 @@
 package com.studiodomino.jplatform.cms.entity;
 
+import com.studiodomino.jplatform.cms.front.dto.Archivio;
+import com.studiodomino.jplatform.cms.front.dto.Ricerca;
+import com.studiodomino.jplatform.cms.front.dto.Tag;
+import com.studiodomino.jplatform.shared.dto.FileSystem;
 import com.studiodomino.jplatform.shared.entity.Site;
 import lombok.Data;
 import java.io.Serializable;
@@ -179,7 +183,9 @@ public class Configurazione implements Serializable {
     /**
      * Tag cloud HTML renderizzato
      */
-    private String tagCloud = "";
+
+
+    private List<Tag> tagCloud = new ArrayList<>();
 
     /**
      * Contenuti filtrati per tag

@@ -311,4 +311,28 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
             @Param("idSite") String idSite,
             @Param("idType") Integer idType
     );
+
+    /**
+     * Trova sezioni per menu (pubblicate e non private)
+     */
+    @Query("SELECT c FROM Content c WHERE c.site.id = :idSite " +
+            "AND c.idRoot = '-1' " +
+            "AND c.stato = :stato " +
+            "AND c.privato = :privato " +
+            "ORDER BY c.position ASC")
+    List<Content> findMenuSections(
+            @Param("idSite") String idSite,
+            @Param("stato") String stato,
+            @Param("privato") String privato
+    );
+
+    /**
+     * Tag cloud - conta occorrenze tag
+     */
+    @Query("SELECT c.tag, COUNT(c) FROM Content c " +
+            "WHERE c.tag IS NOT NULL AND c.tag != '' " +
+            "AND c.stato = '1' " +
+            "GROUP BY c.tag " +
+            "ORDER BY COUNT(c) DESC")
+    List<Object[]> findTagCloud();
 }

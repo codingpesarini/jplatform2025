@@ -1,8 +1,10 @@
 package com.studiodomino.jplatform.shared.config;
 
+import com.studiodomino.jplatform.cms.front.dto.Breadcrumb;
 import com.studiodomino.jplatform.shared.entity.*;
 import lombok.Data;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,18 +19,23 @@ public class ConfigurazioneCore implements Serializable {
     private static final long serialVersionUID = 5545802942781497253L;
 
     // ========== CONFIGURAZIONE SITO ==========
+
     private Site sito;  // Entity Site dal database
 
     // ========== LOCALIZZAZIONE ==========
+
     private String locale = "it_IT";
+    private String urlBase = "";
 
     // ========== REPOSITORY PATHS ==========
+
     private String filesRepository = "";
     private String filesRepositoryWeb = "";
     private String imagesRepository = "";
     private String imagesRepositoryWeb = "";
 
     // ========== COOKIES ==========
+
     private String langPlatCookieName;
     private String userIDCookieName;
     private String profileIDCookieName;
@@ -37,22 +44,45 @@ public class ConfigurazioneCore implements Serializable {
     private String profileIDCookieValue;
 
     // ========== UTENTI ==========
-    private Utente amministratore;  // Entity Utente loggato (admin)
-    private UtenteEsterno utente;          // Entity Utente loggato (normale)
+
+    private Utente amministratore;  // Utente admin loggato
+    private UtenteEsterno utente;   // Utente esterno loggato
 
     // ========== GRUPPI E RUOLI ==========
-    private List<Gruppo> gruppiAmministratore;
-    private List<Gruppo> gruppi;
-    private List<Ruolo> ruoli;
+
+    private List<Gruppo> gruppiAmministratore = new ArrayList<>();
+    private List<Gruppo> gruppi = new ArrayList<>();
+    private List<Ruolo> ruoli = new ArrayList<>();
+
+    // ========== CMS CONFIGURATION ==========
+
+    // Tipologie sezione CMS (es: News, Articoli, Gallery)
+    // TODO: Creare entity SectionType quando necessario
+    // private List<SectionType> sectionType = new ArrayList<>();
+
+    // Template messaggi email
+    // TODO: Creare entity MessaggioEmail quando necessario
+    // private List<MessaggioEmail> messaggiEmail = new ArrayList<>();
+
+    // ========== MAILBOX MANAGEMENT ==========
+
+    private int numeroEmail = 0;
+    private String actualMailboxId = "0";
+    private String actualMailboxFolderName = "";
+    // TODO: Creare entity Account quando necessario
+    // private Account actualMailbox;
 
     // ========== NAVIGAZIONE ==========
+
     private Breadcrumb breadcrumb;
     private Breadcrumb breadcrumbBack;
 
     // ========== RICERCA ==========
+
     private Ricerca ricerca;
 
     // ========== PAGINAZIONE ==========
+
     private String pageNumber = "";
     private String startItems = "";
     private String endItems = "";
@@ -61,13 +91,15 @@ public class ConfigurazioneCore implements Serializable {
     private String paginationBar = "";
 
     // ========== NAVIGAZIONE TEMPLATE ==========
+
     private String nav01;
     private String nav02;
     private String nav03;
     private String nav04;
     private String nav05;
 
-    // ✅ NUOVI CAMPI PER ROUTING POST-LOGIN
+    // ========== ROUTING POST-LOGIN ==========
+
     /**
      * ID del sito richiesto prima del login (per redirect post-login)
      */
@@ -125,7 +157,10 @@ public class ConfigurazioneCore implements Serializable {
     // ========================================
 
     public String getUrlBase() {
-        return sito != null ? sito.getDescrizione() : "";
+        if (sito != null) {
+            this.urlBase = sito.getDescrizione();
+        }
+        return urlBase;
     }
 
     public String getIdSito() {
@@ -180,6 +215,14 @@ public class ConfigurazioneCore implements Serializable {
     public String getUserL2() {
         UtenteEsterno u = getUtenteLoggato();
         return u != null ? u.getL2() : null;
+    }
+
+    /**
+     * Ottiene ID utente loggato
+     */
+    public Integer getIdUtenteLoggato() {
+        UtenteEsterno u = getUtenteLoggato();
+        return u != null ? u.getId() : null;
     }
 
     // ========================================

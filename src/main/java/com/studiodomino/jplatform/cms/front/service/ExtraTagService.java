@@ -1,7 +1,9 @@
 package com.studiodomino.jplatform.cms.front.service;
 
-import com.studiodomino.jplatform.cms.entity.*;
-import com.studiodomino.jplatform.cms.front.dao.DAOPubblico;
+import com.studiodomino.jplatform.cms.entity.DatiBase;
+import com.studiodomino.jplatform.cms.entity.Section;
+import com.studiodomino.jplatform.cms.front.dto.ExtraTag;
+import com.studiodomino.jplatform.cms.service.ContentService;
 import com.studiodomino.jplatform.shared.config.ConfigurazioneCore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,87 +11,165 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * ExtraTagService - Gestisce caricamento contenuti correlati
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ExtraTagService {
 
-    private final DAOPubblico daoPubblico;
+    private final ContentService contentService;
 
     /**
-     * Elabora tutti gli ExtraTag di una sezione/documento
-     * Equivalente a elaboraExtraTag()
+     * Elabora ExtraTag per un DatiBase
+     * Carica contenuti correlati per ogni tag configurato (1-10)
+     *
+     * @param base DatiBase con configurazione ExtraTag
+     * @param ordine Ordinamento contenuti
+     * @param max Numero massimo contenuti per tag
+     * @param appConfig Configurazione applicazione
+     * @return ExtraTag popolato
      */
-    public void elaboraExtraTag(
-            Section section,
+    public ExtraTag elaboraExtraTagDatiBase(
             DatiBase base,
-            Configurazione configPortal,
-            ConfigurazioneCore configCore) {
+            String ordine,
+            String max,
+            ConfigurazioneCore appConfig) {
+
+        ExtraTag extraTag = new ExtraTag();
+
+        if (base == null || appConfig == null) {
+            return extraTag;
+        }
 
         try {
-            String ordine = base.getOrdineExtraTag();
-            String max = base.getMaxExtraTag();
-            Integer idSito = configCore.getIdSito();
+            Integer idSito = appConfig.getSito().getId();
 
-            // ExtraTag 01
-            if (base.getExtraTag1() != null && !base.getExtraTag1().isEmpty()) {
-                configPortal.setContenutiExtraTag01(
-                        loadExtraTag(idSito, "extratag1", base.getId(),
-                                base.getExtraTag1(), base.getExtraTagRef1(),
-                                ordine, max)
-                );
+            // Elabora i 10 possibili ExtraTag
+            for (int i = 1; i <= 10; i++) {
+                String tagName = base.getExtraTag(i);
+
+                if (tagName != null && !tagName.isEmpty() && !"0".equals(tagName)) {
+                    // Carica contenuti con questo tag
+                    List<DatiBase> contenuti = contentService.findContentsByExtraTag(
+                            idSito.toString(),
+                            tagName
+                    );
+
+                    // Applica max se specificato
+                    if (max != null && !max.isEmpty()) {
+                        try {
+                            int maxItems = Integer.parseInt(max);
+                            if (contenuti.size() > maxItems) {
+                                contenuti = contenuti.subList(0, maxItems);
+                            }
+                        } catch (NumberFormatException e) {
+                            log.warn("Invalid max value: {}", max);
+                        }
+                    }
+
+                    // Imposta nello slot corrispondente
+                    extraTag.setExtraTagByNumber(i, contenuti);
+
+                    log.debug("ExtraTag slot {}: caricati {} contenuti per tag '{}'",
+                            i, contenuti.size(), tagName);
+                }
             }
-
-            // ExtraTag 02
-            if (base.getExtraTag2() != null && !base.getExtraTag2().isEmpty()) {
-                configPortal.setContenutiExtraTag02(
-                        loadExtraTag(idSito, "extratag2", base.getId(),
-                                base.getExtraTag2(), base.getExtraTagRef2(),
-                                ordine, max)
-                );
-            }
-
-            // ExtraTag 03
-            if (base.getExtraTag3() != null && !base.getExtraTag3().isEmpty()) {
-                configPortal.setContenutiExtraTag03(
-                        loadExtraTag(idSito, "extratag3", base.getId(),
-                                base.getExtraTag3(), base.getExtraTagRef3(),
-                                ordine, max)
-                );
-            }
-
-            // ExtraTag 04-10 (ripeti pattern)
-            // ...
 
         } catch (Exception e) {
-            log.error("Errore in elaboraExtraTag", e);
+            log.error("Errore elaborazione ExtraTag per DatiBase id: {}", base.getId(), e);
         }
+
+        return extraTag;
     }
 
     /**
-     * Carica singolo ExtraTag
+     * Elabora ExtraTag per una Section
+     *
+     * @param section Section con configurazione ExtraTag
+     * @param ordine Ordinamento contenuti
+     * @param max Numero massimo contenuti per tag
+     * @param appConfig Configurazione applicazione
+     * @return ExtraTag popolato
      */
-    private List<DatiBase> loadExtraTag(
-            Integer idSito, String fieldName, String baseId,
-            String tagValue, String refId, String ordine, String max) {
+    public ExtraTag elaboraExtraTagSection(
+            Section section,
+            String ordine,
+            String max,
+            ConfigurazioneCore appConfig) {
 
-        String sql = buildExtraTagSql(refId);
+        ExtraTag extraTag = new ExtraTag();
 
-        return daoPubblico.getExtraTag(
-                idSito, fieldName, baseId, tagValue, sql, ordine, max
-        );
+        if (section == null || appConfig == null) {
+            return extraTag;
+        }
+
+        try {
+            Integer idSito = appConfig.getSito().getId();
+
+            // Elabora i 10 possibili ExtraTag
+            for (int i = 1; i <= 10; i++) {
+                String tagName = section.getExtraTag(i);
+
+                if (tagName != null && !tagName.isEmpty() && !"0".equals(tagName)) {
+                    List<DatiBase> contenuti = contentService.findContentsByExtraTag(
+                            idSito.toString(),
+                            tagName
+                    );
+
+                    if (max != null && !max.isEmpty()) {
+                        try {
+                            int maxItems = Integer.parseInt(max);
+                            if (contenuti.size() > maxItems) {
+                                contenuti = contenuti.subList(0, maxItems);
+                            }
+                        } catch (NumberFormatException e) {
+                            log.warn("Invalid max value: {}", max);
+                        }
+                    }
+
+                    extraTag.setExtraTagByNumber(i, contenuti);
+
+                    log.debug("ExtraTag slot {}: caricati {} contenuti per tag '{}'",
+                            i, contenuti.size(), tagName);
+                }
+            }
+
+        } catch (Exception e) {
+            log.error("Errore elaborazione ExtraTag per Section id: {}", section.getId(), e);
+        }
+
+        return extraTag;
     }
 
     /**
-     * Costruisce SQL per cercare contenuti con ExtraTag
-     * in sezione ref e sottosezioni
+     * Verifica se DatiBase ha ExtraTag configurati
      */
-    private String buildExtraTagSql(String ref) {
-        return String.format(
-                " and (id_root='%s' or idparent='%s' " +
-                        "or idparent in (select id from contents aa where aa.idparent='%s') " +
-                        "or id_root in (select id from contents aa where aa.idparent='%s')) ",
-                ref, ref, ref, ref
-        );
+    public boolean hasExtraTagConfiguration(DatiBase base) {
+        if (base == null) return false;
+
+        for (int i = 1; i <= 10; i++) {
+            String tag = base.getExtraTag(i);
+            if (tag != null && !tag.isEmpty() && !"0".equals(tag)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Verifica se Section ha ExtraTag configurati
+     */
+    public boolean hasExtraTagConfiguration(Section section) {
+        if (section == null) return false;
+
+        for (int i = 1; i <= 10; i++) {
+            String tag = section.getExtraTag(i);
+            if (tag != null && !tag.isEmpty() && !"0".equals(tag)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
