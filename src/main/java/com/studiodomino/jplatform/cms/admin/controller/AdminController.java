@@ -1,6 +1,6 @@
 package com.studiodomino.jplatform.cms.admin.controller;
 
-import com.studiodomino.jplatform.shared.config.ConfigurazioneCore;
+import com.studiodomino.jplatform.shared.config.Configurazione;
 import com.studiodomino.jplatform.shared.service.ConfigurazioneService;
 import com.studiodomino.jplatform.shared.util.ViewUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,7 +25,7 @@ public class AdminController {
         HttpSession session = request.getSession();
 
         // ✅ OTTIENE ConfigurazioneCore
-        ConfigurazioneCore configCore = configurazioneService.getConfig(session);
+        Configurazione configCore = configurazioneService.getConfig(session);
 
         // Verifica login
         if (!configCore.isLogged()) {

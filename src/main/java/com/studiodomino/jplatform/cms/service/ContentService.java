@@ -868,5 +868,159 @@ public class ContentService {
         // }
     }
 
+    // ========================================
+    // METODI PER NEWSLETTER E SMS
+    // ========================================
+
+    /**
+     * Trova contenuti per newsletter
+     */
+    public List<DatiBase> findContentsByNewsletter(String idSite, String newsletterId) {
+        log.debug("Finding contents by newsletter: {} for site: {}", newsletterId, idSite);
+        List<Content> contents = contentRepository.findContentsByNewsletter(idSite, newsletterId);
+        return datiBaseMapper.toDatiBaseList(contents);
+    }
+
+    /**
+     * Trova contenuti per SMS
+     */
+    public List<DatiBase> findContentsBySms(String idSite, String smsId) {
+        log.debug("Finding contents by SMS: {} for site: {}", smsId, idSite);
+        List<Content> contents = contentRepository.findContentsBySms(idSite, smsId);
+        return datiBaseMapper.toDatiBaseList(contents);
+    }
+
+    // ========================================
+    // METODI PER CAMPI CUSTOM (TEXT, VARCHAR, NUMBER, DATA)
+    // ========================================
+
+    /**
+     * Cerca contenuti nei campi TEXT custom
+     */
+    public List<DatiBase> searchInTextFields(String idSite, String searchTerm) {
+        log.debug("Searching in TEXT fields: {} for site: {}", searchTerm, idSite);
+        List<Content> contents = contentRepository.searchInTextFields(idSite, searchTerm);
+        return datiBaseMapper.toDatiBaseList(contents);
+    }
+
+    /**
+     * Cerca contenuti nei campi VARCHAR custom
+     */
+    public List<DatiBase> searchInVarcharFields(String idSite, String searchTerm) {
+        log.debug("Searching in VARCHAR fields: {} for site: {}", searchTerm, idSite);
+        List<Content> contents = contentRepository.searchInVarcharFields(idSite, searchTerm);
+        return datiBaseMapper.toDatiBaseList(contents);
+    }
+
+    /**
+     * Trova contenuti con NUMBER in range
+     */
+    public List<DatiBase> findContentsByNumberRange(String idSite, Double min, Double max) {
+        log.debug("Finding contents by NUMBER range: {}-{} for site: {}", min, max, idSite);
+        List<Content> contents = contentRepository.findContentsByNumberRange(idSite, min, max);
+        return datiBaseMapper.toDatiBaseList(contents);
+    }
+
+    /**
+     * Trova contenuti per range di date (DATA fields)
+     */
+    public List<DatiBase> findContentsByDateRange(String idSite, LocalDate startDate, LocalDate endDate) {
+        log.debug("Finding contents by DATE range: {}-{} for site: {}", startDate, endDate, idSite);
+        List<Content> contents = contentRepository.findContentsByDateRange(idSite, startDate, endDate);
+        return datiBaseMapper.toDatiBaseList(contents);
+    }
+
+    // ========================================
+    // METODI HELPER PER ACCESSO CAMPI ESTESI
+    // ========================================
+
+    /**
+     * Ottieni valore campo L per numero (1-15)
+     */
+    public String getCampoL(Integer contentId, int numeroL) {
+        Optional<Content> contentOpt = contentRepository.findById(contentId);
+        if (contentOpt.isEmpty()) {
+            return null;
+        }
+
+        Content content = contentOpt.get();
+        return switch (numeroL) {
+            case 1 -> content.getL1();
+            case 2 -> content.getL2();
+            case 3 -> content.getL3();
+            case 4 -> content.getL4();
+            case 5 -> content.getL5();
+            case 6 -> content.getL6();
+            case 7 -> content.getL7();
+            case 8 -> content.getL8();
+            case 9 -> content.getL9();
+            case 10 -> content.getL10();
+            case 11 -> content.getL11();
+            case 12 -> content.getL12();
+            case 13 -> content.getL13();
+            case 14 -> content.getL14();
+            case 15 -> content.getL15();
+            default -> null;
+        };
+    }
+
+    /**
+     * Incrementa numeratore
+     */
+    @Transactional
+    public Integer incrementNumeratore(Integer contentId, int numeroNumeratore) {
+        log.debug("Incrementing numeratore{} for content: {}", numeroNumeratore, contentId);
+
+        Optional<Content> contentOpt = contentRepository.findById(contentId);
+        if (contentOpt.isEmpty()) {
+            return null;
+        }
+
+        Content content = contentOpt.get();
+        Integer currentValue = switch (numeroNumeratore) {
+            case 1 -> content.getNumeratore1();
+            case 2 -> content.getNumeratore2();
+            case 3 -> content.getNumeratore3();
+            case 4 -> content.getNumeratore4();
+            case 5 -> content.getNumeratore5();
+            default -> 0;
+        };
+
+        Integer newValue = (currentValue != null ? currentValue : 0) + 1;
+
+        switch (numeroNumeratore) {
+            case 1 -> content.setNumeratore1(newValue);
+            case 2 -> content.setNumeratore2(newValue);
+            case 3 -> content.setNumeratore3(newValue);
+            case 4 -> content.setNumeratore4(newValue);
+            case 5 -> content.setNumeratore5(newValue);
+        }
+
+        contentRepository.save(content);
+        return newValue;
+    }
+
+    /**
+     * Ottieni numeratore formattato (zerofill 8 cifre)
+     */
+    public String getNumeratoreFormatted(Integer contentId, int numeroNumeratore) {
+        Optional<Content> contentOpt = contentRepository.findById(contentId);
+        if (contentOpt.isEmpty()) {
+            return "00000000";
+        }
+
+        Content content = contentOpt.get();
+        Integer value = switch (numeroNumeratore) {
+            case 1 -> content.getNumeratore1();
+            case 2 -> content.getNumeratore2();
+            case 3 -> content.getNumeratore3();
+            case 4 -> content.getNumeratore4();
+            case 5 -> content.getNumeratore5();
+            default -> 0;
+        };
+
+        return String.format("%08d", value != null ? value : 0);
+    }
+
 
 }

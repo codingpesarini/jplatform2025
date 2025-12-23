@@ -132,18 +132,76 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
     );
 
     // ========================================
+    // QUERY PER MENU E NAVIGAZIONE
+    // ========================================
+
+    /**
+     * Trova menu pubblico
+     * Sezioni con: stato='1', privato='0', menu1='1'
+     */
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite " +
+            "AND c.idRoot = -1 " +
+            "AND c.stato = '1' " +
+            "AND c.privato = '0' " +
+            "AND c.menu1 = '1' " +
+            "AND (c.idParent IS NULL OR c.idParent = '' OR c.idParent = '0') " +
+            "ORDER BY c.position ASC")
+    List<Content> findPublicMenu(@Param("idSite") String idSite);
+
+     /**
+     * Trova menu privato per gruppi utente
+     * gruppiSql è una stringa tipo "1,2,3" o "'1','2','3'"
+     */
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite " +
+            "AND c.idRoot = -1 " +
+            "AND c.stato = '1' " +
+            "AND c.privato = '1' " +
+            "AND c.menu1 = '1' " +
+            "AND (c.idParent IS NULL OR c.idParent = '' OR c.idParent = '0') " +
+            "AND (:gruppiSql IS NULL OR :gruppiSql = '' OR " +
+            "     c.idGruppo LIKE CONCAT('%', :gruppiSql, '%')) " +
+            "ORDER BY c.position ASC")
+    List<Content> findPrivateMenu(
+            @Param("idSite") String idSite,
+            @Param("gruppiSql") String gruppiSql  // ← Cambiato da List<String> a String
+    );
+
+    /**
+     * Trova home page
+     */
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite " +
+            "AND c.idRoot = -1 " +
+            "AND c.firstPage = '1' " +
+            "AND c.stato = '1' " +
+            "ORDER BY c.position ASC")
+    Optional<Content> findHomePage(@Param("idSite") String idSite);
+
+    /**
+     * Trova sezioni menu (generico)
+     */
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite " +
+            "AND c.idRoot = -1 " +
+            "AND c.stato = :stato " +
+            "AND c.privato = :privato " +
+            "ORDER BY c.position ASC")
+    List<Content> findMenuSections(
+            @Param("idSite") String idSite,
+            @Param("stato") String stato,
+            @Param("privato") String privato
+    );
+
+    // ========================================
     // QUERY PER SCHEDULING (s1, s2, s3)
     // ========================================
 
     /**
      * Trova contenuti con scheduling attivo (s3='1')
-     * Utile per verificare quali contenuti sono schedulati
      */
     @Query("SELECT c FROM Content c WHERE c.idSite = :idSite AND c.s3 = '1'")
     List<Content> findScheduledContents(@Param("idSite") String idSite);
 
     /**
-     * Trova contenuti schedulati da pubblicare (oggi tra s1 e s2)
+     * Trova contenuti schedulati da pubblicare
      */
     @Query("SELECT c FROM Content c WHERE c.idSite = :idSite AND c.s3 = '1' " +
             "AND c.stato = '0' " +
@@ -155,7 +213,7 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
     );
 
     /**
-     * Trova contenuti schedulati da nascondere (fuori range s1-s2)
+     * Trova contenuti schedulati da nascondere
      */
     @Query("SELECT c FROM Content c WHERE c.idSite = :idSite AND c.s3 = '1' " +
             "AND c.stato = '1' " +
@@ -173,7 +231,7 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
      * Trova contenuti per anno
      */
     @Query("SELECT c FROM Content c WHERE c.idSite = :idSite AND c.idRoot = :idRoot " +
-            "AND c.anno = :anno ORDER BY c.dataSql DESC")
+            "AND c.anno = :anno ORDER BY c.datasql DESC")
     List<Content> findContentsByYear(
             @Param("idSite") String idSite,
             @Param("idRoot") Integer idRoot,
@@ -184,7 +242,7 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
      * Trova contenuti per anno e mese
      */
     @Query("SELECT c FROM Content c WHERE c.idSite = :idSite AND c.idRoot = :idRoot " +
-            "AND c.anno = :anno AND c.mese = :mese ORDER BY c.dataSql DESC")
+            "AND c.anno = :anno AND c.mese = :mese ORDER BY c.datasql DESC")
     List<Content> findContentsByYearMonth(
             @Param("idSite") String idSite,
             @Param("idRoot") Integer idRoot,
@@ -207,7 +265,7 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
     // ========================================
 
     /**
-     * Trova contenuti per tag (ricerca LIKE)
+     * Trova contenuti per tag
      */
     @Query("SELECT c FROM Content c WHERE c.idSite = :idSite " +
             "AND c.tag LIKE %:tag% ORDER BY c.position ASC")
@@ -217,18 +275,116 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
     );
 
     /**
-     * Trova contenuti per extraTag (uno qualsiasi dei 10 campi)
+     * Trova tag cloud con conteggi
      */
-    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite AND (" +
-            "c.extraTag1 LIKE %:extraTag% OR c.extraTag2 LIKE %:extraTag% OR " +
-            "c.extraTag3 LIKE %:extraTag% OR c.extraTag4 LIKE %:extraTag% OR " +
-            "c.extraTag5 LIKE %:extraTag% OR c.extraTag6 LIKE %:extraTag% OR " +
-            "c.extraTag7 LIKE %:extraTag% OR c.extraTag8 LIKE %:extraTag% OR " +
-            "c.extraTag9 LIKE %:extraTag% OR c.extraTag10 LIKE %:extraTag%) " +
+    @Query("SELECT c.tag, COUNT(c) FROM Content c " +
+            "WHERE c.idSite = :idSite " +
+            "AND c.tag IS NOT NULL " +
+            "AND c.tag != '' " +
+            "AND c.stato = '1' " +
+            "GROUP BY c.tag " +
+            "ORDER BY COUNT(c) DESC")
+    List<Object[]> findTagCloud(@Param("idSite") String idSite);
+
+    /**
+     * Trova contenuti per extraTag specifico (1-10)
+     */
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite " +
+            "AND (c.extratag1 LIKE %:extraTag% OR c.extratag2 LIKE %:extraTag% OR " +
+            "c.extratag3 LIKE %:extraTag% OR c.extratag4 LIKE %:extraTag% OR " +
+            "c.extratag5 LIKE %:extraTag% OR c.extratag6 LIKE %:extraTag% OR " +
+            "c.extratag7 LIKE %:extraTag% OR c.extratag8 LIKE %:extraTag% OR " +
+            "c.extratag9 LIKE %:extraTag% OR c.extratag10 LIKE %:extraTag%) " +
             "ORDER BY c.position ASC")
     List<Content> findContentsByExtraTag(
             @Param("idSite") String idSite,
             @Param("extraTag") String extraTag
+    );
+
+    // ========================================
+    // QUERY PER NEWSLETTER E SMS
+    // ========================================
+
+    /**
+     * Trova contenuti per newsletter specifica (1-5)
+     */
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite " +
+            "AND (c.newsletter1 = :newsletterId OR c.newsletter2 = :newsletterId OR " +
+            "c.newsletter3 = :newsletterId OR c.newsletter4 = :newsletterId OR " +
+            "c.newsletter5 = :newsletterId)")
+    List<Content> findContentsByNewsletter(
+            @Param("idSite") String idSite,
+            @Param("newsletterId") String newsletterId
+    );
+
+    /**
+     * Trova contenuti per SMS specifico (1-5)
+     */
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite " +
+            "AND (c.sms1 = :smsId OR c.sms2 = :smsId OR " +
+            "c.sms3 = :smsId OR c.sms4 = :smsId OR " +
+            "c.sms5 = :smsId)")
+    List<Content> findContentsBySms(
+            @Param("idSite") String idSite,
+            @Param("smsId") String smsId
+    );
+
+    // ========================================
+    // QUERY PER CAMPI CUSTOM
+    // ========================================
+
+    /**
+     * Cerca contenuti per campo TEXT specifico
+     */
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite " +
+            "AND (c.text1 LIKE %:searchTerm% OR c.text2 LIKE %:searchTerm% OR " +
+            "c.text3 LIKE %:searchTerm% OR c.text4 LIKE %:searchTerm% OR " +
+            "c.text5 LIKE %:searchTerm% OR c.text6 LIKE %:searchTerm% OR " +
+            "c.text7 LIKE %:searchTerm% OR c.text8 LIKE %:searchTerm% OR " +
+            "c.text9 LIKE %:searchTerm% OR c.text10 LIKE %:searchTerm%)")
+    List<Content> searchInTextFields(
+            @Param("idSite") String idSite,
+            @Param("searchTerm") String searchTerm
+    );
+
+    /**
+     * Cerca contenuti per campo VARCHAR specifico
+     */
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite " +
+            "AND (c.varchar1 LIKE %:searchTerm% OR c.varchar2 LIKE %:searchTerm% OR " +
+            "c.varchar3 LIKE %:searchTerm% OR c.varchar4 LIKE %:searchTerm% OR " +
+            "c.varchar5 LIKE %:searchTerm% OR c.varchar6 LIKE %:searchTerm% OR " +
+            "c.varchar7 LIKE %:searchTerm% OR c.varchar8 LIKE %:searchTerm% OR " +
+            "c.varchar9 LIKE %:searchTerm% OR c.varchar10 LIKE %:searchTerm%)")
+    List<Content> searchInVarcharFields(
+            @Param("idSite") String idSite,
+            @Param("searchTerm") String searchTerm
+    );
+
+    /**
+     * Trova contenuti con NUMBER in range
+     */
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite " +
+            "AND (c.number1 BETWEEN :min AND :max OR c.number2 BETWEEN :min AND :max OR " +
+            "c.number3 BETWEEN :min AND :max OR c.number4 BETWEEN :min AND :max OR " +
+            "c.number5 BETWEEN :min AND :max)")
+    List<Content> findContentsByNumberRange(
+            @Param("idSite") String idSite,
+            @Param("min") Double min,
+            @Param("max") Double max
+    );
+
+    /**
+     * Trova contenuti per range di date (DATA fields)
+     */
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite " +
+            "AND (c.data2 BETWEEN :startDate AND :endDate OR " +
+            "c.data3 BETWEEN :startDate AND :endDate OR " +
+            "c.data4 BETWEEN :startDate AND :endDate)")
+    List<Content> findContentsByDateRange(
+            @Param("idSite") String idSite,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
     );
 
     // ========================================
@@ -248,7 +404,6 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
 
     /**
      * Ricerca full text su titolo, riassunto, testo
-     * (la query MATCH AGAINST verrà implementata nel service con query native)
      */
     @Query("SELECT c FROM Content c WHERE c.idSite = :idSite AND " +
             "(LOWER(c.titolo) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
@@ -311,81 +466,4 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
             @Param("idSite") String idSite,
             @Param("idType") Integer idType
     );
-
-    /**
-     * Trova sezioni per menu (pubblicate e non private)
-     */
-    @Query("SELECT c FROM Content c WHERE c.site.id = :idSite " +
-            "AND c.idRoot = '-1' " +
-            "AND c.stato = :stato " +
-            "AND c.privato = :privato " +
-            "ORDER BY c.position ASC")
-    List<Content> findMenuSections(
-            @Param("idSite") String idSite,
-            @Param("stato") String stato,
-            @Param("privato") String privato
-    );
-
-    /**
-     * Tag cloud - conta occorrenze tag
-     */
-    @Query("SELECT c.tag, COUNT(c) FROM Content c " +
-            "WHERE c.tag IS NOT NULL AND c.tag != '' " +
-            "AND c.stato = '1' " +
-            "GROUP BY c.tag " +
-            "ORDER BY COUNT(c) DESC")
-    List<Object[]> findTagCloud();
-
-    /**
-     * Trova menu pubblico
-     * Sezioni con: stato='1', privato='0', menu1='1'
-     */
-    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite " +
-            "AND c.idRoot = -1 " +
-            "AND c.stato = '1' " +
-            "AND c.privato = '0' " +
-            "AND c.menu1 = '1' " +
-            "AND (c.idParent IS NULL OR c.idParent = '' OR c.idParent = '0') " +
-            "ORDER BY c.position ASC")
-    List<Content> findPublicMenu(@Param("idSite") String idSite);
-
-    /**
-     * Trova menu privato per gruppi utente
-     */
-    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite " +
-            "AND c.idRoot = -1 " +
-            "AND c.stato = '1' " +
-            "AND c.privato = '1' " +
-            "AND c.menu1 = '1' " +
-            "AND (c.idParent IS NULL OR c.idParent = '' OR c.idParent = '0') " +
-            "AND (:gruppiSql IS NULL OR c.idGruppo IN :gruppiSql) " +
-            "ORDER BY c.position ASC")
-    List<Content> findPrivateMenu(
-            @Param("idSite") String idSite,
-            @Param("gruppiSql") String gruppiSql
-    );
-
-    /**
-     * Trova home page
-     */
-    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite " +
-            "AND c.idRoot = -1 " +
-            "AND c.firstPage = '1' " +
-            "AND c.stato = '1' " +
-            "ORDER BY c.position ASC " +
-            "LIMIT 1")
-    Optional<Content> findHomePage(@Param("idSite") String idSite);
-
-    /**
-     * Trova tag cloud con conteggi
-     * Estrae tutti i tag distinti con il numero di occorrenze
-     */
-    @Query("SELECT c.tag, COUNT(c) FROM Content c " +
-            "WHERE c.idSite = :idSite " +
-            "AND c.tag IS NOT NULL " +
-            "AND c.tag != '' " +
-            "AND c.stato = '1' " +
-            "GROUP BY c.tag " +
-            "ORDER BY COUNT(c) DESC")
-    List<Object[]> findTagCloud(@Param("idSite") String idSite);
 }

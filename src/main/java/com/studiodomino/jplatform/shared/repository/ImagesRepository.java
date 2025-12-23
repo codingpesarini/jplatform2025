@@ -2,130 +2,54 @@ package com.studiodomino.jplatform.shared.repository;
 
 import com.studiodomino.jplatform.shared.entity.Images;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
-/**
- * Repository per gestione Images
- */
 @Repository
 public interface ImagesRepository extends JpaRepository<Images, Integer> {
 
     /**
-     * Trova immagine per nome
+     * Trova immagini per folder
      */
-    Optional<Images> findByName(String name);
-
-    /**
-     * Trova tutte le immagini in un folder
-     */
-    List<Images> findByIdfolderOrderByNameAsc(String idfolder);
-
-    /**
-     * Trova immagini per tmpid (upload temporaneo)
-     */
-    List<Images> findByTmpid(String tmpid);
+    List<Images> findByIdfolder(String idfolder);
 
     /**
      * Trova immagini pubbliche
      */
-    @Query("SELECT i FROM Images i WHERE i.privato = '0' OR i.privato = '' OR i.privato IS NULL")
-    List<Images> findPublicImages();
+    List<Images> findByPrivato(String privato);
 
     /**
-     * Trova immagini private
+     * Trova immagini per folder e visibilità
      */
-    @Query("SELECT i FROM Images i WHERE i.privato = '1'")
-    List<Images> findPrivateImages();
+    List<Images> findByIdfolderAndPrivato(String idfolder, String privato);
 
     /**
-     * Trova immagini pubbliche in un folder
+     * Cerca immagini per nome
      */
-    @Query("SELECT i FROM Images i WHERE i.idfolder = :idfolder AND (i.privato = '0' OR i.privato = '' OR i.privato IS NULL)")
-    List<Images> findPublicImagesByFolder(@Param("idfolder") String idfolder);
+    @Query("SELECT i FROM Images i WHERE i.name LIKE %:name%")
+    List<Images> searchByName(@Param("name") String name);
 
     /**
-     * Trova immagini per tipo (MIME type)
+     * Trova immagini per tipo
      */
-    List<Images> findByTypeContainingIgnoreCase(String type);
+    List<Images> findByType(String type);
 
     /**
-     * Cerca immagini per nome (LIKE)
+     * Trova immagini per tmpid (upload in corso)
      */
-    List<Images> findByNameContainingIgnoreCaseOrderByNameAsc(String name);
+    List<Images> findByTmpid(String tmpid);
 
     /**
-     * Cerca immagini per didascalia
-     */
-    List<Images> findByDidascaliaContainingIgnoreCaseOrderByNameAsc(String didascalia);
-
-    /**
-     * Trova immagini più grandi di una certa dimensione
-     */
-    @Query("SELECT i FROM Images i WHERE CAST(i.size AS long) > :minSize")
-    List<Images> findByMinSize(@Param("minSize") Long minSize);
-
-    /**
-     * Conta immagini in un folder
+     * Conta immagini per folder
      */
     Long countByIdfolder(String idfolder);
 
     /**
-     * Somma dimensione totale immagini in un folder
+     * Calcola dimensione totale per folder
      */
     @Query("SELECT SUM(CAST(i.size AS long)) FROM Images i WHERE i.idfolder = :idfolder")
     Long sumSizeByFolder(@Param("idfolder") String idfolder);
-
-    /**
-     * Trova immagini senza thumbnail
-     */
-    @Query("SELECT i FROM Images i WHERE i.paththumb IS NULL OR i.paththumb = ''")
-    List<Images> findImagesWithoutThumbnail();
-
-    /**
-     * Trova immagini per estensione
-     */
-    @Query("SELECT i FROM Images i WHERE LOWER(i.name) LIKE CONCAT('%', LOWER(:extension))")
-    List<Images> findByExtension(@Param("extension") String extension);
-
-    /**
-     * Trova ultime N immagini
-     */
-    List<Images> findTop10ByOrderByIdDesc();
-
-    /**
-     * Trova immagini per campo l1
-     */
-    List<Images> findByL1OrderByNameAsc(String l1);
-
-
-
-    /**
-     * Verifica se esiste immagine con nome
-     */
-    boolean existsByName(String name);
-
-    /**
-     * Verifica se esiste immagine con fullpath
-     */
-    boolean existsByFullpath(String fullpath);
-
-    /**
-     * Elimina immagini per folder
-     */
-    @Modifying  // ✅ IMPORTANTE per operazioni DELETE/UPDATE
-    @Query("DELETE FROM Images i WHERE i.idfolder = :idfolder")
-    void deleteByIdfolder(@Param("idfolder") String idfolder);
-
-    /**
-     * Elimina immagini per tmpid
-     */
-    @Modifying
-    @Query("DELETE FROM Images i WHERE i.tmpid = :tmpid")
-    void deleteByTmpid(@Param("tmpid") String tmpid);
 }

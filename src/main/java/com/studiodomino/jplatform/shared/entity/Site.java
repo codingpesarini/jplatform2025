@@ -228,93 +228,93 @@ public class Site implements Serializable {
     // ========== CMS FRONT CONFIGURATION (1-10) ==========
 
     // Slot 01
-    @Column(name = "contenutiFront01")
+    @Column(name = "contenutiFront1")
     private String contenutiFront01;
 
-    @Column(name = "contenutiOrdineFront01")
+    @Column(name = "contenutiOrdineFront1")
     private String contenutiOrdineFront01;
 
-    @Column(name = "maxContenutiFront01")
+    @Column(name = "maxContenutiFront1")
     private String maxContenutiFront01;
 
     // Slot 02
-    @Column(name = "contenutiFront02")
+    @Column(name = "contenutiFront2")
     private String contenutiFront02;
 
-    @Column(name = "contenutiOrdineFront02")
+    @Column(name = "contenutiOrdineFront2")
     private String contenutiOrdineFront02;
 
-    @Column(name = "maxContenutiFront02")
+    @Column(name = "maxContenutiFront2")
     private String maxContenutiFront02;
 
     // Slot 03
-    @Column(name = "contenutiFront03")
+    @Column(name = "contenutiFront3")
     private String contenutiFront03;
 
-    @Column(name = "contenutiOrdineFront03")
+    @Column(name = "contenutiOrdineFront3")
     private String contenutiOrdineFront03;
 
-    @Column(name = "maxContenutiFront03")
+    @Column(name = "maxContenutiFront3")
     private String maxContenutiFront03;
 
     // Slot 04
-    @Column(name = "contenutiFront04")
+    @Column(name = "contenutiFront4")
     private String contenutiFront04;
 
-    @Column(name = "contenutiOrdineFront04")
+    @Column(name = "contenutiOrdineFront4")
     private String contenutiOrdineFront04;
 
-    @Column(name = "maxContenutiFront04")
+    @Column(name = "maxContenutiFront4")
     private String maxContenutiFront04;
 
     // Slot 05
-    @Column(name = "contenutiFront05")
+    @Column(name = "contenutiFront5")
     private String contenutiFront05;
 
-    @Column(name = "contenutiOrdineFront05")
+    @Column(name = "contenutiOrdineFront5")
     private String contenutiOrdineFront05;
 
-    @Column(name = "maxContenutiFront05")
+    @Column(name = "maxContenutiFront5")
     private String maxContenutiFront05;
 
     // Slot 06
-    @Column(name = "contenutiFront06")
+    @Column(name = "contenutiFront6")
     private String contenutiFront06;
 
-    @Column(name = "contenutiOrdineFront06")
+    @Column(name = "contenutiOrdineFront6")
     private String contenutiOrdineFront06;
 
-    @Column(name = "maxContenutiFront06")
+    @Column(name = "maxContenutiFront6")
     private String maxContenutiFront06;
 
     // Slot 07
-    @Column(name = "contenutiFront07")
+    @Column(name = "contenutiFront7")
     private String contenutiFront07;
 
-    @Column(name = "contenutiOrdineFront07")
+    @Column(name = "contenutiOrdineFront7")
     private String contenutiOrdineFront07;
 
-    @Column(name = "maxContenutiFront07")
+    @Column(name = "maxContenutiFront7")
     private String maxContenutiFront07;
 
     // Slot 08
-    @Column(name = "contenutiFront08")
+    @Column(name = "contenutiFront8")
     private String contenutiFront08;
 
-    @Column(name = "contenutiOrdineFront08")
+    @Column(name = "contenutiOrdineFront8")
     private String contenutiOrdineFront08;
 
-    @Column(name = "maxContenutiFront08")
+    @Column(name = "maxContenutiFront8")
     private String maxContenutiFront08;
 
     // Slot 09
-    @Column(name = "contenutiFront09")
+    @Column(name = "contenutiFront9")
     private String contenutiFront09;
 
-    @Column(name = "contenutiOrdineFront09")
+    @Column(name = "contenutiOrdineFront9")
     private String contenutiOrdineFront09;
 
-    @Column(name = "maxContenutiFront09")
+    @Column(name = "maxContenutiFront9")
     private String maxContenutiFront09;
 
     // Slot 10

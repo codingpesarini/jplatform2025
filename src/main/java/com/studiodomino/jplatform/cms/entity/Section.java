@@ -1,22 +1,28 @@
 package com.studiodomino.jplatform.cms.entity;
 
 import com.studiodomino.jplatform.cms.front.dto.ExtraTag;
+import com.studiodomino.jplatform.shared.entity.Images;
 import com.studiodomino.jplatform.shared.entity.UtenteEsterno;
-import jakarta.persistence.Column;
 import lombok.Data;
+
 import java.io.Serializable;
+import java.sql.Date;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.*;
 
 /**
  * DTO che rappresenta una SEZIONE nel CMS (idRoot = -1).
+ * Versione completa con tutti i metodi helper del sistema legacy.
  */
 @Data
 public class Section implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    // ========== IDENTIFICAZIONE ==========
+    // ========================================
+    // IDENTIFICAZIONE
+    // ========================================
 
     private Integer id;
     private String idSite;
@@ -25,40 +31,51 @@ public class Section implements Serializable {
     private String idParent;
     private String label;
 
-    // ========== CONTENUTO BASE ==========
+    // ========================================
+    // CONTENUTO BASE
+    // ========================================
 
     private String titolo;
     private String riassunto;
     private String testo;
-
-    // Versioni EN
     private String titoloEN;
     private String riassuntoEN;
     private String testoEN;
 
-    // ========== STATO E VISIBILITÀ ==========
+    // ========================================
+    // STATO E VISIBILITÀ
+    // ========================================
 
     private String stato;
     private String privato;
     private String idGruppo;
     private String visualizza;
 
-    // ========== POSIZIONAMENTO ==========
+    // ========================================
+    // POSIZIONAMENTO
+    // ========================================
 
     private Integer position;
     private String firstPage;
     private Integer click;
 
-    // ========== MEDIA ==========
+    // ========================================
+    // MEDIA
+    // ========================================
 
     private String gallery;
     private String idAllegato;
 
-    // ========== TAG ==========
+    // ========================================
+    // TAG
+    // ========================================
 
     private String tag;
+    private String tagsCloud;
 
-    // ========== MENU ==========
+    // ========================================
+    // MENU
+    // ========================================
 
     private String menu1;
     private String menu2;
@@ -66,7 +83,9 @@ public class Section implements Serializable {
     private String menu4;
     private String menu5;
 
-    // ========== CAMPI S (per configurazioni) ==========
+    // ========================================
+    // CAMPI S (1-10)
+    // ========================================
 
     private String s1;
     private String s2;
@@ -79,7 +98,9 @@ public class Section implements Serializable {
     private String s9;
     private String s10;
 
-    // ========== CAMPI L (configurazioni custom 1-10) ==========
+    // ========================================
+    // CAMPI L (1-15)
+    // ========================================
 
     private String l1;
     private String l2;
@@ -91,33 +112,25 @@ public class Section implements Serializable {
     private String l8;
     private String l9;
     private String l10;
+    private String l11;
+    private String l12;
+    private String l13;
+    private String l14;
+    private String l15;
 
-    // ========== EXTRA TAG (1-10) ==========
+    // ========================================
+    // INFO (1-5)
+    // ========================================
 
-    private String extratag1;
-    private String extratag2;
-    private String extratag3;
-    private String extratag4;
-    private String extratag5;
-    private String extratag6;
-    private String extratag7;
-    private String extratag8;
-    private String extratag9;
-    private String extratag10;
+    private String info1 = "";
+    private String info2 = "";
+    private String info3 = "";
+    private String info4 = "";
+    private String info5 = "";
 
-
-
-    /**
-     * Ordinamento contenuti ExtraTag
-     */
-    private String ordineExtraTag;
-
-    /**
-     * Max contenuti ExtraTag
-     */
-    private String maxExtraTag;
-
-    // ========== DATE ==========
+    // ========================================
+    // DATE
+    // ========================================
 
     private String data;
     private String dataVisualizzata;
@@ -126,115 +139,34 @@ public class Section implements Serializable {
     private String creatoDa;
     private String modificato;
     private String modificatoDa;
+    private String apertoda = "";
 
-    // ========== ARCHIVIO ==========
+    // Date extraction helpers
+    private String giorno = "";
+    private String mese = "";
+    private String mese3 = "";
+    private int anno = 2012;
 
-    /**
-     * Anno temporaneo per archivio
-     */
-    private String annoTemp;
-
-    /**
-     * Mese temporaneo per archivio
-     */
-    private String meseTemp;
-
-    /**
-     * Stato archivio (filtro)
-     */
-    private String statoArchivio;
-
-    // ========== URL REWRITING ==========
-
-    /**
-     * URL base rewriting (con .html)
-     * Lombok genera automaticamente getter/setter
-     */
-    private String urlRW;  // ✅ AGGIUNTO
-
-    /**
-     * URL con paginazione
-     */
-    private String urlRWPages;
-
-    /**
-     * URL archivio
-     */
-    private String urlRWArchivio;
-
-    // ========== RELAZIONI ==========
-
-    /**
-     * Tipo di sezione (news, eventi, etc.)
-     */
-    private SectionType sectionType;
-
-    /**
-     * Sotto-sezioni figlie (navigazione gerarchica)
-     */
-    private List<Section> subsection;
-
-    /**
-     * Contenuti appartenenti a questa sezione
-     */
-    private List<DatiBase> contenuti;
-
-    /**
-     * Sezioni parent nella gerarchia (per breadcrumb)
-     */
-    private List<Section> parentSection;
-
-    /**
-     * Allegati associati
-     */
-    private List<Allegato> allegati;
-
-    /**
-     * Gallery di immagini
-     */
-    private List<Images> galleryList;
-
-    /**
-     * ExtraTag - contenuti correlati
-     */
-    private ExtraTag extratag;
-
-    // ========== i18n ==========
-
-    private String locale = "it_IT";
-
-
-    // Ordinamento contenuti/sottosezioni
-    private String ordineContenuti;
-    private String ordineSottosezioni;
-    private String maxOrdineContenuti;
-    private String maxOrdineSottosezioni;
-
-    // ExtraTag References (per correlazioni inverse)
-    private String extraTagRef1;
-    private String extraTagRef2;
-    private String extraTagRef3;
-    private String extraTagRef4;
-    private String extraTagRef5;
-    private String extraTagRef6;
-    private String extraTagRef7;
-    private String extraTagRef8;
-    private String extraTagRef9;
-    private String extraTagRef10;
-
-    private String regolaExtraTag1;
-
-    private String regolaExtraTag2;
-
-    // L estesi
-    private String l11;
-    private String l12;
-    private String l13;
-    private String l14;
-    private String l15;
     // ========================================
-// NEWSLETTER E SMS
-// ========================================
+    // ARCHIVIO E FILTRI
+    // ========================================
+
+    private String annoTemp;
+    private String meseTemp;
+    private String statoArchivio = "1";
+
+    // ========================================
+    // URL REWRITING
+    // ========================================
+
+    private String urlRW;
+    private String urlRWPages;
+    private String urlRWArchivio;
+    private String urlBack = "";
+
+    // ========================================
+    // NEWSLETTER E SMS
+    // ========================================
 
     private String newsletter1 = "0";
     private String newsletter2 = "0";
@@ -248,9 +180,9 @@ public class Section implements Serializable {
     private String sms4 = "";
     private String sms5 = "";
 
-// ========================================
-// CAMPI CUSTOM ESTESI - TEXT (1-10)
-// ========================================
+    // ========================================
+    // TEXT (1-10)
+    // ========================================
 
     private String text1 = "";
     private String text2 = "";
@@ -263,11 +195,11 @@ public class Section implements Serializable {
     private String text9 = "";
     private String text10 = "";
 
-// ========================================
-// CAMPI CUSTOM ESTESI - DATE (1-10)
-// ========================================
+    // ========================================
+    // DATA (1-10)
+    // ========================================
 
-    private LocalDate data1;
+    private String data1;
     private LocalDate data2;
     private LocalDate data3;
     private LocalDate data4;
@@ -278,9 +210,9 @@ public class Section implements Serializable {
     private LocalDate data9;
     private LocalDate data10;
 
-// ========================================
-// CAMPI CUSTOM ESTESI - VARCHAR (1-10)
-// ========================================
+    // ========================================
+    // VARCHAR (1-10)
+    // ========================================
 
     private String varchar1;
     private String varchar2;
@@ -293,9 +225,9 @@ public class Section implements Serializable {
     private String varchar9;
     private String varchar10;
 
-// ========================================
-// CAMPI CUSTOM ESTESI - NUMBER (1-10)
-// ========================================
+    // ========================================
+    // NUMBER (1-10)
+    // ========================================
 
     private Double number1;
     private Double number2;
@@ -308,9 +240,9 @@ public class Section implements Serializable {
     private Double number9;
     private Double number10;
 
-// ========================================
-// CAMPI CUSTOM ESTESI - ARRAY (1-5)
-// ========================================
+    // ========================================
+    // ARRAY (1-5)
+    // ========================================
 
     private String[] array1 = {"0"};
     private String[] array2 = {"0"};
@@ -318,9 +250,9 @@ public class Section implements Serializable {
     private String[] array4 = {"0"};
     private String[] array5 = {"0"};
 
-// ========================================
-// NUMERATORI PROGRESSIVI (1-5)
-// ========================================
+    // ========================================
+    // NUMERATORI (1-5)
+    // ========================================
 
     private Long numeratore1 = 0L;
     private Long numeratore2 = 0L;
@@ -328,27 +260,17 @@ public class Section implements Serializable {
     private Long numeratore4 = 0L;
     private Long numeratore5 = 0L;
 
-// ========================================
-// CAMPI INFO (1-5)
-// ========================================
-
-    private String info1 = "";
-    private String info2 = "";
-    private String info3 = "";
-    private String info4 = "";
-    private String info5 = "";
-
-// ========================================
-// LOGO E TEMPORANEI
-// ========================================
-
-    private String logo = "";
-    private String logo2 = "";
-    private String logo3 = "";
+    // ========================================
+    // LOG (1-3)
+    // ========================================
 
     private String log1 = "";
     private String log2 = "";
     private String log3 = "";
+
+    // ========================================
+    // TEMP (1-5)
+    // ========================================
 
     private String temp1 = "";
     private String temp2 = "";
@@ -356,152 +278,765 @@ public class Section implements Serializable {
     private String temp4 = "";
     private String temp5 = "";
 
-// ========================================
-// REPOSITORY
-// ========================================
+    // ========================================
+    // LOGO
+    // ========================================
+
+    private String logo = "";
+    private String logo2 = "";
+    private String logo3 = "";
+
+    // ========================================
+    // REPOSITORY
+    // ========================================
 
     private String repo = "0";
     private String repoId = "0";
     private String repoName = "";
+    private String vis = "0";
 
-// ========================================
-// NAVIGAZIONE ESTESA
-// ========================================
+    // ========================================
+    // EXTRATAG (1-10)
+    // ========================================
 
-    /**
-     * Sottosezioni parent (navigazione verso l'alto)
-     */
+    private String extratag1 = "";
+    private String extratag2 = "";
+    private String extratag3 = "";
+    private String extratag4 = "";
+    private String extratag5 = "";
+    private String extratag6 = "";
+    private String extratag7 = "";
+    private String extratag8 = "";
+    private String extratag9 = "";
+    private String extratag10 = "";
+
+    // ========================================
+    // EXTRATAG REF (1-10)
+    // ========================================
+
+    private String extraTagRef1 = "";
+    private String extraTagRef2 = "";
+    private String extraTagRef3 = "";
+    private String extraTagRef4 = "";
+    private String extraTagRef5 = "";
+    private String extraTagRef6 = "";
+    private String extraTagRef7 = "";
+    private String extraTagRef8 = "";
+    private String extraTagRef9 = "";
+    private String extraTagRef10 = "";
+
+    // ========================================
+    // REGOLE EXTRATAG
+    // ========================================
+
+    private String ordineExtraTag = "rand()";
+    private String maxExtraTag = "5";
+    private String regolaExtraTag1 = "0";
+    private String regolaExtraTag2 = "0";
+
+    // ========================================
+    // ORDINAMENTO
+    // ========================================
+
+    private String ordineContenuti;
+    private String ordineSottosezioni;
+    private String maxOrdineContenuti;
+    private String maxOrdineSottosezioni;
+    private int order = 0;
+
+    // ========================================
+    // RELAZIONI
+    // ========================================
+
+    private SectionType sectionType;
+    private List<SectionType> sectionTypes;
+    private List<Section> subsection;
     private List<Section> subsectionParent;
-
-    /**
-     * Sottosezioni private (filtrate per gruppo)
-     */
     private List<Section> subsectionPrivate;
-
-    /**
-     * Sezioni correlate
-     */
+    private List<Section> parentSection;
     private List<Section> relazione;
-
-    /**
-     * Relazioni inverse
-     */
     private List<Section> relazioneInversa;
+    private List<DatiBase> contenuti;
+    private List<Allegato> allegati;
+    private List<Images> galleryList;
+    private Allegato allegato;
+    private ExtraTag extratag;
 
-// ========================================
-// UTENTI ASSOCIATI
-// ========================================
+    // ========================================
+    // UTENTI E GRUPPI
+    // ========================================
 
     private List<UtenteEsterno> utentiAssociati;
     private String utentiAssociatiString = "";
-
-// ========================================
-// GRUPPI
-// ========================================
-
     private String[] idgruppi;
 
-// ========================================
-// COMMENTI E RATING
-// ========================================
+    // ========================================
+    // COMMENTI E RATING
+    // ========================================
 
-    /**
-     * Lista commenti associati alla sezione
-     */
     private List<Commento> commenti;
-
-    /**
-     * Lista rating
-     */
-    //private List<Rating> ratings;
-
-    /**
-     * Numero commenti (contatore)
-     */
     private String numeroCommenti = "0";
-
-    /**
-     * Rating medio
-     */
     private int rating = 0;
 
-// ========================================
-// SONDAGGI
-// ========================================
+    // ========================================
+    // STATO E FLAGS
+    // ========================================
 
+    private String statoText = "";
+    private String sizeContenuti = "0";
+    private Boolean emptySubsection;
+    private Boolean emptyContenuti;
+
+    // ========================================
+    // SONDAGGI (LEGACY)
+    // ========================================
+
+    private String sondaggio;
+    private String oldsondaggio;
     private String subsectType;
 
+    // ========================================
+    // i18n
+    // ========================================
 
-// ========================================
-// SECTION TYPES
-// ========================================
-
-    private List<SectionType> sectionTypes;
-
-// ========================================
-// ALLEGATO SINGOLO
-// ========================================
-
-    /**
-     * Allegato singolo (legacy)
-     */
-    private Allegato allegato;
-
-// ========================================
-// ALTRI CAMPI
-// ========================================
-
-    private String apertoda = "";
-    private String urlBack = "";
-    private String vis = "0";
-
-    /**
-     * Numero di contenuti (size cache)
-     */
-    private String sizeContenuti = "0";
-
-    /**
-     * Giorno (estratto da dataVisualizzata)
-     */
-    private String giorno = "";
-
-    /**
-     * Mese abbreviato (estratto da dataVisualizzata)
-     */
-    private String mese3 = "";
+    private String locale = "it_IT";
 
     // ========================================
-    // METODI HELPER - i18n
+    // METODI GETTER CUSTOM - TITOLO
     // ========================================
 
     /**
-     * Ottiene il titolo considerando il locale
+     * Ritorna il titolo localizzato
      */
-    public String getTitoloLocalized() {
+    public String getTitolo() {
         if (locale != null && !locale.isEmpty() && !"it_IT".equals(locale)) {
-            return titoloEN != null && !titoloEN.isEmpty() ? titoloEN : titolo;
+            return getTitoloEN();
         }
         return titolo;
     }
 
     /**
-     * Ottiene il riassunto considerando il locale
+     * Ritorna il titolo EN con fallback
      */
-    public String getRiassuntoLocalized() {
+    public String getTitoloEN() {
+        if (titoloEN == null || titoloEN.isEmpty()) {
+            return "Not define";
+        }
+        return titoloEN;
+    }
+
+    /**
+     * Ritorna il titolo formattato per URL (label sanitizzata)
+     */
+    public String getTitoloLabel() {
+        try {
+            if (titolo != null && !titolo.isEmpty()) {
+                return titolo
+                        .replace(" ", "_")
+                        .replace("/", "_")
+                        .replace("\\", "_")
+                        .replace("\"", "_")
+                        .replace("'", "_");
+            }
+            return titolo;
+        } catch (Exception e) {
+            return titolo;
+        }
+    }
+
+    // ========================================
+    // METODI GETTER CUSTOM - RIASSUNTO/TESTO
+    // ========================================
+
+    /**
+     * Ritorna il riassunto localizzato
+     */
+    public String getRiassunto() {
         if (locale != null && !locale.isEmpty() && !"it_IT".equals(locale)) {
-            return riassuntoEN != null && !riassuntoEN.isEmpty() ? riassuntoEN : riassunto;
+            return getRiassuntoEN();
         }
         return riassunto;
     }
 
     /**
-     * Ottiene il testo considerando il locale
+     * Ritorna il testo localizzato
      */
-    public String getTestoLocalized() {
+    public String getTesto() {
         if (locale != null && !locale.isEmpty() && !"it_IT".equals(locale)) {
-            return testoEN != null && !testoEN.isEmpty() ? testoEN : testo;
+            return getTestoEN();
         }
         return testo;
+    }
+
+    // ========================================
+    // METODI HELPER - STATO
+    // ========================================
+
+    /**
+     * Ritorna lo stato formattato come chiave i18n
+     */
+    public String getStatoText() {
+        return "stato_" + this.stato;
+    }
+
+    /**
+     * Verifica se ha sotto-sezioni
+     */
+    public Boolean getEmptySubsection() {
+        if (subsection == null) return true;
+        return subsection.isEmpty();
+    }
+
+    /**
+     * Verifica se ha contenuti
+     */
+    public Boolean getEmptyContenuti() {
+        if (contenuti == null) return true;
+        return contenuti.isEmpty();
+    }
+
+    /**
+     * Ritorna il numero di contenuti come stringa
+     */
+    public String getSizeContenuti() {
+        if (contenuti == null) return "0";
+        if (contenuti.isEmpty()) return "0";
+        return Integer.toString(contenuti.size());
+    }
+
+    /**
+     * Verifica se ha sotto-sezioni
+     */
+    public boolean hasSubsections() {
+        return subsection != null && !subsection.isEmpty();
+    }
+
+    /**
+     * Verifica se ha contenuti
+     */
+    public boolean hasContenuti() {
+        return contenuti != null && !contenuti.isEmpty();
+    }
+
+    /**
+     * Verifica se ha allegati
+     */
+    public boolean hasAllegati() {
+        return allegati != null && !allegati.isEmpty();
+    }
+
+    /**
+     * Controlla se ci sono allegati
+     */
+    public Boolean getAllegatiCheck() {
+        if (allegati == null || allegati.isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Verifica se ha gallery
+     */
+    public boolean hasGallery() {
+        return galleryList != null && !galleryList.isEmpty();
+    }
+
+    /**
+     * Controlla se c'è una gallery
+     */
+    public Boolean getGalleryCheck() {
+        if (galleryList == null || galleryList.isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Verifica se è pubblicata
+     */
+    public boolean isPubblicata() {
+        return "1".equals(stato) || "3".equals(stato);
+    }
+
+    /**
+     * Verifica se è privata
+     */
+    public boolean isPrivata() {
+        return "1".equals(privato);
+    }
+
+    /**
+     * Conta i contenuti pubblicati
+     */
+    public int countPubblicati() {
+        if (contenuti == null) return 0;
+        return (int) contenuti.stream()
+                .filter(c -> "1".equals(c.getStato()))
+                .count();
+    }
+
+    /**
+     * Conta le sottosezioni
+     */
+    public int countSubsections() {
+        return subsection != null ? subsection.size() : 0;
+    }
+
+    // ========================================
+    // METODI HELPER - GALLERY E LOGO
+    // ========================================
+
+    /**
+     * Ottieni immagine dalla gallery per posizione
+     */
+    public Images getGallery(int pos) {
+        if (galleryList != null && galleryList.size() > pos) {
+            return galleryList.get(pos);
+        }
+        return null;
+    }
+
+    /**
+     * Ritorna il logo principale (prima immagine della gallery)
+     */
+    public String getLogo() {
+        String foto = "nofoto.jpg";
+        if (getGalleryCheck() && galleryList.size() > 0) {
+            foto = galleryList.get(0).getFullpath();
+        }
+        return foto;
+    }
+
+    /**
+     * Ritorna il secondo logo
+     */
+    public String getLogo1() {
+        String foto = "nofoto.jpg";
+        if (getGalleryCheck() && galleryList.size() >= 2) {
+            foto = galleryList.get(1).getFullpath();
+        }
+        return foto;
+    }
+
+    /**
+     * Ritorna il secondo logo (alias)
+     */
+    public String getLogo2() {
+        String foto = "nofoto.jpg";
+        if (getGalleryCheck() && galleryList.size() >= 2) {
+            foto = galleryList.get(1).getFullpath();
+        }
+        return foto;
+    }
+
+    /**
+     * Ritorna il terzo logo
+     */
+    public String getLogo3() {
+        String foto = "nofoto.jpg";
+        if (getGalleryCheck() && galleryList.size() >= 3) {
+            foto = galleryList.get(2).getFullpath();
+        }
+        return foto;
+    }
+
+    /**
+     * Ottieni logo da gallery position
+     */
+    public String getLogoFromGallery(int position) {
+        if (galleryList != null && galleryList.size() > position) {
+            return galleryList.get(position).getFullpath();
+        }
+        return "nofoto.jpg";
+    }
+
+    // ========================================
+    // METODI HELPER - URL BUILDING
+    // ========================================
+
+    /**
+     * URL standard per query parameter
+     */
+    public String getUrl() {
+        return "pid=" + this.id + "&amp;site=" + this.idSite +
+                "&amp;stato=" + this.stato + "&amp;t=" + getTitoloLabel();
+    }
+
+    /**
+     * URL rewrite-friendly
+     */
+    public String getUrlRW() {
+        if ("0".equals(privato)) {
+            return "page/" + idSite + "/" + id + "/" + stato + "/" + anno + "/" + getTitoloLabel();
+        } else {
+            return "Privatepage/" + idSite + "/" + id + "/" + stato + "/" + anno + "/" + getTitoloLabel();
+        }
+    }
+
+    /**
+     * URL rewrite base (senza .html)
+     */
+    public String getUrlRWBase() {
+        return idSite + "/" + id + "/" + stato + "/" + anno + "/" + getTitoloLabel();
+    }
+
+    /**
+     * URL rewrite semplice
+     */
+    public String getUrlRWS() {
+        return "page/" + idSite + "/" + id + "/" + stato + "/" + anno + "/section";
+    }
+
+    /**
+     * URL per paginazione
+     */
+    public String getUrlRWPages() {
+        return "pages/" + idSite + "/" + id + "/" + stato + "/";
+    }
+
+    /**
+     * URL paginazione query string
+     */
+    public String getUrlRWPagination() {
+        return "Pager.do?pid=" + id + "&amp;site=" + idSite + "&amp;stato=" + statoArchivio;
+    }
+
+    /**
+     * URL archivio
+     */
+    public String getUrlRWArchivio() {
+        return "pageArchivio/" + idSite + "/" + id + "/" + statoArchivio + "/" +
+                annoTemp + "/" + meseTemp + "/";
+    }
+
+    /**
+     * URL privato
+     */
+    public String getUrlPrivate() {
+        return "Pager.do?pid=" + id + "&amp;site=" + idSite +
+                "&amp;title=" + getTitoloLabel() + "&root=" + idRoot;
+    }
+
+    /**
+     * URL home
+     */
+    public String getUrlHome() {
+        return "Pager.do?pid=" + id + "&amp;site=" + idSite +
+                "&amp;path=home&amp;title=" + getTitoloLabel();
+    }
+
+    /**
+     * URL breadcrumb
+     */
+    public String getUrlbreadcrumb() {
+        if ("-1".equals(String.valueOf(id))) {
+            return "Pager.do?service=" + label + "&amp;title=" + getTitoloLabel();
+        }
+        return "Pager.do?pid=" + id + "&amp;site=" + idSite +
+                "&amp;title=" + getTitoloLabel();
+    }
+
+    /**
+     * Calcola e imposta URL rewriting base
+     */
+    public void buildUrlRW() {
+        if (label != null && !label.isEmpty()) {
+            this.urlRW = "/" + label + ".html";
+        } else {
+            this.urlRW = "/section/" + id + ".html";
+        }
+    }
+
+    /**
+     * Genera URL per paginazione
+     */
+    public void buildUrlRWPages() {
+        if (this.urlRW == null || this.urlRW.isEmpty()) {
+            buildUrlRW();
+        }
+        this.urlRWPages = this.urlRW.replace(".html", "/page/");
+    }
+
+    /**
+     * Genera URL per archivio
+     */
+    public void buildUrlRWArchivio() {
+        if (this.urlRW == null || this.urlRW.isEmpty()) {
+            buildUrlRW();
+        }
+
+        if (annoTemp != null && meseTemp != null) {
+            this.urlRWArchivio = this.urlRW.replace(".html",
+                    "/" + annoTemp + "/" + meseTemp + "/page/");
+        } else {
+            this.urlRWArchivio = this.urlRW.replace(".html", "/archivio/page/");
+        }
+    }
+
+    // ========================================
+    // METODI HELPER - TAG CLOUD
+    // ========================================
+
+    /**
+     * Genera il tag cloud HTML dai tag
+     */
+    public String getTagsCloud() {
+        if (tag == null || tag.isEmpty()) {
+            return "";
+        }
+
+        StringTokenizer st = new StringTokenizer(tag, ",");
+        StringBuilder cloud = new StringBuilder();
+
+        while (st.hasMoreTokens()) {
+            String tags = st.nextToken().trim();
+            cloud.append("<a class='badge badge-sm badge-pill badge-outline-greendark' href=\"tagArgomento/")
+                    .append(tags)
+                    .append("\">")
+                    .append(tags)
+                    .append("</a> ");
+        }
+
+        return cloud.toString();
+    }
+
+    /**
+     * Genera tag cloud HTML da campo tag
+     */
+    public String getTagsCloudHtml() {
+        if (tag == null || tag.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder cloud = new StringBuilder();
+        String[] tags = tag.split(",");
+
+        for (String t : tags) {
+            t = t.trim();
+            if (!t.isEmpty()) {
+                cloud.append("<a class='badge badge-sm badge-pill badge-outline-greendark' ")
+                        .append("href=\"tagArgomento/").append(t).append("\">")
+                        .append(t).append("</a> ");
+            }
+        }
+
+        return cloud.toString();
+    }
+
+    // ========================================
+    // METODI HELPER - DATE
+    // ========================================
+
+    /**
+     * Estrae il giorno dalla dataVisualizzata
+     */
+    public String getGiorno() {
+        if (dataVisualizzata != null && !dataVisualizzata.isEmpty() &&
+                dataVisualizzata.contains(" ")) {
+            this.giorno = dataVisualizzata.substring(0, dataVisualizzata.indexOf(" "));
+            return this.giorno;
+        }
+        return "";
+    }
+
+    /**
+     * Estrae giorno da dataVisualizzata
+     */
+    public String getGiornoFromData() {
+        if (dataVisualizzata != null && !dataVisualizzata.isEmpty() &&
+                dataVisualizzata.contains(" ")) {
+            return dataVisualizzata.substring(0, dataVisualizzata.indexOf(" "));
+        }
+        return "";
+    }
+
+    /**
+     * Estrae il mese (3 caratteri) dalla dataVisualizzata
+     */
+    public String getMese3() {
+        if (dataVisualizzata != null && !dataVisualizzata.isEmpty() &&
+                dataVisualizzata.contains(" ")) {
+            int start = dataVisualizzata.indexOf(" ") + 1;
+            int end = Math.min(start + 3, dataVisualizzata.length());
+            this.mese3 = dataVisualizzata.substring(start, end);
+            return this.mese3;
+        }
+        return "";
+    }
+
+    /**
+     * Estrae mese (3 caratteri) da dataVisualizzata
+     */
+    public String getMese3FromData() {
+        if (dataVisualizzata != null && !dataVisualizzata.isEmpty() &&
+                dataVisualizzata.contains(" ")) {
+            int start = dataVisualizzata.indexOf(" ") + 1;
+            int end = Math.min(start + 3, dataVisualizzata.length());
+            return dataVisualizzata.substring(start, end);
+        }
+        return "";
+    }
+
+    // ========================================
+    // METODI HELPER - LINKS
+    // ========================================
+
+    /**
+     * Estrae i link dal campo text10
+     */
+    public List<String> getLinks() {
+        List<String> linkList = new ArrayList<>();
+        if (text10 == null || text10.isEmpty()) {
+            return linkList;
+        }
+
+        StringTokenizer st = new StringTokenizer(text10, ",");
+        while (st.hasMoreTokens()) {
+            String tags = st.nextToken().trim();
+            linkList.add("<a target=\"_blank\" href=\"http://" + tags + "\">" + tags + "</a>");
+        }
+
+        return linkList;
+    }
+
+    // ========================================
+    // METODI HELPER - NUMERATORI
+    // ========================================
+
+    /**
+     * Ritorna numeratore1 formattato con 8 cifre (00000000)
+     */
+    public String getNumeratore1() {
+        DecimalFormat formatter = new DecimalFormat("00000000");
+        return formatter.format(numeratore1);
+    }
+
+    public String getNumeratore2() {
+        DecimalFormat formatter = new DecimalFormat("00000000");
+        return formatter.format(numeratore2);
+    }
+
+    public String getNumeratore3() {
+        DecimalFormat formatter = new DecimalFormat("00000000");
+        return formatter.format(numeratore3);
+    }
+
+    public String getNumeratore4() {
+        DecimalFormat formatter = new DecimalFormat("00000000");
+        return formatter.format(numeratore4);
+    }
+
+    public String getNumeratore5() {
+        DecimalFormat formatter = new DecimalFormat("00000000");
+        return formatter.format(numeratore5);
+    }
+
+    /**
+     * Ottieni numeratore formattato con padding (00000000)
+     */
+    public String getNumeratoreFormatted(int numero) {
+        Long value = switch (numero) {
+            case 1 -> numeratore1;
+            case 2 -> numeratore2;
+            case 3 -> numeratore3;
+            case 4 -> numeratore4;
+            case 5 -> numeratore5;
+            default -> 0L;
+        };
+        return String.format("%08d", value);
+    }
+
+    // ========================================
+    // METODI HELPER - CAMPI L
+    // ========================================
+
+    /**
+     * Ottieni campo L per numero (1-15)
+     */
+    public String getL(int numero) {
+        return switch (numero) {
+            case 1 -> l1;
+            case 2 -> l2;
+            case 3 -> l3;
+            case 4 -> l4;
+            case 5 -> l5;
+            case 6 -> l6;
+            case 7 -> l7;
+            case 8 -> l8;
+            case 9 -> l9;
+            case 10 -> l10;
+            case 11 -> l11;
+            case 12 -> l12;
+            case 13 -> l13;
+            case 14 -> l14;
+            case 15 -> l15;
+            default -> null;
+        };
+    }
+
+    /**
+     * Imposta campo L per numero (1-15)
+     */
+    public void setL(int numero, String valore) {
+        switch (numero) {
+            case 1 -> l1 = valore;
+            case 2 -> l2 = valore;
+            case 3 -> l3 = valore;
+            case 4 -> l4 = valore;
+            case 5 -> l5 = valore;
+            case 6 -> l6 = valore;
+            case 7 -> l7 = valore;
+            case 8 -> l8 = valore;
+            case 9 -> l9 = valore;
+            case 10 -> l10 = valore;
+            case 11 -> l11 = valore;
+            case 12 -> l12 = valore;
+            case 13 -> l13 = valore;
+            case 14 -> l14 = valore;
+            case 15 -> l15 = valore;
+        }
+    }
+
+    // ========================================
+    // METODI HELPER - CAMPI S
+    // ========================================
+
+    /**
+     * Ottieni campo S per numero (1-10)
+     */
+    public String getS(int numero) {
+        return switch (numero) {
+            case 1 -> s1;
+            case 2 -> s2;
+            case 3 -> s3;
+            case 4 -> s4;
+            case 5 -> s5;
+            case 6 -> s6;
+            case 7 -> s7;
+            case 8 -> s8;
+            case 9 -> s9;
+            case 10 -> s10;
+            default -> null;
+        };
+    }
+
+    /**
+     * Imposta campo S per numero (1-10)
+     */
+    public void setS(int numero, String valore) {
+        switch (numero) {
+            case 1 -> s1 = valore;
+            case 2 -> s2 = valore;
+            case 3 -> s3 = valore;
+            case 4 -> s4 = valore;
+            case 5 -> s5 = valore;
+            case 6 -> s6 = valore;
+            case 7 -> s7 = valore;
+            case 8 -> s8 = valore;
+            case 9 -> s9 = valore;
+            case 10 -> s10 = valore;
+        }
     }
 
     // ========================================
@@ -558,239 +1093,6 @@ public class Section implements Serializable {
         return false;
     }
 
-
-
-    // ========================================
-    // METODI HELPER - CAMPI S
-    // ========================================
-
-    /**
-     * Ottieni campo S per numero (1-10)
-     */
-    public String getS(int numero) {
-        return switch (numero) {
-            case 1 -> s1;
-            case 2 -> s2;
-            case 3 -> s3;
-            case 4 -> s4;
-            case 5 -> s5;
-            case 6 -> s6;
-            case 7 -> s7;
-            case 8 -> s8;
-            case 9 -> s9;
-            case 10 -> s10;
-            default -> null;
-        };
-    }
-
-    /**
-     * Imposta campo S per numero (1-10)
-     */
-    public void setS(int numero, String valore) {
-        switch (numero) {
-            case 1 -> s1 = valore;
-            case 2 -> s2 = valore;
-            case 3 -> s3 = valore;
-            case 4 -> s4 = valore;
-            case 5 -> s5 = valore;
-            case 6 -> s6 = valore;
-            case 7 -> s7 = valore;
-            case 8 -> s8 = valore;
-            case 9 -> s9 = valore;
-            case 10 -> s10 = valore;
-        }
-    }
-
-
-
-    // ========================================
-    // METODI HELPER - URL
-    // ========================================
-
-    /**
-     * Label sanitizzata per URL
-     */
-    public String getTitoloLabel() {
-        if (titolo == null || titolo.isEmpty()) {
-            return "";
-        }
-        return titolo
-                .toLowerCase()
-                .replaceAll("[àáâãäå]", "a")
-                .replaceAll("[èéêë]", "e")
-                .replaceAll("[ìíîï]", "i")
-                .replaceAll("[òóôõö]", "o")
-                .replaceAll("[ùúûü]", "u")
-                .replaceAll("[^a-z0-9]", "-")
-                .replaceAll("-+", "-")
-                .replaceAll("^-|-$", "");
-    }
-
-    /**
-     * URL builder per Spring Boot routing
-     */
-    public String getUrl() {
-        if (label != null && !label.isEmpty()) {
-            return "/" + label;
-        }
-        return "/section/" + id;
-    }
-
-    /**
-     * Calcola e imposta URL rewriting base
-     */
-    public void buildUrlRW() {
-        if (label != null && !label.isEmpty()) {
-            this.urlRW = "/" + label + ".html";
-        } else {
-            this.urlRW = "/section/" + id + ".html";
-        }
-    }
-
-    /**
-     * Genera URL per paginazione
-     */
-    public void buildUrlRWPages() {
-        if (this.urlRW == null || this.urlRW.isEmpty()) {
-            buildUrlRW();
-        }
-        this.urlRWPages = this.urlRW.replace(".html", "/page/");
-    }
-
-    /**
-     * Genera URL per archivio
-     */
-    public void buildUrlRWArchivio() {
-        if (this.urlRW == null || this.urlRW.isEmpty()) {
-            buildUrlRW();
-        }
-
-        if (annoTemp != null && meseTemp != null) {
-            this.urlRWArchivio = this.urlRW.replace(".html",
-                    "/" + annoTemp + "/" + meseTemp + "/page/");
-        } else {
-            this.urlRWArchivio = this.urlRW.replace(".html", "/archivio/page/");
-        }
-    }
-
-    // ========================================
-    // METODI HELPER - STATO
-    // ========================================
-
-    /**
-     * Verifica se ha sotto-sezioni
-     */
-    public boolean hasSubsections() {
-        return subsection != null && !subsection.isEmpty();
-    }
-
-    /**
-     * Verifica se ha contenuti
-     */
-    public boolean hasContenuti() {
-        return contenuti != null && !contenuti.isEmpty();
-    }
-
-    /**
-     * Verifica se ha allegati
-     */
-    public boolean hasAllegati() {
-        return allegati != null && !allegati.isEmpty();
-    }
-
-    /**
-     * Verifica se ha gallery
-     */
-    public boolean hasGallery() {
-        return gallery != null && !gallery.isEmpty();
-    }
-
-    /**
-     * Verifica se è pubblicata
-     */
-    public boolean isPubblicata() {
-        return "1".equals(stato) || "3".equals(stato);
-    }
-
-    /**
-     * Verifica se è privata
-     */
-    public boolean isPrivata() {
-        return "1".equals(privato);
-    }
-
-    /**
-     * Conta i contenuti pubblicati
-     */
-    public int countPubblicati() {
-        if (contenuti == null) return 0;
-        return (int) contenuti.stream()
-                .filter(c -> "1".equals(c.getStato()))
-                .count();
-    }
-
-    /**
-     * Conta le sottosezioni
-     */
-    public int countSubsections() {
-        return subsection != null ? subsection.size() : 0;
-    }
-
-    // ========================================
-// METODI HELPER - CAMPI L ESTESI
-// ========================================
-
-    /**
-     * Ottieni campo L per numero (1-15) - ESTESO
-     */
-    public String getL(int numero) {
-        return switch (numero) {
-            case 1 -> l1;
-            case 2 -> l2;
-            case 3 -> l3;
-            case 4 -> l4;
-            case 5 -> l5;
-            case 6 -> l6;
-            case 7 -> l7;
-            case 8 -> l8;
-            case 9 -> l9;
-            case 10 -> l10;
-            case 11 -> l11;  // NUOVO
-            case 12 -> l12;  // NUOVO
-            case 13 -> l13;  // NUOVO
-            case 14 -> l14;  // NUOVO
-            case 15 -> l15;  // NUOVO
-            default -> null;
-        };
-    }
-
-    /**
-     * Imposta campo L per numero (1-15) - ESTESO
-     */
-    public void setL(int numero, String valore) {
-        switch (numero) {
-            case 1 -> l1 = valore;
-            case 2 -> l2 = valore;
-            case 3 -> l3 = valore;
-            case 4 -> l4 = valore;
-            case 5 -> l5 = valore;
-            case 6 -> l6 = valore;
-            case 7 -> l7 = valore;
-            case 8 -> l8 = valore;
-            case 9 -> l9 = valore;
-            case 10 -> l10 = valore;
-            case 11 -> l11 = valore;  // NUOVO
-            case 12 -> l12 = valore;  // NUOVO
-            case 13 -> l13 = valore;  // NUOVO
-            case 14 -> l14 = valore;  // NUOVO
-            case 15 -> l15 = valore;  // NUOVO
-        }
-    }
-
-// ========================================
-// METODI HELPER - EXTRATAG REF
-// ========================================
-
     /**
      * Ottieni ExtraTagRef per numero (1-10)
      */
@@ -828,91 +1130,25 @@ public class Section implements Serializable {
         }
     }
 
-// ========================================
-// METODI HELPER - NUMERATORE FORMATTATO
-// ========================================
+    // ========================================
+    // METODI HELPER STATICI
+    // ========================================
 
     /**
-     * Ottieni numeratore formattato con padding (00000000)
+     * Converte una stringa separata in array
      */
-    public String getNumeratoreFormatted(int numero) {
-        Long value = switch (numero) {
-            case 1 -> numeratore1;
-            case 2 -> numeratore2;
-            case 3 -> numeratore3;
-            case 4 -> numeratore4;
-            case 5 -> numeratore5;
-            default -> 0L;
-        };
-        return String.format("%08d", value);
-    }
-
-// ========================================
-// METODI HELPER - LOGO GALLERY
-// ========================================
-
-    /**
-     * Ottieni logo da gallery position
-     */
-    public String getLogoFromGallery(int position) {
-        if (galleryList != null && galleryList.size() > position) {
-            return galleryList.get(position).getFullpath();
-        }
-        return "nofoto.jpg";
-    }
-
-// ========================================
-// METODI HELPER - TAG CLOUD
-// ========================================
-
-    /**
-     * Genera tag cloud HTML da campo tag
-     */
-    public String getTagsCloudHtml() {
-        if (tag == null || tag.isEmpty()) {
-            return "";
+    public static String[] stringToArray(String input, String separator) {
+        if (input == null || input.length() == 0) {
+            return new String[0];
         }
 
-        StringBuilder cloud = new StringBuilder();
-        String[] tags = tag.split(",");
+        List<String> wordsList = new ArrayList<>();
+        StringTokenizer st = new StringTokenizer(input, separator);
 
-        for (String t : tags) {
-            t = t.trim();
-            if (!t.isEmpty()) {
-                cloud.append("<a class='badge badge-sm badge-pill badge-outline-greendark' ")
-                        .append("href=\"tagArgomento/").append(t).append("\">")
-                        .append(t).append("</a> ");
-            }
+        while (st.hasMoreTokens()) {
+            wordsList.add(st.nextToken());
         }
 
-        return cloud.toString();
-    }
-
-// ========================================
-// METODI HELPER - DATA ESTRATTA
-// ========================================
-
-    /**
-     * Estrae giorno da dataVisualizzata
-     */
-    public String getGiornoFromData() {
-        if (dataVisualizzata != null && !dataVisualizzata.isEmpty() &&
-                dataVisualizzata.contains(" ")) {
-            return dataVisualizzata.substring(0, dataVisualizzata.indexOf(" "));
-        }
-        return "";
-    }
-
-    /**
-     * Estrae mese (3 caratteri) da dataVisualizzata
-     */
-    public String getMese3FromData() {
-        if (dataVisualizzata != null && !dataVisualizzata.isEmpty() &&
-                dataVisualizzata.contains(" ")) {
-            int start = dataVisualizzata.indexOf(" ") + 1;
-            int end = Math.min(start + 3, dataVisualizzata.length());
-            return dataVisualizzata.substring(start, end);
-        }
-        return "";
+        return wordsList.toArray(new String[0]);
     }
 }

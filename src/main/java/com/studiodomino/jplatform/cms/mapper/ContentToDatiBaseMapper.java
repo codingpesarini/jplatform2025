@@ -38,6 +38,7 @@ public class ContentToDatiBaseMapper {
         datiBase.setIdType(content.getIdType() != null ? content.getIdType().toString() : "");
         datiBase.setIdParent(content.getIdParent() != null ? content.getIdParent() : "");
         datiBase.setIdSite(content.getIdSite() != null ? content.getIdSite() : "");
+        datiBase.setLabel(content.getLabel() != null ? content.getLabel() : "");
 
         // ========== CONTENUTO PRINCIPALE ==========
         datiBase.setTitolo(content.getTitolo() != null ? content.getTitolo() : "");
@@ -50,23 +51,25 @@ public class ContentToDatiBaseMapper {
         // ========== DATE ==========
         datiBase.setData(content.getData() != null ? content.getData() : "");
         datiBase.setDataVisualizzata(content.getDataVisualizzata() != null ? content.getDataVisualizzata() : "");
-        datiBase.setDataSql(content.getDataSql());
+        datiBase.setDataSql(content.getDatasql()); // ← Mapping corretto
         datiBase.setAnno(content.getAnno() != null ? content.getAnno() : 2012);
         datiBase.setMese(content.getMese() != null ? content.getMese() : "");
         datiBase.setCreato(content.getCreato() != null ? content.getCreato() : "");
-        datiBase.setCreatoDa(content.getCreatoDa() != null ? content.getCreatoDa() : "");
+        datiBase.setCreatoDa(content.getCreatoda() != null ? content.getCreatoda() : "");
         datiBase.setModificato(content.getModificato() != null ? content.getModificato() : "");
-        datiBase.setModificatoDa(content.getModificatoDa() != null ? content.getModificatoDa() : "");
-        datiBase.setApertoDa(content.getApertoDa() != null ? content.getApertoDa() : "");
+        datiBase.setModificatoDa(content.getModificatoda() != null ? content.getModificatoda() : "");
+        datiBase.setApertoDa(content.getApertoda() != null ? content.getApertoda() : "");
 
         // ========== STATO E VISIBILITÀ ==========
         datiBase.setStato(content.getStato() != null ? content.getStato() : "");
         datiBase.setPrivato(content.getPrivato() != null ? content.getPrivato() : "");
         datiBase.setIdGruppo(content.getIdGruppo() != null ? content.getIdGruppo() : "0");
         datiBase.setPosition(content.getPosition() != null ? content.getPosition().toString() : "");
+        datiBase.setVis(content.getVisualizza() != null ? content.getVisualizza() : "");
 
-        // ========== TAG ==========
+        // ========== TAG E RATING ==========
         datiBase.setTag(content.getTag() != null ? content.getTag() : "");
+        datiBase.setRating(content.getRating() != null ? content.getRating() : 0);
 
         // ========== MEDIA ==========
         datiBase.setGalleryString(content.getGallery() != null ? content.getGallery() : "");
@@ -185,40 +188,40 @@ public class ContentToDatiBaseMapper {
         datiBase.setLog3(content.getLog3() != null ? content.getLog3() : "");
 
         // ========== NUMERATORI (numeratore1-numeratore5) ==========
-        datiBase.setNumeratore1(content.getNumeratore1() != null ? content.getNumeratore1() : 0L);
-        datiBase.setNumeratore2(content.getNumeratore2() != null ? content.getNumeratore2() : 0L);
-        datiBase.setNumeratore3(content.getNumeratore3() != null ? content.getNumeratore3() : 0L);
-        datiBase.setNumeratore4(content.getNumeratore4() != null ? content.getNumeratore4() : 0L);
-        datiBase.setNumeratore5(content.getNumeratore5() != null ? content.getNumeratore5() : 0L);
+        datiBase.setNumeratore1(content.getNumeratore1() != null ? (long)content.getNumeratore1() : 0L);
+        datiBase.setNumeratore2(content.getNumeratore2() != null ? (long)content.getNumeratore2() : 0L);
+        datiBase.setNumeratore3(content.getNumeratore3() != null ? (long)content.getNumeratore3() : 0L);
+        datiBase.setNumeratore4(content.getNumeratore4() != null ? (long)content.getNumeratore4() : 0L);
+        datiBase.setNumeratore5(content.getNumeratore5() != null ? (long)content.getNumeratore5() : 0L);
 
-        // ========== EXTRA TAG (extraTag1-extraTag10) ==========
-        datiBase.setExtraTag1(content.getExtraTag1() != null ? content.getExtraTag1() : "");
-        datiBase.setExtraTag2(content.getExtraTag2() != null ? content.getExtraTag2() : "");
-        datiBase.setExtraTag3(content.getExtraTag3() != null ? content.getExtraTag3() : "");
-        datiBase.setExtraTag4(content.getExtraTag4() != null ? content.getExtraTag4() : "");
-        datiBase.setExtraTag5(content.getExtraTag5() != null ? content.getExtraTag5() : "");
-        datiBase.setExtraTag6(content.getExtraTag6() != null ? content.getExtraTag6() : "");
-        datiBase.setExtraTag7(content.getExtraTag7() != null ? content.getExtraTag7() : "");
-        datiBase.setExtraTag8(content.getExtraTag8() != null ? content.getExtraTag8() : "");
-        datiBase.setExtraTag9(content.getExtraTag9() != null ? content.getExtraTag9() : "");
-        datiBase.setExtraTag10(content.getExtraTag10() != null ? content.getExtraTag10() : "");
+        // ========== EXTRA TAG (extratag1-extratag10) ==========
+        datiBase.setExtraTag1(content.getExtratag1() != null ? content.getExtratag1() : "");
+        datiBase.setExtraTag2(content.getExtratag2() != null ? content.getExtratag2() : "");
+        datiBase.setExtraTag3(content.getExtratag3() != null ? content.getExtratag3() : "");
+        datiBase.setExtraTag4(content.getExtratag4() != null ? content.getExtratag4() : "");
+        datiBase.setExtraTag5(content.getExtratag5() != null ? content.getExtratag5() : "");
+        datiBase.setExtraTag6(content.getExtratag6() != null ? content.getExtratag6() : "");
+        datiBase.setExtraTag7(content.getExtratag7() != null ? content.getExtratag7() : "");
+        datiBase.setExtraTag8(content.getExtratag8() != null ? content.getExtratag8() : "");
+        datiBase.setExtraTag9(content.getExtratag9() != null ? content.getExtratag9() : "");
+        datiBase.setExtraTag10(content.getExtratag10() != null ? content.getExtratag10() : "");
 
-        // ========== EXTRA TAG REF (extraTagRef1-extraTagRef10) ==========
-        datiBase.setExtraTagRef1(content.getExtraTagRef1() != null ? content.getExtraTagRef1() : "");
-        datiBase.setExtraTagRef2(content.getExtraTagRef2() != null ? content.getExtraTagRef2() : "");
-        datiBase.setExtraTagRef3(content.getExtraTagRef3() != null ? content.getExtraTagRef3() : "");
-        datiBase.setExtraTagRef4(content.getExtraTagRef4() != null ? content.getExtraTagRef4() : "");
-        datiBase.setExtraTagRef5(content.getExtraTagRef5() != null ? content.getExtraTagRef5() : "");
-        datiBase.setExtraTagRef6(content.getExtraTagRef6() != null ? content.getExtraTagRef6() : "");
-        datiBase.setExtraTagRef7(content.getExtraTagRef7() != null ? content.getExtraTagRef7() : "");
-        datiBase.setExtraTagRef8(content.getExtraTagRef8() != null ? content.getExtraTagRef8() : "");
-        datiBase.setExtraTagRef9(content.getExtraTagRef9() != null ? content.getExtraTagRef9() : "");
-        datiBase.setExtraTagRef10(content.getExtraTagRef10() != null ? content.getExtraTagRef10() : "");
+        // ========== EXTRA TAG REF (extratagref1-extratagref10) ==========
+        datiBase.setExtraTagRef1(content.getExtratagref1() != null ? content.getExtratagref1() : "");
+        datiBase.setExtraTagRef2(content.getExtratagref2() != null ? content.getExtratagref2() : "");
+        datiBase.setExtraTagRef3(content.getExtratagref3() != null ? content.getExtratagref3() : "");
+        datiBase.setExtraTagRef4(content.getExtratagref4() != null ? content.getExtratagref4() : "");
+        datiBase.setExtraTagRef5(content.getExtratagref5() != null ? content.getExtratagref5() : "");
+        datiBase.setExtraTagRef6(content.getExtratagref6() != null ? content.getExtratagref6() : "");
+        datiBase.setExtraTagRef7(content.getExtratagref7() != null ? content.getExtratagref7() : "");
+        datiBase.setExtraTagRef8(content.getExtratagref8() != null ? content.getExtratagref8() : "");
+        datiBase.setExtraTagRef9(content.getExtratagref9() != null ? content.getExtratagref9() : "");
+        datiBase.setExtraTagRef10(content.getExtratagref10() != null ? content.getExtratagref10() : "");
 
-        datiBase.setOrdineExtraTag(content.getOrdineExtraTag() != null ? content.getOrdineExtraTag() : "rand()");
-        datiBase.setMaxExtraTag(content.getMaxExtraTag() != null ? content.getMaxExtraTag() : "5");
-        datiBase.setRegolaExtraTag1(content.getRegolaExtraTag1() != null ? content.getRegolaExtraTag1() : "0");
-        datiBase.setRegolaExtraTag2(content.getRegolaExtraTag2() != null ? content.getRegolaExtraTag2() : "0");
+        datiBase.setOrdineExtraTag(content.getOrdineextratag() != null ? content.getOrdineextratag() : "rand()");
+        datiBase.setMaxExtraTag(content.getMaxextratag() != null ? content.getMaxextratag() : "5");
+        datiBase.setRegolaExtraTag1(content.getRegolaextratag1() != null ? content.getRegolaextratag1() : "0");
+        datiBase.setRegolaExtraTag2(content.getRegolaextratag2() != null ? content.getRegolaextratag2() : "0");
 
         // ========== RELAZIONI (da popolare nel service) ==========
         datiBase.setAllegati(new ArrayList<>());
@@ -233,12 +236,7 @@ public class ContentToDatiBaseMapper {
         datiBase.setRelazioneSezioni(new ArrayList<>());
 
         // ========== i18n ==========
-        datiBase.setLocale(content.getLocale() != null ? content.getLocale() : "it_IT");
-
-        // ========== LABEL ==========
-        if (content.getLabel() != null) {
-            datiBase.setLabel(content.getLabel());
-        }
+        datiBase.setLocale("it_IT"); // Default hardcoded
 
         return datiBase;
     }
@@ -292,14 +290,14 @@ public class ContentToDatiBaseMapper {
         // ========== DATE ==========
         content.setData(datiBase.getData());
         content.setDataVisualizzata(datiBase.getDataVisualizzata());
-        content.setDataSql(datiBase.getDataSql());
+        content.setDatasql(datiBase.getDataSql());
         content.setAnno(datiBase.getAnno());
         content.setMese(datiBase.getMese());
         content.setCreato(datiBase.getCreato());
-        content.setCreatoDa(datiBase.getCreatoDa());
+        content.setCreatoda(datiBase.getCreatoDa());
         content.setModificato(datiBase.getModificato());
-        content.setModificatoDa(datiBase.getModificatoDa());
-        content.setApertoDa(datiBase.getApertoDa());
+        content.setModificatoda(datiBase.getModificatoDa());
+        content.setApertoda(datiBase.getApertoDa());
 
         // ========== STATO E VISIBILITÀ ==========
         content.setStato(datiBase.getStato());
@@ -308,9 +306,11 @@ public class ContentToDatiBaseMapper {
         if (datiBase.getPosition() != null && !datiBase.getPosition().isEmpty()) {
             content.setPosition(Integer.parseInt(datiBase.getPosition()));
         }
+        content.setVisualizza(datiBase.getVis());
 
-        // ========== TAG ==========
+        // ========== TAG E RATING ==========
         content.setTag(datiBase.getTag());
+        content.setRating(datiBase.getRating());
 
         // ========== MEDIA ==========
         content.setGallery(datiBase.getGalleryString());
@@ -388,6 +388,7 @@ public class ContentToDatiBaseMapper {
         content.setText10(datiBase.getText10());
 
         // ========== DATA ==========
+        content.setData1(datiBase.getData1());
         content.setData2(datiBase.getData2());
         content.setData3(datiBase.getData3());
         content.setData4(datiBase.getData4());
@@ -428,42 +429,42 @@ public class ContentToDatiBaseMapper {
         content.setLog3(datiBase.getLog3());
 
         // ========== NUMERATORI ==========
-        content.setNumeratore1(datiBase.getNumeratore1Long());
-        content.setNumeratore2(datiBase.getNumeratore2Long());
-        content.setNumeratore3(datiBase.getNumeratore3Long());
-        content.setNumeratore4(datiBase.getNumeratore4Long());
-        content.setNumeratore5(datiBase.getNumeratore5Long());
+        content.setNumeratore1(datiBase.getNumeratore1Long() != null ? datiBase.getNumeratore1Long().intValue() : 0);
+        content.setNumeratore2(datiBase.getNumeratore2Long() != null ? datiBase.getNumeratore2Long().intValue() : 0);
+        content.setNumeratore3(datiBase.getNumeratore3Long() != null ? datiBase.getNumeratore3Long().intValue() : 0);
+        content.setNumeratore4(datiBase.getNumeratore4Long() != null ? datiBase.getNumeratore4Long().intValue() : 0);
+        content.setNumeratore5(datiBase.getNumeratore5Long() != null ? datiBase.getNumeratore5Long().intValue() : 0);
 
         // ========== EXTRA TAG ==========
-        content.setExtraTag1(datiBase.getExtraTag1());
-        content.setExtraTag2(datiBase.getExtraTag2());
-        content.setExtraTag3(datiBase.getExtraTag3());
-        content.setExtraTag4(datiBase.getExtraTag4());
-        content.setExtraTag5(datiBase.getExtraTag5());
-        content.setExtraTag6(datiBase.getExtraTag6());
-        content.setExtraTag7(datiBase.getExtraTag7());
-        content.setExtraTag8(datiBase.getExtraTag8());
-        content.setExtraTag9(datiBase.getExtraTag9());
-        content.setExtraTag10(datiBase.getExtraTag10());
+        content.setExtratag1(datiBase.getExtraTag1());
+        content.setExtratag2(datiBase.getExtraTag2());
+        content.setExtratag3(datiBase.getExtraTag3());
+        content.setExtratag4(datiBase.getExtraTag4());
+        content.setExtratag5(datiBase.getExtraTag5());
+        content.setExtratag6(datiBase.getExtraTag6());
+        content.setExtratag7(datiBase.getExtraTag7());
+        content.setExtratag8(datiBase.getExtraTag8());
+        content.setExtratag9(datiBase.getExtraTag9());
+        content.setExtratag10(datiBase.getExtraTag10());
 
-        content.setExtraTagRef1(datiBase.getExtraTagRef1());
-        content.setExtraTagRef2(datiBase.getExtraTagRef2());
-        content.setExtraTagRef3(datiBase.getExtraTagRef3());
-        content.setExtraTagRef4(datiBase.getExtraTagRef4());
-        content.setExtraTagRef5(datiBase.getExtraTagRef5());
-        content.setExtraTagRef6(datiBase.getExtraTagRef6());
-        content.setExtraTagRef7(datiBase.getExtraTagRef7());
-        content.setExtraTagRef8(datiBase.getExtraTagRef8());
-        content.setExtraTagRef9(datiBase.getExtraTagRef9());
-        content.setExtraTagRef10(datiBase.getExtraTagRef10());
+        content.setExtratagref1(datiBase.getExtraTagRef1());
+        content.setExtratagref2(datiBase.getExtraTagRef2());
+        content.setExtratagref3(datiBase.getExtraTagRef3());
+        content.setExtratagref4(datiBase.getExtraTagRef4());
+        content.setExtratagref5(datiBase.getExtraTagRef5());
+        content.setExtratagref6(datiBase.getExtraTagRef6());
+        content.setExtratagref7(datiBase.getExtraTagRef7());
+        content.setExtratagref8(datiBase.getExtraTagRef8());
+        content.setExtratagref9(datiBase.getExtraTagRef9());
+        content.setExtratagref10(datiBase.getExtraTagRef10());
 
-        content.setOrdineExtraTag(datiBase.getOrdineExtraTag());
-        content.setMaxExtraTag(datiBase.getMaxExtraTag());
-        content.setRegolaExtraTag1(datiBase.getRegolaExtraTag1());
-        content.setRegolaExtraTag2(datiBase.getRegolaExtraTag2());
+        content.setOrdineextratag(datiBase.getOrdineExtraTag());
+        content.setMaxextratag(datiBase.getMaxExtraTag());
+        content.setRegolaextratag1(datiBase.getRegolaExtraTag1());
+        content.setRegolaextratag2(datiBase.getRegolaExtraTag2());
 
         // ========== i18n ==========
-        content.setLocale(datiBase.getLocale());
+        datiBase.setLocale("it_IT"); // Default hardcoded
 
         return content;
     }

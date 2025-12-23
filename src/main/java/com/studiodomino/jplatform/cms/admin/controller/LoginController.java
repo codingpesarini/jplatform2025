@@ -1,6 +1,6 @@
 package com.studiodomino.jplatform.cms.admin.controller;
 
-import com.studiodomino.jplatform.shared.config.ConfigurazioneCore;
+import com.studiodomino.jplatform.shared.config.Configurazione;
 import com.studiodomino.jplatform.shared.entity.Site;
 import com.studiodomino.jplatform.shared.entity.Utente;
 import com.studiodomino.jplatform.shared.enums.ModuloApplicativo;
@@ -32,10 +32,10 @@ public class LoginController {
     @GetMapping("/login")
     public String showLogin(HttpServletRequest request, Model model) {
         HttpSession session = request.getSession();
-        ConfigurazioneCore configCore = configurazioneService.getOrCreateConfiguration(request);
+        Configurazione configCore = configurazioneService.getOrCreateConfiguration(request);
 
         // Se già loggato, redirect
-        Utente utente = configurazioneService.getUtente(session);
+        Utente utente = configurazioneService.getAmministratore(session);
         if (utente != null) {
             String endpoint = ModuloApplicativo.getEndpoint(utente.getL2());
             log.info("Utente già loggato, redirect a: {}", endpoint);
@@ -60,7 +60,7 @@ public class LoginController {
         log.info("=== LOGIN === username: {}", username);
 
         HttpSession session = request.getSession();
-        ConfigurazioneCore configCore = configurazioneService.getOrCreateConfiguration(request);
+        Configurazione configCore = configurazioneService.getOrCreateConfiguration(request);
 
         // Autentica
         Utente utente = utenteService.authenticate(username, password);
@@ -72,7 +72,7 @@ public class LoginController {
             utenteService.aggiornaStatisticheAccesso(utente, request);
 
             // Imposta utente in sessione
-            configurazioneService.setUtente(session, utente);
+            configurazioneService.setAmministratore(session, utente);
 
             // Cookie "remember me"
             if (remember) {

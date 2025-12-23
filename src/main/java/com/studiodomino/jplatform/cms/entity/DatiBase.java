@@ -1,6 +1,7 @@
 package com.studiodomino.jplatform.cms.entity;
 
 import com.studiodomino.jplatform.cms.front.dto.ExtraTag;
+import com.studiodomino.jplatform.shared.entity.Images;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -196,7 +197,7 @@ public class DatiBase implements Serializable {
     // CAMPI DATA (1-10)
     // ========================================
 
-    private LocalDate data1;
+    private String data1;
     private LocalDate data2;
     private LocalDate data3;
     private LocalDate data4;
@@ -859,16 +860,16 @@ public class DatiBase implements Serializable {
     @Transient
     public String getExtraTag(int numero) {
         return switch (numero) {
-            case 1 -> extratag1;
-            case 2 -> extratag2;
-            case 3 -> extratag3;
-            case 4 -> extratag4;
-            case 5 -> extratag5;
-            case 6 -> extratag6;
-            case 7 -> extratag7;
-            case 8 -> extratag8;
-            case 9 -> extratag9;
-            case 10 -> extratag10;
+            case 1 -> extraTag1;
+            case 2 -> extraTag2;
+            case 3 -> extraTag3;
+            case 4 -> extraTag4;
+            case 5 -> extraTag5;
+            case 6 -> extraTag6;
+            case 7 -> extraTag7;
+            case 8 -> extraTag8;
+            case 9 -> extraTag9;
+            case 10 -> extraTag10;
             default -> null;
         };
     }

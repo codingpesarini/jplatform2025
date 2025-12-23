@@ -1,6 +1,6 @@
 package com.studiodomino.jplatform.shared.util;
 
-import com.studiodomino.jplatform.shared.config.ConfigurazioneCore;
+import com.studiodomino.jplatform.shared.config.Configurazione;
 import com.studiodomino.jplatform.shared.entity.Site;
 
 /**
@@ -15,7 +15,7 @@ public class ViewUtils {
      * - resolveTemplate(config, "front/home") → "site01/front/home"
      * - resolveTemplate(config, "front/home") → "site02/front/home"
      */
-    public static String resolveTemplate(ConfigurazioneCore config, String templatePath) {
+    public static String resolveTemplate(Configurazione config, String templatePath) {
         if (config == null || config.getSito() == null) {
             return "error/500";
         }
@@ -44,7 +44,7 @@ public class ViewUtils {
      * Esempio:
      * - resolveAsset(config, "css/style.css") → "/site01/assets/css/style.css"
      */
-    public static String resolveAsset(ConfigurazioneCore config, String assetPath) {
+    public static String resolveAsset(Configurazione config, String assetPath) {
         if (config == null || config.getSito() == null) {
             return "/common/" + assetPath;
         }
@@ -83,7 +83,7 @@ public class ViewUtils {
     /**
      * Ottieni base URL per assets (per usare in template)
      */
-    public static String getAssetBaseUrl(ConfigurazioneCore config) {
+    public static String getAssetBaseUrl(Configurazione config) {
         if (config == null || config.getSito() == null) {
             return "/common";
         }

@@ -1,6 +1,6 @@
 package com.studiodomino.jplatform.shared.controller;
 
-import com.studiodomino.jplatform.shared.config.ConfigurazioneCore;
+import com.studiodomino.jplatform.shared.config.Configurazione;
 import com.studiodomino.jplatform.shared.entity.Site;
 import com.studiodomino.jplatform.shared.entity.Utente;
 import com.studiodomino.jplatform.shared.enums.ModuloApplicativo;
@@ -62,7 +62,7 @@ public class StartupController {
             return "redirect:/";
         }
 
-        ConfigurazioneCore configCore = configurazioneService.getOrCreateConfiguration(request);
+        Configurazione configCore = configurazioneService.getOrCreateConfiguration(request);
 
         // Carica sito specifico se richiesto
         if (idsite != null && !idsite.isEmpty()) {
@@ -93,7 +93,7 @@ public class StartupController {
             return "redirect:/front";
 
         } else if (site.getAccesso() != null && site.getAccesso() == 1) {
-            Utente utente = configurazioneService.getUtente(session);
+            Utente utente = configurazioneService.getAmministratore(session);
 
             if (utente != null) {
                 log.info("→ Utente loggato: {}", utente.getUsername());

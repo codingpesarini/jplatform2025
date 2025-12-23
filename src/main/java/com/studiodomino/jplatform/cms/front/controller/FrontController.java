@@ -389,6 +389,6 @@ public class FrontController {
      */
     private String resolveTemplate(Configurazione config, String viewName) {
         String templateFolder = config.getPublicTemplateFolder();
-        return templateFolder + "/" + viewName;
+        return templateFolder + "/front/" + viewName;
     }
 }

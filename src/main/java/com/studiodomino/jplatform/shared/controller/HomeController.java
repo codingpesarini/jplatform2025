@@ -1,6 +1,6 @@
 package com.studiodomino.jplatform.shared.controller;
 
-import com.studiodomino.jplatform.shared.config.ConfigurazioneCore;
+import com.studiodomino.jplatform.shared.config.Configurazione;
 import com.studiodomino.jplatform.shared.entity.Utente;
 import com.studiodomino.jplatform.shared.enums.ModuloApplicativo;
 import com.studiodomino.jplatform.shared.service.ConfigurazioneService;
@@ -34,7 +34,7 @@ public class HomeController {
         HttpSession session = request.getSession();
 
         // ✅ USA ConfigurationService per ottenere utente
-        Utente utente = configurazioneService.getUtente(session);
+        Utente utente = configurazioneService.getAmministratore(session);
 
         // Verifica login
         if (utente == null) {
@@ -43,7 +43,7 @@ public class HomeController {
         }
 
         // ✅ USA il metodo corretto
-        ConfigurazioneCore config = configurazioneService.getOrCreateConfiguration(request);
+        Configurazione config = configurazioneService.getOrCreateConfiguration(request);
 
         log.info("=== DASHBOARD L2={} === user: {}", l2, utente.getUsername());
 
@@ -68,14 +68,14 @@ public class HomeController {
         HttpSession session = request.getSession();
 
         // ✅ USA ConfigurationService
-        Utente utente = configurazioneService.getUtente(session);
+        Utente utente = configurazioneService.getAmministratore(session);
 
         if (utente == null) {
             log.warn("Utente non loggato, redirect a login");
             return "redirect:/login";
         }
 
-        ConfigurazioneCore config = configurazioneService.getOrCreateConfiguration(request);
+        Configurazione config = configurazioneService.getOrCreateConfiguration(request);
 
         log.info("=== HOME === user: {}", utente.getUsername());
 
@@ -91,13 +91,13 @@ public class HomeController {
     public String indefinito(HttpServletRequest request, Model model) {
 
         HttpSession session = request.getSession();
-        Utente utente = configurazioneService.getUtente(session);
+        Utente utente = configurazioneService.getAmministratore(session);
 
         if (utente == null) {
             return "redirect:/login";
         }
 
-        ConfigurazioneCore config = configurazioneService.getOrCreateConfiguration(request);
+        Configurazione config = configurazioneService.getOrCreateConfiguration(request);
 
         log.info("=== INDEFINITO === user: {}, l2: {}",
                 utente.getUsername(), utente.getL2());

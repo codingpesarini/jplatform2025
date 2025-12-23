@@ -5,8 +5,8 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * Images Entity - Gestione immagini nel file system virtuale
- * Tabella: images (MyISAM)
+ * Entity JPA che rappresenta un'immagine nel sistema CMS.
+ * Gestisce upload, thumbnail, gallery e metadati delle immagini.
  */
 @Entity
 @Table(name = "images")
@@ -15,135 +15,177 @@ public class Images implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    // ========== IDENTIFICAZIONE ==========
+    // ========================================
+    // IDENTIFICAZIONE
+    // ========================================
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
 
     /**
-     * ID temporaneo (per upload in progress)
+     * ID temporaneo per upload in corso
      */
-    @Column(name = "tmpid", length = 200, nullable = false)
-    private String tmpid = "0";
+    @Column(name = "tmpid")
+    private String tmpid;
 
     /**
-     * ID folder contenitore
+     * ID della cartella contenitore
      */
-    @Column(name = "idfolder", length = 250)
+    @Column(name = "idfolder")
     private String idfolder = "0";
 
-    // ========== FILE INFO ==========
+    // ========================================
+    // INFORMAZIONI FILE
+    // ========================================
 
     /**
-     * Nome file originale
+     * Nome del file originale
      */
-    @Column(name = "name", length = 100)
-    private String name = "";
+    @Column(name = "name")
+    private String name;
 
     /**
-     * MIME type (es: image/jpeg, image/png)
+     * Tipo MIME (es: "image/jpeg", "image/png")
      */
-    @Column(name = "type", length = 100)
-    private String type = "";
+    @Column(name = "type")
+    private String type;
 
     /**
-     * Dimensione file in bytes
+     * Dimensione in bytes
      */
-    @Column(name = "size", length = 100)
-    private String size = "0";
+    @Column(name = "size")
+    private String size;
 
-    // ========== PATHS ==========
+    // ========================================
+    // PATH E PERCORSI
+    // ========================================
 
     /**
-     * Path relativo immagine originale
+     * Path relativo dell'immagine originale
      */
-    @Column(name = "pathname", length = 100)
-    private String pathname = "";
+    @Column(name = "pathname")
+    private String pathname;
 
     /**
-     * Path relativo thumbnail
+     * Path del thumbnail
      */
-    @Column(name = "paththumb", length = 100)
-    private String paththumb = "";
+    @Column(name = "paththumb")
+    private String paththumb;
 
     /**
-     * Path completo web-accessible
+     * Path completo dell'immagine
      */
-    @Column(name = "fullpath", length = 200)
-    private String fullpath = "nofoto.jpg";
+    @Column(name = "fullpath")
+    private String fullpath;
 
-    // ========== METADATA ==========
+    // ========================================
+    // METADATI
+    // ========================================
 
     /**
-     * Didascalia/caption immagine
+     * Didascalia/caption dell'immagine
      */
     @Column(name = "didascalia", columnDefinition = "TEXT")
     private String didascalia;
 
     /**
-     * Flag privato ("0"=pubblico, "1"=privato)
+     * Flag privato (0=pubblico, 1=privato)
      */
-    @Column(name = "privato", length = 100)
-    private String privato = "";
-
-    // ========== CAMPI LIBERI (1-5) ==========
-
-    @Column(name = "l1", length = 100)
-    private String l1 = "";
-
-    @Column(name = "l2", length = 100)
-    private String l2 = "";
-
-    @Column(name = "l3", length = 100)
-    private String l3 = "";
-
-    @Column(name = "l4", length = 100)
-    private String l4 = "";
-
-    @Column(name = "l5", length = 100)
-    private String l5 = "";
+    @Column(name = "privato")
+    private String privato = "0";
 
     // ========================================
-    // CAMPI TRANSIENT (non salvati nel DB)
+    // CAMPI CUSTOM (L1-L5)
     // ========================================
 
     /**
-     * Path immagine (filesystem)
+     * Campo custom L1 (es: alt text, credits, etc.)
      */
-    @Transient
-    private String pathimage = "";
+    @Column(name = "l1")
+    private String l1;
 
     /**
-     * Path immagine web
+     * Campo custom L2
+     */
+    @Column(name = "l2")
+    private String l2;
+
+    /**
+     * Campo custom L3
+     */
+    @Column(name = "l3")
+    private String l3;
+
+    /**
+     * Campo custom L4
+     */
+    @Column(name = "l4")
+    private String l4;
+
+    /**
+     * Campo custom L5
+     */
+    @Column(name = "l5")
+    private String l5;
+
+    // ========================================
+    // CAMPI TRANSIENT (non salvati in DB)
+    // ========================================
+
+    /**
+     * Path web per rendering (non in DB)
      */
     @Transient
-    private String pathimageweb = "";
+    private String pathimageweb;
+
+    /**
+     * Path immagine (non in DB)
+     */
+    @Transient
+    private String pathimage;
 
     /**
      * Versione (per cache busting)
      */
     @Transient
-    private String version = "";
+    private String version;
 
     /**
-     * Operazione in corso
+     * Operazione corrente (upload, delete, etc.)
      */
     @Transient
     private String operazione = "1";
 
     // ========================================
-    // METODI HELPER
+    // COSTRUTTORI
+    // ========================================
+
+    public Images() {
+        super();
+    }
+
+    public Images(String name, String type, String size, String pathname,
+                  String fullpath) {
+        this.name = name;
+        this.type = type;
+        this.size = size;
+        this.pathname = pathname;
+        this.fullpath = fullpath;
+    }
+
+    // ========================================
+    // METODI HELPER - DIMENSIONI
     // ========================================
 
     /**
      * Ottieni dimensione in KB
      */
-    @Transient
     public String getKSize() {
         try {
             double bytes = Double.parseDouble(this.size);
-            return String.format("%.2f", bytes / 1024);
+            return String.format("%.2f", bytes / 1000);
         } catch (NumberFormatException e) {
             return "-1";
         }
@@ -152,87 +194,98 @@ public class Images implements Serializable {
     /**
      * Ottieni dimensione in MB
      */
-    @Transient
     public String getMSize() {
         try {
             double bytes = Double.parseDouble(this.size);
-            return String.format("%.2f", bytes / (1024 * 1024));
+            return String.format("%.2f", bytes / 1000000);
         } catch (NumberFormatException e) {
             return "-1";
         }
     }
 
     /**
-     * Ottieni size formattata human-readable
+     * Ottieni dimensione formattata automaticamente
      */
-    @Transient
     public String getFormattedSize() {
         try {
             double bytes = Double.parseDouble(this.size);
-            if (bytes < 1024) {
-                return bytes + " B";
-            } else if (bytes < 1024 * 1024) {
-                return String.format("%.2f KB", bytes / 1024);
+
+            if (bytes >= 1000000) {
+                return String.format("%.2f MB", bytes / 1000000);
+            } else if (bytes >= 1000) {
+                return String.format("%.2f KB", bytes / 1000);
             } else {
-                return String.format("%.2f MB", bytes / (1024 * 1024));
+                return bytes + " B";
             }
         } catch (NumberFormatException e) {
             return "N/A";
         }
     }
 
+    // ========================================
+    // METODI HELPER - URL E PATH
+    // ========================================
+
     /**
      * Ottieni URL con cache busting
      */
-    @Transient
     public String getUrl() {
-        return fullpath + "?" + (int) (Math.random() * 10);
+        if (fullpath == null || fullpath.isEmpty()) {
+            return "nofoto.jpg";
+        }
+        return fullpath + "?v=" + (int) (Math.random() * 10000);
     }
 
     /**
-     * Ottieni URL senza cache busting
+     * Ottieni URL thumbnail con cache busting
      */
-    @Transient
-    public String getCleanUrl() {
+    public String getThumbUrl() {
+        if (paththumb == null || paththumb.isEmpty()) {
+            return fullpath != null ? fullpath : "nofoto.jpg";
+        }
+        return paththumb + "?v=" + (int) (Math.random() * 10000);
+    }
+
+    /**
+     * Ottieni path completo per rendering
+     */
+    public String getFullPathWeb() {
+        if (pathimageweb != null && !pathimageweb.isEmpty()) {
+            return pathimageweb + "/" + fullpath;
+        }
         return fullpath;
     }
 
-    /**
-     * Verifica se è privata
-     */
-    @Transient
-    public boolean isPrivato() {
-        return "1".equals(privato);
-    }
+    // ========================================
+    // METODI HELPER - VALIDAZIONE
+    // ========================================
 
     /**
-     * Verifica se è pubblica
+     * Verifica se l'immagine è valida
      */
-    @Transient
-    public boolean isPubblico() {
-        return !"1".equals(privato);
+    public boolean isValid() {
+        return id != null && id > 0 &&
+                fullpath != null && !fullpath.isEmpty();
     }
 
     /**
      * Verifica se ha thumbnail
      */
-    @Transient
-    public boolean hasThumbnail() {
-        return paththumb != null && !paththumb.isEmpty() && !"".equals(paththumb);
+    public boolean hasThumb() {
+        return paththumb != null && !paththumb.isEmpty();
     }
 
     /**
-     * Verifica se ha didascalia
+     * Verifica se è un'immagine (non altro tipo file)
      */
-    @Transient
-    public boolean hasDidascalia() {
-        return didascalia != null && !didascalia.isEmpty();
+    public boolean isImage() {
+        if (type == null) return false;
+        return type.startsWith("image/");
     }
 
     /**
      * Ottieni estensione file
      */
-    @Transient
     public String getExtension() {
         if (name == null || !name.contains(".")) {
             return "";
@@ -241,56 +294,19 @@ public class Images implements Serializable {
     }
 
     /**
-     * Verifica se è immagine JPEG
+     * Verifica se è privata
      */
-    @Transient
-    public boolean isJpeg() {
-        String ext = getExtension();
-        return "jpg".equals(ext) || "jpeg".equals(ext);
+    public boolean isPrivata() {
+        return "1".equals(privato);
     }
 
-    /**
-     * Verifica se è immagine PNG
-     */
-    @Transient
-    public boolean isPng() {
-        return "png".equals(getExtension());
-    }
+    // ========================================
+    // METODI HELPER - CAMPI L
+    // ========================================
 
     /**
-     * Verifica se è immagine GIF
+     * Ottieni campo L per numero (1-5)
      */
-    @Transient
-    public boolean isGif() {
-        return "gif".equals(getExtension());
-    }
-
-    /**
-     * Verifica se è immagine WebP
-     */
-    @Transient
-    public boolean isWebp() {
-        return "webp".equals(getExtension());
-    }
-
-    /**
-     * Ottieni icona Font Awesome per tipo
-     */
-    @Transient
-    public String getIconClass() {
-        return switch (getExtension()) {
-            case "jpg", "jpeg" -> "fa fa-file-image text-primary";
-            case "png" -> "fa fa-file-image text-success";
-            case "gif" -> "fa fa-file-image text-warning";
-            case "webp" -> "fa fa-file-image text-info";
-            default -> "fa fa-file text-secondary";
-        };
-    }
-
-    /**
-     * Ottieni campo l per numero (1-5)
-     */
-    @Transient
     public String getL(int numero) {
         return switch (numero) {
             case 1 -> l1;
@@ -298,14 +314,13 @@ public class Images implements Serializable {
             case 3 -> l3;
             case 4 -> l4;
             case 5 -> l5;
-            default -> "";
+            default -> null;
         };
     }
 
     /**
-     * Imposta campo l per numero (1-5)
+     * Imposta campo L per numero (1-5)
      */
-    @Transient
     public void setL(int numero, String valore) {
         switch (numero) {
             case 1 -> l1 = valore;
@@ -316,25 +331,62 @@ public class Images implements Serializable {
         }
     }
 
+    // ========================================
+    // METODI HELPER - RENDERING HTML
+    // ========================================
+
     /**
-     * Reset tutti i campi (legacy compatibility)
+     * Genera tag <img> completo
      */
-    public void reset() {
-        this.tmpid = "";
-        this.id = null;
-        this.name = "";
-        this.type = "";
-        this.size = "";
-        this.pathname = "";
-        this.paththumb = "";
-        this.fullpath = "nofoto.jpg";
-        this.privato = "";
-        this.l1 = this.l2 = this.l3 = this.l4 = this.l5 = "";
-        this.didascalia = "";
-        this.idfolder = "-1";
-        this.pathimageweb = "";
-        this.version = "";
-        this.operazione = "";
-        this.pathimage = "";
+    public String toImgTag() {
+        StringBuilder tag = new StringBuilder("<img src=\"");
+        tag.append(getUrl()).append("\"");
+
+        if (name != null) {
+            tag.append(" alt=\"").append(name).append("\"");
+        }
+
+        if (didascalia != null && !didascalia.isEmpty()) {
+            tag.append(" title=\"").append(didascalia).append("\"");
+        }
+
+        tag.append(" />");
+        return tag.toString();
+    }
+
+    /**
+     * Genera tag <img> thumbnail
+     */
+    public String toThumbTag() {
+        StringBuilder tag = new StringBuilder("<img src=\"");
+        tag.append(getThumbUrl()).append("\"");
+
+        if (name != null) {
+            tag.append(" alt=\"").append(name).append("\"");
+        }
+
+        tag.append(" class=\"thumbnail\" />");
+        return tag.toString();
+    }
+
+    // ========================================
+    // METODI HELPER - METADATA
+    // ========================================
+
+    /**
+     * Ottieni nome file senza estensione
+     */
+    public String getNameWithoutExtension() {
+        if (name == null || !name.contains(".")) {
+            return name;
+        }
+        return name.substring(0, name.lastIndexOf("."));
+    }
+
+    /**
+     * Verifica se ha didascalia
+     */
+    public boolean hasDidascalia() {
+        return didascalia != null && !didascalia.isEmpty();
     }
 }
