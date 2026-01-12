@@ -3,17 +3,23 @@ package com.studiodomino.jplatform.cms.front.service;
 import com.studiodomino.jplatform.cms.entity.*;
 import com.studiodomino.jplatform.cms.front.dto.ExtraTag;
 import com.studiodomino.jplatform.cms.front.dto.FrontContentFilter;
+import com.studiodomino.jplatform.cms.service.AllegatoService;
+import com.studiodomino.jplatform.cms.service.CommentoService;
 import com.studiodomino.jplatform.cms.service.ContentService;
 import com.studiodomino.jplatform.cms.front.dto.Breadcrumb;
 import com.studiodomino.jplatform.shared.config.Configurazione;
 import com.studiodomino.jplatform.shared.entity.Site;
 import com.studiodomino.jplatform.shared.entity.UtenteEsterno;
+import com.studiodomino.jplatform.shared.service.ImagesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * FrontDispatchService - Logica di dispatch per controller pubblico
@@ -26,6 +32,9 @@ public class FrontDispatchService {
 
     private final ContentService contentService;
     private final ExtraTagService extraTagService;
+    private final AllegatoService allegatoService;
+    private final CommentoService commentoService;
+    private final ImagesService imagesService;
 
     // ========================================
     // ORDINAMENTO E FILTRI
@@ -69,12 +78,14 @@ public class FrontDispatchService {
     // ========================================
 
     /**
-     * Carica oggetto base per ID
+     * Carica Content generico per ID (sia sezione che documento)
+     * Ritorna l'entity raw per permettere al controller di fare il routing
      */
-    public DatiBase getOggettoBase(String pid) {
+    public Content getContentBase(String pid) {
         try {
             Integer id = Integer.parseInt(pid);
-            return contentService.findDatiBaseById(id).orElse(null);
+            log.debug("Caricamento Content base per id: {}", id);
+            return contentService.findContentEntityById(id).orElse(null);
         } catch (NumberFormatException e) {
             log.error("ID non valido: {}", pid);
             return null;
@@ -82,31 +93,138 @@ public class FrontDispatchService {
     }
 
     /**
-     * Carica sezione completa con contenuti
+     * Carica sezione completa con contenuti e tutte le relazioni
+     * Equivalente legacy: getSezioneFrontbyId()
      */
     public Section loadSection(
             String pid,
             FrontContentFilter filter,
             String imagesRepositoryWeb,
-            Integer idSito) {
+            Integer idSito,
+            boolean loadSubsections,
+            boolean trackClick,
+            String my) {
 
         try {
             Integer sectionId = Integer.parseInt(pid);
 
-            // Carica sezione base
+            // ===== 1. CARICA SEZIONE BASE =====
             Section section = contentService.findSectionById(sectionId)
                     .orElseThrow(() -> new IllegalArgumentException("Sezione non trovata: " + pid));
 
-            // Carica contenuti secondo filtri
-            List<DatiBase> contenuti = loadSectionContents(section, filter, idSito);
-            section.setContenuti(contenuti);
+            log.debug("Sezione base caricata: id={}, titolo={}", section.getId(), section.getTitolo());
 
-            // Imposta stato archivio
+            // ===== 2. CARICA SECTION TYPE =====
+            if (section.getIdType() != null) {
+                section.setSectionType(contentService.getSectionTypeById(section.getIdType()));
+                log.debug("SectionType caricato: {}", section.getSectionType() != null ?
+                        section.getSectionType().getType() : "null");
+            }
+
+            // ===== 3. DETERMINA ORDINAMENTO CONTENUTI =====
+            String orderByContenuti = determineContentOrdering(section, filter.getOrdinamento());
+            String maxContenuti = section.getMaxOrdineContenuti();
+
+            // ===== 4. CARICA CONTENUTI =====
+            String whereCondition = buildContentWhereCondition(filter, section.getId());
+            List<DatiBase> contenuti = contentService.findContentsBySection(
+                    idSito,
+                    section.getId(),
+                    whereCondition,
+                    orderByContenuti,
+                    maxContenuti
+            );
+            section.setContenuti(contenuti);
+            log.debug("Contenuti caricati: {}", contenuti.size());
+
+            // ===== 5. CARICA SOTTOSEZIONI (se richiesto) =====
+            if (loadSubsections) {
+                String orderBySottosezioni = section.getOrdineSottosezioni() != null
+                        ? section.getOrdineSottosezioni()
+                        : "position";
+
+                List<Section> subsections = contentService.findSubsections(
+                        idSito.toString(),
+                        section.getId().toString()
+                );
+                section.setSubsection(subsections);
+                log.debug("Sottosezioni caricate: {}", subsections.size());
+
+                // Carica anche sottosezioni parent (per navigazione laterale)
+                if (section.getIdParent() != null && !section.getIdParent().isEmpty()
+                        && !"0".equals(section.getIdParent())) {
+                    List<Section> subsectionsParent = contentService.findSubsections(
+                            idSito.toString(),
+                            section.getIdParent()
+                    );
+                    section.setSubsectionParent(subsectionsParent);
+                    log.debug("Sottosezioni parent caricate: {}", subsectionsParent.size());
+                }
+            }
+
+            // ===== 6. CARICA SEZIONE PADRE (per breadcrumb) =====
+            if (section.getIdParent() != null && !section.getIdParent().isEmpty()
+                    && !"0".equals(section.getIdParent())) {
+                try {
+                    Integer idParent = Integer.parseInt(section.getIdParent());
+                    Section parent = contentService.findSectionById(idParent).orElse(null);
+                    section.setSezionePadre(parent);
+                    log.debug("Sezione padre caricata: {}", parent != null ? parent.getTitolo() : "null");
+                } catch (NumberFormatException e) {
+                    log.warn("ID parent non valido: {}", section.getIdParent());
+                }
+            }
+
+            // ===== 7. CARICA ALLEGATI =====
+            List<Allegato> allegati = allegatoService.findAllegatiByDocumento(section.getId());
+            section.setAllegati(allegati);
+            log.debug("Allegati caricati: {}", allegati.size());
+
+            // ===== 8. CARICA GALLERY =====
+            if (section.getGalleryString() != null && !section.getGalleryString().isEmpty()) {
+                List<com.studiodomino.jplatform.shared.entity.Images> gallery =
+                        parseGalleryString(section.getGalleryString());
+                section.setGallery(gallery);
+                log.debug("Gallery caricata: {} immagini", gallery.size());
+            }
+
+            // ===== 9. CARICA COMMENTI =====
+            List<Commento> commenti = commentoService.getCommentiConThread(
+                    section.getId().toString(),
+                    true  // Solo approvati
+            );
+            section.setCommenti(commenti);
+
+            long numeroCommenti = commentoService.contaCommentiApprovati(section.getId().toString());
+            section.setNumeroCommenti((int) numeroCommenti);
+            log.debug("Commenti caricati: {}", numeroCommenti);
+
+            // ===== 10. CARICA UTENTI ASSOCIATI =====
+            if (section.getUtentiAssociatiString() != null && !section.getUtentiAssociatiString().isEmpty()) {
+                // TODO: Implementare parsing utenti quando disponibile UtenteService
+                log.debug("Utenti associati: {}", section.getUtentiAssociatiString());
+            }
+
+            // ===== 11. CLICK TRACKING =====
+            if (trackClick) {
+                contentService.incrementClick(section.getId(), idSito.toString());
+                Integer newClick = (section.getClick() != null ? section.getClick() : 0) + 1;
+                section.setClick(newClick);
+                log.debug("Click incrementato: {}", newClick);
+            }
+
+            // ===== 12. IMPOSTA STATO ARCHIVIO =====
             if (filter.getStato() != null && !"-1".equals(filter.getStato())) {
                 section.setStatoArchivio(filter.getStato());
             } else {
                 section.setStatoArchivio("1");
             }
+
+            log.info("Sezione completa caricata: id={}, contenuti={}, sottosezioni={}, allegati={}",
+                    section.getId(),
+                    contenuti.size(),
+                    section.getSubsection() != null ? section.getSubsection().size() : 0,
+                    allegati.size());
 
             return section;
 
@@ -114,6 +232,48 @@ public class FrontDispatchService {
             log.error("ID sezione non valido: {}", pid);
             throw new IllegalArgumentException("ID sezione non valido: " + pid);
         }
+    }
+
+    /**
+     * Parse stringa gallery (formato: id1,id2,id3)
+     */
+    private List<com.studiodomino.jplatform.shared.entity.Images> parseGalleryString(String galleryString) {
+        if (galleryString == null || galleryString.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return Arrays.stream(galleryString.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(idStr -> {
+                    try {
+                        Integer id = Integer.parseInt(idStr);
+                        return imagesService.findById(id).orElse(null);
+                    } catch (NumberFormatException e) {
+                        log.warn("ID immagine non valido in gallery: {}", idStr);
+                        return null;
+                    }
+                })
+                .filter(img -> img != null)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Determina ordinamento contenuti dalla sezione o dal filtro
+     */
+    private String determineContentOrdering(Section section, String filterOrdering) {
+        // 1. Se sezione ha ordinamento custom, usa quello
+        if (section.getOrdineContenuti() != null && !section.getOrdineContenuti().isEmpty()) {
+            return section.getOrdineContenuti();
+        }
+
+        // 2. Se filtro ha ordinamento, usa quello
+        if (filterOrdering != null && !filterOrdering.isEmpty()) {
+            return filterOrdering;
+        }
+
+        // 3. Default
+        return "data desc";
     }
 
     /**
@@ -144,7 +304,34 @@ public class FrontDispatchService {
     public DatiBase loadDocument(String pid, String imagesRepositoryWeb) {
         try {
             Integer id = Integer.parseInt(pid);
-            return contentService.findDatiBaseById(id).orElse(null);
+            log.debug("Caricamento documento per id: {}", id);
+
+            DatiBase document = contentService.findDatiBaseById(id).orElse(null);
+
+            if (document != null) {
+                // Carica allegati
+                List<Allegato> allegati = allegatoService.findAllegatiByDocumento(id);
+                document.setAllegati(allegati);
+
+                // Carica commenti
+                List<Commento> commenti = commentoService.getCommentiConThread(
+                        id.toString(), true
+                );
+                document.setCommenti(commenti);
+
+                long numeroCommenti = commentoService.contaCommentiApprovati(id.toString());
+                document.setNumeroCommenti((int) numeroCommenti);
+
+                // Carica gallery se presente
+                if (document.getGalleryString() != null && !document.getGalleryString().isEmpty()) {
+                    List<com.studiodomino.jplatform.shared.entity.Images> gallery =
+                            parseGalleryString(document.getGalleryString());
+                    document.setGallery(gallery);
+                }
+            }
+
+            return document;
+
         } catch (NumberFormatException e) {
             log.error("ID documento non valido: {}", pid);
             return null;
@@ -162,7 +349,7 @@ public class FrontDispatchService {
         try {
             Integer id = Integer.parseInt(pid);
 
-            // Carica sezione o datibase
+            // Carica sezione o content
             Section section = contentService.findSectionById(id).orElse(null);
             if (section != null) {
                 return buildSectionBreadcrumb(section);
@@ -189,7 +376,7 @@ public class FrontDispatchService {
         breadcrumb.add("Home", "/");
 
         // TODO: Implementare caricamento gerarchia completa
-        breadcrumb.add(section.getTitolo(), "/front/section/" + section.getId());
+        breadcrumb.add(section.getTitolo(), "/front?pid=" + section.getId());
 
         return breadcrumb;
     }
@@ -207,14 +394,14 @@ public class FrontDispatchService {
                 Integer idRoot = Integer.parseInt(base.getIdRoot());
                 Section section = contentService.findSectionById(idRoot).orElse(null);
                 if (section != null) {
-                    breadcrumb.add(section.getTitolo(), "/front/section/" + section.getId());
+                    breadcrumb.add(section.getTitolo(), "/front?pid=" + section.getId());
                 }
             } catch (NumberFormatException e) {
                 log.warn("ID root non valido: {}", base.getIdRoot());
             }
         }
 
-        breadcrumb.add(base.getTitolo(), "/front/content/" + base.getId());
+        breadcrumb.add(base.getTitolo(), "/front?pid=" + base.getId());
 
         return breadcrumb;
     }
@@ -261,7 +448,29 @@ public class FrontDispatchService {
     // ========================================
 
     /**
-     * Verifica se contenuto è pubblicato
+     * Verifica se Content è pubblicato
+     */
+    public boolean isPublished(Content content, String statoParam) {
+        if (content == null) return false;
+
+        String stato = content.getStato();
+
+        // Stati NON pubblicati: 0=bozza, 4=eliminato
+        if ("0".equals(stato) || "4".equals(stato)) {
+            return false;
+        }
+
+        // Se specificato stato, verifica match
+        if (statoParam != null && !statoParam.isEmpty() && !"-1".equals(statoParam)) {
+            return statoParam.equals(stato);
+        }
+
+        // Default: pubblicato se stato = 1 o 3
+        return "1".equals(stato) || "3".equals(stato);
+    }
+
+    /**
+     * Verifica se DatiBase è pubblicato
      */
     public boolean isPublished(DatiBase base, String statoParam) {
         if (base == null) return false;
@@ -326,11 +535,10 @@ public class FrontDispatchService {
             return new ExtraTag();
         }
 
-        // TODO: Implementare getOrdineExtraTag e getMaxExtraTag in DatiBase
         return extraTagService.elaboraExtraTagDatiBase(
                 base,
-                "data desc", // Default ordering
-                "5",         // Default max
+                base.getOrdineExtraTag(),
+                base.getMaxExtraTag(),
                 configCore
         );
     }
@@ -399,16 +607,15 @@ public class FrontDispatchService {
      * Costruisce URL per paginazione
      */
     private String buildPaginationUrl(Section section, String mese, String anno) {
-        // TODO: Implementare URL rewriting quando disponibile
-        String baseUrl = "/front/section/" + section.getId();
+        String baseUrl = "/front?pid=" + section.getId();
 
         // Gestione archivio
         if (mese != null && !"-1".equals(mese)) {
-            baseUrl += "?anno=" + anno + "&mese=" + mese + "&page=";
+            baseUrl += "&anno=" + anno + "&mese=" + mese + "&page=";
             return baseUrl;
         }
 
-        return baseUrl + "?page=";
+        return baseUrl + "&page=";
     }
 
     /**
@@ -528,10 +735,10 @@ public class FrontDispatchService {
      * Click tracking per newsletter
      */
     public void trackClick(String frompid) {
-        // TODO: Implementare tracking click quando serve
         try {
             if (frompid != null && !frompid.isEmpty()) {
                 log.debug("Tracking click from newsletter: {}", frompid);
+                // TODO: Implementare tracking click quando serve
                 // Incrementa contatore click in DB
             }
         } catch (Exception e) {

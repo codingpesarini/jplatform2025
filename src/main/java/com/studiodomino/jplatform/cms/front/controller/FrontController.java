@@ -1,11 +1,13 @@
 package com.studiodomino.jplatform.cms.front.controller;
 
+import com.studiodomino.jplatform.cms.entity.Content;
 import com.studiodomino.jplatform.cms.entity.DatiBase;
 import com.studiodomino.jplatform.cms.entity.Section;
 import com.studiodomino.jplatform.cms.front.dto.ExtraTag;
 import com.studiodomino.jplatform.cms.front.dto.FrontContentFilter;
 import com.studiodomino.jplatform.cms.front.service.*;
 import com.studiodomino.jplatform.shared.config.Configurazione;
+import com.studiodomino.jplatform.shared.service.ConfigurazioneService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -29,6 +31,7 @@ import jakarta.servlet.http.HttpSession;
 @Slf4j
 public class FrontController {
 
+    private final ConfigurazioneService configurazioneService;
     private final PortalConfigurationService portalConfigService;
     private final FrontDispatchService dispatchService;
     private final CookieNavigationService cookieService;
@@ -48,7 +51,7 @@ public class FrontController {
      * @param sqlContenuto Query SQL custom per filtrare contenuti
      * @param frompid ID contenuto di provenienza (per tracking click)
      * @param returnParam Override view da restituire
-     * @param config Configurazione unificata (da sessione)
+     * @param config Configurazione unificata (da sessione, opzionale)
      */
     @GetMapping
     public String dispatch(
@@ -71,19 +74,38 @@ public class FrontController {
             // Override return
             @RequestParam(required = false, name = "return") String returnParam,
 
-            // Configurazione unificata (SESSIONE + REQUEST)
-            @SessionAttribute Configurazione config,
+            // Configurazione unificata (OPZIONALE - può essere null se sessione scaduta)
+            @SessionAttribute(required = false) Configurazione config,
             HttpServletRequest request,
             HttpServletResponse response,
             HttpSession session,
             Model model) {
 
-        log.debug("=== FRONT DISPATCH === pid: {}, sito: {}",
-                pid, config.getSito().getId());
+        log.debug("=== FRONT DISPATCH === pid: {}", pid);
 
         String returnView = "homePortal";
 
         try {
+            // ===== 0. VERIFICA E INIZIALIZZA CONFIGURAZIONE =====
+            if (config == null) {
+                log.info("Sessione scaduta o configurazione assente, inizializzo nuova configurazione");
+
+                // Usa lo stesso metodo dello StartupController
+                config = configurazioneService.getOrCreateConfiguration(request);
+
+                if (config == null) {
+                    log.error("Impossibile inizializzare la configurazione");
+                    model.addAttribute("errorMessage", "Errore di configurazione del sistema");
+                    return "error/500";
+                }
+
+                // Salva in model (per @SessionAttributes) e in sessione (per persistenza)
+                model.addAttribute("config", config);
+                log.debug("Nuova configurazione creata e salvata in sessione");
+            }
+
+            log.debug("Configurazione OK - sito: {}", config.getSito().getId());
+
             // ===== 1. INIZIALIZZA PORTALE =====
             // Popola parti REQUEST: menu, home, slot contenuti, tag cloud
             portalConfigService.initializePortal(request, response, config);
@@ -100,14 +122,19 @@ public class FrontController {
                 return resolveTemplate(config, returnView);
             }
 
-            // ===== 4. CARICA OGGETTO BASE =====
-            DatiBase base = dispatchService.getOggettoBase(pid);
+            // ===== 4. CARICA CONTENT GENERICO =====
+            Content contentBase = dispatchService.getContentBase(pid);
 
-            if (base == null) {
-                log.warn("Oggetto non trovato per pid: {}", pid);
+            if (contentBase == null) {
+                log.warn("Contenuto non trovato per pid: {}", pid);
                 model.addAttribute("config", config);
                 return resolveTemplate(config, "homePortal");
             }
+
+            log.debug("Content caricato: id={}, idRoot={}, tipo={}",
+                    contentBase.getId(),
+                    contentBase.getIdRoot(),
+                    contentBase.isSection() ? "SEZIONE" : "DOCUMENTO");
 
             // ===== 5. AGGIORNA BREADCRUMB =====
             config.setBreadcrumb(dispatchService.getBreadcrumbs(pid));
@@ -116,24 +143,26 @@ public class FrontController {
             cookieService.updateNavigationProfile(request, response, pid, config);
 
             // ===== 7. VERIFICA ACCESSIBILITÀ CONTENUTO =====
-            if (!dispatchService.isPublished(base, stato)) {
+            if (!dispatchService.isPublished(contentBase, stato)) {
                 log.warn("Contenuto non accessibile: pid={}, stato={}",
-                        pid, base.getStato());
+                        pid, contentBase.getStato());
                 model.addAttribute("config", config);
                 return resolveTemplate(config, "homePortal");
             }
 
             // ===== 8. ROUTING: SEZIONE vs DOCUMENTO =====
-            if ("-1".equals(base.getIdRoot())) {
+            if (contentBase.isSection()) {
                 // È una SEZIONE (contenitore)
+                log.debug("Routing → handleSection");
                 returnView = handleSection(
                         pid, anno, mese, stato, privato, my, archivio,
-                        sqlContenuto, ordinamento, base, config, request, model
+                        sqlContenuto, ordinamento, contentBase, config, request, model
                 );
             } else {
                 // È un DOCUMENTO (contenuto foglia)
+                log.debug("Routing → handleDocument");
                 returnView = handleDocument(
-                        pid, ordinamento, base, config, request, model
+                        pid, ordinamento, contentBase, config, request, model
                 );
             }
 
@@ -178,7 +207,7 @@ public class FrontController {
             String archivio,
             String sqlContenuto,
             String ordinamento,
-            DatiBase base,
+            Content contentBase,
             Configurazione config,
             HttpServletRequest request,
             Model model) {
@@ -212,7 +241,7 @@ public class FrontController {
             }
 
             // ===== 3. CARICA EXTRATAG (contenuti correlati) =====
-            if ("1".equals(base.getRegolaExtraTag1())) {
+            if ("1".equals(contentBase.getRegolaextratag1())) {
                 ExtraTag extraTag = dispatchService.loadExtraTagsForSection(
                         section, config
                 );
@@ -228,6 +257,9 @@ public class FrontController {
 
             model.addAttribute("section", section);
             model.addAttribute("contents", section.getContenuti());
+
+            log.debug("Sezione caricata: {} contenuti",
+                    section.getContenuti() != null ? section.getContenuti().size() : 0);
 
             return "sectionDetail";
 
@@ -254,12 +286,13 @@ public class FrontController {
     private String handleDocument(
             String pid,
             String ordinamento,
-            DatiBase base,
+            Content contentBase,
             Configurazione config,
             HttpServletRequest request,
             Model model) {
 
-        log.debug("Gestione DOCUMENTO: pid={}, parent={}", pid, base.getIdRoot());
+        log.debug("Gestione DOCUMENTO: pid={}, parent={}",
+                pid, contentBase.getIdRoot());
 
         try {
             // ===== 1. CARICA DOCUMENTO COMPLETO =====
@@ -275,7 +308,7 @@ public class FrontController {
 
             // ===== 2. CARICA SEZIONE PARENT (per breadcrumb e context) =====
             Section parentSection = loadParentSection(
-                    base, ordinamento, config
+                    contentBase, ordinamento, config
             );
 
             // Imposta parent section in config per breadcrumb
@@ -284,7 +317,7 @@ public class FrontController {
             }
 
             // ===== 3. CARICA EXTRATAG (contenuti correlati) =====
-            loadDocumentExtraTag(document, parentSection, config);
+            loadDocumentExtraTag(document, contentBase, parentSection, config);
 
             // ===== 4. IMPOSTA IN CONFIGURAZIONE E MODEL =====
             config.setActualDocument(document);
@@ -295,6 +328,8 @@ public class FrontController {
             if (parentSection != null) {
                 model.addAttribute("parentSection", parentSection);
             }
+
+            log.debug("Documento caricato: {}", document.getTitolo());
 
             return "documentDetail";
 
@@ -308,11 +343,12 @@ public class FrontController {
      * Carica la sezione parent di un documento
      */
     private Section loadParentSection(
-            DatiBase base,
+            Content contentBase,
             String ordinamento,
             Configurazione config) {
 
-        if (base.getIdRoot() == null || base.getIdRoot().isEmpty()) {
+        Integer idRoot = contentBase.getIdRoot();
+        if (idRoot == null || idRoot == -1) {
             return null;
         }
 
@@ -326,14 +362,14 @@ public class FrontController {
                     .build();
 
             return dispatchService.loadSection(
-                    base.getIdRoot(),
+                    idRoot.toString(),
                     emptyFilter,
                     config.getImagesRepositoryWeb(),
                     config.getSito().getId()
             );
 
         } catch (Exception e) {
-            log.warn("Errore caricamento sezione parent: {}", base.getIdRoot(), e);
+            log.warn("Errore caricamento sezione parent: {}", idRoot, e);
             return null;
         }
     }
@@ -344,10 +380,11 @@ public class FrontController {
      */
     private void loadDocumentExtraTag(
             DatiBase document,
+            Content contentBase,
             Section parentSection,
             Configurazione config) {
 
-        boolean hasDocumentExtraTag = "1".equals(document.getRegolaExtraTag1());
+        boolean hasDocumentExtraTag = "1".equals(contentBase.getRegolaextratag1());
         boolean hasParentExtraTag = parentSection != null &&
                 "1".equals(parentSection.getRegolaExtraTag1());
 
@@ -380,8 +417,8 @@ public class FrontController {
      * Risolve il path del template in base al sito
      *
      * Esempi:
-     * - Sito 1 (path2='site01') + "homePortal" → "site01/homePortal"
-     * - Sito 2 (path2='site02') + "sectionDetail" → "site02/sectionDetail"
+     * - Sito 1 (path2='site01') + "homePortal" → "site01/front/homePortal"
+     * - Sito 2 (path2='site02') + "sectionDetail" → "site02/front/sectionDetail"
      *
      * @param config Configurazione con sito corrente
      * @param viewName Nome della view (es: "homePortal", "sectionDetail")

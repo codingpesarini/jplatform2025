@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<body>
+
+<!-- ========================================
+     FRAGMENT: Section Web Sidebar
+     Layout: Contenuto principale + Sidebar
+     sectionType = 8 (page3 = 'sectionWebSidebar')
+     ======================================== -->
+<th:block th:fragment="content">
+
+    <!-- Main Content Section -->
+    <section class="pt-0">
+        <div class="container">
+            <div class="row">
+
+                <!-- ========================================
+                     CONTENUTO PRINCIPALE (8 colonne)
+                     ======================================== -->
+                <div class="col-lg-8 pe-5 lg-pe-3 md-pe-15px md-mb-50px">
+
+                    <!-- Testo/Contenuto della Sezione -->
+                    <div class="section-content"
+                         th:if="${section.testo != null && !section.testo.empty}">
+                        <div th:utext="${section.testo}" class="mb-40px"></div>
+                    </div>
+
+                    <!-- Sottosezioni (se presenti) -->
+                    <div class="subsections-list"
+                         th:if="${section.sottoSezioni != null && !section.sottoSezioni.empty}">
+                        <div class="row row-cols-1 row-cols-md-2 mb-40px">
+                            <div class="col mb-30px"
+                                 th:each="subsection : ${section.sottoSezioni}">
+                                <div class="feature-box feature-box-left-icon-middle hover-box">
+                                    <div class="feature-box-icon me-15px">
+                                        <i class="bi bi-folder text-base-color icon-extra-medium"></i>
+                                    </div>
+                                    <div class="feature-box-content">
+                                        <a th:href="@{/front(pid=${subsection.id})}"
+                                           class="text-dark-gray fw-600 fs-18 d-block mb-5px"
+                                           th:text="${subsection.titolo}">Sottosezione</a>
+                                        <p th:if="${subsection.abstract != null}"
+                                           th:text="${subsection.abstract}"
+                                           class="mb-0">Descrizione</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contenuti/Documenti della Sezione -->
+                    <div class="section-contents"
+                         th:if="${section.contenuti != null && !section.contenuti.empty}">
+                        <h4 class="alt-font text-dark-gray fw-600 mb-30px">Contenuti</h4>
+                        <div class="row">
+                            <div class="col-12 mb-30px"
+                                 th:each="content : ${section.contenuti}">
+                                <div class="card border-0 border-radius-4px box-shadow-small hover-box">
+                                    <div class="card-body p-30px">
+                                        <div class="d-flex align-items-start">
+                                            <div class="flex-shrink-0 me-20px"
+                                                 th:if="${content.imagePath != null}">
+                                                <img th:src="${content.imagePath}"
+                                                     alt=""
+                                                     class="border-radius-4px w-120px">
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <a th:href="@{/front(pid=${content.id})}"
+                                                   class="card-title text-dark-gray fw-600 fs-19 d-block mb-10px"
+                                                   th:text="${content.titolo}">Titolo Contenuto</a>
+
+                                                <!-- Data pubblicazione -->
+                                                <div class="text-medium-gray fs-14 mb-10px"
+                                                     th:if="${content.dataInizio != null}">
+                                                    <i class="feather icon-feather-calendar me-5px"></i>
+                                                    <span th:text="${#temporals.format(content.dataInizio, 'dd MMMM yyyy')}">Data</span>
+                                                </div>
+
+                                                <!-- Abstract -->
+                                                <p th:if="${content.abstract != null}"
+                                                   th:text="${content.abstract}"
+                                                   class="mb-15px">Abstract</p>
+
+                                                <!-- Link "Leggi di più" -->
+                                                <a th:href="@{/front(pid=${content.id})}"
+                                                   class="btn btn-link btn-hover-animation-switch btn-small text-dark-gray">
+                                                    <span>
+                                                        <span class="btn-text">Leggi di più</span>
+                                                        <span class="btn-icon"><i class="feather icon-feather-arrow-right"></i></span>
+                                                        <span class="btn-icon"><i class="feather icon-feather-arrow-right"></i></span>
+                                                    </span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Paginazione (se presente) -->
+                        <div class="pagination-wrapper"
+                             th:if="${section.pagination != null && section.pagination.totalPages > 1}">
+                            <nav aria-label="Paginazione contenuti">
+                                <ul class="pagination pagination-style-01 justify-content-center">
+                                    <li class="page-item" th:classappend="${section.pagination.currentPage == 1} ? 'disabled'">
+                                        <a class="page-link"
+                                           th:href="@{/front(pid=${section.id}, page=${section.pagination.currentPage - 1})}"
+                                           aria-label="Precedente">
+                                            <i class="feather icon-feather-arrow-left"></i>
+                                        </a>
+                                    </li>
+                                    <li class="page-item"
+                                        th:each="pageNum : ${#numbers.sequence(1, section.pagination.totalPages)}"
+                                        th:classappend="${pageNum == section.pagination.currentPage} ? 'active'">
+                                        <a class="page-link"
+                                           th:href="@{/front(pid=${section.id}, page=${pageNum})}"
+                                           th:text="${pageNum}">1</a>
+                                    </li>
+                                    <li class="page-item"
+                                        th:classappend="${section.pagination.currentPage == section.pagination.totalPages} ? 'disabled'">
+                                        <a class="page-link"
+                                           th:href="@{/front(pid=${section.id}, page=${section.pagination.currentPage + 1})}"
+                                           aria-label="Successivo">
+                                            <i class="feather icon-feather-arrow-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <!-- Allegati (se presenti) -->
+                    <div class="section-attachments"
+                         th:if="${section.allegati != null && !section.allegati.empty}">
+                        <h5 class="alt-font text-dark-gray fw-600 mb-20px">Allegati</h5>
+                        <div class="bg-very-light-gray border-radius-4px p-30px">
+                            <ul class="list-style-02 mb-0">
+                                <li th:each="allegato : ${section.allegati}" class="pb-15px mb-15px border-bottom border-color-extra-medium-gray">
+                                    <a th:href="${allegato.path}"
+                                       target="_blank"
+                                       class="text-dark-gray fw-500">
+                                        <i class="feather icon-feather-file me-10px text-base-color"></i>
+                                        <span th:text="${allegato.nome}">Nome file</span>
+                                        <span class="text-medium-gray fs-14 ms-10px"
+                                              th:if="${allegato.dimensione != null}"
+                                              th:text="'(' + ${allegato.dimensione} + ')'">
+                                            (1.2 MB)
+                                        </span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ========================================
+                     SIDEBAR (4 colonne)
+                     ======================================== -->
+                <div class="col-lg-4 ps-4 lg-ps-15px">
+                    <div class="position-sticky top-100px">
+
+                        <!-- Widget: Info Sezione -->
+                        <div class="bg-very-light-gray border-radius-6px p-35px xl-p-25px mb-30px">
+                            <span class="fs-19 alt-font fw-600 text-dark-gray d-block mb-20px">Info</span>
+
+                            <!-- Data ultima modifica -->
+                            <div class="d-flex align-items-center mb-15px"
+                                 th:if="${section.dataUltimaModifica != null}">
+                                <i class="feather icon-feather-calendar text-base-color me-10px"></i>
+                                <span class="text-dark-gray fs-15">
+                                    Aggiornato il
+                                    <span th:text="${#temporals.format(section.dataUltimaModifica, 'dd/MM/yyyy')}">Data</span>
+                                </span>
+                            </div>
+
+                            <!-- Numero contenuti -->
+                            <div class="d-flex align-items-center mb-15px"
+                                 th:if="${section.contenuti != null && !section.contenuti.empty}">
+                                <i class="feather icon-feather-file-text text-base-color me-10px"></i>
+                                <span class="text-dark-gray fs-15">
+                                    <span th:text="${#lists.size(section.contenuti)}">0</span>
+                                    <span th:text="${#lists.size(section.contenuti) == 1} ? 'contenuto' : 'contenuti'">contenuti</span>
+                                </span>
+                            </div>
+
+                            <!-- Share Social -->
+                            <div class="mt-25px pt-25px border-top border-color-extra-medium-gray">
+                                <span class="fs-15 fw-500 text-dark-gray d-block mb-15px">Condividi</span>
+                                <div class="elements-social social-icon-style-02">
+                                    <ul class="small-icon dark">
+                                        <li><a class="facebook" href="#" target="_blank"><i class="fa-brands fa-facebook-f"></i></a></li>
+                                        <li><a class="twitter" href="#" target="_blank"><i class="fa-brands fa-twitter"></i></a></li>
+                                        <li><a class="linkedin" href="#" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a></li>
+                                        <li><a class="whatsapp" href="#" target="_blank"><i class="fa-brands fa-whatsapp"></i></a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Widget: Contenuti Correlati / ExtraTag -->
+                        <div th:if="${section.extratag != null && section.extratag.contenuti != null && !section.extratag.contenuti.empty}"
+                             class="bg-very-light-gray border-radius-6px p-35px xl-p-25px mb-30px">
+                            <span class="fs-19 alt-font fw-600 text-dark-gray d-block mb-25px">Correlati</span>
+                            <ul class="list-unstyled mb-0">
+                                <li th:each="related, iterStat : ${section.extratag.contenuti}"
+                                    class="pb-15px mb-15px"
+                                    th:classappend="${!iterStat.last} ? 'border-bottom border-color-extra-medium-gray'">
+                                    <a th:href="@{/front(pid=${related.id})}"
+                                       class="text-dark-gray fw-500 lh-24 d-block"
+                                       th:text="${related.titolo}">Contenuto correlato</a>
+                                    <span class="fs-14 text-medium-gray"
+                                          th:if="${related.dataInizio != null}"
+                                          th:text="${#temporals.format(related.dataInizio, 'dd MMM yyyy')}">Data</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Widget: Tag Cloud -->
+                        <div th:if="${config.tagCloud != null && !config.tagCloud.empty}"
+                             class="bg-very-light-gray border-radius-6px p-35px xl-p-25px">
+                            <span class="fs-19 alt-font fw-600 text-dark-gray d-block mb-20px">Tag</span>
+                            <div class="tag-cloud">
+                                <a th:each="tag : ${config.tagCloud}"
+                                   th:href="@{/front(tag=${tag.id})}"
+                                   class="badge badge-small bg-white text-dark-gray me-5px mb-10px"
+                                   th:text="${tag.nome}">Tag</a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+</th:block>
+
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{site01/layout/template}">
+<body>
+<main layout:fragment="content">
+
+    <!-- ========================================
+         PAGE TITLE + BREADCRUMBS
+         ======================================== -->
+    <th:block th:replace="~{site01/fragments/page_title :: documentTitle}"></th:block>
+
+    <!-- ========================================
+         SWITCH CONTENUTO DOCUMENTO
+         Routing basato su document.sectionType.page4
+         ======================================== -->
+    <div th:switch="${document.sectionType.page4}">
+
+        <!-- Dettaglio Blog -->
+        <th:block th:case="'dettaglioBlog'">
+            <th:block th:replace="~{site01/fragments/document_frag/dettaglioBlog :: content}"></th:block>
+        </th:block>
+
+        <!-- Dettaglio News -->
+        <th:block th:case="'dettaglioNews'">
+            <th:block th:replace="~{site01/fragments/document_frag/dettaglioNews :: content}"></th:block>
+        </th:block>
+
+        <!-- Dettaglio Contenuto Iconico -->
+        <th:block th:case="'dettaglioContenutoIconico'">
+            <th:block th:replace="~{site01/fragments/document_frag/dettaglioContenutoIconico :: content}"></th:block>
+        </th:block>
+
+        <!-- Dettaglio Catalogo Corso -->
+        <th:block th:case="'dettaglioCatalogoCorso'">
+            <th:block th:replace="~{site01/fragments/document_frag/dettaglioCatalogoCorso :: content}"></th:block>
+        </th:block>
+
+        <!-- Dettaglio Catalogo Laurea Corso -->
+        <th:block th:case="'dettaglioCatalogoLaureaCorso'">
+            <th:block th:replace="~{site01/fragments/document_frag/dettaglioCatalogoLaureaCorso :: content}"></th:block>
+        </th:block>
+
+        <!-- Dettaglio Catalogo Qualifica Corso -->
+        <th:block th:case="'dettaglioCatalogoQualificaCorso'">
+            <th:block th:replace="~{site01/fragments/document_frag/dettaglioCatalogoQualificaCorso :: content}"></th:block>
+        </th:block>
+
+        <!-- Dettaglio Catalogo Alta Formazione Corso -->
+        <th:block th:case="'dettaglioCatalogoAltaFormazioneCorso'">
+            <th:block th:replace="~{site01/fragments/document_frag/dettaglioCatalogoAltaFormazioneCorso :: content}"></th:block>
+        </th:block>
+
+        <!-- Dettaglio Calendario Corso -->
+        <th:block th:case="'dettaglioCalendarioCorso'">
+            <th:block th:replace="~{site01/fragments/document_frag/dettaglioCalendarioCorso :: content}"></th:block>
+        </th:block>
+
+        <!-- Landing Page -->
+        <th:block th:case="'landing'">
+            <th:block th:replace="~{site01/fragments/document_frag/landing :: content}"></th:block>
+        </th:block>
+
+        <!-- Dettaglio News Display -->
+        <th:block th:case="'dettaglioNewsDisplay'">
+            <th:block th:replace="~{site01/fragments/document_frag/dettaglioNewsDisplay :: content}"></th:block>
+        </th:block>
+
+        <!-- Default fallback: dettaglio news standard -->
+        <th:block th:case="*">
+            <th:block th:replace="~{site01/fragments/document_frag/dettaglioNews :: content}"></th:block>
+        </th:block>
+
+    </div>
+
+</main>
+</body>
+</html>

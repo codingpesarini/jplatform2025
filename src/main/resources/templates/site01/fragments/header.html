@@ -21,50 +21,130 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav alt-font">
-                        <li class="nav-item"><a href="demo-elearning.html" class="nav-link">Home</a></li>
-                        <li class="nav-item"><a href="demo-elearning-about.html" class="nav-link">About</a></li>
-                        <li class="nav-item dropdown dropdown-with-icon">
-                            <a href="demo-elearning-courses.html" class="nav-link">Courses</a>
-                            <i class="fa-solid fa-angle-down dropdown-toggle" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false"></i>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                <li>
-                                    <a href="demo-elearning-courses-details.html"><i class="bi bi-laptop"></i>
-                                        <div class="submenu-icon-content">
-                                            <span>Development</span>
-                                            <p>Develop professional skills</p>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="demo-elearning-courses-details.html"><i class="bi bi-briefcase"></i>
-                                        <div class="submenu-icon-content">
-                                            <span>Business</span>
-                                            <p>Advance your business</p>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="demo-elearning-courses-details.html"><i class="bi bi-vector-pen"></i>
-                                        <div class="submenu-icon-content">
-                                            <span>Design</span>
-                                            <p>Design skills & concepts</p>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="demo-elearning-courses-details.html"><i class="bi bi-megaphone"></i>
-                                        <div class="submenu-icon-content">
-                                            <span>Marketing</span>
-                                            <p>New age marketing skills</p>
-                                        </div>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="nav-item"><a href="demo-elearning-instructors.html" class="nav-link">Instructors</a></li>
-                        <li class="nav-item"><a href="demo-elearning-testimonial.html" class="nav-link">Testimonial</a></li>
+                        <th:block th:if="${config.sezioniFront != null}">
+                            <th:block th:each="sezione, iterStat : ${config.sezioniFront}">
+                                <!-- ===== TIPO 1: MENU ITEM SINGOLO ===== -->
+                                <th:block th:if="${sezione.menu1 == '1'}">
+                                    <li class="nav-item">
+                                        <!-- Link normale a sezione -->
+                                        <a th:if="${sezione.menu2 == '0'}"
+                                           th:id="'sectid_' + ${sezione.id}"
+                                           th:href="@{/front(pid=${sezione.id})}"
+                                           class="nav-link"
+                                           th:text="${sezione.titolo}">Sezione</a>
+
+                                        <!-- Link senza azione -->
+                                        <a th:if="${sezione.menu2 == '1'}"
+                                           th:id="'sectid_' + ${sezione.id}"
+                                           href="javascript:void(0);"
+                                           class="nav-link"
+                                           th:text="${sezione.titolo}">Sezione</a>
+
+                                        <!-- Link custom esterno -->
+                                        <a th:if="${sezione.menu2 == '2'}"
+                                           th:id="'sectid_' + ${sezione.id}"
+                                           th:href="${sezione.menu3}"
+                                           class="nav-link"
+                                           th:text="${sezione.menu4}">Link esterno</a>
+                                    </li>
+                                </th:block>
+                                <!-- ===== TIPO 2: DROPDOWN MENU ===== -->
+                                <th:block th:if="${sezione.menu1 == '3'}">
+                                    <li class="nav-item dropdown simple-dropdown">
+                                        <!-- Link parent dropdown -->
+                                        <a th:if="${sezione.menu2 == '0'}"
+                                           th:id="'sectid_' + ${sezione.id}"
+                                           th:href="@{/front(pid=${sezione.id})}"
+                                           class="nav-link"
+                                           th:text="${sezione.titolo}">Sezione</a>
+
+                                        <a th:if="${sezione.menu2 == '1'}"
+                                           th:id="'sectid_' + ${sezione.id}"
+                                           href="javascript:void(0);"
+                                           class="nav-link"
+                                           th:text="${sezione.titolo}">Sezione</a>
+
+                                        <a th:if="${sezione.menu2 == '2'}"
+                                           th:id="'sectid_' + ${sezione.id}"
+                                           th:href="${sezione.menu3}"
+                                           class="nav-link"
+                                           th:text="${sezione.menu4}">Link esterno</a>
+
+                                        <!-- Dropdown toggle icon -->
+                                        <i th:if="${sezione.subsection != null and !sezione.subsection.isEmpty()}"
+                                           class="fa-solid fa-angle-down dropdown-toggle"
+                                           th:id="'navbarDropdown_' + ${sezione.id}"
+                                           role="button"
+                                           data-bs-toggle="dropdown"
+                                           aria-expanded="false"></i>
+
+                                        <!-- DROPDOWN MENU LIVELLO 2 -->
+                                        <ul th:if="${sezione.subsection != null and !sezione.subsection.isEmpty()}"
+                                            class="dropdown-menu"
+                                            th:aria-labelledby="'navbarDropdown_' + ${sezione.id}">
+                                            <th:block th:each="sezione2 : ${sezione.subsection}">
+                                                <th:block th:if="${sezione2.menu1 != '0'}">
+
+                                                    <!-- Aggiungi classe "dropdown" se sezione2 ha sottosezioni -->
+                                                    <li th:classappend="${sezione2.subsection != null and !sezione2.subsection.isEmpty()} ? 'dropdown' : ''">
+
+                                                        <!-- Link sottosezione LIVELLO 2 -->
+                                                        <a th:if="${sezione2.menu2 == '0'}"
+                                                           th:href="@{/front(pid=${sezione2.id})}">
+                                                            <span th:text="${sezione2.titolo}">Sottosezione</span>
+                                                            <!-- Icona freccia se ha sottosezioni -->
+                                                            <i th:if="${sezione2.subsection != null and !sezione2.subsection.isEmpty()}"
+                                                               class="fa-solid fa-angle-right"></i>
+                                                        </a>
+
+                                                        <a th:if="${sezione2.menu2 == '1'}"
+                                                           href="javascript:void(0);">
+                                                            <span th:text="${sezione2.titolo}">Sottosezione</span>
+                                                            <i th:if="${sezione2.subsection != null and !sezione2.subsection.isEmpty()}"
+                                                               class="fa-solid fa-angle-right"></i>
+                                                        </a>
+
+                                                        <a th:if="${sezione2.menu2 == '2'}"
+                                                           th:href="${sezione2.menu3}">
+                                                            <span th:text="${sezione2.menu4}">Link esterno</span>
+                                                            <i th:if="${sezione2.subsection != null and !sezione2.subsection.isEmpty()}"
+                                                               class="fa-solid fa-angle-right"></i>
+                                                        </a>
+
+                                                        <!-- SOTTOSEZIONI DI LIVELLO 3 -->
+                                                        <ul th:if="${sezione2.subsection != null and !sezione2.subsection.isEmpty()}"
+                                                            class="dropdown-menu">
+                                                            <th:block th:each="sezione3 : ${sezione2.subsection}">
+                                                                <th:block th:if="${sezione3.menu1 != '0'}">
+                                                                    <li>
+                                                                        <a th:if="${sezione3.menu2 == '0'}"
+                                                                           th:href="@{/front(pid=${sezione3.id})}"
+                                                                           th:text="${sezione3.titolo}">Sottosezione 3</a>
+
+                                                                        <a th:if="${sezione3.menu2 == '1'}"
+                                                                           href="javascript:void(0);"
+                                                                           th:text="${sezione3.titolo}">Sottosezione 3</a>
+
+                                                                        <a th:if="${sezione3.menu2 == '2'}"
+                                                                           th:href="${sezione3.menu3}"
+                                                                           th:text="${sezione3.menu4}">Link esterno</a>
+                                                                    </li>
+                                                                </th:block>
+                                                            </th:block>
+                                                        </ul>
+                                                    </li>
+                                                </th:block>
+                                            </th:block>
+                                        </ul>
+                                    </li>
+                                </th:block>
+                            </th:block>
+                        </th:block>
+
+
+
                         <li class="nav-item"><a href="demo-elearning-blog.html" class="nav-link">Blog</a></li>
-                        <li class="nav-item"><a href="demo-elearning-contact.html" class="nav-link">Contact</a></li>
+
                     </ul>
                 </div>
             </div>

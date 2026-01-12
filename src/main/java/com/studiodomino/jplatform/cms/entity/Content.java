@@ -694,4 +694,52 @@ public class Content {
     public boolean isContent() {
         return idRoot != null && idRoot != -1;
     }
+
+    /**
+     * Getter generico per campi S (S1-S10)
+     * S1 = Data inizio pubblicazione programmata
+     * S2 = Data fine pubblicazione programmata
+     * S3 = Flag pubblicazione programmata (0=no, 1=si)
+     */
+    public String getS(int numero) {
+        if (numero < 1 || numero > 10) {
+            return "";
+        }
+
+        switch (numero) {
+            case 1: return s1 != null ? s1 : "";
+            case 2: return s2 != null ? s2 : "";
+            case 3: return s3 != null ? s3 : "";
+            case 4: return s4 != null ? s4 : "";
+            case 5: return s5 != null ? s5 : "";
+            case 6: return s6 != null ? s6 : "";
+            case 7: return s7 != null ? s7 : "";
+            case 8: return s8 != null ? s8 : "";
+            case 9: return s9 != null ? s9 : "";
+            case 10: return s10 != null ? s10 : "";
+            default: return "";
+        }
+    }
+
+    /**
+     * Setter generico per campi S (S1-S10)
+     */
+    public void setS(int numero, String valore) {
+        if (numero < 1 || numero > 10) {
+            return;
+        }
+
+        switch (numero) {
+            case 1: s1 = valore; break;
+            case 2: s2 = valore; break;
+            case 3: s3 = valore; break;
+            case 4: s4 = valore; break;
+            case 5: s5 = valore; break;
+            case 6: s6 = valore; break;
+            case 7: s7 = valore; break;
+            case 8: s8 = valore; break;
+            case 9: s9 = valore; break;
+            case 10: s10 = valore; break;
+        }
+    }
 }

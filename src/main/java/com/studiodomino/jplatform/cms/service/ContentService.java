@@ -3,6 +3,7 @@ package com.studiodomino.jplatform.cms.service;
 import com.studiodomino.jplatform.cms.entity.Content;
 import com.studiodomino.jplatform.cms.entity.DatiBase;
 import com.studiodomino.jplatform.cms.entity.Section;
+import com.studiodomino.jplatform.cms.entity.SectionType;
 import com.studiodomino.jplatform.cms.front.dto.Tag;
 import com.studiodomino.jplatform.cms.mapper.ContentToDatiBaseMapper;
 import com.studiodomino.jplatform.cms.mapper.ContentToSectionMapper;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -203,7 +205,7 @@ public class ContentService {
             Integer idRoot,
             String whereCondition,
             String orderBy,
-            Integer limit) {
+            String limit) {
 
         log.debug("Finding contents for section {} with custom filters", idRoot);
 
@@ -769,23 +771,207 @@ public class ContentService {
 // ========================================
 
     /**
-     * Trova il menu pubblico del sito
-     * Sezioni con: stato='1', privato='0', menu1='1'
-     * Ordinate per position
+     * Costruisce il menu pubblico principale
+     * Equivalente legacy: getStrutturaMenu() per menu pubblico
+     *
+     * Logica:
+     * 1. Carica sezioni di primo livello (idParent=NULL, menu1!=0)
+     * 2. Verifica date pubblicazione programmata (S1/S2/S3)
+     * 3. Carica ricorsivamente TUTTE le sottosezioni
+     * 4. Ritorna struttura completa del menu
+     *
+     * @param idSite ID del sito
+     * @return Lista completa delle sezioni del menu con sottosezioni
      */
     public List<Section> findPublicMenu(String idSite) {
-        log.debug("Loading public menu for site: {}", idSite);
+        log.debug("=== COSTRUZIONE MENU PUBBLICO === sito: {}", idSite);
 
-        List<Content> menuContents = contentRepository.findPublicMenu(idSite);
-        List<Section> menuSections = sectionMapper.toSectionList(menuContents);
+        try {
+            // ===== 1. CARICA SEZIONI ROOT (PRIMO LIVELLO) =====
+            List<Content> rootContents = contentRepository.findPublicMenu(idSite);
 
-        // Carica ricorsivamente le sottosezioni del menu
-        for (Section section : menuSections) {
-            loadMenuSubsections(section, idSite);
+            if (rootContents.isEmpty()) {
+                log.warn("Nessuna sezione trovata per menu pubblico, sito: {}", idSite);
+                return new ArrayList<>();
+            }
+
+            log.debug("Trovate {} sezioni root per menu", rootContents.size());
+
+            List<Section> menuSections = new ArrayList<>();
+            LocalDate today = LocalDate.now();
+
+            // ===== 2. PROCESSA OGNI SEZIONE ROOT =====
+            for (Content content : rootContents) {
+
+                // ===== 3. VERIFICA DATE PUBBLICAZIONE PROGRAMMATA =====
+                // Se S3='1' → verifica che oggi sia tra S1 (inizio) e S2 (fine)
+                // ===== 3. VERIFICA DATE PUBBLICAZIONE PROGRAMMATA =====
+                if ("1".equals(content.getS(3))) {
+                    try {
+                        LocalDate startDate = this.parseScheduleDate(content.getS(1));  // ← this.
+                        LocalDate endDate = this.parseScheduleDate(content.getS(2));    // ← this.
+
+                        if (startDate != null && endDate != null) {
+                            if (today.isBefore(startDate) || today.isAfter(endDate)) {
+                                log.debug("Sezione {} esclusa: fuori periodo pubblicazione [{} - {}]",
+                                        content.getId(), startDate, endDate);
+                                continue;
+                            }
+                            log.debug("Sezione {} inclusa: nel periodo pubblicazione [{} - {}]",
+                                    content.getId(), startDate, endDate);
+                        }
+                    } catch (Exception e) {
+                        log.warn("Errore parsing date pubblicazione per sezione root {}: {}",
+                                content.getId(), e.getMessage());
+                        continue;
+                    }
+                }
+
+                // ===== 4. CONVERTI A SECTION =====
+                Section section = sectionMapper.toSection(content);
+
+                // ===== 5. CARICA RICORSIVAMENTE TUTTE LE SOTTOSEZIONI =====
+                // maxDepth=10 (10 livelli massimo), currentDepth=0 (inizia da root)
+                loadMenuSubsections(section, idSite, 10, 0);
+
+                menuSections.add(section);
+            }
+
+            log.debug("Menu pubblico costruito: {} sezioni root (dopo filtri date)",
+                    menuSections.size());
+
+            // Log dettagliato della struttura del menu
+            if (log.isDebugEnabled()) {
+                logMenuStructure(menuSections, 0);
+            }
+
+            return menuSections;
+
+        } catch (Exception e) {
+            log.error("Errore costruzione menu pubblico per sito {}: {}",
+                    idSite, e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Carica ricorsivamente TUTTE le sottosezioni del menu
+     * Equivalente legacy: getStrutturaMenu() - ricorsione completa
+     *
+     * Logica:
+     * 1. Carica sottosezioni pubblicate (stato=1, privato=0)
+     * 2. Verifica date di pubblicazione programmata (S1/S2/S3)
+     * 3. Ricorsivamente carica sottosezioni di ogni sottosezione
+     * 4. Limita profondità a maxDepth per sicurezza
+     *
+     * @param section Sezione parent da popolare
+     * @param idSite ID del sito
+     * @param maxDepth Profondità massima ricorsione (default: 10)
+     * @param currentDepth Profondità corrente (inizia da 0)
+     */
+    private void loadMenuSubsectionsOld(Section section, String idSite, int maxDepth, int currentDepth) {
+        // Protezione da ricorsione infinita
+        if (currentDepth >= maxDepth) {
+            log.warn("Raggiunta profondità massima ricorsione: {} per sezione: {}",
+                    maxDepth, section.getId());
+            section.setSubsection(new ArrayList<>());
+            return;
         }
 
-        log.debug("Public menu loaded: {} sections", menuSections.size());
-        return menuSections;
+        try {
+            // ===== 1. CARICA SOTTOSEZIONI PUBBLICATE =====
+            List<Content> subsectionContents = contentRepository.findPublishedSubsections(
+                    idSite,
+                    section.getId().toString(),
+                    "1",  // stato = 1 (pubblicato)
+                    "0"   // privato = 0 (pubblico)
+            );
+
+            if (subsectionContents.isEmpty()) {
+                section.setSubsection(new ArrayList<>());
+                return;
+            }
+
+            log.debug("Trovate {} sottosezioni per sezione {} (livello {})",
+                    subsectionContents.size(), section.getId(), currentDepth + 1);
+
+            List<Section> subsections = new ArrayList<>();
+            LocalDate today = LocalDate.now();
+
+            // ===== 2. PROCESSA OGNI SOTTOSEZIONE =====
+            for (Content content : subsectionContents) {
+
+                // ===== 3. VERIFICA DATE DI PUBBLICAZIONE PROGRAMMATA =====
+                // Se S3='1' → verifica che oggi sia tra S1 (inizio) e S2 (fine)
+                if ("1".equals(content.getS(3))) {
+                    try {
+                        LocalDate startDate = parseScheduleDate(content.getS(1));
+                        LocalDate endDate = parseScheduleDate(content.getS(2));
+
+                        if (startDate != null && endDate != null) {
+                            // Verifica se oggi è nel range [startDate, endDate]
+                            if (today.isBefore(startDate) || today.isAfter(endDate)) {
+                                log.debug("Sottosezione {} esclusa: fuori periodo pubblicazione",
+                                        content.getId());
+                                continue; // Salta questa sezione
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.warn("Errore parsing date pubblicazione per sottosezione {}: {}",
+                                content.getId(), e.getMessage());
+                        continue;
+                    }
+                }
+
+                // ===== 4. CONVERTI A SECTION =====
+                Section subsection = sectionMapper.toSection(content);
+
+                // ===== 5. RICORSIONE: CARICA SOTTOSEZIONI DELLE SOTTOSEZIONI =====
+                loadMenuSubsections(subsection, idSite, maxDepth, currentDepth + 1);
+
+                subsections.add(subsection);
+            }
+
+            section.setSubsection(subsections);
+            log.debug("Caricate {} sottosezioni valide per sezione {} (livello {})",
+                    subsections.size(), section.getId(), currentDepth + 1);
+
+        } catch (Exception e) {
+            log.error("Errore caricamento sottosezioni per sezione {} (livello {}): {}",
+                    section.getId(), currentDepth, e.getMessage(), e);
+            section.setSubsection(new ArrayList<>());
+        }
+    }
+
+
+
+    /**
+     * Log ricorsivo della struttura del menu (solo in DEBUG)
+     * Utile per verificare che il menu sia stato costruito correttamente
+     *
+     * @param sections Lista di sezioni
+     * @param level Livello di indentazione
+     */
+    private void logMenuStructure(List<Section> sections, int level) {
+        if (sections == null || sections.isEmpty()) {
+            return;
+        }
+
+        String indent = "  ".repeat(level);
+
+        for (Section section : sections) {
+            log.debug("{}├─ [{}] {} (menu1={}, subsections={})",
+                    indent,
+                    section.getId(),
+                    section.getTitolo(),
+                    section.getMenu1(),
+                    section.getSubsection() != null ? section.getSubsection().size() : 0);
+
+            // Ricorsione per sottosezioni
+            if (section.getSubsection() != null && !section.getSubsection().isEmpty()) {
+                logMenuStructure(section.getSubsection(), level + 1);
+            }
+        }
     }
 
     /**
@@ -808,7 +994,7 @@ public class ContentService {
 
         // Carica ricorsivamente le sottosezioni del menu
         for (Section section : menuSections) {
-            loadMenuSubsections(section, idSite);
+            loadMenuSubsections(section, idSite, 2, 0);
         }
 
         log.debug("Private menu loaded: {} sections", menuSections.size());
@@ -851,21 +1037,115 @@ public class ContentService {
     }
 
     /**
-     * Carica ricorsivamente le sottosezioni del menu
-     * (solo primo livello per performance - espansione lazy nel frontend)
+     * Carica ricorsivamente TUTTE le sottosezioni del menu
+     * Equivalente legacy: getStrutturaMenu() - ricorsione completa
+     *
+     * Logica:
+     * 1. Carica sottosezioni pubblicate (stato=1, privato=0)
+     * 2. Verifica date di pubblicazione programmata (S1/S2/S3)
+     * 3. Ricorsivamente carica sottosezioni di ogni sottosezione
+     * 4. Limita profondità a maxDepth per sicurezza
+     *
+     * @param section Sezione parent da popolare
+     * @param idSite ID del sito
+     * @param maxDepth Profondità massima ricorsione (default: 10)
+     * @param currentDepth Profondità corrente (inizia da 0)
      */
-    private void loadMenuSubsections(Section section, String idSite) {
-        List<Section> subsections = findSubsections(idSite, section.getId().toString())
-                .stream()
-                .filter(s -> "1".equals(s.getMenu1())) // Solo sezioni nel menu
-                .collect(Collectors.toList());
+    private void loadMenuSubsections(Section section, String idSite, int maxDepth, int currentDepth) {
+        // Protezione da ricorsione infinita
+        if (currentDepth >= maxDepth) {
+            log.warn("Raggiunta profondità massima ricorsione: {} per sezione: {}",
+                    maxDepth, section.getId());
+            return;
+        }
 
-        section.setSubsection(subsections);
+        try {
+            // ===== 1. CARICA SOTTOSEZIONI PUBBLICATE =====
+            List<Content> subsectionContents = contentRepository.findPublishedSubsections(
+                    idSite,
+                    section.getId().toString(),
+                    "1",  // stato = 1 (pubblicato)
+                    "0"   // privato = 0 (pubblico)
+            );
 
-        // Opzionale: carica anche secondo livello se necessario
-        // for (Section sub : subsections) {
-        //     loadMenuSubsections(sub, idSite);
-        // }
+            if (subsectionContents.isEmpty()) {
+                section.setSubsection(new ArrayList<>());
+                return;
+            }
+
+            List<Section> subsections = new ArrayList<>();
+            LocalDate today = LocalDate.now();
+
+            // ===== 2. PROCESSA OGNI SOTTOSEZIONE =====
+            for (Content content : subsectionContents) {
+
+                // ===== 3. VERIFICA DATE DI PUBBLICAZIONE PROGRAMMATA =====
+                // Se S3='1' → verifica che oggi sia tra S1 (inizio) e S2 (fine)
+                if ("1".equals(content.getS(3))) {
+                    try {
+                        LocalDate startDate = parseScheduleDate(content.getS(1));
+                        LocalDate endDate = parseScheduleDate(content.getS(2));
+
+                        if (startDate != null && endDate != null) {
+                            // Verifica se oggi è nel range [startDate, endDate]
+                            if (today.isBefore(startDate) || today.isAfter(endDate)) {
+                                log.debug("Sezione {} esclusa: fuori periodo pubblicazione",
+                                        content.getId());
+                                continue; // Salta questa sezione
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.warn("Errore parsing date pubblicazione per sezione {}: {}",
+                                content.getId(), e.getMessage());
+                        continue;
+                    }
+                }
+
+                // ===== 4. CONVERTI A SECTION =====
+                Section subsection = sectionMapper.toSection(content);
+
+                // ===== 5. RICORSIONE: CARICA SOTTOSEZIONI DELLE SOTTOSEZIONI =====
+                loadMenuSubsections(subsection, idSite, maxDepth, currentDepth + 1);
+
+                subsections.add(subsection);
+            }
+
+            section.setSubsection(subsections);
+
+        } catch (Exception e) {
+            log.error("Errore caricamento sottosezioni per sezione {}: {}",
+                    section.getId(), e.getMessage(), e);
+            section.setSubsection(new ArrayList<>());
+        }
+    }
+
+    /**
+     * Parse date da campo S1/S2 (formati: yyyy-MM-dd, dd/MM/yyyy, dd-MM-yyyy)
+     */
+    private LocalDate parseScheduleDate(String dateString) {
+        if (dateString == null || dateString.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            // Prova formato ISO (yyyy-MM-dd)
+            return LocalDate.parse(dateString.trim());
+        } catch (Exception e1) {
+            try {
+                // Prova formato europeo (dd/MM/yyyy)
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                return LocalDate.parse(dateString.trim(), formatter);
+            } catch (Exception e2) {
+                try {
+                    // Prova formato con trattini (dd-MM-yyyy)
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                    return LocalDate.parse(dateString.trim(), formatter);
+                } catch (Exception e3) {
+                    log.warn("Formato data non riconosciuto: {}", dateString);
+                    return null;
+                }
+            }
+        }
     }
 
     // ========================================
@@ -1021,6 +1301,12 @@ public class ContentService {
 
         return String.format("%08d", value != null ? value : 0);
     }
-
+    /**
+     * Trova SectionType per ID
+     */
+    public SectionType getSectionTypeById(Integer id) {
+        log.debug("Finding SectionType by id: {}", id);
+        return sectionTypeRepository.findById(id).orElse(null);
+    }
 
 }

@@ -1,0 +1,85 @@
+<!-- file: src/main/resources/templates/site01/fragments/page_title.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- ===================================================================
+     FRAGMENT: sectionTitle
+     Breadcrumb e titolo per SEZIONI
+     =================================================================== -->
+<th:block th:fragment="sectionTitle">
+    <!-- start page title -->
+    <section class="page-title-big-typography cover-background md-py-0 top-space-margin"
+             th:style="'background-image: url(' + ${config.imagesRepositoryWeb + '/site01/images/default-bg.jpg'} + ')'">
+        <div class="container">
+            <div class="row align-items-center small-screen">
+                <div class="col-lg-5 col-sm-7 position-relative page-title-extra-small md-mb-30px">
+                    <h1 class="text-white mb-0 text-shadow-double-large fw-600" th:text="${section.titolo}">Section Title</h1>
+                </div>
+                <div class="col-lg-7 col-sm-5 text-sm-end">
+                    <!-- breadcrumb -->
+                    <ul class="breadcrumb breadcrumb-style-01 fs-16 text-white mb-0">
+                        <li><a href="/" class="text-white text-white-hover">Home</a></li>
+                        <li class="text-white" th:text="${section.titolo}">Current Section</li>
+                    </ul>
+                    <!-- end breadcrumb -->
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- end page title -->
+</th:block>
+
+<!-- ===================================================================
+     FRAGMENT: documentTitle
+     Breadcrumb e titolo per DOCUMENTI/CONTENUTI
+     =================================================================== -->
+<th:block th:fragment="documentTitle">
+    <!-- start page title -->
+    <section class="page-title-big-typography cover-background md-py-0 top-space-margin"
+             th:style="'background-image: url(' + ${config.imagesRepositoryWeb + '/site01/images/default-bg.jpg'} + ')'">
+        <div class="container">
+            <div class="row align-items-center small-screen">
+                <div class="col-lg-5 col-sm-7 position-relative page-title-extra-small md-mb-30px">
+                    <h1 class="text-white mb-0 text-shadow-double-large fw-600" th:text="${document.titolo}">Document Title</h1>
+                </div>
+                <div class="col-lg-7 col-sm-5 text-sm-end">
+                    <!-- breadcrumb -->
+                    <ul class="breadcrumb breadcrumb-style-01 fs-16 text-white mb-0">
+                        <li><a href="/" class="text-white text-white-hover">Home</a></li>
+                        <li th:if="${parentSection != null}">
+                            <a th:href="@{/front(pid=${parentSection.id})}"
+                               class="text-white text-white-hover"
+                               th:text="${parentSection.titolo}">Parent Section</a>
+                        </li>
+                        <li class="text-white" th:text="${document.titolo}">Current Document</li>
+                    </ul>
+                    <!-- end breadcrumb -->
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- end page title -->
+</th:block>
+
+<!-- ===================================================================
+     FRAGMENT: simpleTitle
+     Titolo semplice senza breadcrumb (per home page)
+     =================================================================== -->
+<th:block th:fragment="simpleTitle">
+    <!-- start page title -->
+    <section class="page-title-big-typography cover-background md-py-0 top-space-margin"
+             th:style="'background-image: url(' + ${config.imagesRepositoryWeb + '/site01/images/default-bg.jpg'} + ')'">
+        <div class="container">
+            <div class="row align-items-center small-screen">
+                <div class="col-12 text-center position-relative page-title-extra-small">
+                    <h1 class="text-white mb-0 text-shadow-double-large fw-600" th:text="${pageTitle}">Page Title</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- end page title -->
+</th:block>
+
+</body>
+</html>

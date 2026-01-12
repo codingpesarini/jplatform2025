@@ -143,8 +143,8 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
             "AND c.idRoot = -1 " +
             "AND c.stato = '1' " +
             "AND c.privato = '0' " +
-            "AND c.menu1 = '1' " +
             "AND (c.idParent IS NULL OR c.idParent = '' OR c.idParent = '0') " +
+            "AND (c.idType != 7) " +
             "ORDER BY c.position ASC")
     List<Content> findPublicMenu(@Param("idSite") String idSite);
 
@@ -156,7 +156,6 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
             "AND c.idRoot = -1 " +
             "AND c.stato = '1' " +
             "AND c.privato = '1' " +
-            "AND c.menu1 = '1' " +
             "AND (c.idParent IS NULL OR c.idParent = '' OR c.idParent = '0') " +
             "AND (:gruppiSql IS NULL OR :gruppiSql = '' OR " +
             "     c.idGruppo LIKE CONCAT('%', :gruppiSql, '%')) " +
@@ -465,5 +464,30 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
     List<Content> findContentsByType(
             @Param("idSite") String idSite,
             @Param("idType") Integer idType
+    );
+
+
+    /**
+     * Trova sottosezioni pubblicate di una sezione parent
+     * Equivalente legacy: getStrutturaMenu() - query ricorsiva
+     *
+     * @param idSite ID del sito
+     * @param idParent ID della sezione parent
+     * @param stato Stato pubblicazione (1=pubblicato)
+     * @param privato Flag privato (0=pubblico, 1=privato)
+     * @return Lista di contenuti sottosezioni
+     */
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite " +
+            "AND c.idRoot = -1 " +
+            "AND c.idParent = :idParent " +
+            "AND c.stato = :stato " +
+            "AND c.privato = :privato " +
+            "AND c.idType != 7 " +
+            "ORDER BY c.position ASC")
+    List<Content> findPublishedSubsections(
+            @Param("idSite") String idSite,
+            @Param("idParent") String idParent,
+            @Param("stato") String stato,
+            @Param("privato") String privato
     );
 }
