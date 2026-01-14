@@ -232,7 +232,10 @@ public class FrontController {
                     pid,
                     filter,
                     config.getImagesRepositoryWeb(),
-                    idSito
+                    idSito,
+                    true,
+                    true,
+                    my
             );
 
             if (section == null) {
@@ -365,7 +368,10 @@ public class FrontController {
                     idRoot.toString(),
                     emptyFilter,
                     config.getImagesRepositoryWeb(),
-                    config.getSito().getId()
+                    config.getSito().getId(),
+                    true,
+                    true,
+                    null
             );
 
         } catch (Exception e) {

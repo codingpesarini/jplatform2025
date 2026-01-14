@@ -118,7 +118,7 @@ public class Content {
     // ========================================
 
     @Column(name = "gallery", columnDefinition = "LONGTEXT")
-    private String gallery;
+    private String galleryString;
 
     @Column(name = "id_allegato")
     private String idAllegato;

@@ -60,7 +60,7 @@ public class ContentToSectionMapper {
         section.setClick(content.getClick());
 
         // ========== MEDIA ==========
-        section.setGallery(content.getGallery());
+        section.setGalleryString(content.getGalleryString());
         section.setIdAllegato(content.getIdAllegato());
 
         // ========== TAG ==========
@@ -318,7 +318,7 @@ public class ContentToSectionMapper {
         content.setClick(section.getClick());
 
         // ========== MEDIA ==========
-        content.setGallery(section.getGallery());
+        content.setGalleryString(section.getGalleryString());
         content.setIdAllegato(section.getIdAllegato());
 
         // ========== TAG ==========

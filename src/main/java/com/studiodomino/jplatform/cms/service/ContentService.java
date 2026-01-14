@@ -8,6 +8,7 @@ import com.studiodomino.jplatform.cms.front.dto.Tag;
 import com.studiodomino.jplatform.cms.mapper.ContentToDatiBaseMapper;
 import com.studiodomino.jplatform.cms.mapper.ContentToSectionMapper;
 import com.studiodomino.jplatform.cms.repository.ContentRepository;
+import com.studiodomino.jplatform.cms.repository.SectionTypeRepository;
 import com.studiodomino.jplatform.shared.entity.UtenteEsterno;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,7 @@ public class ContentService {
     private final ContentRepository contentRepository;
     private final ContentToSectionMapper sectionMapper;
     private final ContentToDatiBaseMapper datiBaseMapper;
+    private final SectionTypeRepository sectionTypeRepository;
 
     // ========================================
     // METODI PER SEZIONI
@@ -205,7 +207,7 @@ public class ContentService {
             Integer idRoot,
             String whereCondition,
             String orderBy,
-            String limit) {
+            Integer limit) {
 
         log.debug("Finding contents for section {} with custom filters", idRoot);
 

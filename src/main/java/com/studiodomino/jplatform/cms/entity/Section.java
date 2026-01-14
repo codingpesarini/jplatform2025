@@ -63,7 +63,8 @@ public class Section implements Serializable {
     // MEDIA
     // ========================================
 
-    private String gallery;
+    private List<Images> gallery;
+    private String galleryString="";
     private String idAllegato;
 
     // ========================================
@@ -361,6 +362,7 @@ public class Section implements Serializable {
     private List<Images> galleryList;
     private Allegato allegato;
     private ExtraTag extratag;
+    private Section sezionePadre;
 
     // ========================================
     // UTENTI E GRUPPI
@@ -377,6 +379,8 @@ public class Section implements Serializable {
     private List<Commento> commenti;
     private String numeroCommenti = "0";
     private int rating = 0;
+
+
 
     // ========================================
     // STATO E FLAGS

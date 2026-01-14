@@ -72,7 +72,7 @@ public class ContentToDatiBaseMapper {
         datiBase.setRating(content.getRating() != null ? content.getRating() : 0);
 
         // ========== MEDIA ==========
-        datiBase.setGalleryString(content.getGallery() != null ? content.getGallery() : "");
+        datiBase.setGalleryString(content.getGalleryString() != null ? content.getGalleryString() : "");
 
         // ========== CLICK ==========
         datiBase.setClick(content.getClick() != null ? content.getClick() : 0);
@@ -313,7 +313,7 @@ public class ContentToDatiBaseMapper {
         content.setRating(datiBase.getRating());
 
         // ========== MEDIA ==========
-        content.setGallery(datiBase.getGalleryString());
+        content.setGalleryString(datiBase.getGalleryString());
 
         // ========== CLICK ==========
         content.setClick(datiBase.getClick());

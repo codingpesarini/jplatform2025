@@ -123,7 +123,7 @@ public class FrontDispatchService {
 
             // ===== 3. DETERMINA ORDINAMENTO CONTENUTI =====
             String orderByContenuti = determineContentOrdering(section, filter.getOrdinamento());
-            String maxContenuti = section.getMaxOrdineContenuti();
+            Integer maxContenuti = Integer.parseInt(section.getMaxOrdineContenuti().isEmpty() ?"0":section.getMaxOrdineContenuti());
 
             // ===== 4. CARICA CONTENUTI =====
             String whereCondition = buildContentWhereCondition(filter, section.getId());
@@ -196,7 +196,7 @@ public class FrontDispatchService {
             section.setCommenti(commenti);
 
             long numeroCommenti = commentoService.contaCommentiApprovati(section.getId().toString());
-            section.setNumeroCommenti((int) numeroCommenti);
+            section.setNumeroCommenti(Long.toString(numeroCommenti));
             log.debug("Commenti caricati: {}", numeroCommenti);
 
             // ===== 10. CARICA UTENTI ASSOCIATI =====
@@ -229,7 +229,7 @@ public class FrontDispatchService {
             return section;
 
         } catch (NumberFormatException e) {
-            log.error("ID sezione non valido: {}", pid);
+            log.error("ID sezione non valido: {} ", pid +" - "+ e);
             throw new IllegalArgumentException("ID sezione non valido: " + pid);
         }
     }
@@ -320,7 +320,7 @@ public class FrontDispatchService {
                 document.setCommenti(commenti);
 
                 long numeroCommenti = commentoService.contaCommentiApprovati(id.toString());
-                document.setNumeroCommenti((int) numeroCommenti);
+                document.setNumeroCommenti(Long.toString(numeroCommenti));
 
                 // Carica gallery se presente
                 if (document.getGalleryString() != null && !document.getGalleryString().isEmpty()) {
