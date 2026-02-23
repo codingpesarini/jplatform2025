@@ -16,99 +16,44 @@
          ======================================== -->
     <div th:switch="${section.sectionType.page3}">
 
-        <!-- Sezione Web Standard -->
+        <!-- Sezione Web Standard-->
         <th:block th:case="'sectionWeb'">
             <th:block th:replace="~{site01/fragments/section_frag/sectionWeb :: content}"></th:block>
         </th:block>
 
-        <!-- Sezione Web con Sidebar -->
-        <th:block th:case="'sectionWebSidebar'">
-            <th:block th:replace="~{site01/fragments/section_frag/sectionWebSidebar :: content}"></th:block>
+        <!-- Sezione Web Standard-->
+        <th:block th:case="'sectionWebUO'">
+            <th:block th:replace="~{site01/fragments/section_frag/sectionWebUO :: content}"></th:block>
         </th:block>
 
-        <!-- Gallery con Sidebar -->
-        <th:block th:case="'sectionGallerySidebar'">
-            <th:block th:replace="~{site01/fragments/section_frag/sectionGallerySidebar :: content}"></th:block>
+        <th:block th:case="'sectionWebPersona'">
+            <th:block th:replace="~{site01/fragments/section_frag/sectionWebPersona :: content}"></th:block>
         </th:block>
 
-        <!-- Lista Eventi/News con Sidebar -->
-        <th:block th:case="'sectionListSidebar'">
-            <th:block th:replace="~{site01/fragments/section_frag/sectionListSidebar :: content}"></th:block>
+        <!-- Sezione Web Standard-->
+        <th:block th:case="'sectionWebLuogo'">
+            <th:block th:replace="~{site01/fragments/section_frag/sectionWebLuogo :: content}"></th:block>
         </th:block>
 
-        <!-- Blog List con Sidebar -->
-        <th:block th:case="'sectionListSidebarBlog'">
-            <th:block th:replace="~{site01/fragments/section_frag/sectionListSidebarBlog :: content}"></th:block>
+        <th:block th:case="'sectionWebNCS'">
+            <th:block th:replace="~{site01/fragments/section_frag/sectionWebNCS :: content}"></th:block>
         </th:block>
 
-        <!-- Lista Sotto-Sezioni con Icone -->
-        <th:block th:case="'sectionSubSectionList'">
-            <th:block th:replace="~{site01/fragments/section_frag/sectionSubSectionList :: content}"></th:block>
+        <th:block th:case="'sectionWebEvento'">
+            <th:block th:replace="~{site01/fragments/section_frag/sectionWebEvento :: content}"></th:block>
         </th:block>
 
-        <!-- Lista Sotto-Sezioni Full Width -->
-        <th:block th:case="'sectionFullSubSectionList'">
-            <th:block th:replace="~{site01/fragments/section_frag/sectionFullSubSectionList :: content}"></th:block>
+        <th:block th:case="'sectionWebDocumenti'">
+            <th:block th:replace="~{site01/fragments/section_frag/sectionWebDocumenti :: content}"></th:block>
         </th:block>
 
-        <!-- Certificazioni Sotto-Sezioni -->
-        <th:block th:case="'sectionCertificazioniSubSectionList'">
-            <th:block th:replace="~{site01/fragments/section_frag/sectionCertificazioniSubSectionList :: content}"></th:block>
-        </th:block>
-
-        <!-- Catalogo Corsi con Sidebar -->
-        <th:block th:case="'sectionCatalogoSidebar'">
-            <th:block th:replace="~{site01/fragments/section_frag/sectionCatalogoSidebar :: content}"></th:block>
-        </th:block>
-
-        <!-- Catalogo Qualifica con Sidebar -->
-        <th:block th:case="'sectionCatalogoQualificaSidebar'">
-            <th:block th:replace="~{site01/fragments/section_frag/sectionCatalogoQualificaSidebar :: content}"></th:block>
-        </th:block>
-
-        <!-- Catalogo Alta Formazione con Sidebar -->
-        <th:block th:case="'sectionCatalogoAltaFormazioneSidebar'">
-            <th:block th:replace="~{site01/fragments/section_frag/sectionCatalogoAltaFormazioneSidebar :: content}"></th:block>
-        </th:block>
-
-        <!-- Catalogo Laurea con Sidebar -->
-        <th:block th:case="'sectionCatalogoLaureaSidebar'">
-            <th:block th:replace="~{site01/fragments/section_frag/sectionCatalogoLaureaSidebar :: content}"></th:block>
-        </th:block>
-
-        <!-- Calendario Eventi con Sidebar -->
-        <th:block th:case="'sectionCalendarioSidebar'">
-            <th:block th:replace="~{site01/fragments/section_frag/sectionCalendarioSidebar :: content}"></th:block>
-        </th:block>
-
-        <!-- Griglia Iconica con Sidebar -->
-        <th:block th:case="'sectionContentsIconList'">
-            <th:block th:replace="~{site01/fragments/section_frag/sectionContentsIconList :: content}"></th:block>
-        </th:block>
-
-        <!-- FAQ con Sidebar -->
-        <th:block th:case="'sectionFaqSidebar'">
-            <th:block th:replace="~{site01/fragments/section_frag/sectionFaqSidebar :: content}"></th:block>
-        </th:block>
-
-        <!-- Contatti -->
-        <th:block th:case="'sectionContatti'">
-            <th:block th:replace="~{site01/fragments/section_frag/sectionContatti :: content}"></th:block>
-        </th:block>
-
-        <!-- Sitemap -->
-        <th:block th:case="'sitemap'">
-            <th:block th:replace="~{site01/fragments/section_frag/sitemap :: content}"></th:block>
-        </th:block>
-
-        <!-- News Display -->
-        <th:block th:case="'sectionNewsDisplay'">
-            <th:block th:replace="~{site01/fragments/section_frag/sectionNewsDisplay :: content}"></th:block>
+        <th:block th:case="'sectionWebArgomento'">
+            <th:block th:replace="~{site01/fragments/section_frag/sectionWebArgomento :: content}"></th:block>
         </th:block>
 
         <!-- Default fallback: sezione standard -->
         <th:block th:case="*">
-            <th:block th:replace="~{site01/fragments/section_frag/sectionWeb :: content}"></th:block>
+            <th:block th:replace="~{site01/fragments/section_frag/sectionWebServizio :: content}"></th:block>
         </th:block>
 
     </div>

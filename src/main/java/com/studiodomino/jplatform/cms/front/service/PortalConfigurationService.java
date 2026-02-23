@@ -90,8 +90,35 @@ public class PortalConfigurationService {
     }
 
     /**
-     * Carica tutti gli slot di contenuti (01-10) configurati nel sito
+     * Normalizza una lista id_root tipo "562,563," -> "562,563"
+     * - rimuove spazi
+     * - rimuove virgole iniziali/finali
+     * - elimina token vuoti/non numerici
+     * - normalizza zeri iniziali (es: "0322" -> "322")
      */
+    private String normalizeIdRootList(String raw) {
+        if (raw == null) return null;
+
+        String s = raw.trim().replace(" ", "");
+        s = s.replaceAll("^,+|,+$", ""); // via virgole a inizio/fine
+
+        if (s.isEmpty()) return "";
+
+        StringBuilder out = new StringBuilder();
+        for (String part : s.split(",")) {
+            if (part == null) continue;
+            part = part.trim();
+            if (part.isEmpty()) continue;
+
+            if (!part.matches("\\d+")) continue;
+
+            int n = Integer.parseInt(part); // 0322 -> 322
+            if (out.length() > 0) out.append(",");
+            out.append(n);
+        }
+        return out.toString();
+    }
+
     /**
      * Carica tutti gli slot di contenuti (01-10) configurati nel sito
      */
@@ -101,156 +128,189 @@ public class PortalConfigurationService {
         if (config.getSito().getContenutiFront01() != null &&
                 !config.getSito().getContenutiFront01().isEmpty()) {
 
-            List<DatiBase> slot01 = contentService.getContenutiFront(
-                    idSito,
-                    "id_root",
-                    config.getSito().getContenutiFront01(),
-                    "", // condition
-                    config.getSito().getContenutiOrdineFront01(),
-                    config.getSito().getMaxContenutiFront01()
-            );
-            config.setContenutiFront01(slot01);
+            String roots = normalizeIdRootList(config.getSito().getContenutiFront01());
+            if (roots != null && !roots.isEmpty()) {
+                List<DatiBase> slot01 = contentService.getContenutiFront(
+                        idSito,
+                        "id_root",
+                        roots,
+                        "", // condition
+                        config.getSito().getContenutiOrdineFront01(),
+                        config.getSito().getMaxContenutiFront01()
+                );
+                config.setContenutiFront01(slot01);
+            }
         }
 
         // ===== SLOT 02 =====
         if (config.getSito().getContenutiFront02() != null &&
                 !config.getSito().getContenutiFront02().isEmpty()) {
 
-            List<DatiBase> slot02 = contentService.getContenutiFront(
-                    idSito,
-                    "id_root",
-                    config.getSito().getContenutiFront02(),
-                    "",
-                    config.getSito().getContenutiOrdineFront02(),
-                    config.getSito().getMaxContenutiFront02()
-            );
-            config.setContenutiFront02(slot02);
+            String roots = normalizeIdRootList(config.getSito().getContenutiFront02());
+            if (roots != null && !roots.isEmpty()) {
+                List<DatiBase> slot02 = contentService.getContenutiFront(
+                        idSito,
+                        "id_root",
+                        roots,
+                        "",
+                        config.getSito().getContenutiOrdineFront02(),
+                        config.getSito().getMaxContenutiFront02()
+                );
+                config.setContenutiFront02(slot02);
+            }
         }
 
         // ===== SLOT 03 =====
         if (config.getSito().getContenutiFront03() != null &&
                 !config.getSito().getContenutiFront03().isEmpty()) {
 
-            List<DatiBase> slot03 = contentService.getContenutiFront(
-                    idSito,
-                    "id_root",
-                    config.getSito().getContenutiFront03(),
-                    "",
-                    config.getSito().getContenutiOrdineFront03(),
-                    config.getSito().getMaxContenutiFront03()
-            );
-            config.setContenutiFront03(slot03);
+            String roots = normalizeIdRootList(config.getSito().getContenutiFront03());
+            if (roots != null && !roots.isEmpty()) {
+                List<DatiBase> slot03 = contentService.getContenutiFront(
+                        idSito,
+                        "id_root",
+                        roots,
+                        "",
+                        config.getSito().getContenutiOrdineFront03(),
+                        config.getSito().getMaxContenutiFront03()
+                );
+                config.setContenutiFront03(slot03);
+            }
         }
 
         // ===== SLOT 04 =====
         if (config.getSito().getContenutiFront04() != null &&
                 !config.getSito().getContenutiFront04().isEmpty()) {
 
-            List<DatiBase> slot04 = contentService.getContenutiFront(
-                    idSito,
-                    "id_root",
-                    config.getSito().getContenutiFront04(),
-                    "",
-                    config.getSito().getContenutiOrdineFront04(),
-                    config.getSito().getMaxContenutiFront04()
-            );
-            config.setContenutiFront04(slot04);
+            String roots = normalizeIdRootList(config.getSito().getContenutiFront04());
+            if (roots != null && !roots.isEmpty()) {
+                List<DatiBase> slot04 = contentService.getContenutiFront(
+                        idSito,
+                        "id_root",
+                        roots,
+                        "",
+                        config.getSito().getContenutiOrdineFront04(),
+                        config.getSito().getMaxContenutiFront04()
+                );
+                config.setContenutiFront04(slot04);
+            }
         }
 
         // ===== SLOT 05 =====
         if (config.getSito().getContenutiFront05() != null &&
                 !config.getSito().getContenutiFront05().isEmpty()) {
 
-            List<DatiBase> slot05 = contentService.getContenutiFront(
-                    idSito,
-                    "id_root",
-                    config.getSito().getContenutiFront05(),
-                    "",
-                    config.getSito().getContenutiOrdineFront05(),
-                    config.getSito().getMaxContenutiFront05()
-            );
-            config.setContenutiFront05(slot05);
+            String roots = normalizeIdRootList(config.getSito().getContenutiFront05());
+            if (roots != null && !roots.isEmpty()) {
+                List<DatiBase> slot05 = contentService.getContenutiFront(
+                        idSito,
+                        "id_root",
+                        roots,
+                        "",
+                        config.getSito().getContenutiOrdineFront05(),
+                        config.getSito().getMaxContenutiFront05()
+                );
+                config.setContenutiFront05(slot05);
+            }
         }
 
         // ===== SLOT 06 =====
         if (config.getSito().getContenutiFront06() != null &&
                 !config.getSito().getContenutiFront06().isEmpty()) {
 
-            List<DatiBase> slot06 = contentService.getContenutiFront(
-                    idSito,
-                    "id_root",
-                    config.getSito().getContenutiFront06(),
-                    "",
-                    config.getSito().getContenutiOrdineFront06(),
-                    config.getSito().getMaxContenutiFront06()
-            );
-            config.setContenutiFront06(slot06);
+            String roots = normalizeIdRootList(config.getSito().getContenutiFront06());
+            if (roots != null && !roots.isEmpty()) {
+                List<DatiBase> slot06 = contentService.getContenutiFront(
+                        idSito,
+                        "id_root",
+                        roots,
+                        "",
+                        config.getSito().getContenutiOrdineFront06(),
+                        config.getSito().getMaxContenutiFront06()
+                );
+                config.setContenutiFront06(slot06);
+            }
         }
 
         // ===== SLOT 07 =====
         if (config.getSito().getContenutiFront07() != null &&
                 !config.getSito().getContenutiFront07().isEmpty()) {
 
-            List<DatiBase> slot07 = contentService.getContenutiFront(
-                    idSito,
-                    "id_root",
-                    config.getSito().getContenutiFront07(),
-                    "",
-                    config.getSito().getContenutiOrdineFront07(),
-                    config.getSito().getMaxContenutiFront07()
-            );
-            config.setContenutiFront07(slot07);
+            String roots = normalizeIdRootList(config.getSito().getContenutiFront07());
+            if (roots != null && !roots.isEmpty()) {
+                List<DatiBase> slot07 = contentService.getContenutiFront(
+                        idSito,
+                        "id_root",
+                        roots,
+                        "",
+                        config.getSito().getContenutiOrdineFront07(),
+                        config.getSito().getMaxContenutiFront07()
+                );
+                config.setContenutiFront07(slot07);
+            }
         }
 
         // ===== SLOT 08 =====
         if (config.getSito().getContenutiFront08() != null &&
                 !config.getSito().getContenutiFront08().isEmpty()) {
 
-            List<DatiBase> slot08 = contentService.getContenutiFront(
-                    idSito,
-                    "id_root",
-                    config.getSito().getContenutiFront08(),
-                    "",
-                    config.getSito().getContenutiOrdineFront08(),
-                    config.getSito().getMaxContenutiFront08()
-            );
-            config.setContenutiFront08(slot08);
+            String roots = normalizeIdRootList(config.getSito().getContenutiFront08());
+            if (roots != null && !roots.isEmpty()) {
+                List<DatiBase> slot08 = contentService.getContenutiFront(
+                        idSito,
+                        "id_root",
+                        roots,
+                        "",
+                        config.getSito().getContenutiOrdineFront08(),
+                        config.getSito().getMaxContenutiFront08()
+                );
+                config.setContenutiFront08(slot08);
+            }
         }
 
         // ===== SLOT 09 =====
         if (config.getSito().getContenutiFront09() != null &&
                 !config.getSito().getContenutiFront09().isEmpty()) {
-
-            List<DatiBase> slot09 = contentService.getContenutiFront(
-                    idSito,
-                    "id_root",
-                    config.getSito().getContenutiFront09(),
-                    "",
-                    config.getSito().getContenutiOrdineFront09(),
-                    config.getSito().getMaxContenutiFront09()
-            );
-            config.setContenutiFront09(slot09);
+            String raw = config.getSito().getContenutiFront09();
+            log.debug("SLOT09 raw roots: [{}]", raw);
+            String roots = normalizeIdRootList(raw);
+            log.debug("SLOT09 normalized roots: [{}]", roots);
+            if (roots != null && !roots.isEmpty()) {
+                List<DatiBase> slot09 = contentService.getContenutiFront(
+                        idSito,
+                        "id_root",
+                        roots,
+                        "",
+                        config.getSito().getContenutiOrdineFront09(),
+                        config.getSito().getMaxContenutiFront09()
+                );
+                log.debug("SLOT09 loaded items: {}", slot09 == null ? "NULL" : slot09.size());
+                config.setContenutiFront09(slot09);
+            }
         }
 
         // ===== SLOT 10 =====
         if (config.getSito().getContenutiFront10() != null &&
                 !config.getSito().getContenutiFront10().isEmpty()) {
 
-            List<DatiBase> slot10 = contentService.getContenutiFront(
-                    idSito,
-                    "id_root",
-                    config.getSito().getContenutiFront10(),
-                    "",
-                    config.getSito().getContenutiOrdineFront10(),
-                    config.getSito().getMaxContenutiFront10()
-            );
-            config.setContenutiFront10(slot10);
+            String roots = normalizeIdRootList(config.getSito().getContenutiFront10());
+            if (roots != null && !roots.isEmpty()) {
+                List<DatiBase> slot10 = contentService.getContenutiFront(
+                        idSito,
+                        "id_root",
+                        roots,
+                        "",
+                        config.getSito().getContenutiOrdineFront10(),
+                        config.getSito().getMaxContenutiFront10()
+                );
+                config.setContenutiFront10(slot10);
+            }
         }
 
         log.debug("Content slots loaded for site: {}", idSito);
     }
 
-     /**
+    /**
      * Genera tag cloud dai contenuti del sito
      */
     private List<Tag> generateTagCloud(String idSito) {

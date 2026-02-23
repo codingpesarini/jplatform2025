@@ -1,161 +1,507 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<body>
-<header th:fragment="header">
-    <!-- start navigation -->
-    <nav class="navbar navbar-expand-lg header-transparent bg-transparent header-reverse" data-header-hover="light">
-        <div class="container-fluid">
-            <div class="col-auto col-lg-2 me-lg-0 me-auto">
-                <a class="navbar-brand" href="demo-elearning.html">
-                    <img th:src="@{/site01/images/demo-elearning-logo-white.png}" th:attr="data-at2x=@{/site01/images/demo-elearning-logo-white@2x.png}" alt="" class="default-logo">
-                    <img th:src="@{/site01/images/demo-elearning-logo-black.png}" th:attr="data-at2x=@{/site01/images/demo-elearning-logo-black@2x.png}" alt="" class="alt-logo">
-                    <img th:src="@{/site01/images/demo-elearning-logo-black.png}" th:attr="data-at2x=@{/site01/images/demo-elearning-logo-black@2x.png}" alt="" class="mobile-logo">
-                </a>
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="header">
+
+    <!-- Right menu element-->
+    <nav class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-right perfect-scrollbar">
+        <div class="menu-user-mobile menu-user-blue"></div>
+    </nav>
+    <!-- End Right menu element-->
+
+    <div class="it-header-wrapper it-header-sticky"
+         data-bs-toggle="sticky"
+         data-bs-position-type="fixed"
+         data-bs-sticky-class-name="is-sticky">
+
+        <!-- Header -->
+        <header id="main-header" class="bg-white">
+
+            <div id="pre-header" class="bg-petrol">
+                <div class="container">
+                    <div class="row variable-gutters">
+                        <div class="col-8">
+                            <a href="https://www.miur.gov.it/" target="_blank"
+                               aria-label="Ministero dell'Istruzione e del Merito - Collegamento esterno - Apre su nuova scheda">
+                                <strong>Ministero dell'Istruzione e del Merito</strong>
+                            </a>
+                        </div>
+
+                        <div class="col-4 header-utils-wrapper">
+                            <div class="header-utils">
+                                <button type="button" class="icon-text" data-bs-toggle="modal" data-bs-target="#access-modal">
+                                    <span class="mr-2">Accedi</span>
+                                    <div class="icon-wrapper">
+                                        <svg class="svg-user">
+                                            <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-user|}"></use>
+                                        </svg>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
-            <div class="col-auto menu-order position-static">
-                <button class="navbar-toggler float-start" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-line"></span>
-                    <span class="navbar-toggler-line"></span>
-                    <span class="navbar-toggler-line"></span>
-                    <span class="navbar-toggler-line"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav alt-font">
-                        <th:block th:if="${config.sezioniFront != null}">
-                            <th:block th:each="sezione, iterStat : ${config.sezioniFront}">
-                                <!-- ===== TIPO 1: MENU ITEM SINGOLO ===== -->
-                                <th:block th:if="${sezione.menu1 == '1'}">
-                                    <li class="nav-item">
-                                        <!-- Link normale a sezione -->
-                                        <a th:if="${sezione.menu2 == '0'}"
-                                           th:id="'sectid_' + ${sezione.id}"
-                                           th:href="@{/front(pid=${sezione.id})}"
-                                           class="nav-link"
-                                           th:text="${sezione.titolo}">Sezione</a>
 
-                                        <!-- Link senza azione -->
-                                        <a th:if="${sezione.menu2 == '1'}"
-                                           th:id="'sectid_' + ${sezione.id}"
-                                           href="javascript:void(0);"
-                                           class="nav-link"
-                                           th:text="${sezione.titolo}">Sezione</a>
+            <div class="container header-top">
+                <div class="row variable-gutters">
 
-                                        <!-- Link custom esterno -->
-                                        <a th:if="${sezione.menu2 == '2'}"
-                                           th:id="'sectid_' + ${sezione.id}"
-                                           th:href="${sezione.menu3}"
-                                           class="nav-link"
-                                           th:text="${sezione.menu4}">Link esterno</a>
-                                    </li>
-                                </th:block>
-                                <!-- ===== TIPO 2: DROPDOWN MENU ===== -->
-                                <th:block th:if="${sezione.menu1 == '3'}">
-                                    <li class="nav-item dropdown simple-dropdown">
-                                        <!-- Link parent dropdown -->
-                                        <a th:if="${sezione.menu2 == '0'}"
-                                           th:id="'sectid_' + ${sezione.id}"
-                                           th:href="@{/front(pid=${sezione.id})}"
-                                           class="nav-link"
-                                           th:text="${sezione.titolo}">Sezione</a>
+                    <div class="col-8 d-flex align-items-center">
 
-                                        <a th:if="${sezione.menu2 == '1'}"
-                                           th:id="'sectid_' + ${sezione.id}"
-                                           href="javascript:void(0);"
-                                           class="nav-link"
-                                           th:text="${sezione.titolo}">Sezione</a>
+                        <button class="hamburger hamburger--spin-r toggle-menu menu-left push-body d-xl-none" type="button"
+                                aria-label="apri chiudi navigazione">
+                            <span class="hamburger-box">
+                              <span class="hamburger-inner"></span>
+                            </span>
+                        </button>
 
-                                        <a th:if="${sezione.menu2 == '2'}"
-                                           th:id="'sectid_' + ${sezione.id}"
-                                           th:href="${sezione.menu3}"
-                                           class="nav-link"
-                                           th:text="${sezione.menu4}">Link esterno</a>
+                        <!-- Left menu element-->
+                        <div class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-left perfect-scrollbar">
+                            <div class="logo-header">
+                                <img class="me-2 p-5"
+                                     th:src="@{'/' + ${config.sito.path2} + '/assets/logo_orizzontale.png'}"
+                                     height="100" alt="Logo I.C. Castellabate">
+                                <p class="h5">
+                                    <span>I.C. Castellabate</span>
+                                    <span><strong>Castellabate - Perdifumo - Montecorice</strong></span>
+                                </p>
+                            </div>
 
-                                        <!-- Dropdown toggle icon -->
-                                        <i th:if="${sezione.subsection != null and !sezione.subsection.isEmpty()}"
-                                           class="fa-solid fa-angle-down dropdown-toggle"
-                                           th:id="'navbarDropdown_' + ${sezione.id}"
-                                           role="button"
-                                           data-bs-toggle="dropdown"
-                                           aria-expanded="false"></i>
+                            <div class="nav-list-mobile dl-menuwrapper">
 
-                                        <!-- DROPDOWN MENU LIVELLO 2 -->
-                                        <ul th:if="${sezione.subsection != null and !sezione.subsection.isEmpty()}"
-                                            class="dropdown-menu"
-                                            th:aria-labelledby="'navbarDropdown_' + ${sezione.id}">
-                                            <th:block th:each="sezione2 : ${sezione.subsection}">
-                                                <th:block th:if="${sezione2.menu1 != '0'}">
+                                <!-- NAV PRINCIPALE (mobile) -->
+                                <nav aria-label="Principale">
+                                    <ul class="dl-menu nav-list nav-list-primary" data-element="menu"
+                                        th:if="${config != null and config.sezioniFront != null}">
 
-                                                    <!-- Aggiungi classe "dropdown" se sezione2 ha sottosezioni -->
-                                                    <li th:classappend="${sezione2.subsection != null and !sezione2.subsection.isEmpty()} ? 'dropdown' : ''">
+                                        <th:block th:each="sezione : ${config.sezioniFront}">
+                                            <th:block th:if="${sezione.menu1 == '1'}">
+                                                <li th:class="${sezione.varchar8} + ' menu-dropdown-simple-wrapper'">
 
-                                                        <!-- Link sottosezione LIVELLO 2 -->
-                                                        <a th:if="${sezione2.menu2 == '0'}"
-                                                           th:href="@{/front(pid=${sezione2.id})}">
-                                                            <span th:text="${sezione2.titolo}">Sottosezione</span>
-                                                            <!-- Icona freccia se ha sottosezioni -->
-                                                            <i th:if="${sezione2.subsection != null and !sezione2.subsection.isEmpty()}"
-                                                               class="fa-solid fa-angle-right"></i>
+                                                    <th:block th:if="${sezione.menu2 == '0'}">
+                                                        <a class="nav-link dropdown-toggle" role="button" href="#"
+                                                           data-bs-toggle="dropdown" aria-expanded="false"
+                                                           th:id="${sezione.varchar10}">
+                                                            <span th:text="${sezione.titolo}">Titolo</span>
                                                         </a>
+                                                    </th:block>
 
-                                                        <a th:if="${sezione2.menu2 == '1'}"
-                                                           href="javascript:void(0);">
-                                                            <span th:text="${sezione2.titolo}">Sottosezione</span>
-                                                            <i th:if="${sezione2.subsection != null and !sezione2.subsection.isEmpty()}"
-                                                               class="fa-solid fa-angle-right"></i>
-                                                        </a>
+                                                    <div class="dropdown-menu menu-dropdown dl-submenu menu-dropdown-simple"
+                                                         th:attr="aria-labelledby=${sezione.varchar10}">
+                                                        <div class="link-list-wrapper">
+                                                            <ul class="link-list" th:attr="data-element=${sezione.varchar9}">
+                                                                <li class="menu-title">
+                                                                    <div class="h3">
+                                                                        <!-- PANORAMICA: link interno SEO -->
+                                                                        <a th:href="@{${sezione.url}}"
+                                                                           class="list-item" data-element="overview">Panoramica</a>
+                                                                    </div>
+                                                                </li>
 
-                                                        <a th:if="${sezione2.menu2 == '2'}"
-                                                           th:href="${sezione2.menu3}">
-                                                            <span th:text="${sezione2.menu4}">Link esterno</span>
-                                                            <i th:if="${sezione2.subsection != null and !sezione2.subsection.isEmpty()}"
-                                                               class="fa-solid fa-angle-right"></i>
-                                                        </a>
+                                                                <th:block th:if="${sezione.subsection != null}"
+                                                                          th:each="sezione2 : ${sezione.subsection}">
+                                                                    <th:block th:if="${sezione2.menu1 != '0' and sezione2.menu2 == '0'}">
+                                                                        <li>
+                                                                            <!-- SOTTOSEZIONE: link interno SEO -->
+                                                                            <a th:href="@{${sezione2.url}}"
+                                                                               th:attr="data-element=${sezione2.varchar10}">
+                                                                                <span th:text="${sezione2.titolo}">Sottosezione</span>
+                                                                            </a>
+                                                                        </li>
+                                                                    </th:block>
+                                                                </th:block>
 
-                                                        <!-- SOTTOSEZIONI DI LIVELLO 3 -->
-                                                        <ul th:if="${sezione2.subsection != null and !sezione2.subsection.isEmpty()}"
-                                                            class="dropdown-menu">
-                                                            <th:block th:each="sezione3 : ${sezione2.subsection}">
-                                                                <th:block th:if="${sezione3.menu1 != '0'}">
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+
+                                                </li>
+                                            </th:block>
+                                        </th:block>
+
+                                    </ul>
+                                </nav>
+
+                                <!-- ARGOMENTI (mobile) -->
+                                <nav aria-label="Argomenti">
+                                    <ul class="nav-list nav-list-secondary"
+                                        th:if="${config != null and config.sezioniFront != null}">
+
+                                        <th:block th:each="sezione : ${config.sezioniFront}">
+                                            <th:block th:if="${sezione.menu1 == '3'}">
+
+                                                <th:block th:if="${sezione.emptySubsection != null and !sezione.emptySubsection}">
+                                                    <th:block th:if="${sezione.subsection != null}"
+                                                              th:each="sezione2 : ${sezione.subsection}">
+                                                        <th:block th:if="${sezione2.menu1 == '3'}">
+                                                            <li>
+                                                                <!-- link interno -->
+                                                                <a th:if="${sezione2.menu2 == '0'}"
+                                                                   th:id="${'sectid_' + sezione2.id}"
+                                                                   th:href="@{${sezione2.url}}"
+                                                                   th:attr="title=${'Vai alla pagina: ' + sezione2.titolo}">
+                                                                    <span th:text="${sezione2.titolo}">Argomento</span>
+                                                                </a>
+
+                                                                <!-- link esterno -->
+                                                                <a th:if="${sezione2.menu2 == '2'}"
+                                                                   th:id="${'sectid_' + sezione2.id}"
+                                                                   th:href="${sezione2.menu3}"
+                                                                   th:attr="title=${'Vai alla pagina: ' + sezione2.titolo}">
+                                                                    <span th:text="${sezione2.titolo}">Argomento</span>
+                                                                </a>
+                                                            </li>
+                                                        </th:block>
+                                                    </th:block>
+                                                </th:block>
+
+                                                <li>
+                                                    <!-- link interno -->
+                                                    <a th:if="${sezione.menu2 == '0'}"
+                                                       th:id="${'sectid_' + sezione.id}"
+                                                       th:href="@{${sezione.url}}"
+                                                       th:attr="title=${'Vai alla pagina: ' + sezione.titolo}">
+                                                        <span th:text="${sezione.titolo}">Sezione</span>
+                                                    </a>
+
+                                                    <!-- link esterno -->
+                                                    <a th:if="${sezione.menu2 == '2'}"
+                                                       th:id="${'sectid_' + sezione.id}"
+                                                       th:href="${sezione.menu3}"
+                                                       th:attr="title=${'Vai alla pagina: ' + sezione.titolo}">
+                                                        <span th:text="${sezione.titolo}">Sezione</span>
+                                                    </a>
+                                                </li>
+
+                                            </th:block>
+                                        </th:block>
+
+                                    </ul>
+                                </nav>
+
+                            </div>
+                        </div>
+                        <!-- End Left menu element-->
+
+                        <!-- LOGO DESKTOP -->
+                        <div class="logo-header">
+                            <a th:href="@{'/sitereload/' + ${config.sito.id}}" class="d-inline-flex"
+                               aria-label="home I.C. Castellabate" title="vai alla home page">
+                                <img class="me-2"
+                                     th:src="@{'/' + ${config.sito.path2} + '/assets/logo_orizzontale.png'}"
+                                     height="100" alt="Logo I.C. Castellabate">
+                                <div class="h1">
+                                    <span>I.C. Castellabate</span>
+                                    <span><strong>Castellabate - Perdifumo - Montecorice</strong></span>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="sticky-main-nav"></div>
+                    </div>
+
+                    <div class="col-4 d-flex align-items-center justify-content-end">
+                        <div class="header-search d-flex align-items-center">
+                            <button type="button" class="d-flex align-items-center search-btn" data-bs-toggle="modal"
+                                    data-bs-target="#search-modal" aria-label="Cerca nel sito"
+                                    data-element="search-modal-button">
+                                <span class="d-none d-lg-block mr-2"><strong>Cerca</strong></span>
+                                <svg>
+                                    <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-search|}"></use>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="header-utils-sticky"></div>
+
+                        <div class="header-social">
+                            <span>Seguici su:</span>
+                            <div class="header-social-wrapper">
+                                <a href="#" aria-label="facebook" title="vai alla pagina facebook">
+                                    <svg class="icon it-social-facebook">
+                                        <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-facebook|}"></use>
+                                    </svg>
+                                </a>
+                                <a href="#" aria-label="twitter" title="vai alla pagina twitter">
+                                    <svg class="icon it-social-twitter">
+                                        <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-twitter|}"></use>
+                                    </svg>
+                                </a>
+                                <a href="#" aria-label="linkedin" title="vai alla pagina linkedin">
+                                    <svg class="icon it-social-linkedin">
+                                        <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-linkedin|}"></use>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- NAV DESKTOP (d-xl) -->
+            <div class="bg-white d-none d-xl-block header-bottom" id="sub-nav">
+                <div class="container">
+                    <div class="row variable-gutters">
+                        <div class="col nav-container">
+
+                            <nav aria-label="Principale" class="main-nav" id="menu-principale">
+                                <ul class="dl-menu nav-list nav-list-primary" data-element="menu"
+                                    th:if="${config != null and config.sezioniFront != null}">
+
+                                    <th:block th:each="sezione : ${config.sezioniFront}">
+                                        <th:block th:if="${sezione.menu1 == '1'}">
+                                            <li th:class="${sezione.varchar8} + ' menu-dropdown-simple-wrapper'">
+
+                                                <th:block th:if="${sezione.menu2 == '0'}">
+                                                    <a class="nav-link dropdown-toggle" role="button" href="#"
+                                                       data-bs-toggle="dropdown" aria-expanded="false"
+                                                       th:id="${sezione.varchar10}">
+                                                        <span th:text="${sezione.titolo}">Titolo</span>
+                                                    </a>
+                                                </th:block>
+
+                                                <div class="dropdown-menu menu-dropdown dl-submenu menu-dropdown-simple"
+                                                     th:attr="aria-labelledby=${sezione.varchar10}">
+                                                    <div class="link-list-wrapper">
+                                                        <ul class="link-list" th:attr="data-element=${sezione.varchar9}">
+                                                            <li class="menu-title">
+                                                                <div class="h3">
+                                                                    <!-- PANORAMICA: link interno SEO -->
+                                                                    <a th:href="@{${sezione.url}}"
+                                                                       class="list-item" data-element="overview">Panoramica</a>
+                                                                </div>
+                                                            </li>
+
+                                                            <th:block th:if="${sezione.subsection != null}"
+                                                                      th:each="sezione2 : ${sezione.subsection}">
+                                                                <th:block th:if="${sezione2.menu1 != '0' and sezione2.menu2 == '0'}">
                                                                     <li>
-                                                                        <a th:if="${sezione3.menu2 == '0'}"
-                                                                           th:href="@{/front(pid=${sezione3.id})}"
-                                                                           th:text="${sezione3.titolo}">Sottosezione 3</a>
-
-                                                                        <a th:if="${sezione3.menu2 == '1'}"
-                                                                           href="javascript:void(0);"
-                                                                           th:text="${sezione3.titolo}">Sottosezione 3</a>
-
-                                                                        <a th:if="${sezione3.menu2 == '2'}"
-                                                                           th:href="${sezione3.menu3}"
-                                                                           th:text="${sezione3.menu4}">Link esterno</a>
+                                                                        <!-- SOTTOSEZIONE: link interno SEO -->
+                                                                        <a th:href="@{${sezione2.url}}"
+                                                                           th:attr="data-element=${sezione2.varchar10}">
+                                                                            <span th:text="${sezione2.titolo}">Sottosezione</span>
+                                                                        </a>
                                                                     </li>
                                                                 </th:block>
                                                             </th:block>
+
                                                         </ul>
-                                                    </li>
+                                                    </div>
+                                                </div>
+
+                                            </li>
+                                        </th:block>
+                                    </th:block>
+
+                                </ul>
+                            </nav>
+
+                            <nav aria-label="Argomenti">
+                                <ul class="nav-list nav-list-secondary"
+                                    th:if="${config != null and config.sezioniFront != null}">
+
+                                    <th:block th:each="sezione : ${config.sezioniFront}">
+                                        <th:block th:if="${sezione.menu1 == '3'}">
+
+                                            <th:block th:if="${sezione.emptySubsection != null and !sezione.emptySubsection}">
+                                                <th:block th:if="${sezione.subsection != null}"
+                                                          th:each="sezione2 : ${sezione.subsection}">
+                                                    <th:block th:if="${sezione2.menu1 == '3'}">
+                                                        <li>
+                                                            <!-- link interno -->
+                                                            <a th:if="${sezione2.menu2 == '0'}"
+                                                               th:id="${'sectid_' + sezione2.id}"
+                                                               th:href="@{${sezione2.url}}"
+                                                               th:attr="title=${'Vai alla pagina: ' + sezione2.titolo}">
+                                                                <span th:text="${sezione2.titolo}">Argomento</span>
+                                                            </a>
+
+                                                            <!-- link esterno -->
+                                                            <a th:if="${sezione2.menu2 == '2'}"
+                                                               th:id="${'sectid_' + sezione2.id}"
+                                                               th:href="${sezione2.menu3}"
+                                                               th:attr="title=${'Vai alla pagina: ' + sezione2.titolo}">
+                                                                <span th:text="${sezione2.titolo}">Argomento</span>
+                                                            </a>
+                                                        </li>
+                                                    </th:block>
                                                 </th:block>
                                             </th:block>
-                                        </ul>
-                                    </li>
-                                </th:block>
-                            </th:block>
-                        </th:block>
 
+                                            <li>
+                                                <!-- link interno -->
+                                                <a th:if="${sezione.menu2 == '0'}"
+                                                   th:id="${'sectid_' + sezione.id}"
+                                                   th:href="@{${sezione.url}}"
+                                                   th:attr="title=${'Vai alla pagina: ' + sezione.titolo}">
+                                                    <span th:text="${sezione.titolo}">Sezione</span>
+                                                </a>
 
+                                                <!-- link esterno -->
+                                                <a th:if="${sezione.menu2 == '2'}"
+                                                   th:id="${'sectid_' + sezione.id}"
+                                                   th:href="${sezione.menu3}"
+                                                   th:attr="title=${'Vai alla pagina: ' + sezione.titolo}">
+                                                    <span th:text="${sezione.titolo}">Sezione</span>
+                                                </a>
+                                            </li>
 
-                        <li class="nav-item"><a href="demo-elearning-blog.html" class="nav-link">Blog</a></li>
+                                        </th:block>
+                                    </th:block>
 
-                    </ul>
+                                </ul>
+                            </nav>
+
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-auto col-lg-2 text-end d-none d-sm-flex">
-                <div class="header-icon">
-                    <div><div class="alt-font fw-500 lg-fs-15"><a href="tel:1800222000" class="widget-text text-white-hover"><i class="feather icon-feather-phone-call me-10px lg-me-5px"></i>1 800 222 000</a></div></div>
+
+        </header>
+        <!-- /header -->
+    </div>
+    <!-- /it-header-wrapper -->
+
+    <!-- Search Modal -->
+    <div class="modal fade" id="search-modal" tabindex="-1" role="dialog" aria-labelledby="searchModal" aria-hidden="false">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content perfect-scrollbar">
+                <div class="modal-body">
+
+                    <form th:action="@{/ricerca}" method="get">
+                        <input name="campo2" id="campo2" type="hidden" value="0"/>
+                        <input name="site" id="site" type="hidden" th:value="${config.sito.id}"/>
+
+                        <div class="container">
+                            <div class="row variable-gutters">
+                                <div class="col">
+                                    <h2 class="h2" id="searchModal">
+                                        Cerca
+                                        <button type="button" class="close dismiss" data-bs-dismiss="modal" aria-label="Chiudi">
+                                            <svg class="svg-cancel-large" role="presentation">
+                                                <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-close-big|}"></use>
+                                            </svg>
+                                        </button>
+                                    </h2>
+
+                                    <div class="form-group search-form">
+                                        <label for="campo1">Cerca servizi, notizie o documenti</label>
+                                        <input data-element="search-modal-input" type="text" class="form-control"
+                                               placeholder="Cerca servizi, notizie o documenti"
+                                               th:value="${ricerca != null ? ricerca.campo1 : ''}"
+                                               name="campo1" id="campo1"/>
+
+                                        <button type="button" class="clean-input" aria-label="Elimina testo di ricerca">
+                                            <svg class="svg-cancel-large" role="presentation">
+                                                <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-close-big|}"></use>
+                                            </svg>
+                                        </button>
+
+                                        <button type="submit" class="search-btn" aria-label="avvia la ricerca" data-element="search-submit">
+                                            <svg class="svg-search">
+                                                <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-search|}"></use>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row variable-gutters">
+                                <div class="col-lg-12">
+
+                                    <div class="badges-wrapper"
+                                         th:if="${config != null and config.sezioniFront != null}">
+                                        <h3 class="h4">Argomenti:</h3>
+
+                                        <ul class="topics-badges" data-element="all-topics">
+
+                                            <!-- cerco la sezione 566 dentro il menu -->
+                                            <th:block th:each="sezione : ${config.sezioniFront}">
+                                                <th:block th:if="${sezione.id == 566}">
+
+                                                    <!-- stampo tutte le sue sottosezioni -->
+                                                    <th:block th:if="${sezione.subsection != null}">
+                                                        <li th:each="sezione2 : ${sezione.subsection}">
+
+                                                            <!-- link interno -->
+                                                            <a class="badge badge-sm badge-pill badge-outline-greendark"
+                                                               th:if="${sezione2.menu2 == '0'}"
+                                                               th:href="@{${sezione2.url}}"
+                                                               th:attr="title=${'Vai all argomento: ' + sezione2.titolo}"
+                                                               th:text="${sezione2.titolo}">Argomento</a>
+
+                                                            <!-- link esterno -->
+                                                            <a class="badge badge-sm badge-pill badge-outline-greendark"
+                                                               th:if="${sezione2.menu2 == '2'}"
+                                                               th:href="${sezione2.menu3}"
+                                                               th:attr="title=${'Vai all argomento: ' + sezione2.titolo}"
+                                                               th:text="${sezione2.titolo}">Argomento</a>
+
+                                                        </li>
+                                                    </th:block>
+
+                                                </th:block>
+                                            </th:block>
+
+                                        </ul>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+
                 </div>
             </div>
         </div>
-    </nav>
-    <!-- end navigation -->
-</header>
-</body>
-</html>
+    </div>
+    <!-- End Search Modal -->
+
+    <!-- Access Modal -->
+    <div class="modal fade" id="access-modal" tabindex="-1" role="dialog" aria-labelledby="accessModal" aria-hidden="false">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content perfect-scrollbar">
+                <div class="modal-body">
+                    <form class="access-main-wrapper">
+                        <div class="container">
+                            <div class="row variable-gutters mb-0 mb-lg-4 mb-xl-5">
+                                <div class="col">
+                                    <h2 class="d-inline" id="accessModal">
+                                        Accedi ai servizi
+                                    </h2>
+                                    <button type="button" class="close dismiss" data-bs-dismiss="modal" aria-label="Chiudi">
+                                        <svg class="svg-cancel-large">
+                                            <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-close-big|}"></use>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row variable-gutters justify-content-center pt-4 pt-xl-5">
+                                <div class="col-lg-4">
+                                    <div class="access-buttons">
+                                        <h3>Registro Elettronico Famiglie</h3>
+                                        <p class="text-large">Entra nella piattaforma dedicata alle famiglie per accedere al registro elettronico degli studenti.</p>
+                                        <a class="btn btn-petrol btn-block btn-lg rounded mb-3 mt-3"
+                                           href="https://registrofamiglie.axioscloud.it/Pages/SD/SD_Login.aspx?Customer_ID=90021820650"
+                                           target="_blank">Registro famiglie</a>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 offset-lg-2 access-mobile-bg">
+                                    <div class="access-buttons">
+                                        <h3 class="text-white">Registro Elettronico Docenti</h3>
+                                        <p class="text-large text-white">Entra nella piattaforma dedicata ai docenti per accedere al registro elettronico degli studenti.</p>
+                                        <a class="btn btn-petrol btn-block btn-lg rounded mb-3 mt-3"
+                                           href="https://registro.axioscloud.it/Pages/SD/SD_Login.aspx?Customer_ID=90021820650"
+                                           target="_blank">Registro insegnanti</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Access Modal -->
+
+</th:block>

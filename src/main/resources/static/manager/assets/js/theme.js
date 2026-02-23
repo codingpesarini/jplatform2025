@@ -202,6 +202,7 @@ function layout_rtl_change(value) {
 
 // Function to handle layout change (dark/light) and update related elements
 function layout_change(layout) {
+if (event) event.preventDefault();
   // Set the layout theme attribute on the body element
   document.getElementsByTagName('body')[0].setAttribute('data-pc-theme', layout);
 
@@ -216,10 +217,10 @@ function layout_change(layout) {
     dark_flag = true;
 
     // Update logo to white version for dark theme
-    updateLogo('.pc-sidebar .m-header .logo-lg', '../assets/images/logo-white.svg');
-    updateLogo('.navbar-brand .logo-lg', '../assets/images/logo-white.svg');
-    updateLogo('.auth-main.v1 .auth-sidefooter img', '../assets/images/logo-white.svg');
-    updateLogo('.footer-top .footer-logo', '../assets/images/logo-white.svg');
+    updateLogo('.pc-sidebar .m-header .logo-lg', 'manager/assets/img/logos/logo.png');
+    updateLogo('.navbar-brand .logo-lg', 'manager/assets/img/logos/logo.png');
+    updateLogo('.auth-main.v1 .auth-sidefooter img', 'manager/assets/img/logos/logo.png');
+    updateLogo('.footer-top .footer-logo', 'manager/assets/img/logos/logo.png');
 
     // Update active button state for dark theme
     updateActiveButton('.theme-layout .btn[data-value="false"]');
@@ -227,10 +228,10 @@ function layout_change(layout) {
     dark_flag = false;
 
     // Update logo to dark version for light theme
-    updateLogo('.pc-sidebar .m-header .logo-lg', '../assets/images/logo-dark.svg');
-    updateLogo('.navbar-brand .logo-lg', '../assets/images/logo-dark.svg');
-    updateLogo('.auth-main.v1 .auth-sidefooter img', '../assets/images/logo-dark.svg');
-    updateLogo('.footer-top .footer-logo', '../assets/images/logo-dark.svg');
+    updateLogo('.pc-sidebar .m-header .logo-lg', 'manager/assets/img/logos/logo.png');
+    updateLogo('.navbar-brand .logo-lg', 'manager/assets/img/logos/logo.png');
+    updateLogo('.auth-main.v1 .auth-sidefooter img', 'manager/assets/img/logos/logo.png');
+    updateLogo('.footer-top .footer-logo', 'manager/assets/img/logos/logo.png');
 
     // Update active button state for light theme
     updateActiveButton('.theme-layout .btn[data-value="true"]');

@@ -1,25 +1,55 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head th:fragment="head">
-    <title>Crafto - The Multipurpose HTML5 Template</title>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="author" content="ThemeZaa">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <meta name="description" content="Elevate your online presence with Crafto - a modern, versatile, multipurpose Bootstrap 5 responsive HTML5, SCSS template using highly creative 56+ ready demos.">
-    <!-- favicon icon -->
-    <link rel="shortcut icon" th:href="@{/site01/images/favicon.png}">
-    <link rel="apple-touch-icon" th:href="@{/site01/images/apple-touch-icon-57x57.png}">
-    <link rel="apple-touch-icon" sizes="72x72" th:href="@{/site01/images/apple-touch-icon-72x72.png}">
-    <link rel="apple-touch-icon" sizes="114x114" th:href="@{/site01/images/apple-touch-icon-114x114.png}">
-    <!-- google fonts preconnect -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- style sheets and font icons  -->
-    <link rel="stylesheet" th:href="@{/site01/css/vendors.min.css}"/>
-    <link rel="stylesheet" th:href="@{/site01/css/icon.min.css}"/>
-    <link rel="stylesheet" th:href="@{/site01/css/style.css}"/>
-    <link rel="stylesheet" th:href="@{/site01/css/responsive.css}"/>
-    <link rel="stylesheet" th:href="@{/site01/demos/elearning/elearning.css}" />
-</head>
-</html>
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="head">
+
+    <!-- Studiodomino srl Basic Head -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="x-ua-compatible" content="IE=edge"/>
+
+    <title th:text="${(config != null && config.sito != null ? config.sito.type : '') +
+                  ' | ' +
+                  (post != null ? post.titolo : (section != null ? section.titolo : (pageTitle != null ? pageTitle : 'Home')))}">
+        Home
+    </title>
+
+    <meta name="keywords" th:content="${config != null && config.sito != null ? config.sito.keywords : ''}" />
+    <meta name="description" th:content="${config != null && config.sito != null ? config.sito.libero2 : ''}" />
+    <meta name="author" content="Studiodomino srl"/>
+    <meta name="DC.Description" th:content="${post != null ? post.titolo : (section != null ? section.titolo : (pageTitle != null ? pageTitle : 'Home'))}"/>
+
+    <!-- Favicons -->
+    <link rel="shortcut icon" type="image/png"
+          th:href="@{'/' + ${config.sito.path2} + '/assets/logoverticale.png'}"/>
+    <link rel="apple-touch-icon"
+          th:href="@{'/' + ${config.sito.path2} + '/assets/apple-touch-icon.png'}"/>
+    <link rel="apple-touch-icon" sizes="72x72"
+          th:href="@{'/' + ${config.sito.path2} + '/assets/apple-touch-icon-72x72.png'}"/>
+    <link rel="apple-touch-icon" sizes="114x114"
+          th:href="@{'/' + ${config.sito.path2} + '/assets/apple-touch-icon-114x114.png'}"/>
+    <link rel="apple-touch-icon" sizes="144x144"
+          th:href="@{'/' + ${config.sito.path2} + '/assets/apple-touch-icon-144x144.png'}"/>
+
+    <!-- Mobile Specific Metas -->
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="author" content="Studiodomino srl - Potenza"/>
+    <meta name="robots" content="index, follow"/>
+
+    <!-- CSS -->
+    <link rel="stylesheet" th:href="@{'/' + ${config.sito.path2} + '/js/jportal/jportal.css'}">
+    <link rel="stylesheet" th:href="@{'/' + ${config.sito.path2} + '/css/asb.css'}">
+    <link rel="stylesheet" th:href="@{'/' + ${config.sito.path2} + '/css/jportalCalendar.css'}">
+    <link rel="stylesheet" th:href="@{'/' + ${config.sito.path2} + '/js/gdpr-cookie-master/css/jquery-eu-cookie-law-popup.css'}">
+    <link rel="stylesheet" th:href="@{'/' + ${config.sito.path2} + '/css/bootstrap-italia.min.css'}">
+    <link rel="stylesheet" th:href="@{'/' + ${config.sito.path2} + '/css/bootstrap-italia.css'}">
+    <link rel="stylesheet" th:href="@{'/' + ${config.sito.path2} + '/css/scuole.css'}">
+    <link rel="stylesheet" th:href="@{'/' + ${config.sito.path2} + '/assets/icons/fontawesome5.9.0/css/all.min.css'}">
+
+    <style>
+        .goog-te-banner-frame.skiptranslate { display: none !important; }
+        body { top: 0px !important; }
+        #google_translate_element { display: none; }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+</th:block>

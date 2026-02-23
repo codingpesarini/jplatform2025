@@ -1,0 +1,301 @@
+<th:block th:fragment="content">
+
+  <!-- Header documento -->
+  <div class="section bg-white">
+    <div class="container">
+      <div class="row variable-gutters">
+        <div class="col-12 col-sm-12 col-lg-9 col-md-12">
+          <div class="section-title">
+            <h2 class="mb-3" th:text="${post.titolo}">Titolo Documento</h2>
+            <div class="badge badge-sm badge-pill badge-outline-greendark">
+              Tipologia: <span th:text="${post.varchar1}">Tipo</span>
+            </div>
+            <h3 class="h4">Argomenti</h3>
+            <div class="badges">
+              <a data-element="topic-list"
+                 class="badge badge-sm badge-pill badge-outline-redbrown"
+                 th:text="${post.tagsCloud}">Tag</a>
+            </div>
+          </div>
+          <div class="article-description-mobile" th:utext="${post.riassunto}">
+            Riassunto
+          </div>
+        </div>
+
+        <!-- Azioni condivisione -->
+        <div class="col-12 col-sm-12 col-md-12 col-lg-3 d-flex justify-content-end d-print-none p-3">
+          <div class="actions-wrapper actions-main">
+            <a class="toggle-actions" href="#" title="Vedi azioni" data-target="#modal-more-items" data-toggle="modal">
+              <svg class="it-more-items">
+                <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-more-items|}"></use>
+              </svg>
+              <span>Stampa / Condividi</span>
+            </a>
+            <div class="modal fade modal-actions" id="modal-more-items" tabindex="-1" role="dialog" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                  <div class="modal-body">
+                    <div class="link-list-wrapper">
+                      <ul class="link-list">
+                        <li>
+                          <a href="javascript:window.print();" class="list-item left-icon">
+                            <svg class="icon it-print">
+                              <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-print|}"></use>
+                            </svg>
+                            <span>Stampa</span>
+                          </a>
+                        </li>
+                        <li>
+                          <a th:href="@{|mailto:?subject=${post.titolo}&body=${config.sito.descrizione}${post.url}|}"
+                             class="list-item left-icon">
+                            <svg class="icon it-email">
+                              <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-email|}"></use>
+                            </svg>
+                            <span>Invia</span>
+                          </a>
+                        </li>
+                        <li>
+                          <a class="list-item collapsed link-toggle" role="button" href="#social-share"
+                             data-toggle="collapse" aria-expanded="false" aria-controls="social-share" id="share-control">
+                            <svg class="icon it-share">
+                              <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-share|}"></use>
+                            </svg>
+                            <span>Condividi</span>
+                            <svg class="icon icon-toggle svg-arrow-down-small">
+                              <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#svg-arrow-down-small|}"></use>
+                            </svg>
+                          </a>
+                          <ul class="link-sublist collapse" id="social-share" role="region" aria-labelledby="share-control">
+                            <li>
+                              <a class="list-item"
+                                 th:href="@{|https://www.facebook.com/sharer/sharer.php?u=${config.sito.descrizione}${post.url}|}">
+                                <svg class="icon it-social-facebook">
+                                  <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-social-facebook|}"></use>
+                                </svg>
+                                <span>Facebook</span>
+                              </a>
+                            </li>
+                            <li>
+                              <a class="list-item"
+                                 th:href="@{|https://twitter.com/intent/tweet?text=${post.titolo}&url=${config.sito.descrizione}${post.url}|}">
+                                <svg class="icon it-social-twitter">
+                                  <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-social-twitter|}"></use>
+                                </svg>
+                                <span>Twitter</span>
+                              </a>
+                            </li>
+                            <li>
+                              <a class="list-item"
+                                 th:href="@{|https://www.linkedin.com/sharing/share-offsite/?url=${config.sito.descrizione}${post.url}|}">
+                                <svg class="icon it-social-linkedin">
+                                  <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-social-linkedin|}"></use>
+                                </svg>
+                                <span>Linkedin</span>
+                              </a>
+                            </li>
+                          </ul>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenuto con sidebar -->
+  <div class="container py-lg-5">
+    <div class="row">
+
+      <!-- Progress bar / Indice -->
+      <div class="col-12 col-lg-4">
+        <div data-bs-toggle="sticky" data-bs-stackable="true">
+          <nav class="navbar it-navscroll-wrapper navbar-expand-lg it-bottom-navscroll it-right-side"
+               data-bs-scrollPadding="50" data-bs-navscroll>
+            <div class="progress custom-navbar-progressbar">
+              <div class="progress-bar it-navscroll-progressbar" role="progressbar"
+                   aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="navbar-collapsable" id="navbarNav">
+              <div class="overlay"></div>
+              <a class="it-back-button" href="#" role="button">
+                <svg class="icon icon-sm icon-primary align-top">
+                  <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-chevron-left|}"></use>
+                </svg>
+                <span>Indietro</span>
+              </a>
+              <div class="menu-wrapper">
+                <div class="link-list-wrapper">
+                  <h3>Indice della pagina</h3>
+                  <div class="progress">
+                    <div class="progress-bar it-navscroll-progressbar" role="progressbar"
+                         aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <ul class="link-list">
+                    <li class="nav-item">
+                      <a class="nav-link active" th:href="@{|${post.url}#art-par-01|}">
+                        <span>Descrizione</span>
+                      </a>
+                    </li>
+                    <li class="nav-item" th:if="${post.text2 != null and post.text2 != ''}">
+                      <a class="nav-link" th:href="@{|${post.url}#art-par-02|}">
+                        <span>Data pubblicazione e scadenza</span>
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" th:href="@{|${post.url}#art-par-03|}">
+                        <span>Licenza di distribuzione</span>
+                      </a>
+                    </li>
+                    <li class="nav-item" th:if="${post.allegatiCheck == true}">
+                      <a class="nav-link" th:href="@{|${post.url}#art-par-04|}">
+                        <span>Documenti</span>
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" th:href="@{|${post.url}#art-par-05|}">
+                        <span>Uffici responsabili del documento</span>
+                      </a>
+                    </li>
+                    <li class="nav-item" th:if="${post.text5 != null and post.text5 != ''}">
+                      <a class="nav-link" th:href="@{|${post.url}#art-par-06|}">
+                        <span>Ulteriori informazioni</span>
+                      </a>
+                    </li>
+                    <li class="nav-item"
+                        th:if="${post.galleryCheck == true and post.logo2 != null and post.logo2 != 'nofoto.jpg'}">
+                      <a class="nav-link" th:href="@{|${post.url}#art-par-07|}">
+                        <span>Galleria fotografica</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Contenuto principale -->
+      <div class="col-12 col-lg-8 it-page-sections-container">
+
+        <!-- Descrizione -->
+        <h4 id="art-par-01">Descrizione</h4>
+        <div class="row variable-gutters mb-5">
+          <div class="col-lg-12" th:utext="${post.text1}">Descrizione</div>
+        </div>
+
+        <!-- Data pubblicazione e scadenza -->
+        <div th:if="${post.text2 != null and post.text2 != ''}">
+          <h4 id="art-par-02">Data pubblicazione e scadenza</h4>
+          <div class="row variable-gutters mb-5">
+            <div class="col-lg-12" th:utext="${post.text2}">Date</div>
+          </div>
+        </div>
+
+        <!-- Licenza -->
+        <h4 id="art-par-03">Licenza di distribuzione</h4>
+        <div class="row variable-gutters mb-5">
+          <div class="col-lg-12" th:utext="${post.text3}">Licenza</div>
+        </div>
+
+        <!-- Documenti -->
+        <th:block th:if="${post.allegatiCheck == true and post.allegati != null and !post.allegati.isEmpty()}">
+          <h4 id="art-par-04">Documenti</h4>
+          <div class="row variable-gutters mb-4">
+            <div class="col-12 col-md-6">
+              <div class="card card-teaser rounded shadow m-2" th:each="allegato : ${post.allegati}">
+                <a th:href="@{|/iccastellabate/filesId/${allegato.id}/${allegato.l2}/${allegato.l1}.${allegato.type}|}"
+                   target="_blank" class="text-decoration-none">
+                  <div class="card-body">
+                    <p>
+                      <img th:src="@{|/${config.sito.path2}/jsp/icons/32/${allegato.typeIcon}.png|}"
+                           class="icon me-2" alt="Icona">
+                      <strong>
+                        <span th:text="${allegato.l1}">File</span>
+                        (<span th:text="${allegato.type}">PDF</span>)
+                      </strong>
+                    </p>
+                    <small><span th:text="${allegato.sizeKB}">0</span> Kb</small>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </th:block>
+
+        <!-- Uffici responsabili -->
+        <h4 id="art-par-05">Uffici responsabili del documento</h4>
+        <div class="row variable-gutters mb-5">
+          <div class="col-lg-12" th:utext="${post.text4}">Uffici</div>
+        </div>
+
+        <!-- Ulteriori informazioni -->
+        <div th:if="${post.text5 != null and post.text5 != ''}">
+          <h4 id="art-par-06">Ulteriori informazioni</h4>
+          <div class="row variable-gutters mb-5">
+            <div class="col-lg-12" th:utext="${post.text5}">Info</div>
+          </div>
+        </div>
+
+        <!-- Footer date -->
+        <div class="row variable-gutters mt-5">
+          <div class="col-lg-12">
+            <blockquote class="blockquote text-end">
+              <footer class="blockquote-footer">
+                <strong>Pubblicato:</strong> <span th:text="${post.creato}">Data</span>
+                <span> - </span>
+                <strong>Revisione:</strong> <span th:text="${post.modificato}">Data</span>
+              </footer>
+            </blockquote>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gallery -->
+  <th:block th:if="${post.galleryCheck == true and post.logo2 != null and post.logo2 != 'nofoto.jpg'}">
+    <div class="section bg-gray-light py-5">
+      <div class="py-4">
+        <div class="title-section text-center mb-5">
+          <h3 id="art-par-07" class="h4">Galleria fotografica</h3>
+        </div>
+        <div class="col-12">
+          <div class="it-carousel-wrapper it-carousel-landscape-abstract-three-cols splide popup-gallery"
+               data-bs-carousel-splide>
+            <div class="splide__track">
+              <ul class="splide__list it-carousel-all">
+                <th:block th:each="immagine, iterStat : ${post.gallery}" th:if="${iterStat.index > 0}">
+                  <li class="splide__slide">
+                    <div class="it-single-slide-wrapper">
+                      <div class="card-wrapper cmp-list-card-img cmp-list-card-img-hr">
+                        <div class="card no-after rounded">
+                          <div class="row g-2 g-md-0 flex-md-column">
+                            <div class="col order-2 order-md-1">
+                              <a th:href="@{|${config.imagesRepositoryWeb}${immagine.fullpath}|}">
+                                <img class="rounded-top img-fluid img-responsive w-75"
+                                     th:src="@{|${config.imagesRepositoryWeb}${immagine.fullpath}|}"
+                                     th:title="${immagine.didascalia}"
+                                     th:alt="${immagine.didascalia}">
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                </th:block>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </th:block>
+
+</th:block>

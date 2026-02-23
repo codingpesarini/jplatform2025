@@ -1,0 +1,65 @@
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="homeTiles_04">
+
+    <section class="section py-2 py-lg-3 py-xl-5">
+        <div class="container mb-3">
+
+            <div class="title-section pb-4">
+                <h2>I prossimi Eventi</h2>
+            </div>
+
+            <div class="it-carousel-wrapper it-carousel-landscape-abstract-three-cols splide caroselloeventi-no-pagination"
+                 data-bs-carousel-splide>
+
+                <div class="splide__track mb-3">
+                    <ul class="splide__list it-carousel-all">
+
+                        <th:block th:if="${config != null and config.contenutiFront02 != null}">
+                            <th:block th:each="articolo : ${config.contenutiFront02}">
+
+                                <li class="splide__slide">
+                                    <div class="it-single-slide-wrapper">
+
+                                        <div class="card card-bg card-vertical-thumb bg-white card-thumb-rounded" min-height="220px">
+                                            <div class="card-body">
+                                                <div class="card-content">
+                                                    <h3 class="h5">
+                                                        <a th:href="${articolo.url}" th:text="${articolo.titolo}">Titolo</a>
+                                                    </h3>
+                                                    <p th:text="${articolo.riassunto}">Riassunto</p>
+                                                </div>
+
+                                                <div class="card-thumb">
+                                                    <img th:src="${config.imagesRepositoryWeb + articolo.logo}"
+                                                         th:alt="'Immagine di copertina ' + articolo.titolo">
+                                                </div>
+                                            </div>
+
+                                            <div class="card-comments-wrapper">
+                                                <div class="card-content">
+                                                    <small class="h6 text-greendark" th:text="${articolo.dataVisualizzata}">Data</small>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </li>
+
+                            </th:block>
+                        </th:block>
+
+                    </ul>
+                </div>
+
+                <div class="py-4">
+                    <a aria-label="Vedi tutti gli eventi"
+                       class="text-underline"
+                       href="page/1/563/1/2021/Calendario_eventi">
+                        <strong>Vedi tutti</strong>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+</th:block>

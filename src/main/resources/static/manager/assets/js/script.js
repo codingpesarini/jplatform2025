@@ -244,7 +244,7 @@ function setLayout() {
     } else if (layout === 'color-header') {
       // Change logo color for color-header layout
       if (document.querySelector('.pc-sidebar .m-header .logo-lg')) {
-        document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', '/manager/assets/images/logo-white.svg');
+        document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', '/manager/assets/img/logos/logo.png');
       }
     } else if (layout === 'compact') {
       script.src = '../assets/js/layout-compact.js'; // Load script for compact layout
@@ -402,7 +402,7 @@ for (var t = 0; t < tc.length; t++) {
 // Change authentication logo
 var tc = document.querySelectorAll('.auth-main.v2 .img-brand');
 for (var t = 0; t < tc.length; t++) {
-  tc[t].setAttribute('src', '/manager/assets/images/logo-white.svg');
+  tc[t].setAttribute('src', '/manager/assets/img/logos/logo.png');
 }
 
 // Functions to handle main layout change (active class add/remove from theme-main-layout according to click)

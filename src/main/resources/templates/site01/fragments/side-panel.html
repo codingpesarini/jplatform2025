@@ -1,0 +1,20 @@
+<!-- site01/fragments/side-panel.html -->
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="side-panel">
+
+    <div class="side-panel-body-overlay"></div>
+
+    <div id="side-panel-container"
+         class="dark"
+         th:if="${config != null and config.sito != null}"
+         th:attr="data-tm-bg-img=${'/' + config.sito.path2 + '/images/side-push-bg.jpg'}">
+
+        <div class="side-panel-wrap">
+
+            <!-- Logo -->
+            <img class="logo mb-50"
+                 th:src="@{'/' + ${config.sito.path2} + '/assets/bannerCastellabbateIginoBig.png'}"
+                 alt="Logo"/>
+        </div>
+    </div>
+
+</th:block>

@@ -1,0 +1,78 @@
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="homeTiles_03">
+
+    <!-- Sezione Erasmus+ -->
+    <div class="bg-white mt-5 mb-5 p-1">
+        <div class="layout_1 container">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-secondary">
+                    <p class="h2 primary-color">Erasmus+</p>
+                    <h2 class="h6 text-muted text-uppercase">Arricchisce la vita, apre la mente</h2>
+                    <p>
+                        <span style="font-weight: 400;">
+                          Erasmus + è il Programma dell'Unione europea nei settori dell'Istruzione,
+                          della Formazione, della Gioventù e dello Sport, per il periodo 2021-2027.
+                          Migliorare la conoscenza delle lingue, conoscere alunni di altri paesi e condividere
+                          con loro esperienze didattiche, in presenza o a distanza, avvicinarsi a culture e
+                          sistemi scolastici diversi, vivere esperienze di formazione professionale o trascorrere
+                          un periodo di studio o tirocinio in un'altra scuola europea: Erasmus+ offre opportunità
+                          significative anche ad alunni e studenti di scuole di ogni ordine e grado.
+                        </span>
+                    </p>
+
+                    <a aria-label="Vai a: Erasmus+"
+                       class="btn btn-primary btn-sm w-base-100 focusable"
+                       th:href="@{/front/1643/erasmus}">
+                        Scopri Erasmus
+                    </a>
+
+                    <a aria-label="Vai a: Disseminazione Erasmus"
+                       class="btn btn-primary btn-sm w-base-100 focusable"
+                       th:href="@{/front/1955/disseminazione-erasmus}">
+                        Disseminazione Erasmus
+                    </a>
+                </div>
+
+                <div class="offset-md-1 col-md-5 mt-5 mt-md-0">
+                    <img width="450"
+                         th:src="@{|/${config.sito.path2}/assets/Erasmus+.png|}"
+                         class="img-fluid"
+                         alt="Erasmus+ / eTwinning"
+                         loading="lazy">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sezione eTwinning -->
+    <div class="bg-white mt-3">
+        <div class="container p-2">
+            <div class="row align-items-center">
+                <div class="col-md-6 order-1 order-md-1">
+                    <p class="h2 primary-color">eTwinning</p>
+                    <p>
+                        <span style="font-weight: 400;">
+                          eTwinning è un progetto della Commissione europea, facente parte del Programma Erasmus+,
+                          il cui obiettivo è incoraggiare le scuole europee a creare progetti collaborativi basati
+                          sull'impiego delle tecnologie dell'informazione e della comunicazione (TIC)
+                        </span>
+                    </p>
+
+                    <a aria-label="Vai a: eTwinning"
+                       class="btn btn-primary btn-sm w-base-100 focusable"
+                       th:href="@{/front/1110/etwinning}">
+                        Scopri di più
+                    </a>
+                </div>
+
+                <div class="col-md-6 pt-3 pb-3 order-2 order-md-2 my-3 my-md-0">
+                    <img width="450"
+                         th:src="@{|/${config.sito.path2}/assets/etwinning.png|}"
+                         class="img-fluid"
+                         alt="eTwinning"
+                         loading="lazy">
+                </div>
+            </div>
+        </div>
+    </div>
+
+</th:block>

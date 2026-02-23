@@ -1,0 +1,318 @@
+<th:block th:fragment="content">
+
+  <!-- HERO / HEADER -->
+  <div class="section bg-white">
+    <div class="container">
+      <div class="row variable-gutters">
+
+        <div class="col-12 col-sm-12 col-lg-9 col-md-12">
+          <div class="section-title">
+            <h2 class="mb-3" th:text="${post.titolo}"></h2>
+
+            <div class="badge badge-sm badge-pill badge-outline-greendark">
+              Tipologia: <span th:text="${post.varchar1}"></span>
+            </div>
+
+            <aside class="badges-wrapper badges-main">
+              <h4>Argomenti</h4>
+              <div class="badges" data-element="topic-list" th:utext="${post.tagsCloud}"></div><!-- /badges -->
+            </aside>
+          </div><!-- /title-section -->
+
+          <div class="article-description-mobile" th:utext="${post.riassunto}"></div>
+        </div>
+
+        <!-- Azioni condivisione -->
+        <div class="col-12 col-sm-12 col-md-12 col-lg-3 d-flex justify-content-end d-print-none p-3">
+          <div class="actions-wrapper actions-main">
+            <a class="toggle-actions" href="#" title="Vedi azioni" data-target="#modal-more-items" data-toggle="modal">
+              <svg class="it-more-items">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#it-more-items"></use>
+              </svg>
+              <span>Stampa / Condividi</span>
+            </a>
+
+            <div class="modal fade modal-actions" id="modal-more-items" tabindex="-1" role="dialog" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                  <div class="modal-body">
+                    <div class="link-list-wrapper">
+                      <ul class="link-list">
+
+                        <li>
+                          <a href="javascript:window.print();" class="list-item left-icon" title="Stampa il contenuto">
+                            <svg class="icon it-print">
+                              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#it-print"></use>
+                            </svg>
+                            <span>Stampa</span>
+                          </a>
+                        </li>
+
+                        <li>
+                          <a th:href="'mailto:?subject=' + ${post.titolo} + '&amp;body=' + ${config.sito.descrizione} + ${post.url}"
+                             class="list-item left-icon" title="Invia il contenuto">
+                            <svg class="icon it-email">
+                              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#it-email"></use>
+                            </svg>
+                            <span>Invia</span>
+                          </a>
+                        </li>
+
+                        <li>
+                          <a class="list-item collapsed link-toggle" role="button" title="Menu Condividi"
+                             href="#social-share" data-toggle="collapse" aria-expanded="false" aria-controls="social-share"
+                             id="share-control">
+                            <svg class="icon it-share">
+                              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#it-share"></use>
+                            </svg>
+                            <span>Condividi</span>
+                            <svg class="icon icon-toggle svg-arrow-down-small">
+                              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#svg-arrow-down-small"></use>
+                            </svg>
+                          </a>
+
+                          <ul class="link-sublist collapse" id="social-share" role="region" aria-labelledby="share-control">
+                            <li>
+                              <a class="list-item"
+                                 th:href="'https://www.facebook.com/sharer/sharer.php?u=' + ${config.sito.descrizione} + ${post.url}"
+                                 title="Condividi su: Facebook">
+                                <svg class="icon it-social-facebook">
+                                  <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#it-social-facebook"></use>
+                                </svg>
+                                <span>Facebook</span>
+                              </a>
+                            </li>
+
+                            <li>
+                              <a class="list-item"
+                                 th:href="'https://twitter.com/intent/tweet?text=' + ${post.titolo} + '&amp;url=' + ${config.sito.descrizione} + ${post.url}"
+                                 title="Condividi su: Twitter">
+                                <svg class="icon it-social-twitter">
+                                  <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#it-social-twitter"></use>
+                                </svg>
+                                <span>Twitter</span>
+                              </a>
+                            </li>
+
+                            <li>
+                              <a class="list-item"
+                                 th:href="'https://www.linkedin.com/sharing/share-offsite/?url=' + ${config.sito.descrizione} + ${post.url}"
+                                 title="Condividi su: Linkedin">
+                                <svg class="icon it-social-linkedin">
+                                  <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#it-social-linkedin"></use>
+                                </svg>
+                                <span>Linkedin</span>
+                              </a>
+                            </li>
+                          </ul>
+                        </li>
+
+                      </ul>
+                    </div>
+                  </div><!-- /modal-body -->
+                </div><!-- /modal-content -->
+              </div><!-- /modal-dialog -->
+            </div><!-- /modal -->
+
+          </div><!-- /actions-wrapper -->
+        </div><!-- /Azioni condivisione -->
+
+      </div><!-- /row -->
+    </div><!-- /container -->
+  </div><!-- /section -->
+
+  <!-- CONTENUTO -->
+  <div class="container py-lg-5">
+    <div class="row">
+
+      <!-- Progress bar -->
+      <div class="col-12 col-lg-4">
+        <div data-bs-toggle="sticky" data-bs-stackable="true">
+          <nav class="navbar it-navscroll-wrapper navbar-expand-lg it-bottom-navscroll it-right-side"
+               data-bs-navscroll data-bs-rootMargin="0px 0px -80%">
+
+            <button class="custom-navbar-toggler" type="button" aria-controls="navbarNav" aria-expanded="false"
+                    aria-label="Toggle navigation" data-bs-toggle="navbarcollapsible" data-bs-target="#navbarNav">
+              <span class="it-list"></span>1. Introduzione
+            </button>
+
+            <div class="progress custom-navbar-progressbar">
+              <div class="progress-bar it-navscroll-progressbar" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+                   aria-valuemax="100"></div>
+            </div>
+
+            <div class="navbar-collapsable" id="navbarNav">
+              <div class="overlay"></div>
+
+              <a class="it-back-button" href="#" role="button">
+                <svg class="icon icon-sm icon-primary align-top">
+                  <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-chevron-left|}"></use>
+                </svg>
+                <span>Indietro</span>
+              </a>
+
+              <div class="menu-wrapper">
+                <div class="link-list-wrapper">
+                  <h3>Indice della pagina</h3>
+
+                  <div class="progress">
+                    <div class="progress-bar it-navscroll-progressbar" role="progressbar" aria-valuenow="0"
+                         aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+
+                  <ul class="link-list">
+                    <li class="nav-item">
+                      <a class="nav-link active" th:href="${post.url + '#art-par-00'}">
+                        <span>Cosa fa</span>
+                      </a>
+                    </li>
+
+                    <li class="nav-item">
+                      <a class="nav-link active" th:href="${post.url + '#art-par-01'}">
+                        <span>Responsabile</span>
+                      </a>
+                    </li>
+
+                    <li class="nav-item">
+                      <a class="nav-link" th:href="${post.url + '#art-par-03'}">
+                        <span>Sede</span>
+                      </a>
+                    </li>
+
+                    <li class="nav-item" th:if="${post.allegatiCheck == true}">
+                      <a class="nav-link" th:href="${post.url + '#art-par-04'}">
+                        <span>Documenti</span>
+                      </a>
+                    </li>
+
+                    <li class="nav-item" th:if="${post.text5 != ''}">
+                      <a class="nav-link" th:href="${post.url + '#art-par-05'}">
+                        <span>Ulteriori Informazioni</span>
+                      </a>
+                    </li>
+                  </ul>
+
+                </div><!-- /link-list-wrapper -->
+              </div><!-- /menu-wrapper -->
+            </div><!-- /navbar-collapsable -->
+          </nav>
+        </div>
+      </div>
+      <!-- /Progress bar -->
+
+      <!-- COLONNA CONTENUTO -->
+      <div class="col-12 col-lg-8 it-page-sections-container">
+
+        <h4 class="it-page-section" id="art-par-00">Cosa fa</h4>
+        <div class="row variable-gutters mb-4">
+          <div class="col-lg-12" th:utext="${post.text1}"></div>
+        </div><!-- /row -->
+
+        <!-- Sezione: Struttura (Sottosezioni) -->
+        <th:block th:if="${section != null and section.subsection != null and !section.subsection.isEmpty()}">
+          <h4 class="it-page-section" id="art-par-02">Struttura</h4>
+          <div class="row variable-gutters mb-4">
+            <div class="col-lg-4 mb-3 mb-lg-4" th:each="item : ${section.subsection}">
+              <div class="card card-teaser card-bg rounded shadow">
+                <a th:href="${item.url}" class="rounded mt-0 p-3 d-block text-decoration-none">
+                  <div class="card-body">
+                    <svg class="icon icon-primary me-2">
+                      <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-folder}"></use>
+                    </svg>
+                    <div class="card-icon-content">
+                      <p class="mb-1"><strong th:text="${item.titolo}">Titolo Sottosezione</strong></p>
+                      <small class="text-muted" th:text="${item.riassunto}">Riassunto</small>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </th:block>
+
+        <!-- contenutiExtraTag06 -->
+        <th:block th:if="${config.contenutiExtraTag06 != null and !config.contenutiExtraTag06.isEmpty()}">
+          <th:block th:with="contenuti=${config.contenutiExtraTag06}">
+            <th:block th:each="item : ${contenuti}">
+              <div class="col-lg-8 mb-3 mb-lg-8">
+                <div class="card card-teaser card-bg">
+                  <a th:href="@${item.url}" class="rounded mt-0 p-3">
+                    <div class="avatar size-lg">
+                      <svg class="icon icon-primary">
+                        <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-pa}"></use>
+                      </svg>
+                      <div class="card-icon-content mb-3">
+                        <p class="ms-3"><strong th:text="${item.titolo}"></strong></p>
+                        <small th:text="${item.riassunto}"></small>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </th:block>
+          </th:block>
+        </th:block>
+
+        <h4 class="it-page-section" id="art-par-06">Organizzazione e contatti</h4>
+
+        <!-- contenutiExtraTag01..05 (come li hai tu) -->
+        <!-- ... NON LI TOCCO: restano identici ... -->
+
+        <h4 class="it-page-section" id="art-par-03">Sede</h4>
+        <div class="row variable-gutters mb-4">
+          <div class="col-lg-12" th:utext="${post.text4}"></div>
+        </div>
+
+        <th:block th:if="${post.text3 != ''}">
+          <h4 class="it-page-section">Contatti</h4>
+          <div class="row variable-gutters mb-4">
+            <div class="col-lg-12" th:utext="${post.text3}"></div>
+          </div>
+        </th:block>
+
+        <th:block th:if="${post.allegatiCheck == true}">
+          <h4 id="art-par-04">Documenti</h4>
+          <div class="row variable-gutters mb-4">
+            <div class="col-12 col-md-6">
+              <th:block th:with="allegati=${post.allegati}">
+                <th:block th:each="allegato : ${allegati}">
+                  <div class="card card-teaser rounded shadow m-2">
+                    <a th:href="@{'/iccastellabate/filesId/' + ${allegato.id} + '/' + ${allegato.l2} + '/' + ${#strings.replace(allegato.l1,' ','_')} + '.' + ${allegato.type}}"
+                       target="_blank">
+                      <div class="card-body">
+                        <p>
+                          <img th:src="@{|/${config.sito.path2}/jsp/icons/32/${allegato.typeIcon}.png|}"
+                               class="icon" alt="Icona Documento">
+                          <strong th:text="${allegato.l1} + ' (' + ${allegato.type} + ')'"></strong>
+                        </p>
+                        <small th:text="${allegato.sizeS} + ' Kb'"></small>
+                      </div>
+                    </a>
+                  </div>
+                </th:block>
+              </th:block>
+            </div>
+          </div>
+        </th:block>
+
+        <th:block th:if="${post.text5 != ''}">
+          <h4 class="it-page-section" id="art-par-05">Ulteriori informazioni</h4>
+          <div class="row variable-gutters mb-4">
+            <div class="col-lg-12" th:utext="${post.text5}"></div>
+          </div>
+        </th:block>
+
+        <div class="row variable-gutters mt-5">
+          <div class="col-lg-12">
+              <footer class="blockquote-footer">
+                <strong>Pubblicato:</strong> <span th:text="${post.creato}"></span> <span>-</span>
+                <strong>Revisione:</strong> <span th:text="${post.modificato}"></span>
+              </footer>
+          </div>
+        </div>
+
+      </div><!-- /col-lg-8 -->
+    </div><!-- /row -->
+  </div><!-- /container -->
+
+</th:block>

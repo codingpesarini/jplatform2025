@@ -1,0 +1,340 @@
+<th:block th:fragment="content">
+
+  <!-- Header evento -->
+  <div class="bg-white">
+    <div class="container">
+      <div class="row variable-gutters">
+        <div class="col-12 col-sm-12 col-lg-9 col-md-12">
+          <div class="section-title">
+            <h2 class="mb-3" th:text="${post.titolo}">Titolo Evento</h2>
+            <div class="h3 text-greendark mb-3" th:text="${post.dataVisualizzata}">Data</div>
+            <div class="badge badge-sm badge-pill badge-outline-greendark">
+              Tipologia: <span th:text="${post.varchar1}">Tipo</span>
+            </div>
+            <div th:utext="${post.tagsCloud}">Tags</div>
+          </div>
+
+          <!-- Immagine principale (prima della gallery) -->
+          <th:block th:if="${post.galleryCheck == true and post.gallery != null and !post.gallery.isEmpty()}">
+            <div class="section d-none d-sm-none d-md-block pt-1 pb-1">
+              <div id="slideShowHome" class="carousel slide w-100" data-ride="carousel" style="overflow:hidden">
+                <th:block th:each="immagine, iterStat : ${post.gallery}" th:if="${iterStat.index == 0}">
+                  <div class="carousel-item active">
+                    <img class="d-block w-100"
+                         th:src="@{|${config.imagesRepositoryWeb}${immagine.fullpath}|}"
+                         th:alt="${immagine.didascalia}">
+                  </div>
+                </th:block>
+              </div>
+            </div>
+          </th:block>
+
+          <div class="article-description-mobile mt-3" th:utext="${post.riassunto}">
+            Riassunto
+          </div>
+        </div>
+
+        <!-- Dropdown condivisione e azioni (stesso del file precedente) -->
+        <div class="col-12 col-sm-12 col-md-12 col-lg-3 d-flex justify-content-end d-print-none p-3">
+          <!-- [COPIA IL CODICE DEI DROPDOWN DAL FILE PRECEDENTE] -->
+
+          <div class="dropdown d-inline">
+            <button class="btn btn-dropdown dropdown-toggle" type="button" id="dropdownMenuButton"
+                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <svg class="icon-expand icon icon-sm icon-primary">
+                <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-share|}"></use>
+              </svg>
+              Condividi
+            </button>
+            <div class="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuButton">
+              <div class="link-list-wrapper">
+                <ul class="link-list">
+                  <li>
+                    <a th:href="@{|https://www.facebook.com/sharer/sharer.php?u=${config.sito.descrizione + post.url}|}"
+                       target="_blank" class="dropdown-item list-item">
+                      <svg class="icon icon-primary left">
+                        <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-facebook|}"></use>
+                      </svg>
+                      Facebook
+                    </a>
+                  </li>
+                  <!-- Altri social... -->
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="dropdown d-inline">
+            <button class="btn btn-dropdown dropdown-toggle" type="button" id="dropdownMenuButtonAzioni"
+                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <svg class="icon-expand icon icon-sm icon-primary">
+                <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-more-items|}"></use>
+              </svg>
+              Vedi azioni
+            </button>
+            <div class="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuButtonAzioni">
+              <div class="link-list-wrapper">
+                <ul class="link-list">
+                  <li>
+                    <a href="javascript:window.print();" class="list-item left-icon">
+                      <svg class="icon icon-primary left">
+                        <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-print|}"></use>
+                      </svg>
+                      Stampa
+                    </a>
+                  </li>
+                  <li>
+                    <a th:href="@{|mailto:?subject=${post.titolo}&body=${config.sito.descrizione + post.url}|}"
+                       class="list-item left-icon">
+                      <svg class="icon icon-primary left">
+                        <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-mail|}"></use>
+                      </svg>
+                      Invia
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenuto con sidebar -->
+  <div class="container py-lg-5">
+    <div class="row">
+
+      <!-- Progress bar / Indice -->
+      <div class="col-12 col-lg-4">
+        <div data-bs-toggle="sticky" data-bs-stackable="true">
+          <nav class="navbar it-navscroll-wrapper navbar-expand-lg it-bottom-navscroll it-right-side"
+               data-bs-scrollPadding="50" data-bs-navscroll>
+            <div class="progress custom-navbar-progressbar">
+              <div class="progress-bar it-navscroll-progressbar" role="progressbar"
+                   aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="navbar-collapsable" id="navbarNav">
+              <div class="overlay"></div>
+              <a class="it-back-button" href="#" role="button">
+                <svg class="icon icon-sm icon-primary align-top">
+                  <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-chevron-left|}"></use>
+                </svg>
+                <span>Indietro</span>
+              </a>
+              <div class="menu-wrapper">
+                <div class="link-list-wrapper">
+                  <h3>Indice della pagina</h3>
+                  <div class="progress">
+                    <div class="progress-bar it-navscroll-progressbar" role="progressbar"
+                         aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <ul class="link-list">
+                    <li class="nav-item">
+                      <a class="nav-link active" th:href="@{|${post.url}#art-par-00|}">
+                        <span>Cos'è</span>
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" th:href="@{|${post.url}#art-par-01|}">
+                        <span>Dove</span>
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" th:href="@{|${post.url}#art-par-02|}">
+                        <span>Costi</span>
+                      </a>
+                    </li>
+                    <li class="nav-item" th:if="${post.allegatiCheck == true}">
+                      <a class="nav-link" th:href="@{|${post.url}#art-par-03|}">
+                        <span>Documenti</span>
+                      </a>
+                    </li>
+                    <li class="nav-item" th:if="${post.text3 != null and post.text3 != ''}">
+                      <a class="nav-link" th:href="@{|${post.url}#art-par-04|}">
+                        <span>Contatti</span>
+                      </a>
+                    </li>
+                    <li class="nav-item" th:if="${post.text4 != null and post.text4 != ''}">
+                      <a class="nav-link" th:href="@{|${post.url}#art-par-05|}">
+                        <span>Ulteriori Informazioni</span>
+                      </a>
+                    </li>
+                    <li class="nav-item"
+                        th:if="${post.galleryCheck == true and post.logo2 != null and post.logo2 != 'nofoto.jpg'}">
+                      <a class="nav-link" th:href="@{|${post.url}#art-par-06|}">
+                        <span>Galleria fotografica</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Contenuto principale -->
+      <div class="col-12 col-lg-8 it-page-sections-container">
+
+        <!-- Cos'è -->
+        <h4 class="it-page-section" id="art-par-00">Cos'è</h4>
+        <div class="row variable-gutters mb-4">
+          <div class="col-lg-12" th:utext="${post.testo}">Contenuto</div>
+        </div>
+
+        <!-- Dove -->
+        <h4 class="it-page-section" id="art-par-01">Dove</h4>
+        <div class="row variable-gutters mb-4">
+          <div class="col-lg-12" th:utext="${post.text1}">Dove</div>
+        </div>
+
+        <!-- Costi -->
+        <h4 class="it-page-section" id="art-par-02">Costi</h4>
+        <div class="row variable-gutters mb-4">
+          <div class="col-lg-12" th:utext="${post.text2}">Costi</div>
+        </div>
+
+        <!-- Documenti -->
+        <th:block th:if="${post.allegatiCheck == true and post.allegati != null and !post.allegati.isEmpty()}">
+          <h4 id="art-par-03">Documenti</h4>
+          <div class="row variable-gutters mb-4">
+            <div class="col-12 col-md-6">
+              <div class="card card-teaser rounded shadow m-2" th:each="allegato : ${post.allegati}">
+                <a th:href="@{|/iccastellabate/filesId/${allegato.id}/${allegato.l2}/${allegato.l1}.${allegato.type}|}"
+                   target="_blank" class="text-decoration-none">
+                  <div class="card-body">
+                    <p>
+                      <img th:src="@{|/${config.sito.path2}/jsp/icons/32/${allegato.typeIcon}.png|}"
+                           class="icon me-2" alt="Icona">
+                      <strong>
+                        <span th:text="${allegato.l1}">File</span>
+                        (<span th:text="${allegato.type}">PDF</span>)
+                      </strong>
+                    </p>
+                    <small><span th:text="${allegato.sizeKB}">0</span> Kb</small>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </th:block>
+
+        <!-- Contatti -->
+        <h4 class="it-page-section" id="art-par-04">Contatti</h4>
+        <div class="row variable-gutters mb-4">
+          <div class="col-lg-12" th:utext="${post.text3}">Contatti</div>
+        </div>
+
+        <!-- Ulteriori informazioni -->
+        <div th:if="${post.text4 != null and post.text4 != ''}">
+          <h4 class="it-page-section" id="art-par-05">Ulteriori Informazioni</h4>
+          <div class="row variable-gutters mb-4">
+            <div class="col-lg-12" th:utext="${post.text4}">Info</div>
+          </div>
+        </div>
+
+        <!-- Footer date -->
+        <div class="row variable-gutters mt-5">
+          <div class="col-lg-12">
+            <blockquote class="blockquote text-end">
+              <footer class="blockquote-footer">
+                <strong>Pubblicato:</strong> <span th:text="${post.creato}">Data</span>
+                <span> - </span>
+                <strong>Revisione:</strong> <span th:text="${post.modificato}">Data</span>
+                <br/>Eccetto dove diversamente specificato, questo articolo è stato rilasciato
+                sotto Licenza Creative Commons Attribuzione 3.0 Italia.
+              </footer>
+            </blockquote>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gallery (dal 2° in poi) -->
+  <th:block th:if="${post.galleryCheck == true and post.logo2 != null and post.logo2 != 'nofoto.jpg'}">
+    <div class="section section-muted py-5">
+      <div class="py-4">
+        <div class="title-section text-center mb-5">
+          <h3 id="art-par-06" class="h4">Galleria fotografica</h3>
+        </div>
+        <div class="col-12">
+          <div class="it-carousel-wrapper it-carousel-landscape-abstract-three-cols splide popup-gallery"
+               data-bs-carousel-splide>
+            <div class="splide__track">
+              <ul class="splide__list">
+                <th:block th:each="immagine, iterStat : ${post.gallery}" th:if="${iterStat.index > 0}">
+                  <li class="splide__slide">
+                    <div class="it-single-slide-wrapper">
+                      <div class="card-wrapper">
+                        <div class="card card-img no-after">
+                          <div class="img-responsive-wrapper">
+                            <div class="img-responsive">
+                              <div class="img-wrapper">
+                                <a th:href="@{|${config.imagesRepositoryWeb}${immagine.fullpath}|}">
+                                  <img th:src="@{|${config.imagesRepositoryWeb}${immagine.fullpath}|}"
+                                       th:title="${immagine.didascalia}"
+                                       th:alt="${immagine.didascalia}">
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                </th:block>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </th:block>
+
+  <!-- Correlati (stesso del file precedente) -->
+  <div class="section section-muted py-5"
+       th:if="${section != null and section.contenuti != null and !section.contenuti.isEmpty()}">
+    <div class="container">
+      <div class="it-carousel-wrapper it-carousel-landscape-abstract-three-cols splide" data-bs-carousel-splide>
+        <div class="it-header-block">
+          <div class="it-header-block-title"><h2>Correlati</h2></div>
+        </div>
+        <div class="splide__track">
+          <ul class="splide__list it-carousel-all">
+            <th:block th:each="item, iterStat : ${section.contenuti}"
+                      th:if="${iterStat.index < 6 and item.id != post.id}">
+              <li class="splide__slide">
+                <div class="it-single-slide-wrapper">
+                  <div class="card-wrapper border border-light rounded shadow-sm cmp-list-card-img cmp-list-card-img-hr">
+                    <div class="card no-after rounded">
+                      <div class="row g-2 g-md-0 flex-md-column">
+                        <div class="col order-2 order-md-1"></div>
+                        <div class="col order-1 order-md-2">
+                          <div class="card-body">
+                            <div class="category-top cmp-list-card-img__body">
+                              <span class="data" th:text="${item.dataVisualizzata}">Data</span>
+                            </div>
+                            <a th:href="${item.url}" class="text-decoration-none">
+                              <h3 class="h5 card-title" th:text="${item.titolo}">Titolo</h3>
+                            </a>
+                            <p class="card-text d-none d-md-block" th:text="${item.riassunto}">Riassunto</p>
+                            <a class="read-more" th:href="${item.url}">
+                              <span class="text">Leggi di più</span>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </th:block>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</th:block>

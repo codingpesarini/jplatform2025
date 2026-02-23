@@ -1,0 +1,253 @@
+<th:block th:fragment="content">
+
+    <!-- HERO -->
+    <section class="section bg-redbrown bg-red-gradient py-5 position-relative d-flex align-items-center overflow-hidden">
+        <div class="people-red-forms"></div>
+
+        <div class="container">
+            <div class="row variable-gutters">
+                <div class="col-md-5">
+                    <div class="hero-title text-left">
+                        <h1 class="p-0 mb-2" th:text="${section.titolo}">Titolo</h1>
+                        <p class="h4 font-weight-normal" th:text="${section.riassunto}">Riassunto</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================
+         CASO menu5 == 0
+         ========================= -->
+    <!-- =========================
+     CASO menu5 == 0
+     ========================= -->
+    <div class="container py-lg-5"
+         th:if="${section != null and (section.menu5 == 0 or section.menu5 == '0')}">
+        <div class="row">
+
+            <!-- Progress bar / Indice -->
+            <div class="col-12 col-lg-4">
+                <div data-bs-toggle="sticky" data-bs-stackable="true">
+                    <nav class="navbar it-navscroll-wrapper navbar-expand-lg it-bottom-navscroll it-right-side"
+                         data-bs-scrollPadding="50" data-bs-navscroll>
+
+                        <button class="custom-navbar-toggler" type="button"
+                                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"
+                                data-bs-toggle="navbarcollapsible" data-bs-target="#navbarNav">
+                        </button>
+
+                        <div class="progress custom-navbar-progressbar">
+                            <div class="progress-bar it-navscroll-progressbar" role="progressbar"
+                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+
+                        <div class="navbar-collapsable" id="navbarNav">
+                            <div class="overlay"></div>
+
+                            <a class="it-back-button" href="#" role="button">
+                                <svg class="icon icon-sm icon-primary align-top">
+                                    <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-chevron-left|}"></use>
+                                </svg>
+                                <span>Indietro</span>
+                            </a>
+
+                            <div class="menu-wrapper">
+                                <div class="link-list-wrapper">
+                                    <h3>Indice della pagina</h3>
+
+                                    <div class="progress">
+                                        <div class="progress-bar it-navscroll-progressbar" role="progressbar"
+                                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+
+                                    <ul class="link-list">
+
+                                        <li class="nav-item" th:if="${section.testo != null and section.testo != ''}">
+                                            <a class="nav-link active" th:href="${section.url + '#art-par-01'}">
+                                                <span>Cosa fa</span>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item" th:if="${section.subsection != null and !section.subsection.isEmpty()}">
+                                            <a class="nav-link" th:href="${section.url + '#art-par-06'}">
+                                                <span>Struttura</span>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item" th:if="${section.text3 != null and section.text3 != ''}">
+                                            <a class="nav-link" th:href="${section.url + '#art-par-03'}">
+                                                <span>Organizzazione e contatti</span>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item" th:if="${section.text2 != null and section.text2 != ''}">
+                                            <a class="nav-link" th:href="${section.url + '#art-par-05'}">
+                                                <span>Sede Principale</span>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item" th:if="${section.allegatiCheck == true}">
+                                            <a class="nav-link" th:href="${section.url + '#art-par-doc'}">
+                                                <span>Documenti</span>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item" th:if="${section.text5 != null and section.text5 != ''}">
+                                            <a class="nav-link" th:href="${section.url + '#art-par-04'}">
+                                                <span>Ulteriori Informazioni</span>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item"
+                                            th:if="${section.galleryCheck == true and section.logo2 != null and section.logo2 != 'nofoto.jpg'}">
+                                            <a class="nav-link" th:href="${section.url + '#art-par-07'}">
+                                                <span>Galleria fotografica</span>
+                                            </a>
+                                        </li>
+
+                                        <!-- (se vuoi il link al footer come nel vecchio codice, riattivalo)
+                                        <li class="nav-item">
+                                          <a class="nav-link" th:href="@{|${section.url}#art-par-footer|}">
+                                            <span>Info pagina</span>
+                                          </a>
+                                        </li>
+                                        -->
+
+                                    </ul>
+
+                                </div>
+                            </div>
+
+                        </div><!-- /navbar-collapsable -->
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Contenuto -->
+            <div class="col-12 col-lg-8 it-page-sections-container">
+
+                <!-- testo principale -->
+                <div th:if="${section.testo != null and section.testo != ''}">
+                    <div id="art-par-00" th:utext="${section.testo}"></div>
+                </div>
+
+                <!-- Cosa fa -->
+                <div th:if="${section.text1 != null and section.text1 != ''}">
+                    <h4 id="art-par-01">Cosa fa</h4>
+                    <div class="row variable-gutters">
+                        <div class="col-lg-12" th:utext="${section.text1}"></div>
+                    </div>
+                </div>
+
+                <!-- Struttura -->
+                <th:block th:if="${section.subsection != null and !section.subsection.isEmpty()}">
+                    <h4 id="art-par-06">Struttura</h4>
+                    <div class="row variable-gutters mb-4">
+                        <div class="col-lg-4 mb-3 mb-lg-4" th:each="item : ${section.subsection}">
+                            <div class="card card-bg card-icon h-100 rounded">
+                                <a th:href="${item.url}">
+                                    <div class="card-body">
+                                        <svg class="icon icon-primary svg-service">
+                                            <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-info-circle|}"></use>
+                                        </svg>
+                                        <div class="card-icon-content">
+                                            <p><strong th:text="${item.titolo}">Titolo</strong></p>
+                                            <small th:text="${item.riassunto}">Riassunto</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
+
+                <!-- ... (il resto identico al tuo: tag 05/03/04, contatti, sede, documenti, ulteriori info) ... -->
+
+                <!-- ✅ FOOTER -->
+                <div class="row variable-gutters mt-5" id="art-par-footer">
+                    <div class="col-lg-12">
+                        <!-- DEBUG: se vedi questo, sei arrivato al footer -->
+                        <!-- <div style="border:2px solid red; padding:10px;">DEBUG footer ok</div> -->
+
+                        <blockquote class="blockquote text-end">
+                            <footer class="blockquote-footer">
+                                <strong>Pubblicato:</strong> <span th:text="${section.creato}"></span>
+                                <span>-</span>
+                                <strong>Revisione:</strong> <span th:text="${section.modificato}"></span>
+                                <br/>
+                                Eccetto dove diversamente specificato, questo articolo è stato rilasciato sotto Licenza Creative Commons Attribuzione 3.0 Italia.
+                            </footer>
+                        </blockquote>
+                    </div>
+                </div>
+
+            </div><!-- /col -->
+        </div><!-- /row -->
+    </div><!-- /container -->
+
+    <!-- =========================
+         CASO menu5 != 0 (1 o 2)
+         ========================= -->
+    <div class="section section-muted py-5"
+         th:if="${section != null and (section.menu5 != 0 and section.menu5 != '0')}">
+        <div class="container">
+
+            <div class="row variable-gutters">
+
+                <!-- menu5 == 2: subsection -->
+                <th:block th:if="${section.menu5 == 2 or section.menu5 == '2'}">
+                    <th:block th:if="${section.subsection != null and !section.subsection.isEmpty()}">
+                        <div class="col-lg-4 mb-3 mb-lg-4" th:each="item : ${section.subsection}">
+                            <div class="card card-bg card-wrapper card-icon-main rounded">
+                                <a th:href="${item.url}">
+                                    <div class="card-body">
+                                        <svg class="icon icon-primary">
+                                            <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-folder|}"></use>
+                                        </svg>
+                                        <div class="card-icon-content">
+                                            <p><strong th:text="${item.titolo}">Titolo</strong></p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </th:block>
+                </th:block>
+
+                <!-- menu5 == 1: contenuti -->
+                <th:block th:if="${section.menu5 == 1 or section.menu5 == '1'}">
+                    <th:block th:if="${section.contenuti != null and !section.contenuti.isEmpty()}">
+                        <div class="col-lg-4 mb-3 mb-lg-4" th:each="item : ${section.contenuti}">
+                            <div class="card card-bg card-wrapper card-icon-main rounded">
+                                <a th:href="${item.url}">
+                                    <div class="card-body">
+                                        <svg class="icon icon-primary">
+                                            <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-arrow-right-circle|}"></use>
+                                        </svg>
+                                        <div class="card-icon-content">
+                                            <p><strong th:text="${item.titolo}">Titolo</strong></p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </th:block>
+                </th:block>
+
+                <!-- Footer -->
+                <div class="offset-md-1 col-md-12">
+                    <div class="row">
+                        <blockquote class="blockquote text-end">
+                            <footer class="blockquote-footer">
+                                Aggiornato il <strong th:text="${section.modificato}">01/01/2024</strong>
+                            </footer>
+                        </blockquote>
+                    </div>
+                </div>
+
+            </div><!-- /row -->
+        </div><!-- /container -->
+    </div><!-- /section -->
+
+</th:block>

@@ -11,9 +11,8 @@ public enum ModuloApplicativo {
     INDEFINITO("", "indefinito", "Non assegnato"),
     CMS("0", "admin", "Portale WEB"),
     PROTOCOLLO("1", "protocollo", "Protocollo e gestione documentale"),
-    MENSA("2", "mensa", "Mensa"),
-    ALLOGGI("3", "alloggi", "Casa dello studente"),
-    BANDI("4", "bandi", "Gestione Bandi e Concorsi");
+    PERSONALE("2", "personale", "Gestione personale"),
+    CRM("3", "crm", "Customer Relationship Management");
 
     private final String codice;      // Valore nel DB (l2)
     private final String endpoint;    // URL endpoint

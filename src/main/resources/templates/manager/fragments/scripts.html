@@ -12,13 +12,28 @@
     <script th:src="@{/manager/assets/js/theme.js}"></script>
     <script th:src="@{/manager/assets/js/plugins/feather.min.js}"></script>
 
+    <!--CUSTOM-->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script th:src="@{/manager/assets/js/plugins/dataTables.min.js}"></script>
+    <script th:src="@{/manager/assets/js/plugins/dataTables.bootstrap5.min.js}"></script>
+    <script src="https://code.jquery.com/ui/1.14.2/jquery-ui.js"></script>
+
+    <script th:src="@{/manager/assets/js/custom/treeview/jquery.cookie.js}"></script>
+    <script th:src="@{/manager/assets/js/custom/treeview/jquery.treeview.js}"></script>
+    <script th:src="@{/manager/assets/js/plugins/tinymce/tinymce.min.js}"></script>
+    <script th:src="@{/manager/assets/js/custom/j-custom.js}"></script>
+
+
+
     <!-- Init Theme -->
     <script>
        
         change_box_container('false');
         layout_caption_change('true');
         layout_rtl_change('false');
-        preset_change('preset-1');
+        if (document.querySelector(".preset-color")) {
+            preset_change('preset-1');
+        }
         main_layout_change('vertical');
     </script>
 

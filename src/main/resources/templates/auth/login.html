@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="it">
 <head>
-    <title>Login | Jplatform Studiodomino</title>
+    <title>Login | J-Platform Studiodomino</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link rel="icon" th:href="@{/manager/assets/images/favicon.svg}" type="image/x-icon" />
+    <link rel="icon" th:href="@{/manager/assets/img/logos/favicon.ico}" type="image/x-icon" />
     <link rel="stylesheet" th:href="@{/manager/assets/fonts/inter/inter.css}" />
     <link rel="stylesheet" th:href="@{/manager/assets/fonts/tabler-icons.min.css}" />
     <link rel="stylesheet" th:href="@{/manager/assets/css/style.css}" />
@@ -26,45 +26,96 @@
         <div class="auth-form">
             <div class="card my-5">
                 <div class="card-body">
+
+                    <!-- Logo Studiodomino -->
                     <div class="text-center">
-                        <a href="#"><img th:src="@{/manager/assets/images/logo-dark.svg}" alt="ARDSU Logo" /></a>
+                        <a th:href="@{/}">
+                            <img th:src="@{/manager/assets/img/logos/logo.png}" alt="J-Platform Studiodomino System" width="253" height="81" />
+                        </a>
+                    </div>
+                    <br>
+                    <h4 class="text-center f-w-500 my-4">Accesso Utente J-Platform</h4>
+
+                    <!-- Errore login generico (es. da RedirectAttributes) -->
+                    <div th:if="${erroreLogin}" class="alert alert-danger" role="alert">
+                        <i class="ti ti-alert-circle me-1"></i>
+                        <span th:text="${erroreLogin}"></span>
                     </div>
 
-                    <h4 class="text-center f-w-500 my-4">Accedi al Sistema ARDSU</h4>
-
-                    <!-- Messaggio di errore -->
-                    <div th:if="${error}" class="alert alert-danger" role="alert">
-                        <span th:text="${error}">Errore</span>
+                    <!-- Errore da Spring Security (?error) -->
+                    <div th:if="${param.error != null}" class="alert alert-danger" role="alert">
+                        <i class="ti ti-alert-circle me-1"></i>
+                        Credenziali non valide. Riprovare.
                     </div>
 
-                    <!-- Form di login -->
-                    <form th:action="@{/login}" method="post">
+                    <!-- Messaggio logout (?logout) -->
+                    <div th:if="${param.logout != null}" class="alert alert-success" role="alert">
+                        <i class="ti ti-circle-check me-1"></i>
+                        Logout effettuato con successo.
+                    </div>
+
+                    <!-- Form login -->
+                    <form th:action="@{/login}" method="post" id="form_login_administrator" autocomplete="off">
+
+                        <!-- Username -->
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username"
-                                   placeholder="Inserisci username" required autofocus />
+                            <input type="text"
+                                   class="form-control"
+                                   id="username"
+                                   name="username"
+                                   placeholder="Inserisci username"
+                                   required
+                                   autofocus
+                                   autocomplete="off" />
                         </div>
 
+                        <!-- Password -->
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password"
-                                   placeholder="Inserisci password" required />
+                            <input type="password"
+                                   class="form-control"
+                                   id="password"
+                                   name="password"
+                                   placeholder="Inserisci password"
+                                   required
+                                   autocomplete="off" />
                         </div>
 
+                        <!--
+                            Codice G-Auth (2FA)
+                            Visibile solo se twoFactorEnabled=true nel Model.
+                            Nel Controller: model.addAttribute("twoFactorEnabled", configService.isTwoFactorEnabled());
+                        -->
+                        <div class="mb-3" th:if="${twoFactorEnabled}">
+                            <label for="auth2f" class="form-label">Codice Google Authenticator</label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="auth2f"
+                                   name="auth2f"
+                                   placeholder="000 000"
+                                   maxlength="7"
+                                   autocomplete="off" />
+                        </div>
 
+                        <!-- Ricordami + Password dimenticata -->
                         <div class="d-flex mt-1 justify-content-between align-items-center">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="remember" name="remember" value="1" />
                                 <label class="form-check-label text-muted" for="remember">Ricordami</label>
                             </div>
                             <h6 class="text-secondary f-w-400 mb-0">
-                                <a href="#"> Password dimenticata? </a>
+                                <a th:href="@{/recover-password}">Password dimenticata?</a>
                             </h6>
                         </div>
 
+                        <!-- Submit -->
                         <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-primary">Accedi</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ti ti-login me-1"></i> Accedi ora
+                            </button>
                         </div>
+
                     </form>
                 </div>
             </div>
@@ -75,5 +126,14 @@
 <script th:src="@{/manager/assets/js/plugins/popper.min.js}"></script>
 <script th:src="@{/manager/assets/js/plugins/bootstrap.min.js}"></script>
 <script th:src="@{/manager/assets/js/script.js}"></script>
+
+<!-- Masked input G-Auth (solo se 2FA attivo) -->
+<script th:if="${twoFactorEnabled}">
+    document.getElementById('auth2f').addEventListener('input', function () {
+        let val = this.value.replace(/\D/g, '').substring(0, 6);
+        this.value = val.length > 3 ? val.substring(0, 3) + ' ' + val.substring(3) : val;
+    });
+</script>
+
 </body>
 </html>

@@ -1,4 +1,5 @@
 package com.studiodomino.jplatform.cms.front.service;
+
 import com.studiodomino.jplatform.shared.config.Configurazione;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,8 +8,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 /**
@@ -33,7 +36,7 @@ public class CookieNavigationService {
             Configurazione configCore) {
 
         try {
-            // Leggi cookie esistente
+            // Leggi cookie esistente (decodificato)
             String currentProfile = getCookieValue(request, COOKIE_PROFILE_NAME);
 
             // Imposta in config
@@ -55,7 +58,7 @@ public class CookieNavigationService {
             Configurazione configCore) {
 
         try {
-            // Leggi profilo attuale
+            // Leggi profilo attuale (decodificato)
             String currentProfile = getCookieValue(request, COOKIE_PROFILE_NAME);
 
             // Costruisci nuovo profilo
@@ -74,13 +77,13 @@ public class CookieNavigationService {
                 }
             }
 
-            // Crea stringa profilo
+            // Crea stringa profilo (formato logico, con virgole)
             String newProfile = String.join(",", ids);
 
-            // Salva cookie
+            // Salva cookie (encoded, senza virgole)
             setCookie(response, COOKIE_PROFILE_NAME, newProfile, COOKIE_MAX_AGE);
 
-            // Aggiorna config
+            // Aggiorna config con valore logico (non encoded)
             configCore.setProfileIDCookieValue(newProfile);
 
             log.debug("Profilo navigazione aggiornato: {}", newProfile);
@@ -100,15 +103,13 @@ public class CookieNavigationService {
             Configurazione configCore) {
 
         try {
+            // Nota: per ora lascio invariato: se un giorno il cookie user_id contenesse caratteri speciali,
+            // puoi applicare lo stesso encoding/decoding anche lì.
             String userIdCookie = getCookieValue(request, "jplatform_user_id");
 
             if (userIdCookie != null && !userIdCookie.isEmpty()) {
                 configCore.setUserIDCookieValue(userIdCookie);
                 configCore.setUserIDCookieName("jplatform_user_id");
-
-                // TODO: Caricare UtenteEsterno dal DB
-                // UtenteEsterno user = utenteService.findById(userIdCookie);
-                // configCore.setUtente(user);
             }
 
         } catch (Exception e) {
@@ -120,8 +121,26 @@ public class CookieNavigationService {
     // UTILITY METHODS
     // ========================================
 
+    private String encodeCookieValue(String raw) {
+        if (raw == null) return null;
+        return Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(raw.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private String decodeCookieValue(String encoded) {
+        if (encoded == null || encoded.isEmpty()) return encoded;
+        try {
+            byte[] bytes = Base64.getUrlDecoder().decode(encoded);
+            return new String(bytes, StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException ex) {
+            // Se troviamo un cookie "vecchio" non encodato (es. già presente nel browser),
+            // lo trattiamo come plain per retrocompatibilità.
+            return encoded;
+        }
+    }
+
     /**
-     * Leggi valore cookie
+     * Leggi valore cookie (ritorna SEMPRE valore decodificato)
      */
     private String getCookieValue(HttpServletRequest request, String cookieName) {
         Cookie[] cookies = request.getCookies();
@@ -129,6 +148,7 @@ public class CookieNavigationService {
             return Arrays.stream(cookies)
                     .filter(c -> cookieName.equals(c.getName()))
                     .map(Cookie::getValue)
+                    .map(this::decodeCookieValue)
                     .findFirst()
                     .orElse(null);
         }
@@ -136,10 +156,11 @@ public class CookieNavigationService {
     }
 
     /**
-     * Imposta cookie
+     * Imposta cookie (scrive SEMPRE valore encodato)
      */
     private void setCookie(HttpServletResponse response, String name, String value, int maxAge) {
-        Cookie cookie = new Cookie(name, value);
+        String safeValue = encodeCookieValue(value);
+        Cookie cookie = new Cookie(name, safeValue);
         cookie.setPath("/");
         cookie.setMaxAge(maxAge);
         cookie.setHttpOnly(true);

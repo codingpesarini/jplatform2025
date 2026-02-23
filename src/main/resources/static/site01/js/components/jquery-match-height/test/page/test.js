@@ -1,0 +1,1 @@
+!function(){$(function(){o()});var o=function(){t(),$(".option").change(t)},t=function(){$(".option").each(function(){var o=$(this);$("body").toggleClass(o.val(),o.prop("checked"))});var o=$("body").hasClass("test-rows");$.each($.fn.matchHeight._groups,function(){this.options.byRow=o}),$.fn.matchHeight._update()}}();

@@ -1,0 +1,152 @@
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="homeTiles_01">
+
+    <!-- BLOCCO ISCRIZIONI -->
+    <div class="bg-white mt-3">
+        <div class="container p-2">
+            <div class="row align-items-center">
+                <div class="col-md-6 order-1 order-md-2">
+
+                    <p class="h2 primary-color">Iscrizioni on line 2026-2027</p>
+
+                    <p>
+            <span style="font-weight: 400;">
+              Le iscrizioni on line sono obbligatorie per le classi prime delle scuole primarie e secondarie
+              di primo e secondo grado statali e facoltative per le scuole paritarie.<br/>
+              <strong>Apertura iscrizioni:</strong> 13 gennaio 2026 dalle ore 8:00 <br/>
+              <strong>Chiusura iscrizioni:</strong> 14 febbraio 2026 alle ore 20:00
+            </span>
+                    </p>
+
+                    <a aria-label="Accedi alla piattaforma UNICA"
+                       class="btn btn-primary btn-sm w-base-100 focusable"
+                       href="https://unica.istruzione.gov.it/portale/it/orientamento/iscrizioni"
+                       rel="noopener noreferrer"
+                       target="_blank">Accedi alla piattaforma UNICA</a>
+
+                </div>
+
+                <div class="col-md-6 pt-3 pb-3 order-2 order-md-1 my-3 my-md-0">
+                    <img width="450"
+                         src="https://www.iccastellabate.edu.it/cmss/cms-repository/images/91_immagine.png"
+                         class="img-fluid"
+                         alt="UNICA"
+                         loading="lazy">
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ACCESSO RAPIDO -->
+    <section class="section bg-white">
+        <div class="container">
+            <div class="title-section mt-4 mb-4">
+                <h2>Accesso rapido</h2>
+            </div>
+
+            <div class="row variable-gutters mb-2 mr-2">
+                <div class="col-lg-4">
+                    <a href="https://www.trasparenzascuole.it/Public/APDPublic_ExtV2.aspx?CF=90021820650"
+                       target="_blank" class="btn-grad">Albo pretorio</a>
+                </div>
+                <div class="col-lg-4">
+                    <a href="https://registro.axioscloud.it/Pages/SD/SD_Login.aspx?Customer_ID=90021820650"
+                       target="_blank" class="btn-grad">Registro elettronico docenti</a>
+                </div>
+                <div class="col-lg-4">
+                    <a href="https://registrofamiglie.axioscloud.it/Pages/SD/SD_Login.aspx?Customer_ID=90021820650"
+                       target="_blank" class="btn-grad">Registro elettronico famiglie</a>
+                </div>
+            </div>
+
+            <div class="row variable-gutters mb-2 mr-2">
+                <div class="col-lg-4">
+                    <a href="page/1/1373/1/2024/Interpello_per_supplenze" class="btn-grad">Interpello supplenze-OM 88/2024</a>
+                </div>
+                <div class="col-lg-4">
+                    <a href="https://www.trasparenzascuole.it/Public/AmministrazioneTrasparenteV3.aspx?Customer_ID=2a38e3da-7fe9-4f6f-b5c5-519a423ead91"
+                       target="_blank" class="btn-grad">Amministrazione Trasparente</a>
+                </div>
+                <div class="col-lg-4">
+                    <a href="page/1/880/1/2023/Accesso_civico" class="btn-grad">Accesso civico</a>
+                </div>
+            </div>
+
+            <div class="row variable-gutters mb-2 mr-2">
+                <div class="col-lg-4">
+                    <a href="page/1/1383/1/2024/Bando_-_DM_65" class="btn-grad">Bandi PNRR - DM 65</a>
+                </div>
+                <div class="col-lg-4">
+                    <a href="page/1/1384/1/2024/Bando_-_DM_66" class="btn-grad">Bandi PNRR - DM 66</a>
+                </div>
+                <div class="col-lg-4">
+                    <a href="page/1/1842/1/2025/Bando_-_DM_19" class="btn-grad">Bandi PNRR - DM 19</a>
+                </div>
+            </div>
+
+            <div class="row variable-gutters mb-2 mr-2">
+                <div class="col-lg-4">
+                    <a href="https://re.axioscloud.it/Secret/REStart.aspx?Customer_ID=90021820650"
+                       target="_blank" class="btn-grad">Vecchio Registro elettr. docenti</a>
+                </div>
+                <div class="col-lg-4">
+                    <a href="https://demo.studiodomino.com/oldiccastellabate/"
+                       target="_blank" class="btn-grad">Vecchio sito web</a>
+                </div>
+                <div class="col-lg-4">
+                    <a href="page/1/2056/1/2025/PNRR_Erasmus_DM_61_2023" class="btn-grad">PNRR Erasmus DM 61/2023</a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ULTIME CIRCOLARI -->
+    <section class="section bg-white py-2 py-lg-3 py-xl-5">
+        <div class="container">
+            <div class="it-carousel-wrapper it-carousel-landscape-abstract-three-cols splide" data-bs-carousel-splide>
+                <div class="row variable-gutters">
+                    <div class="col-lg-12">
+                        <div class="title-section pb-4">
+                            <h2>Le ultime Circolari</h2>
+                        </div>
+
+                        <div class="splide__track">
+                            <ul class="splide__list it-carousel-all">
+
+                                <th:block th:if="${config != null and config.contenutiFront01 != null}">
+                                    <th:block th:each="articolo : ${config.contenutiFront01}">
+                                        <li class="splide__slide">
+                                            <div class="card card-bg card-vertical-thumb bg-white card-thumb-rounded">
+                                                <div class="card-body">
+                                                    <div class="card-content">
+                                                        <h3 class="h5">
+                                                            <a th:href="${articolo.url}" th:text="${articolo.titolo}">Titolo</a>
+                                                        </h3>
+                                                        <small class="h6 text-greendark" th:text="${articolo.dataVisualizzata}">Data</small>
+                                                        <p class="text-normal" th:text="${articolo.riassunto}">Riassunto</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </th:block>
+                                </th:block>
+
+                            </ul>
+                        </div>
+
+                        <div class="py-4">
+                            <a aria-label="Leggi tutte le circolari"
+                               class="text-underline"
+                               href="page/1/562/1/2021/Le_circolari">
+                                <strong>Leggi tutte</strong>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</th:block>

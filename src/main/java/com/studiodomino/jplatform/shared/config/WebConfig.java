@@ -22,11 +22,10 @@ public class WebConfig implements ServletContextInitializer {
         );
     }
 
-    @Bean
     public ServletContextInitializer sessionConfig() {
         return servletContext -> {
             SessionCookieConfig sessionCookieConfig = servletContext.getSessionCookieConfig();
-            sessionCookieConfig.setHttpOnly(true);
+            sessionCookieConfig.setHttpOnly(true);  //impedisce a Js di leggere il cookie di sessione
             sessionCookieConfig.setSecure(false); // true in produzione con HTTPS
             sessionCookieConfig.setName("JPLATFORMSESSION");
         };

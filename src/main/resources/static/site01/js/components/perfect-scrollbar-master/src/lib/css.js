@@ -1,0 +1,1 @@
+function get(t){return getComputedStyle(t)}function set(e,n){for(const o in n){let t=n[o];"number"==typeof t&&(t+="px"),e.style[o]=t}return e}export{get,set};

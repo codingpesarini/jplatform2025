@@ -1,11 +1,39 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<body>
-<th:block th:fragment="scripts">
-    <!-- javascript libraries -->
-    <script type="text/javascript" th:src="@{/site01/js/jquery.js}"></script>
-    <script type="text/javascript" th:src="@{/site01/js/vendors.min.js}"></script>
-    <script type="text/javascript" th:src="@{/site01/js/main.js}"></script>
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="scripts">
+
+    <!-- Public path (se ti serve per i font) -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        window.__PUBLIC_PATH__ = /*[[@{'/' + ${config.sito.path2} + '/fonts/'}]]*/ '';
+        /*]]>*/
+    </script>
+
+<script th:src="@{|/${config.sito.path2}/js/bootstrap-italia.bundle.min.js|}"></script>
+<script th:src="@{|/${config.sito.path2}/js/customJs.js|}"></script>
+<script th:src="@{|/${config.sito.path2}/js/jportal/jportalBundleLibs.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/jportal/jportal.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/jportal/jportalCalendar.js|}"></script>
+<script th:src="@{|/${config.sito.path2}/js/asb.js|}"></script>
+<script th:src="@{|/${config.sito.path2}/js/jquery.cookie.min.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/gdpr-cookie-master/js/jquery-eu-cookie-law-popup.js|}"></script>
+<script th:src="@{|/${config.sito.path2}/js/bootstrap-italia.js|}"></script>
+<script th:src="@{|/${config.sito.path2}/js/components/jquery-easing/jquery.easing.js|}"></script>
+<script th:src="@{|/${config.sito.path2}/js/components/jquery.scrollto/jquery.scrollTo.js|}"></script>
+<script th:src="@{|/${config.sito.path2}/js/components/ResponsiveDom/js/jquery.responsive-dom.js|}"></script>
+<script th:src="@{|/${config.sito.path2}/js/components/jPushMenu/jpushmenu.js|}"></script>
+<script th:src="@{|/${config.sito.path2}/js/components/perfect-scrollbar-master/perfect-scrollbar/js/perfect-scrollbar.jquery.js|}"></script>
+<script th:src="@{|/${config.sito.path2}/js/components/vallenato.js-master/vallenato.js|}"></script>
+<script th:src="@{|/${config.sito.path2}/js/components/responsive-tabs/js/jquery.responsiveTabs.js|}"></script>
+<script th:src="@{|/${config.sito.path2}/js/components/fitvids/jquery.fitvids.js|}"></script>
+<!--script src="@{|/${config.sito.path2}/js/components/sticky-kit-master/dist/sticky-kit.js"></script-->
+<!--script src="@{|/${config.sito.path2}/js/components/jquery-match-height/dist/jquery.matchHeight.js"></script-->
+
+<script th:src="@{|/${config.sito.path2}/js/components/clndr/json2.js|}"></script>
+<script th:src="@{|/${config.sito.path2}/js/components/clndr/moment-2.8.3.js|}"></script>
+<script th:src="@{|/${config.sito.path2}/js/components/clndr/underscore.js|}"></script>
+<script th:src="@{|/${config.sito.path2}/js/components/clndr/clndr.js|}"></script>
+<script th:src="@{|/${config.sito.path2}/js/components/clndr/it.js|}"></script>
+
+<script th:src="@{|/${config.sito.path2}/js/components/leaflet/leaflet.js|}"></script>
+<script th:src="@{|/${config.sito.path2}/js/scuole.js|}"></script>
+
 </th:block>
-</body>
-</html>

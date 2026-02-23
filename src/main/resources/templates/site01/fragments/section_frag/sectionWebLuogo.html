@@ -1,0 +1,82 @@
+<th:block th:fragment="content">
+    <section class="section bg-redbrown bg-red-gradient py-5 position-relative d-flex align-items-center overflow-hidden">
+        <div class="container">
+            <div class="row variable-gutters">
+                <div class="col-md-5">
+                    <div class="hero-title text-left">
+                        <h1 class="p-0 mb-2" th:text="${section.titolo}"></h1>
+                        <p class="h4 font-weight-normal" th:text="${section.riassunto}"></p>
+                    </div><!-- /hero-title -->
+                </div><!-- /col-md-5 -->
+            </div><!-- /row -->
+        </div><!-- /container -->
+    </section>
+    <!-- Content -->
+    <section class="section section-muted py-5">
+        <div class="container">
+            <div class="title-section text-center mb-5">
+
+            </div><!-- /title-large -->
+            <div class="row variable-gutters">
+                <th:block th:if="${section.subsection != null && section.menu5 == '0'}"
+                          th:each="item : ${section.subsection}">
+
+                    <div class="col-lg-4 mb-3 mb-lg-4">
+                        <div class="card card-bg card-icon rounded mb-3">
+                            <a th:href="${item.url}" data-element="location-link">
+                                <div class="card-body">
+                                    <svg class="icon svg-marker-simple">
+                                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#svg-marker-simple"></use>
+                                    </svg>
+                                    <div class="card-icon-content">
+                                        <p><strong th:text="${item.titolo}"></strong></p>
+                                        <small th:text="${item.riassunto}"></small>
+                                    </div><!-- /card-icon-content -->
+                                </div><!-- /card-body -->
+                            </a>
+                        </div><!-- /card card-bg card-icon rounded -->
+                    </div><!-- /col-lg-4 -->
+                </th:block>
+
+
+
+
+                    <th:block th:if="${section.contenuti != null && section.menu5 == '1'}"
+                              th:each="item : ${section.contenuti}">
+
+                        <div class="col-lg-4 mb-3 mb-lg-4">
+                            <div class="card card-bg card-icon rounded mb-3">
+                                <a th:href="${item.url}" data-element="location-link">
+                                    <div class="card-body">
+                                        <svg class="icon svg-marker-simple">
+                                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#svg-marker-simple"></use>
+                                        </svg>
+                                        <div class="card-icon-content">
+                                            <p><strong th:text="${item.titolo}"></strong></p>
+                                            <small th:text="${item.riassunto}"></small>
+                                        </div><!-- /card-icon-content -->
+                                    </div><!-- /card-body -->
+                                </a>
+                            </div><!-- /card card-bg card-icon rounded -->
+                        </div><!-- /col-lg-4 -->
+                    </th:block>
+            </div>
+
+            <div class="offset-md-1 col-md-12">
+                <div class="row">
+                    <blockquote class="blockquote text-end">
+                        <footer class="blockquote-footer">Aggiornato il <strong th:text="${section.modificato}"></strong></footer>
+                    </blockquote>
+                </div>
+            </div>
+
+
+
+        </div><!-- /container -->
+    </section><!-- /section -->
+    <!-- end: Content -->
+</th:block>
+
+
+
+

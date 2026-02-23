@@ -8,10 +8,10 @@
       data-pc-direction="ltr"
       data-pc-theme="light">
 
-<head>
+    <!-- HEAD -->
     <th:block th:replace="~{manager/fragments/head :: head}"></th:block>
     <th:block layout:fragment="extra-css"></th:block>
-</head>
+
 
 <body>
 <!-- Preloader -->
@@ -30,8 +30,10 @@
 <!-- Main Content -->
 <div class="pc-container">
     <div class="pc-content">
-        <div layout:fragment="content">
-            <p>Contenuto pagina</p>
+        <div th:fragment="content">
+            <div layout:fragment="content">
+                <p>Contenuto pagina</p>
+            </div>
         </div>
     </div>
 </div>
@@ -45,6 +47,30 @@
 <!-- Scripts -->
 <th:block th:replace="~{manager/fragments/scripts :: scripts}"></th:block>
 <th:block layout:fragment="extra-js"></th:block>
+
+<!-- Toast Container -->
+<div id="toast-container"
+     class="toast-container position-fixed bottom-0 end-0 p-3"
+     style="z-index: 9999;">
+</div>
+<!-- Confirm Modal -->
+<div id="confirmModal" class="modal fade" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Conferma</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmModalMessage">Sei sicuro di voler procedere?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-danger" id="confirmModalBtn">Conferma</button>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 
 </html>

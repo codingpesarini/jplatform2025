@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="content">
+
+    <!-- HERO -->
+    <section class="section bg-purplelight bg-purplegradient py-5 position-relative d-flex align-items-center overflow-hidden">
+        <div class="purple-oval-forms">
+            <!-- SVG identico -->
+            <!-- (lo lascio invariato) -->
+            <!-- ... SVG ... -->
+        </div>
+
+        <div class="container">
+            <div class="row variable-gutters">
+                <div class="col-md-5">
+                    <div class="hero-title text-left">
+                        <h1 class="p-0 mb-2" th:text="${section?.titolo}"></h1>
+                        <p class="h4 font-weight-normal" th:text="${section?.riassunto}"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================
+         CASO menu5 == 0  (pagina con indice + paragrafi)
+         ========================================================= -->
+    <th:block th:if="${section != null and section.menu5 == '0'}">
+        <div class="container py-lg-5">
+            <div class="row">
+
+                <!-- Progress bar / indice -->
+                <div class="col-12 col-lg-4">
+                    <div data-bs-toggle="sticky" data-bs-stackable="true">
+                        <nav class="navbar it-navscroll-wrapper navbar-expand-lg it-bottom-navscroll it-right-side"
+                             data-bs-scrollPadding="50" data-bs-navscroll>
+                            <button class="custom-navbar-toggler" type="button"
+                                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"
+                                    data-bs-toggle="navbarcollapsible" data-bs-target="#navbarNav">
+                                <span class="it-list"></span>1. Introduzione
+                            </button>
+
+                            <div class="progress custom-navbar-progressbar">
+                                <div class="progress-bar it-navscroll-progressbar" role="progressbar"
+                                     aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+
+                            <div class="navbar-collapsable" id="navbarNav">
+                                <div class="overlay"></div>
+
+                                <a class="it-back-button" href="#" role="button">
+                                    <svg class="icon icon-sm icon-primary align-top">
+                                        <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-chevron-left|}"></use>
+                                    </svg>
+                                    <span>Indietro</span>
+                                </a>
+
+                                <div class="menu-wrapper">
+                                    <div class="link-list-wrapper">
+                                        <h3>Indice della pagina</h3>
+
+                                        <div class="progress">
+                                            <div class="progress-bar it-navscroll-progressbar" role="progressbar"
+                                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+
+                                        <ul class="link-list">
+
+                                            <li class="nav-item" th:if="${section.text1 != null and section.text1 != ''}">
+                                                <a class="nav-link" th:href="${section.url + '#art-par-01'}">
+                                                    <span>Cos'è </span>
+                                                </a>
+                                            </li>
+
+                                            <li class="nav-item" th:if="${section.text2 != null and section.text2 != ''}">
+                                                <a class="nav-link" th:href="${section.url + '#art-par-02'}">
+                                                    <span>A chi si rivolge </span>
+                                                </a>
+                                            </li>
+
+                                            <li class="nav-item" th:if="${section.text3 != null and section.text3 != ''}">
+                                                <a class="nav-link" th:href="${section.url + '#art-par-03'}">
+                                                    <span>Accedere al servizio </span>
+                                                </a>
+                                            </li>
+
+                                            <li class="nav-item" th:if="${config.contenutiExtraTag01 != null and !#lists.isEmpty(config.contenutiExtraTag01)}">
+                                                <a class="nav-link" th:href="${section.url + '#art-par-04'}">
+                                                    <span>Uffici </span>
+                                                </a>
+                                            </li>
+
+                                            <li class="nav-item" th:if="${section.text4 != null and section.text4 != ''}">
+                                                <a class="nav-link" th:href="${section.url + '#art-par-06'}">
+                                                    <span>Costi e vincoli </span>
+                                                </a>
+                                            </li>
+
+                                            <li class="nav-item" th:if="${section.text5 != null and section.text5 != ''}">
+                                                <a class="nav-link" th:href="${section.url + '#art-par-07'}">
+                                                    <span>Casi particolari </span>
+                                                </a>
+                                            </li>
+
+                                            <li class="nav-item" th:if="${section.allegatiCheck}">
+                                                <a class="nav-link" th:href="${section.url + '#art-par-08'}">
+                                                    <span>Documenti </span>
+                                                </a>
+                                            </li>
+
+                                            <li class="nav-item" th:if="${section.text6 != null and section.text6 != ''}">
+                                                <a class="nav-link" th:href="${section.url + '#art-par-09'}">
+                                                    <span>Ulteriori informazioni </span>
+                                                </a>
+                                            </li>
+
+                                            <li class="nav-item" th:if="${section.galleryCheck and section.logo2 != 'nofoto.jpg'}">
+                                                <a class="nav-link" th:href="${section.url + '#art-par-10'}">
+                                                    <span>Galleria fotografica </span>
+                                                </a>
+                                            </li>
+
+                                        </ul>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+                <!-- /Progress bar -->
+
+                <!-- CONTENUTO -->
+                <div class="col-12 col-lg-8 it-page-sections-container">
+
+                    <th:block th:if="${section.text1 != null and section.text1 != ''}">
+                        <h4 id="art-par-01">Cos'è</h4>
+                        <div class="row variable-gutters">
+                            <div class="col-lg-12" th:utext="${section.text1}"></div>
+                        </div>
+                    </th:block>
+
+                    <th:block th:if="${section.text2 != null and section.text2 != ''}">
+                        <h4 id="art-par-02">A chi si rivolge</h4>
+                        <div class="row variable-gutters">
+                            <div class="col-lg-12" th:utext="${section.text2}"></div>
+                        </div>
+                    </th:block>
+
+                    <th:block th:if="${section.text3 != null and section.text3 != ''}">
+                        <h4 id="art-par-03">Accedere al servizio</h4>
+                        <div class="row variable-gutters">
+                            <div class="col-lg-12" th:utext="${section.text3}"></div>
+                        </div>
+                    </th:block>
+
+                    <!-- UFFICI (contenutiExtraTag01) -->
+                    <th:block th:if="${config.contenutiExtraTag01 != null and !#lists.isEmpty(config.contenutiExtraTag01)}">
+                        <h4 id="art-par-04">Uffici</h4>
+
+                        <th:block th:each="item : ${config.contenutiExtraTag01}">
+                            <div class="card-deck card-deck-spaced mb-2">
+                                <div class="card card-bg card-avatar rounded">
+                                    <a th:href="${item.url}">
+                                        <div class="card-body">
+                                            <div class="card-avatar-img">
+                                                <img th:src="@{/site01/assets/icons/icon-building.svg}" alt="">
+                                            </div>
+                                            <div class="card-avatar-content">
+                                                <p th:text="${item.titolo}"></p>
+                                                <small>Ufficio</small>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </th:block>
+
+                    </th:block>
+
+                    <th:block th:if="${section.text4 != null and section.text4 != ''}">
+                        <h4 id="art-par-06">Costi e vincoli</h4>
+                        <div class="row variable-gutters">
+                            <div class="col-lg-12" th:utext="${section.text4}"></div>
+                        </div>
+                    </th:block>
+
+                    <th:block th:if="${section.text5 != null and section.text5 != ''}">
+                        <h4 id="art-par-07">Casi particolari</h4>
+                        <div class="row variable-gutters">
+                            <div class="col-lg-12" th:utext="${section.text5}"></div>
+                        </div>
+                    </th:block>
+
+                    <!-- DOCUMENTI (allegati) -->
+                    <th:block th:if="${section.allegatiCheck}">
+                        <h4 id="art-par-08">Documenti</h4>
+                        <div class="row variable-gutters mb-4">
+                            <div class="col-lg-12">
+                                <div class="card-deck card-deck-spaced">
+
+                                    <th:block th:each="allegato : ${section.allegati}">
+                                        <div class="card card-bg card-icon rounded">
+                                            <a th:href="@{'/iccastellabate/files/' + ${allegato.id} + '/' + ${allegato.l2} + '/' + ${allegato.l1} + '.' + ${allegato.type}}">
+                                                <div class="card-body">
+                                                    <img class="icon"
+                                                         th:src="@{|/${config.sito.path2}/jsp/icons/32/${allegato.typeIcon}.png|}"
+                                                         alt="">
+                                                    <div class="card-icon-content">
+                                                        <p><strong th:text="${allegato.l1 + ' (' + allegato.type + ')'}"></strong></p>
+                                                        <small th:text="${allegato.sizeS + ' Kb'}"></small>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </th:block>
+
+                                </div>
+                            </div>
+                        </div>
+                    </th:block>
+
+                    <th:block th:if="${section.text6 != null and section.text6 != ''}">
+                        <h4 id="art-par-09">Ulteriori informazioni</h4>
+                        <div class="row variable-gutters">
+                            <div class="col-lg-12" th:utext="${section.text6}"></div>
+                        </div>
+                    </th:block>
+
+                </div>
+            </div>
+        </div>
+    </th:block>
+
+    <!-- =========================================================
+         CASO menu5 != 0  (griglia di link)
+         ========================================================= -->
+    <th:block th:if="${section.menu5 != '0'}">
+        <div class="section section-muted py-5">
+            <div class="container">
+                <div class="title-section text-center mb-5"></div>
+
+                <div class="row variable-gutters">
+
+                    <!-- menu5 == 2 : subsection -->
+                        <th:block th:if="${section.menu5 == '2' and section.subsection != null}">
+                        <th:block th:each="item : ${section.subsection}">
+                            <div class="col-lg-4 mb-3 mb-lg-4">
+                                <div class="card card-bg card-icon h-100 rounded">
+                                    <a class="h-100" th:href="${item.url}" th:attr="data-element=${item.varchar9}">
+                                        <div class="card-body">
+                                            <svg class="icon svg-service">
+                                                <use xlink:href="#svg-service"></use>
+                                            </svg>
+                                            <div class="card-icon-content">
+                                                <p><strong th:text="${item.titolo}"></strong></p>
+                                                <small th:text="${item.riassunto}"></small>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </th:block>
+                    </th:block>
+
+                    <!-- menu5 == 1 : contenuti -->
+                    <th:block th:if="${section.menu5 == '1' and section.contenuti != null}">
+                        <th:block th:each="item : ${section.contenuti}">
+                            <div class="col-lg-4 mb-3 mb-lg-4">
+                                <div class="card card-bg card-icon h-100 rounded">
+                                    <a class="h-100" th:href="${item.url}" data-element="service-link">
+                                        <div class="card-body">
+                                            <div class="card-icon-content">
+                                                <p><strong th:text="${item.titolo}"></strong></p>
+                                                <small th:text="${item.riassunto}"></small>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </th:block>
+                    </th:block>
+
+                    <div class="offset-md-1 col-md-12">
+                        <div class="row">
+                            <blockquote class="blockquote text-end">
+                                <footer class="blockquote-footer">
+                                    Aggiornato il <strong th:text="${section.modificato}"></strong>
+                                </footer>
+                            </blockquote>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </th:block>
+
+</div>
+
+</body>
+</html>

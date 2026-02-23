@@ -18,7 +18,7 @@ import java.util.*;
 @Data
 public class Section implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; //è un identificatore di versione, Se non lo dichiari il compilatore Java ne genererà uno automaticamente, ma è consigliato definirlo per garantire la portabilità tra diversi compilatori e ambienti
 
     // ========================================
     // IDENTIFICAZIONE
@@ -64,7 +64,7 @@ public class Section implements Serializable {
     // ========================================
 
     private List<Images> gallery;
-    private String galleryString="";
+    private String galleryString= "";
     private String idAllegato;
 
     // ========================================
@@ -380,8 +380,6 @@ public class Section implements Serializable {
     private String numeroCommenti = "0";
     private int rating = 0;
 
-
-
     // ========================================
     // STATO E FLAGS
     // ========================================
@@ -663,8 +661,7 @@ public class Section implements Serializable {
      * URL standard per query parameter
      */
     public String getUrl() {
-        return "pid=" + this.id + "&amp;site=" + this.idSite +
-                "&amp;stato=" + this.stato + "&amp;t=" + getTitoloLabel();
+        return "/front/" + this.id + "/" + getTitoloLabel();
     }
 
     /**
@@ -718,27 +715,23 @@ public class Section implements Serializable {
      * URL privato
      */
     public String getUrlPrivate() {
-        return "Pager.do?pid=" + id + "&amp;site=" + idSite +
-                "&amp;title=" + getTitoloLabel() + "&root=" + idRoot;
+        return "Pager.do?pid=" + id + "&site=" + idSite +
+                "&title=" + getTitoloLabel() + "&root=" + idRoot;
     }
 
     /**
      * URL home
      */
     public String getUrlHome() {
-        return "Pager.do?pid=" + id + "&amp;site=" + idSite +
-                "&amp;path=home&amp;title=" + getTitoloLabel();
+        return "Pager.do?pid=" + id + "&site=" + idSite +
+                "&path=home&title=" + getTitoloLabel();
     }
 
-    /**
-     * URL breadcrumb
-     */
     public String getUrlbreadcrumb() {
         if ("-1".equals(String.valueOf(id))) {
-            return "Pager.do?service=" + label + "&amp;title=" + getTitoloLabel();
+            return "Pager.do?service=" + label + "&title=" + getTitoloLabel();
         }
-        return "Pager.do?pid=" + id + "&amp;site=" + idSite +
-                "&amp;title=" + getTitoloLabel();
+        return "Pager.do?pid=" + id + "&site=" + idSite + "&title=" + getTitoloLabel();
     }
 
     /**
@@ -784,7 +777,7 @@ public class Section implements Serializable {
 
     /**
      * Genera il tag cloud HTML dai tag
-     */
+ */
     public String getTagsCloud() {
         if (tag == null || tag.isEmpty()) {
             return "";

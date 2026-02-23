@@ -12,65 +12,47 @@
 
     <!-- ========================================
          SWITCH CONTENUTO DOCUMENTO
-         Routing basato su document.sectionType.page4
+         Routing basato su content.sectionType.page4
          ======================================== -->
-    <div th:switch="${document.sectionType.page4}">
+    <div th:switch="${content.section.sectionType.page4}">
 
-        <!-- Dettaglio Blog -->
+        <th:block th:case="'contentWebUO'">
+            <th:block th:replace="~{site01/fragments/document_frag/contentWebUO :: content}"></th:block>
+        </th:block>
+
+        <th:block th:case="'contentWebPersona'">
+            <th:block th:replace="~{site01/fragments/document_frag/contentWebPersona :: content}"></th:block>
+        </th:block>
+
+        <!--Dettaglio Blog-->
         <th:block th:case="'dettaglioBlog'">
             <th:block th:replace="~{site01/fragments/document_frag/dettaglioBlog :: content}"></th:block>
         </th:block>
 
-        <!-- Dettaglio News -->
-        <th:block th:case="'dettaglioNews'">
-            <th:block th:replace="~{site01/fragments/document_frag/dettaglioNews :: content}"></th:block>
+        <th:block th:case="'contentWebServizio'">
+            <th:block th:replace="~{site01/fragments/document_frag/dettaglioContenutoServizio :: content}"></th:block>
         </th:block>
 
-        <!-- Dettaglio Contenuto Iconico -->
-        <th:block th:case="'dettaglioContenutoIconico'">
-            <th:block th:replace="~{site01/fragments/document_frag/dettaglioContenutoIconico :: content}"></th:block>
+        <!-- Dettaglio CONTENTWEBLUOGO -->
+        <th:block th:case="'contentWebLuogo'">
+            <th:block th:replace="~{site01/fragments/document_frag/dettagliocontentWebLuogo :: content}"></th:block>
         </th:block>
 
-        <!-- Dettaglio Catalogo Corso -->
-        <th:block th:case="'dettaglioCatalogoCorso'">
-            <th:block th:replace="~{site01/fragments/document_frag/dettaglioCatalogoCorso :: content}"></th:block>
+        <th:block th:case="'contentWebNCS'">
+            <th:block th:replace="~{site01/fragments/document_frag/contentWebNCS :: content}"></th:block>
         </th:block>
 
-        <!-- Dettaglio Catalogo Laurea Corso -->
-        <th:block th:case="'dettaglioCatalogoLaureaCorso'">
-            <th:block th:replace="~{site01/fragments/document_frag/dettaglioCatalogoLaureaCorso :: content}"></th:block>
+        <th:block th:case="'contentWebEvento'">
+            <th:block th:replace="~{site01/fragments/document_frag/contentWebEvento :: content}"></th:block>
         </th:block>
 
-        <!-- Dettaglio Catalogo Qualifica Corso -->
-        <th:block th:case="'dettaglioCatalogoQualificaCorso'">
-            <th:block th:replace="~{site01/fragments/document_frag/dettaglioCatalogoQualificaCorso :: content}"></th:block>
+        <th:block th:case="'contentWebDocumenti'">
+            <th:block th:replace="~{site01/fragments/document_frag/contentWebDocumenti :: content}"></th:block>
         </th:block>
 
-        <!-- Dettaglio Catalogo Alta Formazione Corso -->
-        <th:block th:case="'dettaglioCatalogoAltaFormazioneCorso'">
-            <th:block th:replace="~{site01/fragments/document_frag/dettaglioCatalogoAltaFormazioneCorso :: content}"></th:block>
+        <th:block th:case="'contentWebArgomento'">
+            <th:block th:replace="~{site01/fragments/document_frag/contentWebArgomento :: content}"></th:block>
         </th:block>
-
-        <!-- Dettaglio Calendario Corso -->
-        <th:block th:case="'dettaglioCalendarioCorso'">
-            <th:block th:replace="~{site01/fragments/document_frag/dettaglioCalendarioCorso :: content}"></th:block>
-        </th:block>
-
-        <!-- Landing Page -->
-        <th:block th:case="'landing'">
-            <th:block th:replace="~{site01/fragments/document_frag/landing :: content}"></th:block>
-        </th:block>
-
-        <!-- Dettaglio News Display -->
-        <th:block th:case="'dettaglioNewsDisplay'">
-            <th:block th:replace="~{site01/fragments/document_frag/dettaglioNewsDisplay :: content}"></th:block>
-        </th:block>
-
-        <!-- Default fallback: dettaglio news standard -->
-        <th:block th:case="*">
-            <th:block th:replace="~{site01/fragments/document_frag/dettaglioNews :: content}"></th:block>
-        </th:block>
-
     </div>
 
 </main>

@@ -1,0 +1,199 @@
+<th:block th:fragment="content">
+
+  <!-- Header sezione con condivisione -->
+  <section class="section bg-white">
+    <div class="container">
+      <div class="row variable-gutters">
+        <div class="col-12 col-sm-12 col-lg-9 col-md-12">
+          <div class="section-title">
+            <h2 class="mb-3" th:text="${section.titolo}">Titolo Sezione</h2>
+            <div class="badge badge-sm badge-pill badge-outline-greendark">
+              Tipologia: <span th:text="${section.varchar1}">Tipo</span>
+            </div>
+            <div th:utext="${section.tagsCloud}">Tags</div>
+          </div>
+          <div class="article-description-mobile" th:utext="${section.testo}">
+            Descrizione
+          </div>
+        </div>
+
+        <!-- Dropdown condivisione e azioni -->
+        <div class="col-12 col-sm-12 col-md-12 col-lg-3 d-flex justify-content-end d-print-none p-3">
+
+          <!-- Dropdown Condividi -->
+          <div class="dropdown d-inline">
+            <button class="btn btn-dropdown dropdown-toggle" type="button" id="dropdownMenuButton"
+                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <svg class="icon-expand icon icon-sm icon-primary">
+                <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-share|}"></use>
+              </svg>
+              Condividi
+            </button>
+            <div class="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuButton">
+              <div class="link-list-wrapper">
+                <ul class="link-list">
+                  <li>
+                    <a th:href="@{|https://www.facebook.com/sharer/sharer.php?u=${config.sito.descrizione + section.url}|}"
+                       target="_blank" class="dropdown-item list-item">
+                      <svg class="icon icon-primary left">
+                        <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-facebook|}"></use>
+                      </svg>
+                      Facebook
+                    </a>
+                  </li>
+                  <li>
+                    <a th:href="@{|https://twitter.com/intent/tweet?text=${section.titolo}&url=${config.sito.descrizione + section.url}|}"
+                       target="_blank" class="list-item left-icon">
+                      <svg class="icon icon-primary left">
+                        <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-twitter|}"></use>
+                      </svg>
+                      Twitter
+                    </a>
+                  </li>
+                  <li>
+                    <a th:href="@{|https://www.linkedin.com/sharing/share-offsite/?url=${config.sito.descrizione + section.url}|}"
+                       target="_blank" class="list-item left-icon">
+                      <svg class="icon icon-primary left">
+                        <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-linkedin|}"></use>
+                      </svg>
+                      Linkedin
+                    </a>
+                  </li>
+                  <li>
+                    <a th:href="@{|https://web.whatsapp.com/send?text=${config.sito.descrizione + section.url}|}"
+                       target="_blank" class="list-item left-icon">
+                      <svg class="icon icon-primary left">
+                        <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-whatsapp|}"></use>
+                      </svg>
+                      WhatsApp
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dropdown Azioni -->
+          <div class="dropdown d-inline">
+            <button class="btn btn-dropdown dropdown-toggle" type="button" id="dropdownMenuButtonAzioni"
+                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <svg class="icon-expand icon icon-sm icon-primary">
+                <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-more-items|}"></use>
+              </svg>
+              Vedi azioni
+            </button>
+            <div class="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuButtonAzioni">
+              <div class="link-list-wrapper">
+                <ul class="link-list">
+                  <li>
+                    <a href="javascript:window.print();" class="list-item left-icon">
+                      <svg class="icon icon-primary left">
+                        <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-print|}"></use>
+                      </svg>
+                      Stampa
+                    </a>
+                  </li>
+                  <li>
+                    <a th:href="@{|mailto:?subject=${section.titolo}&body=${config.sito.descrizione + section.url}|}"
+                       class="list-item left-icon">
+                      <svg class="icon icon-primary left">
+                        <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-mail|}"></use>
+                      </svg>
+                      Invia
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Carousel ultimi eventi (primi 6) -->
+  <section class="section section-muted py-2 py-lg-3 py-xl-5"
+           th:if="${section.contenuti != null and !section.contenuti.isEmpty()}">
+    <div class="container">
+      <div class="row variable-gutters">
+        <div class="col-lg-12">
+          <div class="it-carousel-wrapper it-carousel-landscape-abstract-three-cols splide" data-bs-carousel-splide>
+            <div class="it-header-block">
+              <div class="it-header-block-title">
+                <h2 class="no_toc">Ultimi eventi</h2>
+              </div>
+            </div>
+
+            <div class="splide__track">
+              <ul class="splide__list it-carousel-all">
+                <th:block th:each="item, iterStat : ${section.contenuti}" th:if="${iterStat.index < 6}">
+                  <li class="splide__slide">
+                    <div class="it-single-slide-wrapper">
+                      <div class="card-wrapper border border-light rounded shadow-sm cmp-list-card-img cmp-list-card-img-hr">
+                        <div class="card no-after rounded">
+                          <div class="row g-2 g-md-0 flex-md-column">
+                            <div class="col order-2 order-md-1">
+                              <a th:href="${item.url}">
+                                <img class="rounded-top img-fluid img-responsive"
+                                     th:src="@{|${config.imagesRepositoryWeb}${item.logo}|}"
+                                     th:title="${item.titolo}"
+                                     th:alt="${item.titolo}">
+                              </a>
+                            </div>
+                            <div class="col order-1 order-md-2">
+                              <div class="card-body">
+                                <div class="category-top cmp-list-card-img__body">
+                                  <span class="data" th:text="${item.dataVisualizzata}">Data</span>
+                                </div>
+                                <a th:href="${item.url}" class="text-decoration-none">
+                                  <h3 class="h5 card-title" th:text="${item.titolo}">Titolo</h3>
+                                </a>
+                                <p class="card-text d-none d-md-block" th:text="${item.riassunto}">Riassunto</p>
+                                <a class="read-more" th:href="${item.url}">
+                                  <span class="text">Leggi di più</span>
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                </th:block>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Griglia altri eventi (dal 7° in poi) -->
+  <section class="section py-5" th:if="${section.contenuti != null and section.contenuti.size() > 6}">
+    <div class="container">
+      <div class="title-section text-center mb-5">
+        <h3 class="h4">Altri eventi</h3>
+      </div>
+      <div class="row variable-gutters">
+        <th:block th:each="item, iterStat : ${section.contenuti}" th:if="${iterStat.index >= 6}">
+          <div class="col-lg-4 mb-3 mb-lg-4">
+            <div class="card card-bg card-icon h-100 rounded shadow">
+              <div class="card-body">
+                <div class="card-icon-content">
+                  <a th:href="${item.url}" class="text-decoration-none">
+                    <p><strong th:text="${item.titolo}">Titolo</strong></p>
+                  </a>
+                  <small>
+                    <strong th:text="${item.dataVisualizzata}">Data</strong> |
+                    <span th:text="${item.riassunto}">Riassunto</span>
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </th:block>
+      </div>
+    </div>
+  </section>
+
+</th:block>

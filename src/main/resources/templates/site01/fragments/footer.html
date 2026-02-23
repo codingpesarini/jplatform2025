@@ -1,107 +1,222 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<body>
-<footer th:fragment="footer" class="bg-gradient-aztec-green position-relative">
-    <div class="position-absolute left-minus-100px top-25px">
-        <img th:src="@{/site01/images/demo-elearning-bg-05.png}" alt="" class="w-80">
-    </div>
-    <div class="background-position-center-top h-100 w-100 position-absolute left-0px top-0" th:style="'background-image: url(' + @{/site01/images/vertical-line-bg-small.svg} + ')'"></div>
-    <div class="container overlap-section">
-        <div class="row g-0 justify-content-center align-items-center text-center bg-base-color border-radius-6px ps-5 pe-5 pt-3 pb-3 mb-8 sm-p-25px background-position-left-bottom background-no-repeat contain-background position-relative" th:style="'background-image: url(' + @{/site01/images/demo-elearning-bg-06.png} + ')'">
-            <!-- start footer column -->
-            <div class="col-lg-auto lg-mb-20px">
-                <h6 class="alt-font fw-600 text-dark-gray m-0 ls-minus-1px d-inline-block me-30px lg-me-0">Admission is open for the next year batch</h6>
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="footer">
+
+    <footer id="footer-wrapper" class="footer-wrapper">
+        <div class="container">
+
+            <!-- LOGHI -->
+            <div class="row variable-gutters mb-5">
+                <div class="col logos-wrapper">
+                    <div class="logo-footer">
+                        <img class="me-2"
+                             th:src="@{'/' + ${config.sito.path2} + '/assets/logo_orizzontale.png'}"
+                             height="100" alt="Logo I.C. Castellabate">
+
+                        <p class="h1">
+                            <span>I.C. Castellabate</span>
+                            <span><strong>Castellabate - Perdifumo - Montecorice</strong></span>
+                        </p>
+                    </div>
+                </div>
+
+                <img class="ue-logo p-3"
+                     th:src="@{'/' + ${config.sito.path2} + '/assets/finanziatoEU.png'}"
+                     style="max-height:100px;" alt="logo Unione Europea">
             </div>
-            <!-- end footer column -->
-            <!-- start footer column -->
-            <div class="col-auto">
-                <a href="demo-elearning-contact.html" class="btn btn-extra-large btn-dark-gray btn-rounded btn-box-shadow btn-switch-text d-inline-block me-20px align-middle xs-m-0">
-                    <span>
-                        <span class="btn-double-text" data-text="Get started now">Get started now</span>
-                        <span><i class="feather icon-feather-thumbs-up"></i></span>
-                    </span>
-                </a>
-                <span class="d-block d-sm-inline-block text-dark-gray fs-19 fw-600 left-icon d-inline-block align-middle xs-mt-10px ls-minus-05px"><a href="tel:12345678910"><i class="feather icon-feather-phone-call"></i>+1 234 567 8910</a></span>
-            </div>
-            <!-- end footer column -->
-        </div>
-    </div>
-    <div class="container footer-dark text-center text-sm-start position-relative">
-        <div class="row mb-5 sm-mb-7 xs-mb-30px">
-            <!-- start footer column -->
-            <div class="col-lg-3 col-md-4 col-sm-6 d-flex flex-column last-paragraph-no-margin md-mb-40px xs-mb-30px">
-                <a href="demo-elearning.html" class="footer-logo mb-15px d-inline-block">
-                    <img th:src="@{/site01/images/demo-elearning-footer-logo.png}" th:attr="data-at2x=@{/site01/images/demo-elearning-footer-logo@2x.png}" alt="">
-                </a>
-                <p class="lh-28">We are providing high-quality courses for about ten years.</p>
-                <div class="elements-social social-text-style-01 mt-9 xs-mt-15px">
-                    <ul class="small-icon light fw-500">
-                        <li><a class="facebook" href="https://www.facebook.com/" target="_blank">Fb.</a></li>
-                        <li><a class="instagram" href="http://www.instagram.com" target="_blank">Ig.</a></li>
-                        <li><a class="twitter" href="http://www.twitter.com" target="_blank">Tw.</a></li>
-                        <li><a class="behance" href="http://www.behance.com/" target="_blank">Be.</a></li>
+
+            <!-- LINK ESTERNI + COLONNE DINAMICHE -->
+            <div class="row variable-gutters mb-3">
+
+                <div class="col-lg-4">
+                    <h2 class="h3">Collegamenti esterni</h2>
+                    <div class="footer-list">
+                        <ul>
+                            <li>
+                                <a class="text-underline-hover" href="https://www.mim.gov.it/" target="_blank"
+                                   aria-label="Ministero dell'Istruzione e del Merito - link esterno - apertura nuova scheda">
+                                    Ministero dell'Istruzione e del Merito
+                                </a>
+                            </li>
+                            <li>
+                                <a class="text-underline-hover" href="https://www.mim.gov.it/web/miur-usr-campania" target="_blank"
+                                   aria-label="Ufficio Scolastico Regionale - link esterno - apertura nuova scheda">
+                                    Ufficio Scolastico Regionale
+                                </a>
+                            </li>
+                            <li>
+                                <a class="text-underline-hover" href="https://uat-salerno.it/" target="_blank"
+                                   aria-label="Ufficio Scolastico Territoriale - link esterno - apertura nuova scheda">
+                                    Ufficio Scolastico Territoriale
+                                </a>
+                            </li>
+                            <li>
+                                <a class="text-underline-hover"
+                                   href="https://unica.istruzione.gov.it/cercalatuascuola/istituti/SAIC8A0002/IST.%20COMPR.%20CASTELLABATE"
+                                   target="_blank" aria-label="Scuola in Chiaro - link esterno - apertura nuova scheda">
+                                    Scuola in Chiaro
+                                </a>
+                            </li>
+                            <li>
+                                <a class="text-underline-hover"
+                                   href="https://unica.istruzione.gov.it/portale/it/orientamento/iscrizioni"
+                                   target="_blank" aria-label="Iscrizioni On Line - link esterno - apertura nuova scheda">
+                                    Iscrizioni On Line
+                                </a>
+                            </li>
+                            <li>
+                                <a class="text-underline-hover" href="https://www.invalsi.it/" target="_blank"
+                                   aria-label="Invalsi - link esterno - apertura nuova scheda">
+                                    Invalsi
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Colonne dinamiche (menu1 == 1) -->
+                <th:block th:if="${config != null and config.sezioniFront != null}">
+                    <th:block th:each="sezione : ${config.sezioniFront}">
+                        <th:block th:if="${sezione.menu1 == '1'}">
+                            <div class="col-lg-2">
+                                <h2 class="h3" th:text="${sezione.titolo}">Titolo sezione</h2>
+
+                                <th:block th:if="${sezione.emptySubsection == false}">
+                                    <div class="footer-list">
+                                        <ul>
+                                            <th:block th:each="sezione2 : ${sezione.subsection}">
+                                                <th:block th:if="${sezione2.menu1 != '0'}">
+
+                                                    <!-- interno -->
+                                                    <li th:if="${sezione2.menu2 == '0'}">
+                                                        <a class="text-underline-hover"
+                                                           th:href="${sezione2.url}">
+                                                            <span th:text="${sezione2.titolo}">Titolo</span>
+                                                        </a>
+                                                    </li>
+
+                                                    <!-- voce non cliccabile -->
+                                                    <li th:if="${sezione2.menu2 == '1'}">
+                                                        <a class="text-underline-hover" href="javascript:void(0);">
+                                                            <span th:text="${sezione2.titolo}">Titolo</span>
+                                                        </a>
+                                                    </li>
+
+                                                    <!-- esterno -->
+                                                    <li th:if="${sezione2.menu2 == '2'}">
+                                                        <a class="text-underline-hover"
+                                                           th:href="${sezione2.menu3}" target="_blank" rel="noopener">
+                                                            <span th:text="${sezione2.titolo}">Titolo</span>
+                                                        </a>
+                                                    </li>
+
+                                                </th:block>
+                                            </th:block>
+                                        </ul>
+                                    </div>
+                                </th:block>
+
+                            </div>
+                        </th:block>
+                    </th:block>
+                </th:block>
+
+            </div><!-- ✅ chiusura row mb-3 -->
+
+            <!-- SUB-FOOTER -->
+            <div class="row variable-gutters">
+                <div class="col-lg-12 sub-footer">
+
+                    <ul id="menu-footer" class="footer-inline-menu">
+                        <li>
+                            <a class="text-underline-hover"
+                               th:href="@{/page/1/1860/1/2025/Note_legali}"
+                               data-element="legal-notes">Note Legali</a>
+                        </li>
+
+                        <li>
+                            <a class="text-underline-hover"
+                               href="https://www.trasparenzascuole.it/Public/AmministrazioneTrasparenteV3.aspx?Customer_ID=2a38e3da-7fe9-4f6f-b5c5-519a423ead91"
+                               target="_blank" rel="noopener">
+                                Amministrazione Trasparente
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="text-underline-hover"
+                               href="https://www.trasparenzascuole.it/Public/APDPublic_ExtV2.aspx?CF=90021820650"
+                               target="_blank" rel="noopener">
+                                Albo online
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="text-underline-hover"
+                               th:href="@{/page/1/766/1/2024/Privacy_Policy}"
+                               data-element="privacy-policy-link">Privacy Policy</a>
+                        </li>
+
+                        <li>
+                            <a class="text-underline-hover"
+                               href="https://form.agid.gov.it/view/218beb20-477c-11f0-935b-ed5e94258b52"
+                               target="_blank" rel="noopener"
+                               data-element="accessibility-link">
+                                Dichiarazione di accessibilità
+                            </a>
+                        </li>
                     </ul>
+
+                    <div class="footer-social">
+                        <span>Seguici su:</span>
+                        <div class="footer-social-wrapper">
+                            <a href="#" aria-label="facebook" title="vai alla pagina facebook">
+                                <svg class="icon it-social-facebook">
+                                    <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-facebook|}"></use>
+                                </svg>
+                            </a>
+                            <a href="#" aria-label="twitter" title="vai alla pagina twitter">
+                                <svg class="icon it-social-twitter">
+                                    <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-twitter|}"></use>
+                                </svg>
+                            </a>
+                            <a href="#" aria-label="linkedin" title="vai alla pagina linkedin">
+                                <svg class="icon it-social-linkedin">
+                                    <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-linkedin|}"></use>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
                 </div>
             </div>
-            <!-- end footer column -->
-            <!-- start footer column -->
-            <div class="col-lg-3 col-md-4 col-sm-6 ps-4 last-paragraph-no-margin md-mb-40px xs-mb-30px">
-                <span class="fw-500 fs-18 d-block text-white mb-10px">Popular courses</span>
-                <ul>
-                    <li><a href="demo-elearning-courses.html">Business finance</a></li>
-                    <li><a href="demo-elearning-courses.html">Advanced design</a></li>
-                    <li><a href="demo-elearning-courses.html">Web development</a></li>
-                    <li><a href="demo-elearning-courses.html">Data visualization</a></li>
-                </ul>
-            </div>
-            <!-- end footer column -->
-            <!-- start footer column -->
-            <div class="col-lg-3 col-md-4 col-sm-6 last-paragraph-no-margin xs-mb-30px">
-                <span class="fw-500 fs-18 d-block text-white mb-10px">Need help?</span>
-                <span class="lh-26 d-block">Call us directly?</span>
-                <span class="text-white d-block mb-10px"><a href="tel:12345678910">+1 234 567 8910 </a><span class="bg-base-color fw-700 text-dark-gray lh-22 text-uppercase border-radius-30px ps-10px pe-10px fs-11 ms-5px d-inline-block align-middle">Free</span></span>
-                <span class="lh-26 d-block">Need support?</span>
-                <a href="mailto:help@domain.com" class="text-white text-decoration-line-bottom">help@domain.com</a>
-            </div>
-            <!-- end footer column -->
-            <!-- start footer column -->
-            <div class="col-lg-3 col-md-12 col-sm-6 text-md-center text-lg-start">
-                <span class="fs-18 fw-500 d-block text-white mb-20px">Subscribe our newsletter</span>
-                <div class="d-inline-block w-100 newsletter-style-02 position-relative mb-15px">
-                    <form action="email-templates/subscribe-newsletter.php" method="post" class="position-relative w-100">
-                        <input class="input-small bg-dark-gray border-color-transparent-white-light w-100 form-control required" type="email" name="email" placeholder="Enter your email...">
-                        <input type="hidden" name="redirect" value="">
-                        <button type="submit" aria-label="submit" class="btn pe-20px text-white fs-13 fw-500 lg-ps-15px lg-pe-15px submit">Submit <i class="feather icon-feather-arrow-right submit"></i></button>
-                        <div class="form-results border-radius-4px pt-5px pb-5px ps-15px pe-15px fs-14 lh-22 mt-10px w-100 text-center position-absolute d-none"></div>
-                    </form>
-                </div>
-                <div class="d-flex align-items-center justify-content-center justify-content-md-center justify-content-sm-start justify-content-lg-start fs-14">
-                    <div class="d-inline-block"><i class="line-icon-Handshake me-10px align-middle icon-very-medium"></i>Protecting your privacy</div>
+
+            <!-- TESTO -->
+            <div class="row variable-gutters mb-3">
+                <div class="col-lg-12 text-left text-md-center footer-text">
+                    <p>
+                        Via Federico Coppola - 84048 S. Maria di Castellabate (Sa) - Telefono:
+                        <a href="tel:+390974961097">0974961097</a>
+                        - Email: <a href="mailto:saic8a0002@istruzione.it">saic8a0002@istruzione.it</a>
+                        - Posta elettronica certificata (PEC):
+                        <a href="mailto:saic8a0002@pec.istruzione.it">saic8a0002@pec.istruzione.it</a>
+                        <br>
+                        Codice meccanografico: SAIC8A0002 - Codice Indice delle Pubbliche Amministrazioni (IPA): icc_065 -
+                        Codice fiscale 90021820650 - Codice univoco fatturazione elettronica (CUF): UFV9AR
+                    </p>
                 </div>
             </div>
-            <!-- end footer column -->
+
+            <!-- CREDITI + LOGIN -->
+            <div class="row variable-gutters mb-3">
+                <div class="col-lg-8">
+                    <a class="text-underline-hover" href="https://studiodominoweb.com/" target="_blank" rel="noopener">
+                        Sistema realizzato con J-Platform - Java Open Cms Framework - Studiodomino srl
+                    </a>
+                </div>
+                <div class="col-lg-4 text-right">
+                    <a class="text-underline-hover" th:href="@{/login}">Redazione</a>
+                </div>
+            </div>
+
         </div>
-        <div class="row align-items-center footer-bottom border-top border-color-transparent-white-light pt-30px g-0">
-            <!-- start footer menu -->
-            <div class="col-xl-7 ps-0 text-center text-xl-start lg-mb-10px">
-                <ul class="footer-navbar fs-16 lh-normal">
-                    <li class="nav-item active"><a href="demo-elearning.html" class="nav-link ps-0">Home</a></li>
-                    <li class="nav-item"><a href="demo-elearning-about.html" class="nav-link">About</a></li>
-                    <li class="nav-item"><a href="demo-elearning-courses.html" class="nav-link">Courses</a></li>
-                    <li class="nav-item"><a href="demo-elearning-instructors.html" class="nav-link">Instructors</a></li>
-                    <li class="nav-item"><a href="demo-elearning-testimonial.html" class="nav-link">Testimonial</a></li>
-                    <li class="nav-item"><a href="demo-elearning-blog.html" class="nav-link">Blog</a></li>
-                    <li class="nav-item"><a href="demo-elearning-contact.html" class="nav-link">Contact</a></li>
-                </ul>
-            </div>
-            <!-- end footer menu -->
-            <!-- start copyright -->
-            <div class="col-xl-5 last-paragraph-no-margin text-center text-xl-end">
-                <p class="fs-16">&copy; 2025 Crafto is Proudly Powered by <a href="https://www.themezaa.com/" target="_blank" class="text-white text-decoration-line-bottom">ThemeZaa</a></p>
-            </div>
-            <!-- start copyright -->
-        </div>
-    </div>
-</footer>
-</body>
-</html>
+    </footer>
+
+</th:block>

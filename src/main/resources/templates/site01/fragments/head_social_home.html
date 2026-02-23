@@ -1,0 +1,33 @@
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="head_social">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" th:content="${config.sito.type}" />
+    <meta name="twitter:creator" th:content="${config.sito.type}" />
+    <meta name="twitter:title"
+          th:content="${config.sito.type} + ': ' + ${config.breadcrumb}" />
+    <meta name="twitter:description"
+          th:content="${config.breadcrumb}" />
+
+    <meta name="twitter:image"
+          th:content="@{'/' + ${config.sito.path2} + '/assets/logo_principale.png'}" />
+
+    <!-- Facebook / Open Graph -->
+    <meta property="og:url" th:content="@{/}" />
+    <meta property="og:title"
+          th:content="${config.sito.type} + ' | ' + ${config.breadcrumb}" />
+    <meta property="og:description"
+          th:content="${config.breadcrumb}" />
+    <meta property="og:type" content="website" />
+
+    <meta property="og:image"
+          th:content="@{'/' + ${config.sito.path2} + '/assets/logo_principale.png'}" />
+
+    <meta property="og:image:secure_url"
+          th:content="@{'/' + ${config.sito.path2} + '/assets/logo_principale.png'}" />
+
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="400" />
+    <meta property="og:image:height" content="400" />
+
+</th:block>

@@ -5,9 +5,11 @@ import com.studiodomino.jplatform.shared.entity.Site;
 import com.studiodomino.jplatform.shared.entity.Utente;
 import com.studiodomino.jplatform.shared.enums.ModuloApplicativo;
 import com.studiodomino.jplatform.shared.service.ConfigurazioneService;
+import com.studiodomino.jplatform.shared.service.RememberMeService;
 import com.studiodomino.jplatform.shared.service.SiteService;
 import com.studiodomino.jplatform.shared.service.UtenteService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,36 +27,50 @@ public class LoginController {
     private final UtenteService utenteService;
     private final ConfigurazioneService configurazioneService;
     private final SiteService siteService;
+    private final RememberMeService rememberMeService;
 
     /**
-     * GET /login - Mostra form di login
+     * GET /login - Mostra form di login, oppure auto-login via remember me
      */
     @GetMapping("/login")
-    public String showLogin(HttpServletRequest request, Model model) {
+    public String showLogin(HttpServletRequest request, HttpServletResponse response, Model model) {
         HttpSession session = request.getSession();
         Configurazione configCore = configurazioneService.getOrCreateConfiguration(request);
 
-        // Se già loggato, redirect
+        // Se già loggato, redirect diretto
         Utente utente = configurazioneService.getAmministratore(session);
         if (utente != null) {
-            String endpoint = ModuloApplicativo.getEndpoint(utente.getL2());
-            log.info("Utente già loggato, redirect a: {}", endpoint);
-            return "redirect:/" + endpoint;
+            return "redirect:/admin";
+        }
+
+        // ✅ Controlla cookie remember me
+        String rememberedUsername = rememberMeService.resolveUsername(request);
+        if (rememberedUsername != null) {
+            Utente rememberedUser = utenteService.findByUsername(rememberedUsername);
+            if (rememberedUser != null) {
+                log.info("Auto-login via remember me per: {}", rememberedUsername);
+                eseguiLogin(rememberedUser, session, request, response, true);
+                return "redirect:/admin";
+            } else {
+                // username non più valido, pulisci il cookie
+                rememberMeService.deleteRememberMeCookie(request, response);
+            }
         }
 
         model.addAttribute("config", configCore);
-        return "auth/login";  // ✅ Mostra templates/auth/login.html
+        return "auth/login";
     }
 
     /**
-     * POST /login - Processa login
+     * POST /login - Processa login manuale
      */
     @PostMapping("/login")
     public String login(
             @RequestParam String username,
             @RequestParam String password,
-            @RequestParam(required = false) boolean remember,
+            @RequestParam(required = false, defaultValue = "false") boolean remember,
             HttpServletRequest request,
+            HttpServletResponse response,
             Model model) {
 
         log.info("=== LOGIN === username: {}", username);
@@ -62,66 +78,63 @@ public class LoginController {
         HttpSession session = request.getSession();
         Configurazione configCore = configurazioneService.getOrCreateConfiguration(request);
 
-        // Autentica
         Utente utente = utenteService.authenticate(username, password);
 
-        if (utente != null) {
-            log.info("✓ Login riuscito per: {}", username);
-
-            // Aggiorna statistiche accesso
-            utenteService.aggiornaStatisticheAccesso(utente, request);
-
-            // Imposta utente in sessione
-            configurazioneService.setAmministratore(session, utente);
-
-            // Cookie "remember me"
-            if (remember) {
-                log.info("Remember me richiesto (TODO: implementare)");
-            }
-
-            // ════════════════════════════════════════════════════
-            // DETERMINA DESTINAZIONE POST-LOGIN
-            // ════════════════════════════════════════════════════
-
-            // 1. Controlla se c'era un sito richiesto prima del login
-            Integer requestedSiteId = configurazioneService.getAndClearRequestedSite(session);
-
-            if (requestedSiteId != null) {
-                Site requestedSite = siteService.findById(requestedSiteId);
-
-                if (requestedSite != null) {
-                    log.info("→ Redirect a sito richiesto: {}", requestedSite.getType());
-                    configurazioneService.setSite(session, requestedSite);
-                    String endpoint = ModuloApplicativo.getEndpoint(utente.getL2());
-                    return "redirect:/" + endpoint;
-                }
-            }
-
-            // 2. Altrimenti usa campo l2 dell'utente
-            String l2 = utente.getL2();
-            String endpoint = ModuloApplicativo.getEndpoint(l2);
-            String descrizione = ModuloApplicativo.getDescrizione(l2);
-
-            log.info("→ L2: {}", l2 != null && !l2.isEmpty() ? l2 : "null/vuoto");
-            log.info("→ Modulo: {}", descrizione);
-            log.info("→ Endpoint: {}", endpoint);
-
-            return "redirect:/" + endpoint;
-
-        } else {
-            // ✅ ERRORE: ritorna allo STESSO template del GET
+        if (utente == null) {
             log.warn("✗ Login fallito per: {}", username);
             model.addAttribute("error", "Credenziali non valide");
             model.addAttribute("config", configCore);
-            return "auth/login";  // ✅ CAMBIATO da "manager/front/login"
+            return "auth/login";
         }
+
+        log.info("✓ Login riuscito per: {}", username);
+
+        eseguiLogin(utente, session, request, response, remember);
+
+        return "redirect:/admin";
     }
 
+    /**
+     * GET /logout - Invalida sessione e cancella cookie remember me
+     */
     @GetMapping("/logout")
-    public String logout(HttpServletRequest request) {
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
         log.info("=== LOGOUT ===");
         HttpSession session = request.getSession();
         configurazioneService.invalidateSession(session);
-        return "redirect:/?uscita=true";
+
+        // ✅ Cancella cookie remember me
+        rememberMeService.deleteRememberMeCookie(request, response);
+
+        return "redirect:/login";
+    }
+
+    // =========================================================
+    // UTILITY
+    // =========================================================
+
+    /**
+     * Operazioni comuni dopo un login riuscito (manuale o automatico)
+     */
+    private void eseguiLogin(Utente utente, HttpSession session,
+                             HttpServletRequest request, HttpServletResponse response,
+                             boolean remember) {
+
+        utenteService.aggiornaStatisticheAccesso(utente, request);
+        configurazioneService.setAmministratore(session, utente);
+
+        // ✅ Crea cookie 30 giorni se remember=true
+        if (remember) {
+            rememberMeService.createRememberMeCookie(utente.getUsername(), response);
+        }
+
+        // Ripristina sito richiesto prima del login
+        Integer requestedSiteId = configurazioneService.getAndClearRequestedSite(session);
+        if (requestedSiteId != null) {
+            Site requestedSite = siteService.findById(requestedSiteId);
+            if (requestedSite != null) {
+                configurazioneService.setSite(session, requestedSite);
+            }
+        }
     }
 }

@@ -1,0 +1,345 @@
+<th:block th:fragment="content">
+
+    <!-- Header argomento -->
+    <section class="section bg-white">
+        <div class="container">
+            <div class="row variable-gutters">
+
+                <div class="col-12 col-sm-12 col-lg-9 col-md-12">
+                    <div class="section-title">
+                        <h2 class="mb-3" th:text="${section.titolo}">Titolo</h2>
+
+                        <div class="badge badge-sm badge-pill badge-outline-greendark">
+                            Tipologia: <span th:text="${section.varchar1}">---</span>
+                        </div>
+
+                        <!-- tagsCloud contiene HTML -->
+                        <th:block th:utext="${section.tagsCloud}"></th:block>
+                    </div>
+
+                    <div class="article-description-mobile">
+                        <th:block th:utext="${section.testo}"></th:block>
+                    </div>
+                </div>
+
+                <!-- Pulsanti share/azioni -->
+                <div class="col-12 col-sm-12 col-md-12 col-lg-3 d-flex justify-content-end d-print-none p-3">
+
+                    <!-- Share -->
+                    <div class="dropdown d-inline">
+                        <button class="btn btn-dropdown dropdown-toggle" type="button" id="dropdownMenuButton"
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <svg class="icon-expand icon icon-sm icon-primary">
+                                <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-share|}"></use>
+                            </svg>
+                            Condividi
+                        </button>
+
+                        <div class="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuButton">
+                            <div class="link-list-wrapper">
+                                <ul class="link-list">
+                                    <li>
+                                        <a class="dropdown-item list-item" target="_blank"
+                                           th:href="${'https://www.facebook.com/sharer/sharer.php?u=' + config.sito.descrizione + section.url}">
+                                            Facebook
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="list-item left-icon" target="_blank"
+                                           th:href="${'https://twitter.com/intent/tweet?text=' + section.titolo + '&url=' + config.sito.descrizione + section.url}">
+                                            Twitter
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="list-item left-icon" target="_blank"
+                                           th:href="${'https://www.instagram.com/?url=' + config.sito.descrizione + section.url}">
+                                            Instagram
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="list-item left-icon" target="_blank"
+                                           th:href="${'https://www.linkedin.com/sharing/share-offsite/?url=' + config.sito.descrizione + section.url}">
+                                            Linkedin
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="list-item left-icon" target="_blank"
+                                           th:href="${'https://web.whatsapp.com/send?text=' + config.sito.descrizione + section.url}">
+                                            WhatsApp
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Azioni -->
+                    <div class="dropdown d-inline">
+                        <button class="btn btn-dropdown dropdown-toggle" type="button" id="dropdownMenuButtonAzioni"
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <svg class="icon-expand icon icon-sm icon-primary">
+                                <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-more-items|}"></use>
+                            </svg>
+                            Vedi azioni
+                        </button>
+
+                        <div class="dropdown-menu shadow-lg" aria-labelledby="dropdownMenuButtonAzioni">
+                            <div class="link-list-wrapper">
+                                <ul class="link-list">
+                                    <li>
+                                        <a href="javascript:window.print();" class="list-item left-icon">Stampa</a>
+                                    </li>
+                                    <li>
+                                        <a class="list-item left-icon"
+                                           th:href="${'mailto:?subject=' + section.titolo + '&body=' + config.sito.descrizione + section.url}">
+                                            Invia
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- =========================
+         DETTAGLIO (menu5 == 0)
+         ========================= -->
+    <section class="section bg-white" th:if="${section.subsection == null && section.menu5 == '0'}">
+        <div class="container container-border-top">
+            <div class="row variable-gutters">
+
+                <!-- Sidebar -->
+                <div class="col-lg-3 col-md-4 aside-border px-0 d-print-none">
+                    <aside class="aside-main aside-sticky">
+                        <div class="aside-title">
+                            <a class="toggle-link-list" data-toggle="collapse" href="#lista-paragrafi" role="button"
+                               aria-expanded="true" aria-controls="lista-paragrafi">
+                                <span>Indice della pagina</span>
+                            </a>
+                        </div>
+                        <div id="lista-paragrafi" class="link-list-wrapper collapse show">
+                            <ul class="link-list">
+                                <li><a class="list-item scroll-anchor-offset" href="#art-par-01">Cosa fa</a></li>
+                                <li th:if="${section.subsection != null}">
+                                    <a class="list-item scroll-anchor-offset" href="#art-par-06">Struttura</a>
+                                </li>
+                                <li><a class="list-item scroll-anchor-offset" href="#art-par-03">Organizzazione e contatti</a></li>
+                                <li><a class="list-item scroll-anchor-offset" href="#art-par-04">Sedi informazioni</a></li>
+                                <li><a class="list-item scroll-anchor-offset" href="#art-par-05">Ulteriori informazioni</a></li>
+                            </ul>
+                        </div>
+                    </aside>
+                </div>
+
+                <!-- Contenuto -->
+                <div class="col-lg-9 col-md-8">
+                    <article class="article-wrapper pt-4">
+
+                        <h4 id="art-par-01">Cosa fa</h4>
+                        <div class="row variable-gutters">
+                            <div class="col-lg-12">
+                                <th:block th:utext="${section.text1}"></th:block>
+                            </div>
+                        </div>
+
+                        <!-- Struttura -->
+                        <th:block th:if="${section.subsection != null}">
+                            <h4 id="art-par-06">Struttura</h4>
+                            <div class="row variable-gutters mb-4">
+                                <th:block th:each="item : ${section.subsection}">
+                                    <div class="col-lg-4 mb-3 mb-lg-4">
+                                        <div class="card card-bg card-icon h-100 rounded">
+                                            <a th:href="${item.url}">
+                                                <div class="card-body">
+                                                    <div class="card-icon-content">
+                                                        <p><strong th:text="${item.titolo}">Titolo</strong></p>
+                                                        <small th:text="${item.riassunto}">Riassunto</small>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </th:block>
+                            </div>
+                        </th:block>
+
+                        <!-- Persone -->
+                        <h4 id="art-par-03">Organizzazione e contatti</h4>
+                        <h6>Persone</h6>
+
+                        <th:block th:if="${config.contenutiExtraTag03 != null}">
+                            <th:block th:each="item : ${config.contenutiExtraTag03}">
+                                <div class="card-deck card-deck-spaced mb-2">
+                                    <div class="card card-bg card-avatar rounded">
+                                        <a th:href="${item.url}">
+                                            <div class="card-body">
+                                                <div class="card-avatar-img">
+                                                    <img src="site01/assets/icons/icon-user.svg">
+                                                </div>
+                                                <div class="card-avatar-content">
+                                                    <p th:text="${item.titolo}">Nome</p>
+                                                    <small>Giunta</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </th:block>
+                        </th:block>
+
+                        <th:block th:if="${config.contenutiExtraTag04 != null}">
+                            <th:block th:each="item : ${config.contenutiExtraTag04}">
+                                <div class="card-deck card-deck-spaced mb-2">
+                                    <div class="card card-bg card-avatar rounded">
+                                        <a th:href="${item.url}">
+                                            <div class="card-body">
+                                                <div class="card-avatar-img">
+                                                    <img src="site01/assets/icons/icon-user.svg">
+                                                </div>
+                                                <div class="card-avatar-content">
+                                                    <p th:text="${item.titolo}">Nome</p>
+                                                    <small>Consigliere</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </th:block>
+                        </th:block>
+
+                        <th:block th:if="${config.contenutiExtraTag05 != null}">
+                            <th:block th:each="item : ${config.contenutiExtraTag05}">
+                                <div class="card-deck card-deck-spaced mb-2">
+                                    <div class="card card-bg card-avatar rounded">
+                                        <a th:href="${item.url}">
+                                            <div class="card-body">
+                                                <div class="card-avatar-img">
+                                                    <img src="site01/assets/icons/icon-user.svg">
+                                                </div>
+                                                <div class="card-avatar-content">
+                                                    <p th:text="${item.titolo}">Nome</p>
+                                                    <small>Sindaco</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </th:block>
+                        </th:block>
+
+                        <!-- Contatti -->
+                        <h6>Contatti</h6>
+                        <div class="row variable-gutters mb-5">
+                            <div class="col-lg-12">
+                                <div class="card card-bg bg-color rounded">
+                                    <div class="card-body pb-1">
+                                        <th:block th:utext="${section.text3}"></th:block>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sede -->
+                        <h4 id="art-par-04">Sede</h4>
+                        <div class="row variable-gutters mb-5">
+                            <div class="col-lg-12">
+                                <div class="card card-bg rounded">
+                                    <div class="card-header"><strong>Sede principale</strong></div>
+                                    <div class="card-body p-0">
+                                        <div class="row variable-gutters">
+                                            <div class="col-lg-12">
+                                                <div class="py-4">
+                                                    <th:block th:utext="${section.text2}"></th:block>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-12">
+                                <th:block th:utext="${section.text4}"></th:block>
+                            </div>
+                        </div>
+
+                        <!-- Ulteriori info -->
+                        <h4 id="art-par-05" class="mb-4">Ulteriori informazioni</h4>
+                        <div class="row variable-gutters">
+                            <div class="col-lg-12">
+                                <th:block th:utext="${section.text5}"></th:block>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="row variable-gutters">
+                            <div class="col-lg-12">
+                                <blockquote class="blockquote text-end">
+                                    <footer class="blockquote-footer">
+                                        <strong>Pubblicato:</strong> <span th:text="${section.creato}"></span>
+                                        <span>-</span>
+                                        <strong>Revisione:</strong> <span th:text="${section.modificato}"></span>
+                                        <br>
+                                        Eccetto dove diversamente specificato, questo articolo è stato rilasciato sotto Licenza Creative Commons Attribuzione 3.0 Italia.
+                                    </footer>
+                                </blockquote>
+                            </div>
+                        </div>
+
+                    </article>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- =========================
+         LISTA (menu5 != 0)
+         ========================= -->
+    <section class="section section-muted py-5" th:if="${section.subsection != null && section.menu5 != '0'}">
+        <div class="container">
+
+            <div class="title-section text-center mb-5">
+                <h3 class="h4">Argomenti</h3>
+            </div>
+
+            <div class="row variable-gutters">
+
+                <th:block th:if="${section.contenuti != null and !#lists.isEmpty(section.contenuti)}">
+                    <th:block th:each="item : ${section.contenuti}">
+                        <div class="col-lg-4 mb-3 mb-lg-4">
+                            <div class="card card-bg card-icon h-100 rounded">
+                                <a th:href="${item.url}">
+                                    <div class="card-body">
+                                        <div class="card-icon-content">
+                                            <p><strong th:text="${item.titolo}">Titolo</strong></p>
+                                            <small th:text="${item.riassunto}">Riassunto</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </th:block>
+                </th:block>
+
+                <div class="offset-md-1 col-md-12">
+                    <div class="row">
+                        <blockquote class="blockquote text-end">
+                            <footer class="blockquote-footer">
+                                Aggiornato il <strong th:text="${section.modificato}">--/--/----</strong>
+                            </footer>
+                        </blockquote>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+</th:block>

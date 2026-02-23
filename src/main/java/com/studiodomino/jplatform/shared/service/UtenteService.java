@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -40,7 +41,6 @@ public class UtenteService {
 
         // Cripta password in input e confronta
         String passwordCriptata = CryptBean.cryptString(password.toUpperCase());
-
         if (!utente.getPassword().equals(passwordCriptata)) {
             return null; // Password errata
         }
@@ -241,5 +241,9 @@ public class UtenteService {
         utente.setNumeroaccessi(String.valueOf(accessi + 1));
 
         utenteRepository.save(utente);
+    }
+
+    public Utente findByUsername(String username) {
+        return utenteRepository.findByUsername(username).orElse(null);
     }
 }

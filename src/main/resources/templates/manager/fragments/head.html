@@ -4,11 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <base th:href="@{/}" />
 
-    <title th:text="${pageTitle != null ? pageTitle : 'Dashboard'}">Dashboard</title>
+    <title th:text="${pageTitle != null ? pageTitle : 'J-Platform | Studiodomino srl'}">J-Platform  | Studiodomino srl</title>
 
     <!-- Favicon -->
-    <link rel="icon" th:href="@{/manager/assets/images/favicon.svg}" type="image/x-icon" />
+    <link rel="icon" th:href="@{/manager/assets/img/logos/favicon.ico}" type="image/x-icon" />
 
     <!-- Fonts -->
     <link rel="stylesheet" th:href="@{/manager/assets/fonts/inter/inter.css}" id="main-font-link" />
@@ -21,5 +22,11 @@
     <!-- CSS -->
     <link rel="stylesheet" th:href="@{/manager/assets/css/style.css}" id="main-style-link" />
     <link rel="stylesheet" th:href="@{/manager/assets/css/style-preset.css}" />
+    <link rel="stylesheet" th:href="@{/manager/assets/css/plugins/dataTables.bootstrap5.min.css}" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.2/themes/base/jquery-ui.css">
+
+    <!-- CUSTOM -->
+    <link rel="stylesheet" th:href="@{/manager/assets/js/custom/treeview/jquery.treeview.css}" />
+
 </head>
 </html>

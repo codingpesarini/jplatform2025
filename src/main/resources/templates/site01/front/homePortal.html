@@ -2,23 +2,36 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{site01/layout/template}">
+
+<head>
+    <th:block layout:fragment="head">
+        <th:block th:replace="~{site01/fragments/head :: head}"></th:block>
+        <th:block th:replace="~{site01/fragments/head_social_home :: head_social}"></th:block>
+    </th:block>
+</head>
+
 <body>
+<th:block layout:fragment="header">
+    <th:block th:replace="~{site01/fragments/header :: header}"></th:block>
+</th:block>
+
+<th:block th:replace="~{site01/fragments/side-panel}"></th:block>
+
 <main layout:fragment="content">
-    <!-- Hero Section -->
-    <th:block th:replace="~{site01/fragments/home_frag/frag_01 :: banner}"></th:block>
-
-    <!-- Features Section -->
-    <th:block th:replace="~{site01/fragments/home_frag/frag_02 :: home_02}"></th:block>
-
-    <!-- Popular Courses Section -->
-    <th:block th:replace="~{site01/fragments/home_frag/frag_03 :: home_03}"></th:block>
-
-    <th:block th:replace="~{site01/fragments/home_frag/frag_04 :: home_04}"></th:block>
-
-    <th:block th:replace="~{site01/fragments/home_frag/frag_05 :: home_05}"></th:block>
-
-    <th:block th:replace="~{site01/fragments/home_frag/frag_06 :: home_06}"></th:block>
-
+    <th:block th:replace="~{site01/fragments/home_tiles/homeTiles_00 :: homeTiles_00}"></th:block>
+    <th:block th:replace="~{site01/fragments/home_tiles/homeTiles_01 :: homeTiles_01}"></th:block>
+    <th:block th:replace="~{site01/fragments/home_tiles/homeTiles_07 :: homeTiles_02}"></th:block>
+    <th:block th:replace="~{site01/fragments/home_tiles/homeTiles_03 :: homeTiles_03}"></th:block>
+    <!--th:block th:replace="~{site01/fragments/home_tiles/homeTiles_05 :: homeTiles_14}"></th:block-->
+    <th:block th:replace="~{site01/fragments/home_tiles/homeTiles_02 :: homeTiles_04}"></th:block>
 </main>
+
+<th:block layout:fragment="footer">
+    <th:block th:replace="~{site01/fragments/footer}"></th:block>
+</th:block>
+
+<th:block layout:fragment="footscript">
+    <th:block th:replace="~{site01/fragments/scripts}"></th:block>
+</th:block>
 </body>
 </html>

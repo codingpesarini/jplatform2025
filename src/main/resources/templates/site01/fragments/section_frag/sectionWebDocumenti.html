@@ -1,0 +1,224 @@
+<th:block th:fragment="content">
+
+    <!-- Header con background rosso -->
+    <section class="section bg-redbrown bg-red-gradient py-5 position-relative d-flex align-items-center overflow-hidden">
+        <div class="people-red-forms">
+            <!-- SVG background (mantenuto identico) -->
+            <svg width="100%" height="100%" viewBox="0 0 312 311" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                <!-- ... SVG path mantenu... -->
+            </svg>
+        </div>
+        <div class="container">
+            <div class="row variable-gutters">
+                <div class="col-md-5">
+                    <div class="hero-title text-left">
+                        <h1 class="p-0 mb-2" th:text="${section.titolo}">Titolo Sezione</h1>
+                        <p class="h4 font-weight-normal" th:text="${section.riassunto}">Riassunto</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODALITÀ 0: Vista dettagliata -->
+    <th:block th:if="${section.menu5 == '0'}">
+        <section class="section bg-white">
+            <div class="container container-border-top">
+                <div class="row variable-gutters">
+
+                    <!-- Sidebar indice -->
+                    <div class="col-lg-3 col-md-4 aside-border px-0 d-print-none">
+                        <aside class="aside-main aside-sticky">
+                            <div class="aside-title">
+                                <a class="toggle-link-list" data-toggle="collapse" href="#lista-paragrafi" role="button"
+                                   aria-expanded="true" aria-controls="lista-paragrafi">
+                                    <span>Indice della pagina</span>
+                                    <svg class="icon icon-toggle svg-arrow-down-small">
+                                        <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#svg-arrow-down-small|}"></use>
+                                    </svg>
+                                </a>
+                            </div>
+                            <div id="lista-paragrafi" class="link-list-wrapper collapse show">
+                                <ul class="link-list">
+                                    <li>
+                                        <a class="list-item scroll-anchor-offset" href="#art-par-01">Cosa fa</a>
+                                    </li>
+                                    <li th:if="${section.subsection != null and !section.subsection.isEmpty()}">
+                                        <a class="list-item scroll-anchor-offset" href="#art-par-06">Struttura</a>
+                                    </li>
+                                    <li>
+                                        <a class="list-item scroll-anchor-offset" href="#art-par-02">Servizi</a>
+                                    </li>
+                                    <li>
+                                        <a class="list-item scroll-anchor-offset" href="#art-par-03">Organizzazione e contatti</a>
+                                    </li>
+                                    <li>
+                                        <a class="list-item scroll-anchor-offset" href="#art-par-04">Sedi informazioni</a>
+                                    </li>
+                                    <li>
+                                        <a class="list-item scroll-anchor-offset" href="#art-par-05">Ulteriori informazioni</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </aside>
+                    </div>
+
+                    <!-- Contenuto principale -->
+                    <div class="col-lg-9 col-md-8">
+                        <article class="article-wrapper pt-4">
+
+                            <!-- Cosa fa -->
+                            <h4 id="art-par-01">Cosa fa</h4>
+                            <div class="row variable-gutters">
+                                <div class="col-lg-12" th:utext="${section.text1}">Contenuto</div>
+                            </div>
+
+                            <!-- Struttura (subsections) -->
+                            <th:block th:if="${section.subsection != null and !section.subsection.isEmpty()}">
+                                <h4 id="art-par-06">Struttura</h4>
+                                <div class="row variable-gutters mb-4">
+                                    <div class="col-lg-4 mb-3 mb-lg-4" th:each="item : ${section.subsection}">
+                                        <div class="card card-bg card-icon h-100 rounded shadow">
+                                            <a th:href="${item.url}" class="text-decoration-none">
+                                                <div class="card-body">
+                                                    <svg class="icon svg-service">
+                                                        <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#svg-service|}"></use>
+                                                    </svg>
+                                                    <div class="card-icon-content">
+                                                        <p><strong th:text="${item.titolo}">Titolo</strong></p>
+                                                        <small th:text="${item.riassunto}">Riassunto</small>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </th:block>
+
+                            <!-- Servizi -->
+                            <h4 id="art-par-02">Servizi</h4>
+                            <h6>Servizi di cui la struttura è responsabile</h6>
+                            <div class="row variable-gutters mb-4">
+                                <div class="col-lg-12">
+                                    <div class="card-deck card-deck-spaced">
+                                        <!-- Contenuto servizi esempio -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Organizzazione e contatti -->
+                            <h4 id="art-par-03">Organizzazione e contatti</h4>
+                            <h6>Contatti</h6>
+                            <div class="row variable-gutters mb-5">
+                                <div class="col-lg-12">
+                                    <div class="card card-bg bg-color rounded">
+                                        <div class="card-body pb-1" th:utext="${section.text3}">Contatti</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sede -->
+                            <h4 id="art-par-04">Sede</h4>
+                            <div class="row variable-gutters mb-5">
+                                <div class="col-lg-12">
+                                    <div class="card card-bg rounded">
+                                        <div class="card-header"><strong>Sede principale</strong></div>
+                                        <div class="card-body p-0">
+                                            <div class="row variable-gutters">
+                                                <div class="col-lg-12">
+                                                    <div class="py-4" th:utext="${section.text2}">Sede</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12" th:utext="${section.text4}">Info sede</div>
+                            </div>
+
+                            <!-- Ulteriori informazioni -->
+                            <h4 id="art-par-05" class="mb-4">Ulteriori informazioni</h4>
+                            <div class="row variable-gutters">
+                                <div class="col-lg-12" th:utext="${section.text5}">Info</div>
+                            </div>
+
+                            <!-- Footer -->
+                            <div class="row variable-gutters">
+                                <div class="col-lg-12">
+                                    <blockquote class="blockquote text-end">
+                                        <footer class="blockquote-footer">
+                                            <strong>Pubblicato:</strong> <span th:text="${post?.creato}">Data</span>
+                                            <span> - </span>
+                                            <strong>Revisione:</strong> <span th:text="${post?.modificato}">Data</span>
+                                            <br/>Eccetto dove diversamente specificato, questo articolo è stato rilasciato
+                                            sotto Licenza Creative Commons Attribuzione 3.0 Italia.
+                                        </footer>
+                                    </blockquote>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </th:block>
+
+    <!-- MODALITÀ 1 o 2: Lista -->
+    <th:block th:if="${section.menu5 != '0'}">
+        <section class="section section-muted py-5">
+            <div class="container">
+                <div class="row variable-gutters">
+
+                    <!-- MODALITÀ 2: Sottosezioni -->
+                    <th:block th:if="${section.menu5 == '2' and section.subsection != null and !section.subsection.isEmpty()}">
+                        <div class="col-lg-4 mb-3 mb-lg-4" th:each="item : ${section.subsection}">
+                            <div class="card card-bg card-icon h-100 rounded shadow">
+                                <a th:href="${item.url}" class="text-decoration-none">
+                                    <div class="card-body">
+                                        <svg class="icon icon-primary">
+                                            <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-folder|}"></use>
+                                        </svg>
+                                        <div class="card-icon-content">
+                                            <p><strong th:text="${item.titolo}">Titolo</strong></p>
+                                            <small th:text="${item.riassunto}">Riassunto</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </th:block>
+
+                    <!-- MODALITÀ 1: Contenuti -->
+                    <th:block th:if="${section.menu5 == '1' and section.contenuti != null and !section.contenuti.isEmpty()}">
+                        <div class="col-lg-4 mb-3 mb-lg-4" th:each="item : ${section.contenuti}">
+                            <div class="card card-bg card-icon h-100 rounded shadow">
+                                <a th:href="${item.url}" class="text-decoration-none">
+                                    <div class="card-body">
+                                        <svg class="icon icon-primary">
+                                            <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-folder|}"></use>
+                                        </svg>
+                                        <div class="card-icon-content">
+                                            <p><strong th:text="${item.titolo}">Titolo</strong></p>
+                                            <small th:text="${item.riassunto}">Riassunto</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </th:block>
+
+                    <!-- Footer data aggiornamento -->
+                    <div class="offset-md-1 col-md-12">
+                        <div class="row">
+                            <blockquote class="blockquote text-end">
+                                <footer class="blockquote-footer">
+                                    Aggiornato il <strong th:text="${section.modificato}">Data</strong>
+                                </footer>
+                            </blockquote>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </th:block>
+
+</th:block>

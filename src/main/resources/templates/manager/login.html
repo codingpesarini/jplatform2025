@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="it" class="fixed" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="keywords" content="Studiodomino J-Platform" />
+  <meta name="description" content="Studiodomino J-Platform">
+  <meta name="author" content="Studiodomino srl - Potenza">
+  <title>J-Platform login | Studiodomino srl</title>
+  <link rel="icon" href="/img/favicon.ico">
+
+  <!-- Mobile Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+  <!-- Web Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800|Shadows+Into+Light" rel="stylesheet" type="text/css">
+
+  <!-- Vendor CSS -->
+  <link rel="stylesheet" th:href="@{/vendor/bootstrap/css/bootstrap.css}" />
+  <link rel="stylesheet" th:href="@{/vendor/animate/animate.css}">
+  <link rel="stylesheet" th:href="@{/vendor/font-awesome/css/all.min.css}" />
+  <link rel="stylesheet" th:href="@{/vendor/magnific-popup/magnific-popup.css}" />
+  <link rel="stylesheet" th:href="@{/vendor/bootstrap-datepicker/css/bootstrap-datepicker3.css}" />
+
+  <!-- Theme CSS -->
+  <link rel="stylesheet" th:href="@{/css/theme.css}" />
+  <link rel="stylesheet" th:href="@{/css/skins/default.css}" />
+  <link rel="stylesheet" th:href="@{/css/custom.css}">
+
+  <!-- Head Libs -->
+  <script th:src="@{/vendor/modernizr/modernizr.js}"></script>
+</head>
+<body>
+<!-- start: page -->
+<section class="body-sign">
+  <div class="center-sign">
+    <a th:href="@{/}" class="logo float-left">
+      <img th:src="@{/img/logo.png}" alt="J-Platform Studiodomino System" width="253" height="81" />
+    </a>
+
+    <div class="panel card-sign">
+      <div class="card-title-sign mt-3 text-right">
+        <h2 class="title text-uppercase font-weight-bold m-0">
+          <i class="fas fa-user mr-1"></i> Accesso Utente
+        </h2>
+      </div>
+      <div class="card-body">
+
+        <!--
+            NOTA MIGRAZIONE:
+            Originale Struts: action="/LoginAmministratore.do?service=loginAmministratore"
+            Spring MVC: mappare @PostMapping("/admin/login") nel LoginController
+            Spring Security: configurare formLogin().loginProcessingUrl("/admin/login")
+        -->
+        <form th:action="@{/admin/login}" method="post" class="notAutocomplete" id="form_login_administrator">
+
+          <!-- CSRF Token (Spring Security lo gestisce automaticamente con Thymeleaf) -->
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+          <div class="form-group mb-3">
+            <label for="username">Username</label>
+            <div class="input-group">
+              <input type="text"
+                     id="username"
+                     name="username"
+                     class="form-control form-control-lg obbligatorio"
+                     required />
+              <span class="input-group-append">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                </span>
+            </div>
+          </div>
+
+          <div class="form-group mb-3">
+            <div class="clearfix">
+              <label class="float-left" for="password">Password</label>
+              <a th:href="@{/recover-password}" class="float-right">Password dimenticata?</a>
+            </div>
+            <div class="input-group">
+              <input type="password"
+                     id="password"
+                     name="password"
+                     class="form-control form-control-lg obbligatorio"
+                     required />
+              <span class="input-group-append">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                </span>
+            </div>
+          </div>
+
+          <!--
+              NOTA MIGRAZIONE:
+              Originale Struts: <logic:equal name="configCore" property="sito.servizi5" value="2">
+              Spring: il campo viene mostrato/nascosto tramite la variabile di modello "twoFactorEnabled"
+              Nel Controller: model.addAttribute("twoFactorEnabled", configService.isTwoFactorEnabled());
+          -->
+          <div class="form-group mb-3" th:if="${twoFactorEnabled}">
+            <div class="clearfix">
+              <label class="float-left" for="auth2f">Codice G-Auth</label>
+            </div>
+            <div class="input-group">
+              <input type="text"
+                     id="auth2f"
+                     name="auth2f"
+                     placeholder="999 999"
+                     class="form-control form-control-lg obbligatorio"
+                     maxlength="7" />
+              <span class="input-group-append">
+                                    <span class="input-group-text">
+                                        <i class="fab fa-google"></i>
+                                    </span>
+                                </span>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-8">
+              <div class="checkbox-custom checkbox-default">
+                <input type="checkbox" id="remember" name="remember" value="1" autocomplete="false" />
+                <label for="remember">Ricorda dati di accesso</label>
+              </div>
+            </div>
+            <div class="col-sm-4 text-right">
+              <button type="submit" class="btn btn-primary mt-2">Accedi ora</button>
+            </div>
+          </div>
+
+          <!--
+              NOTA MIGRAZIONE:
+              Originale Struts: <logic:present name="erroreLoginAmministratore">
+              Spring: passare l'errore dal Controller con RedirectAttributes o Model
+              Nel Controller: redirectAttributes.addFlashAttribute("erroreLogin", "Credenziali non valide");
+              Con Spring Security: configurare failureUrl("/admin/login?error=true") e leggere il parametro
+          -->
+          <div class="mt-3 mb-3 text-center" th:if="${erroreLogin != null}">
+            <div class="alert alert-danger">
+              <strong>Attenzione: </strong>
+              <span th:text="${erroreLogin}"></span>
+            </div>
+          </div>
+
+          <!-- Errore parametro URL (es. Spring Security ?error) -->
+          <div class="mt-3 mb-3 text-center" th:if="${param.error != null}">
+            <div class="alert alert-danger">
+              <strong>Attenzione: </strong> Credenziali non valide. Riprovare.
+            </div>
+          </div>
+
+          <!-- Messaggio logout -->
+          <div class="mt-3 mb-3 text-center" th:if="${param.logout != null}">
+            <div class="alert alert-success">
+              Logout effettuato con successo.
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+    <p class="text-center text-muted mt-3 mb-3">Studiodomino srl - Potenza &copy; Copyright 2020</p>
+  </div>
+</section>
+<!-- end: page -->
+
+<!-- Vendor JS -->
+<script th:src="@{/vendor/jquery/jquery.js}"></script>
+<script th:src="@{/vendor/jquery-browser-mobile/jquery.browser.mobile.js}"></script>
+<script th:src="@{/vendor/popper/umd/popper.min.js}"></script>
+<script th:src="@{/vendor/bootstrap/js/bootstrap.js}"></script>
+<script th:src="@{/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js}"></script>
+<script th:src="@{/vendor/jquery-maskedinput/jquery.maskedinput.js}"></script>
+<script th:src="@{/vendor/common/common.js}"></script>
+<script th:src="@{/vendor/nanoscroller/nanoscroller.js}"></script>
+<script th:src="@{/vendor/magnific-popup/jquery.magnific-popup.js}"></script>
+<script th:src="@{/vendor/jquery-placeholder/jquery.placeholder.js}"></script>
+
+<!-- Specific Page Vendor -->
+<script th:src="@{/vendor/jquery-validation/jquery.validate.js}"></script>
+<script th:src="@{/vendor/select2/js/select2.js}"></script>
+<script th:src="@{/js/jplatform-validation.js}"></script>
+
+<!-- Theme -->
+<script th:src="@{/js/theme.js}"></script>
+<script th:src="@{/js/custom.js}"></script>
+<script th:src="@{/js/theme.init.js}"></script>
+
+<!-- Masked input per codice G-Auth (solo se 2FA attivo) -->
+<script th:if="${twoFactorEnabled}">
+  $(document).ready(function () {
+    $('#auth2f').mask('999 999');
+  });
+</script>
+</body>
+</html>

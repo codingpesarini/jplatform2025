@@ -1,32 +1,36 @@
 <!DOCTYPE html>
-<html class="no-js" lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
-<head>
-    <th:block th:replace="~{site01/fragments/head :: head}"></th:block>
-</head>
-<body data-mobile-nav-trigger-alignment="right" data-mobile-nav-style="modern" data-mobile-nav-bg-color="#313e3b">
-<!-- start header -->
-<th:block th:replace="~{site01/fragments/header :: header}"></th:block>
-<!-- end header -->
+<html xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz">
+    <head>
+        <!-- Carica i metatag e i CSS comuni -->
+        <th:block th:replace="~{site01/fragments/head :: head}"></th:block>
+    </head>
 
-<!-- Main Content -->
-<main layout:fragment="content">
-    <!-- Content will be injected here -->
-</main>
+    <body class="container-1340px eupopup eupopup-bottom">
 
-<!-- start footer -->
-<th:block th:replace="~{site01/fragments/footer :: footer}"></th:block>
-<!-- end footer -->
+        <!-- Body wrapper -->
+        <div id="wrapper" class="clearfix">
+            <!-- Sezione Header (sostituibile se necessario) -->
+            <th:block layout:fragment="header">
+                <th:block th:replace="~{site01/fragments/header :: header}"></th:block>
+            </th:block>
 
-<!-- start scroll progress -->
-<div class="scroll-progress d-none d-xxl-block">
-    <a href="#" class="scroll-top" aria-label="scroll">
-        <span class="scroll-text">Scroll</span><span class="scroll-line"><span class="scroll-point"></span></span>
-    </a>
-</div>
-<!-- end scroll progress -->
+            <!-- Contenuto Principale: qui verrà iniettato il codice delle singole pagine -->
+            <div class="main-content-area" id="main-container">
+                <main layout:fragment="content"></main>
+            </div>
 
-<!-- Scripts -->
-<th:block th:replace="~{site01/fragments/scripts :: scripts}"></th:block>
-</body>
+            <!-- Sezione Footer (sostituibile se necessario) -->
+            <th:block layout:fragment="footer">
+                <th:block th:replace="~{site01/fragments/footer :: footer}"></th:block>
+            </th:block>
+            
+        </div>
+
+        <!-- Script JS e Scroll to top -->
+        <th:block layout:fragment="scripts">
+            <th:block th:replace="~{site01/fragments/scripts :: scripts}"></th:block>
+        </th:block>
+
+    </body>
 </html>

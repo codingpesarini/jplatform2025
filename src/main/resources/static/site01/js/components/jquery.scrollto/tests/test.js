@@ -1,0 +1,1 @@
+$.fn.test=function(){return window.self!==window.top&&$("h1").hide(),"?notest"===location.search?this:($.scrollTo.defaults.axis="xy",(this.is("iframe")?this.contents():$("body")).find("#ua").html(navigator.userAgent+'<br />document.compatMode is "'+document.compatMode+'"'),this.scrollTo("max",1e3).scrollTo(0,1e3))};

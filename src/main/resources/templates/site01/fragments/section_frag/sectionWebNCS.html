@@ -1,0 +1,150 @@
+<th:block th:fragment="content">
+
+    <!-- Header con background verde -->
+    <section class="section bg-greendark bg-greendarkgradient py-5 position-relative d-flex align-items-center overflow-hidden">
+        <div class="green-square-forms">
+            <svg width="100%" height="100%" viewBox="0 0 726 360" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                 xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/"
+                 style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+            <g id="Group" opacity="0.32">
+                <path id="Rectangle" d="M627.751,245.625l-396.368,-193.321l-193.322,396.368l396.368,193.321l193.322,-396.368Z"
+                      style="fill:url(#_Linear1);" />
+                <path id="Rectangle1" serif:id="Rectangle"
+                      d="M583.359,-179.506l-264.865,159.147l159.147,264.865l264.865,-159.147l-159.147,-264.865Z"
+                      style="fill:url(#_Linear2);" />
+                <path id="Rectangle2" serif:id="Rectangle"
+                      d="M210.182,-54.565l-213.341,33.79l33.79,213.34l213.341,-33.79l-33.79,-213.34Z"
+                      style="fill:url(#_Linear3);" />
+            </g>
+                <defs>
+                <linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse"
+                                gradientTransform="matrix(203.046,589.69,-589.69,203.046,231.383,52.3035)">
+                    <stop offset="0" style="stop-color:#0f842e;stop-opacity:1" />
+                    <stop offset="1" style="stop-color:#00838f;stop-opacity:1" />
+                </linearGradient>
+                    <linearGradient id="_Linear2" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse"
+                                    gradientTransform="matrix(344.438,-26.7144,26.7144,344.438,398.068,112.073)">
+                    <stop offset="0" style="stop-color:#0e865C;stop-opacity:1" />
+                        <stop offset="1" style="stop-color:#00838f;stop-opacity:1" />
+                </linearGradient>
+                    <linearGradient id="_Linear3" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse"
+                                    gradientTransform="matrix(230.236,72.8805,-72.8805,230.236,13.7359,85.8949)">
+                    <stop offset="0" style="stop-color:#0e865C;stop-opacity:1" />
+                        <stop offset="1" style="stop-color:#00838f;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+        </svg>
+        </div>
+        <div class="container">
+            <div class="row variable-gutters">
+                <div class="col-md-5">
+                    <div class="hero-title text-left">
+                        <h1 class="p-0 mb-2" th:text="${section.titolo}">Titolo Sezione</h1>
+                        <p class="h4 font-weight-normal" th:text="${section.riassunto}">Riassunto</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Carousel primi 6 contenuti -->
+    <section class="section section-muted py-2 py-lg-3 py-xl-5"
+             th:if="${section.contenuti != null and !section.contenuti.isEmpty()}">
+        <div class="container">
+            <div class="row variable-gutters">
+                <div class="col-lg-12">
+                    <div class="it-carousel-wrapper it-carousel-landscape-abstract-three-cols splide" data-bs-carousel-splide>
+                        <div class="it-header-block">
+                            <div class="it-header-block-title">
+                                <!-- Titolo opzionale -->
+                            </div>
+                        </div>
+
+                        <div class="splide__track">
+                            <ul class="splide__list it-carousel-all">
+                                <!-- Primi 6 contenuti nel carousel -->
+                                <th:block th:each="item, iterStat : ${section.contenuti}"
+                                          th:if="${iterStat.index < 6}">
+                                    <li class="splide__slide">
+                                        <div class="it-single-slide-wrapper">
+                                            <div class="card-wrapper border border-light rounded shadow-sm cmp-list-card-img cmp-list-card-img-hr">
+                                                <div class="card no-after rounded">
+                                                    <div class="row g-2 g-md-0 flex-md-column">
+                                                        <!-- Immagine -->
+                                                        <div class="col order-2 order-md-1">
+                                                            <a th:href="${item.url}">
+                                                                <img class="rounded-top img-fluid img-responsive"
+                                                                     th:src="@{|${config.imagesRepositoryWeb}${item.logo}|}"
+                                                                     th:title="${item.titolo}"
+                                                                     th:alt="${item.titolo}">
+                                                            </a>
+                                                        </div>
+                                                        <!-- Contenuto card -->
+                                                        <div class="col order-1 order-md-2">
+                                                            <div class="card-body">
+                                                                <div class="category-top cmp-list-card-img__body">
+                                                                    <span class="data" th:text="${item.dataVisualizzata}">Data</span>
+                                                                </div>
+                                                                <a th:href="${item.url}" class="text-decoration-none">
+                                                                    <h3 class="h5 card-title" th:text="${item.titolo}">Titolo</h3>
+                                                                </a>
+                                                                <p class="card-text d-none d-md-block" th:text="${item.riassunto}">Riassunto</p>
+                                                                <a class="read-more" th:href="${item.url}">
+                                                                    <span class="text">Leggi di più</span>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </th:block>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Griglia contenuti dal 7° in poi -->
+    <section class="section py-5"
+             th:if="${section.contenuti != null and section.contenuti.size() > 6}">
+        <div class="container">
+            <div class="title-section text-center mb-5">
+                <h3 class="h4" th:text="${section.titolo}">Titolo Sezione</h3>
+            </div>
+
+            <div class="row variable-gutters">
+                <!-- Contenuti dal 7° in poi -->
+                <th:block th:each="item, iterStat : ${section.contenuti}"
+                          th:if="${iterStat.index >= 6}">
+                    <div class="col-lg-4 mb-3 mb-lg-4">
+                        <div class="card card-bg card-icon h-100 rounded shadow">
+                            <a th:href="${item.url}" class="text-decoration-none">
+                                <div class="card-body">
+                                    <!--
+                                    <svg class="icon svg-service">
+                                        <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#svg-service|}"></use>
+                                    </svg>
+                                    -->
+                                    <div class="card-icon-content">
+                                        <p>
+                                            <strong th:text="${item.titolo}">Titolo</strong>
+                                        </p>
+                                        <small>
+                                            <strong th:text="${item.dataVisualizzata}">Data</strong> |
+                                            <span th:text="${item.riassunto}">Riassunto</span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </th:block>
+            </div>
+        </div>
+    </section>
+
+</th:block>
