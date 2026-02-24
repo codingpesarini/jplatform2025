@@ -59,7 +59,7 @@ public class RegistroLead {
     @Column(name = "data", length = 20)
     private String data = "";
 
-    @Column(name = "ora", length = 10)
+    @Transient
     private String ora = "";
 
     // Campi liberi l1..l10

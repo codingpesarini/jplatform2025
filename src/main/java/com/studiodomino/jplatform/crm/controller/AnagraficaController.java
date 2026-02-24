@@ -104,6 +104,9 @@ public class AnagraficaController {
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
+        if (id == null || id == -1) {
+            return "redirect:/admin/crm/utenti/new";
+        }
 
         try {
             UtenteEsterno utente = anagraficaService.findById(id);

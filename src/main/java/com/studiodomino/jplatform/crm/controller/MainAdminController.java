@@ -29,7 +29,7 @@ import java.util.List;
  *   GET /admin/crm/logout     → logoutAmministratore
  */
 @Controller
-@RequestMapping("/admin/crm")
+@RequestMapping("/admin/crm/dashboard")
 @RequiredArgsConstructor
 @Slf4j
 public class MainAdminController {
@@ -90,7 +90,7 @@ public class MainAdminController {
             log.error("Errore dashboard CRM", e);
         }
 
-        return ViewUtils.resolveProtectedTemplate("crm/dashboard");
+        return ViewUtils.resolveProtectedTemplate("crm/sezioni/dashboard");
     }
 
     // =====================================================================

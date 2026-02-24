@@ -64,14 +64,12 @@
            th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].profileImage != null) ? elencoAnagrafico[0].profileImage : ''}">
 
     <div class="card">
-      <div class="card-header p-0 border-bottom-0 position-relative" style="z-index: 10;">
-        <ul class="nav nav-tabs card-header-tabs px-3" id="crmTabs" role="tablist"
-            style="position:relative; z-index: 11;">
-
-          <li class="nav-item" role="presentation">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <ul class="nav nav-tabs card-header-tabs" id="crmTabs" role="tablist">
+          <li class="nav-item">
             <a class="nav-link active"
-               data-bs-toggle="tab"
                href="#tab_01"
+               data-toggle="tab"
                role="tab"
                aria-controls="tab_01"
                aria-selected="true">
@@ -79,10 +77,10 @@
             </a>
           </li>
 
-          <li class="nav-item" role="presentation">
+          <li class="nav-item">
             <a class="nav-link"
-               data-bs-toggle="tab"
                href="#tab_02"
+               data-toggle="tab"
                role="tab"
                aria-controls="tab_02"
                aria-selected="false">
@@ -90,10 +88,10 @@
             </a>
           </li>
 
-          <li class="nav-item" role="presentation">
+          <li class="nav-item">
             <a class="nav-link"
-               data-bs-toggle="tab"
                href="#tab_03"
+               data-toggle="tab"
                role="tab"
                aria-controls="tab_03"
                aria-selected="false">
@@ -101,17 +99,16 @@
             </a>
           </li>
 
-          <li class="nav-item" role="presentation">
+          <li class="nav-item">
             <a class="nav-link"
-               data-bs-toggle="tab"
                href="#tab_04"
+               data-toggle="tab"
                role="tab"
                aria-controls="tab_04"
                aria-selected="false">
               <i class="ti ti-adjustments me-1"></i> Altri dati
             </a>
           </li>
-
         </ul>
       </div>
 
@@ -127,14 +124,13 @@
 
               <!-- Avatar box -->
               <div class="col-lg-3">
-                <div class="border rounded p-3 text-center">
+                <div class="border rounded p-3 text-center h-100">
                   <img class="img-fluid rounded mb-2"
                        style="max-width: 180px;"
                        th:src="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].avatar != null && elencoAnagrafico[0].avatar != '') ?
-                                                 elencoAnagrafico[0].avatar : '/manager/assets/img/user/avatar-default.png'}"
+                  elencoAnagrafico[0].avatar : '/manager/assets/img/user/avatar-default.png'}"
                        alt="avatar">
 
-                  <div class="d-grid gap-2">
                   <div class="d-grid gap-2">
                     <a th:if="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].id != null && elencoAnagrafico[0].id > 0}"
                        th:href="@{/admin/crm/utenti/avatar(id=${elencoAnagrafico[0].id})}"
@@ -614,8 +610,9 @@
         </div><!-- /tab-content -->
       </div><!-- /card-body -->
     </div><!-- /card -->
-
   </form>
+    </div>
+ </form>
 
   <script>
     function InviaForm() {

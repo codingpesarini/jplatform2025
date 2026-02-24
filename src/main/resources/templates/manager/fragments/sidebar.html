@@ -94,7 +94,9 @@
                     th:if="${config.amministratore?.hasRole(13)}">
                     <a th:href="@{/admin/email/list}" class="pc-link">
                         <span class="pc-micon">
-                            <svg class="pc-icon"><use xlink:href="#custom-messages-2"></use></svg>
+                            <svg class="pc-icon">
+                                <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-mail|}"></use>
+                            </svg>
                         </span>
                         <span class="pc-mtext">Mailbox</span>
                         <span class="badge bg-primary rounded-pill ms-auto"
@@ -119,7 +121,7 @@
                     th:if="${config.amministratore?.hasRole(2)}">
                     <a th:href="@{/admin/sezioni-lcms}" class="pc-link">
                         <span class="pc-micon">
-                            <svg class="pc-icon"><use xlink:href="#custom-teacher"></use></svg>
+                            <svg class="pc-icon"><use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-presentation|}"></use></svg>
                         </span>
                         <span class="pc-mtext">LCMS - Formazione</span>
                     </a>
@@ -130,7 +132,7 @@
                     th:if="${config.amministratore?.hasRole(3)}">
                     <a th:href="@{/admin/media}" class="pc-link">
                         <span class="pc-micon">
-                            <svg class="pc-icon"><use xlink:href="#custom-gallery"></use></svg>
+                            <svg class="pc-icon"><use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-camera|}"></use></svg>
                         </span>
                         <span class="pc-mtext">CMS - Media Library</span>
                     </a>
@@ -173,7 +175,9 @@
                     th:if="${config.amministratore?.hasRole(5)}">
                     <a th:href="@{/admin/amministratori}" class="pc-link">
                         <span class="pc-micon">
-                            <svg class="pc-icon"><use xlink:href="#custom-profile-2user"></use></svg>
+                            <svg class="pc-icon">
+                                <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-key|}"></use>
+                            </svg>
                         </span>
                         <span class="pc-mtext">Amministratori</span>
                     </a>

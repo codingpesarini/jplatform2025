@@ -1,11 +1,12 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{manager/layout/template}">
+<!doctype html>
+<html lang="it"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{manager/layout/template}">
 <body>
 
-  <!-- =====================================================================
-       AZIONI RAPIDE
-       Vecchio: bottoni con href="../GestioneCRM*.do?service=..."
-       ===================================================================== -->
+<div layout:fragment="content">
+
   <div class="row">
     <div class="col-lg-12">
       <div class="row mb-3">
@@ -22,7 +23,7 @@
             <div class="card-body d-flex flex-wrap gap-2">
 
               <!-- Nuova attività (lead entrata diretto) -->
-              <a th:href="@{/admin/crm/lead/-1(idutente=-1,idleadstore=-1,store='diretto')}"
+              <a th:href="@{/admin/crm/lead/-1(store='diretto')}"
                  class="btn btn-primary">
                 <i class="ti ti-checkbox"></i> Nuova attività
               </a>
@@ -34,13 +35,13 @@
               </a>
 
               <!-- Invia Email (lead uscita email) -->
-              <a th:href="@{/admin/crm/lead/-1/uscita(idutente=-1,idleadstore=-1,store='diretto',tipologia='Email')}"
+              <a th:href="@{/admin/crm/lead/{id}/inviaEmail}"
                  class="btn btn-primary">
                 <i class="ti ti-mail"></i> Invia email
               </a>
 
               <!-- Invia SMS (lead uscita sms) -->
-              <a th:href="@{/admin/crm/lead/-1/uscita(idutente=-1,idleadstore=-1,store='diretto',tipologia='Sms')}"
+              <a th:href="@{/admin/crm/lead/{id}/inviaSms}"
                  class="btn btn-primary">
                 <i class="ti ti-message"></i> Invia SMS
               </a>
@@ -252,6 +253,6 @@
               .catch(() => alert('Errore di rete.'));
     }
   </script>
-
+</div>
 </body>
 </html>

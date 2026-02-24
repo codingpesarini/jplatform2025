@@ -75,7 +75,7 @@ public class RegistroLeadController {
             log.error("Errore elencoRegistroLead", e);
         }
 
-        return ViewUtils.resolveProtectedTemplate("crm/lead/elencoRegistroLead");
+        return ViewUtils.resolveProtectedTemplate("crm/sezioni/elencoRegistroLead");
     }
 
     // =====================================================================
@@ -129,7 +129,7 @@ public class RegistroLeadController {
             log.error("Errore openRegistroLead id={}", id, e);
         }
 
-        return ViewUtils.resolveProtectedTemplate("crm/lead/dettaglioRegistroLead");
+        return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioRegistroLead");
     }
 
     // =====================================================================
@@ -180,7 +180,7 @@ public class RegistroLeadController {
         // Template diverso per tipologia (Email, Sms, ecc.)
         String templateSuffix = tipologia.isEmpty() ? "" : tipologia;
         return ViewUtils.resolveProtectedTemplate(
-                "crm/lead/dettaglioRegistroLeadUscita" + templateSuffix);
+                "crm/contenuti/dettaglioRegistroLeadUscita" + templateSuffix);
     }
 
     // =====================================================================
@@ -238,7 +238,7 @@ public class RegistroLeadController {
             model.addAttribute("config", config);
         }
 
-        return ViewUtils.resolveProtectedTemplate("crm/lead/dettaglioRegistroLead");
+        return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioRegistroLead");
     }
 
     // =====================================================================
@@ -299,7 +299,7 @@ public class RegistroLeadController {
             log.error("Errore inviaSmsRegistroLead id={}", id, e);
         }
 
-        return ViewUtils.resolveProtectedTemplate("crm/lead/dettaglioRegistroLeadUscitaSms");
+        return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioRegistroLeadUscitaSms");
     }
 
     // =====================================================================
@@ -336,7 +336,7 @@ public class RegistroLeadController {
             log.error("Errore inviaEmailRegistroLead id={}", id, e);
         }
 
-        return ViewUtils.resolveProtectedTemplate("crm/lead/dettaglioRegistroLeadUscitaEmail");
+        return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioRegistroLeadUscitaEmail");
     }
 
     // =====================================================================
