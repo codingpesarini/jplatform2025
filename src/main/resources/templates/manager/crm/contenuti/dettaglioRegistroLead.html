@@ -7,281 +7,449 @@
 
 <div layout:fragment="content">
 
+    <div id="form_a_errors" class="alert alert-danger" style="display:none"></div>
+
+    <header class="page-header d-flex align-items-center justify-content-between">
+        <h2 class="mb-0">Dettaglio LEAD</h2>
+    </header>
+
     <form th:action="@{/admin/crm/lead/save}"
+          th:object="${registroLead}"
           method="post"
           enctype="multipart/form-data"
-          id="registroLead"
-          class="form-bordered">
+          id="registrolead"
+          class="form-bordered needs-validation"
+          novalidate>
 
-        <div class="msg_box msg_error" id="form_a_errors" style="display:none"></div>
-
-        <header class="page-header">
-            <h2>Dettaglio LEAD</h2>
-        </header>
-
-        <div class="row">
-
-            <!-- ========================= -->
-            <!-- ANAGRAFICA -->
-            <!-- ========================= -->
-
-            <div class="col-lg-9">
-                <fieldset>
-                    <legend>Anagrafica</legend>
-
-                    <!-- idutente == 0: utente non ancora associato -->
-                    <th:block th:if="${registroLead != null and registroLead.idutente == 0}">
-                        <h3>L'Anagrafica sarà aggiornata dopo il salvataggio!</h3>
-                    </th:block>
-
-                    <!-- idutente != 0: utente associato -->
-                    <th:block th:if="${registroLead != null and registroLead.idutente != 0}">
-
-                        <div class="text-right mb-2">
-                            <a class="btn btn-primary"
-                               th:href="@{/admin/crm/utenti/{id}(id=${registroLead.idutente})}">
-                                Dettaglio anagrafica
-                            </a>
-                            <a href="javascript:resetAnagraficaLeadCRM()" class="btn btn-primary">
-                                Rimuovi anagrafica
-                            </a>
-                        </div>
-
-                        <input type="text"
-                               class="form-control mb-2"
-                               name="ricercaUtenteNuovoLead"
-                               placeholder="Ricerca utente...">
-
-                        <div class="row mt-3">
-
-                            <div class="col-lg-6">
-                                <label>Nome</label>
-                                <input type="text"
-                                       name="utente.nome"
-                                       th:value="${registroLead.utente != null ? registroLead.utente.nome : ''}"
-                                       id="utentenome"
-                                       class="form-control obbligatorio"/>
-                                <input type="hidden"
-                                       name="utente.id"
-                                       th:value="${registroLead.utente != null ? registroLead.utente.id : ''}"/>
-                            </div>
-
-                            <div class="col-lg-6">
-                                <label>Cognome</label>
-                                <input type="text"
-                                       name="utente.cognome"
-                                       th:value="${registroLead.utente != null ? registroLead.utente.cognome : ''}"
-                                       class="form-control obbligatorio"/>
-                            </div>
-
-                            <div class="col-lg-4">
-                                <label>Email</label>
-                                <input type="text"
-                                       name="utente.email"
-                                       th:value="${registroLead.utente != null ? registroLead.utente.email : ''}"
-                                       class="form-control obbligatorio"/>
-                            </div>
-
-                            <div class="col-lg-4">
-                                <label>Telefono</label>
-                                <input type="text"
-                                       name="utente.telefono"
-                                       th:value="${registroLead.utente != null ? registroLead.utente.telefono : ''}"
-                                       class="form-control"/>
-                            </div>
-
-                            <div class="col-lg-4">
-                                <label>Telefono 2</label>
-                                <input type="text"
-                                       name="utente.telefono2"
-                                       th:value="${registroLead.utente != null ? registroLead.utente.telefono2 : ''}"
-                                       class="form-control"/>
-                            </div>
-
-                        </div>
-                    </th:block>
-                </fieldset>
+        <!-- Top row: overlay + pulsanti -->
+        <div class="row mb-3">
+            <div class="col-lg-6">
+                <div id="LoadingOverlayApi"
+                     data-loading-overlay
+                     style="line-height:80px;height:80px;margin:0 auto;text-align:center;width:200px;">
+                </div>
             </div>
 
+            <div class="col-lg-6">
+                <div class="right-wrapper text-right">
+                    <button type="button" onclick="inviaForm(event)" class="mb-1 mt-1 mr-1 btn btn-lg btn-primary">
+                        <i class="fas fa-file-upload"></i> Salva
+                    </button>
 
-            <!-- ========================= -->
-            <!-- REGISTRO LEAD -->
-            <!-- ========================= -->
-
-            <div class="col-lg-3">
-                <fieldset>
-                    <legend th:text="'Registro LEAD #' + ${registroLead != null ? registroLead.id : '-1'}"></legend>
-
-                    <input type="hidden" name="id"               th:value="${registroLead?.id}"/>
-                    <input type="hidden" name="idutente"          th:value="${registroLead?.idutente}"/>
-                    <input type="hidden" name="idleadstore"       th:value="${registroLead?.idleadstore}"/>
-                    <input type="hidden" name="idamministratore"  th:value="${registroLead?.idamministratore}"/>
-                    <input type="hidden" name="store"             th:value="${registroLead?.store}"/>
-                    <input type="hidden" name="direzione"         th:value="${registroLead?.direzione}"/>
-                    <input type="hidden" name="log"               th:value="${registroLead?.log}"/>
-
-                    <div class="row">
-
-                        <div class="col-lg-6">
-                            <label>Data</label>
-                            <input type="text"
-                                   name="data"
-                                   th:value="${registroLead?.data}"
-                                   class="form-control datepicker obbligatorio"/>
-                        </div>
-
-                        <div class="col-lg-6">
-                            <label>Stato</label>
-                            <select name="stato" class="form-control obbligatorio">
-                                <!-- stato è String nel nuovo entity, confronto con stringa -->
-                                <option value="0" th:selected="${registroLead?.stato == '0'}">Non gestito</option>
-                                <option value="1" th:selected="${registroLead?.stato == '1'}">Da richiamare</option>
-                                <option value="2" th:selected="${registroLead?.stato == '2'}">Inviare email</option>
-                                <option value="3" th:selected="${registroLead?.stato == '3'}">In lavorazione</option>
-                                <option value="4" th:selected="${registroLead?.stato == '4'}">Completato</option>
-                                <option value="5" th:selected="${registroLead?.stato == '5'}">Annullato</option>
-                            </select>
-                        </div>
-
-                        <div class="col-lg-12 mt-2">
-                            <label>Area interesse</label>
-                            <select name="metatagString"
-                                    multiple
-                                    class="form-control multiselect">
-                                <option th:each="area : ${areeInteresse}"
-                                        th:value="${area.id}"
-                                        th:text="${area.descrizione}"
-                                        th:selected="${registroLead?.metatag != null
-                                                  and #arrays.contains(registroLead.metatag, area.id.toString())}">
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="col-lg-12 mt-2">
-                            <label>Assegna a</label>
-                            <input type="text"
-                                   name="idamministratore"
-                                   th:value="${registroLead?.idamministratore}"
-                                   class="form-control"/>
-                        </div>
-
-                    </div>
-
-                </fieldset>
+                    <a th:href="@{/admin/crm/dashboard}" class="mb-1 mt-1 mr-1 btn btn-lg btn-primary">
+                        <i class="fas fa-times-circle"></i> Esci
+                    </a>
+                </div>
             </div>
-
-        </div><!-- /row -->
-
-
-        <!-- ========================= -->
-        <!-- NOTE OPERATIVE -->
-        <!-- ========================= -->
-
-        <fieldset class="mt-3">
-            <legend>Note operative per gestione Lead</legend>
-            <textarea name="notalead"
-                      th:text="${registroLead?.notalead}"
-                      id="tinymce5basic">
-        </textarea>
-        </fieldset>
-
-
-        <!-- ========================= -->
-        <!-- MESSAGGIO ORIGINALE (solo su lead esistenti) -->
-        <!-- ========================= -->
-
-        <div th:if="${registroLead != null and registroLead.id != -1}">
-
-            <fieldset class="mt-3">
-                <legend>Messaggio originale</legend>
-
-                <!-- COMMENTI -->
-                <div th:if="${registroLead.store == 'commenti' and registroLead.commento != null}">
-                    <input type="text"
-                           th:value="${registroLead.commento.data}"
-                           readonly
-                           class="form-control mb-2"/>
-                    <textarea th:text="${registroLead.commento.messaggio}"
-                              class="markdown"></textarea>
-                </div>
-
-                <!-- EMAIL STORE -->
-                <div th:if="${registroLead.store == 'emailstore' and registroLead.messaggioEmail != null}">
-                    <input type="text"
-                           th:value="${registroLead.messaggioEmail.dataSimple}"
-                           readonly
-                           class="form-control mb-2"/>
-                    <textarea th:text="${registroLead.messaggioEmail.testo}"
-                              class="tinymce5viewonly"></textarea>
-                    <ul th:if="${registroLead.messaggioEmail.allegati != null}">
-                        <li th:each="allegato : ${registroLead.messaggioEmail.allegati}">
-                            <a th:href="@{/admin/email/allegato(id=${registroLead.idleadstore},filename=${allegato.id})}"
-                               target="_blank">
-                                <img th:src="@{'/img/filetypes/32/' + ${allegato.type} + '.png'}" width="25"/>
-                                <span th:text="${allegato.nome}"></span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-            </fieldset>
-
         </div>
 
+        <!-- Tabs -->
+        <div class="tabs" id="mytabs">
+            <ul class="nav nav-tabs">
+                <li class="nav-item storeTab active" id="1">
+                    <a class="nav-link active" href="#tab_01" data-toggle="tab">Definizione</a>
+                </li>
 
-        <!-- ========================= -->
-        <!-- PULSANTI AZIONE -->
-        <!-- ========================= -->
+                <li class="nav-item storeTab" id="2">
+                    <a class="nav-link" href="#tab_02" data-toggle="tab">Altri dati</a>
+                </li>
+            </ul>
 
-        <div class="mt-3">
-            <button type="submit" class="btn btn-primary">Salva</button>
-            <a th:href="@{/admin/crm/lead}" class="btn btn-default">Annulla</a>
+            <div class="tab-content">
 
-            <th:block th:if="${registroLead != null and registroLead.id != null and registroLead.id != -1}">
-                <a th:href="@{/admin/crm/lead/{id}/uscita(id=${registroLead.id}, tipologia='Email')}"
-                   class="btn btn-info">Invia Email</a>
-                <a th:href="@{/admin/crm/lead/{id}/uscita(id=${registroLead.id}, tipologia='Sms')}"
-                   class="btn btn-info">Invia SMS</a>
-                <button type="button"
-                        class="btn btn-danger"
-                        th:onclick="'cancellaLead(' + ${registroLead.id} + ')'">
-                    Elimina
-                </button>
-            </th:block>
+                <!-- TAB 01 -->
+                <div id="tab_01" class="tab-pane active show">
+
+                    <div class="row form-group">
+
+                        <!-- SINISTRA: ANAGRAFICA -->
+                        <div class="col-lg-9">
+                            <fieldset>
+                                <legend>Anagrafica</legend>
+
+                                <!-- messaggio quando non ancora agganciato -->
+                                <div class="row form-group"
+                                     th:if="${registroLead.idutente == null or registroLead.idutente == 0}">
+                                    <div class="col-lg-12">
+                                        <h3 class="mb-0">L'Anagrafica sarà aggiornata dopo il salvataggio!</h3>
+                                    </div>
+                                </div>
+
+                                <div class="row form-group">
+
+                                    <div class="col-lg-12 text-right mb-2"
+                                         th:if="${registroLead.idutente != null and registroLead.idutente != 0}">
+                                        <a th:href="@{/admin/crm/utenti/{id}(id=${registroLead.idutente})}"
+                                           class="mb-1 mt-1 mr-1 btn btn-primary">
+                                            <i class="fa fa-user"></i> Dettaglio anagrafica
+                                        </a>
+
+                                        <a href="javascript:void(0)" onclick="resetAnagraficaLeadCRM()"
+                                           class="mb-1 mt-1 mr-1 btn btn-primary">
+                                            <i class="fa fa-user"></i> Rimuovi anagrafica
+                                        </a>
+                                    </div>
+
+                                    <div class="col-lg-12">
+                                        <label for="ricercaUtenteNuovoLead" class="col-form-label">Ricerca anagrafica</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               name="ricercaUtenteNuovoLead"
+                                               id="ricercaUtenteNuovoLead"
+                                               placeholder="Ricerca utente..."
+                                               value="">
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <label for="utentenome" class="col-form-label">Nome</label>
+                                        <input type="text"
+                                               class="form-control obbligatorio"
+                                               id="utentenome"
+                                               name="utente.nome"
+                                               required
+                                               th:value="${registroLead.utente?.nome}">
+                                        <input type="hidden"
+                                               id="utenteid"
+                                               name="utente.id"
+                                               th:value="${registroLead.utente?.id}">
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <label for="utentecognome" class="col-form-label">Cognome</label>
+                                        <input type="text"
+                                               class="form-control obbligatorio"
+                                               id="utentecognome"
+                                               name="utente.cognome"
+                                               required
+                                               th:value="${registroLead.utente?.cognome}">
+                                    </div>
+
+                                    <div class="col-lg-4">
+                                        <label for="utenteemail" class="col-form-label">Email</label>
+                                        <input type="email"
+                                               class="form-control obbligatorio"
+                                               id="utenteemail"
+                                               name="utente.email"
+                                               required
+                                               th:value="${registroLead.utente?.email}">
+                                    </div>
+
+                                    <div class="col-lg-4">
+                                        <label for="utentetelefono" class="col-form-label">Telefono</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               id="utentetelefono"
+                                               name="utente.telefono"
+                                               th:value="${registroLead.utente?.telefono}">
+                                    </div>
+
+                                    <div class="col-lg-4">
+                                        <label for="utentetelefono2" class="col-form-label">Telefono 2</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               id="utentetelefono2"
+                                               name="utente.telefono2"
+                                               th:value="${registroLead.utente?.telefono2}">
+                                    </div>
+
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <!-- DESTRA: REGISTRO + COMUNICAZIONE -->
+                        <div class="col-lg-3">
+
+                            <fieldset>
+                                <legend>
+                                    Registro LEAD #<span th:text="${registroLead.id}">-</span>
+                                </legend>
+
+                                <!-- hidden -->
+                                <input type="hidden" name="id"               th:value="${registroLead.id}">
+                                <input type="hidden" name="idutente"         th:value="${registroLead.idutente}" id="idutente">
+                                <input type="hidden" name="idleadstore"      th:value="${registroLead.idleadstore}">
+                                <input type="hidden" name="idamministratore" th:value="${registroLead.idamministratore}">
+                                <input type="hidden" name="store"            th:value="${registroLead.store}">
+                                <input type="hidden" name="direzione"        th:value="${registroLead.direzione}">
+
+                                <div class="row form-group">
+
+                                    <div class="col-lg-6">
+                                        <label for="data" class="col-form-label">Data</label>
+                                        <input type="text"
+                                               class="form-control datepicker obbligatorio notAutocomplete"
+                                               id="data"
+                                               name="data"
+                                               required
+                                               th:value="${registroLead.data}">
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <label for="stato" class="col-form-label">Stato</label>
+                                        <select class="form-control obbligatorio" name="stato" id="stato" required>
+                                            <option value="0" th:selected="${registroLead.stato == 0}">Non gestito</option>
+                                            <option value="1" th:selected="${registroLead.stato == 1}">Da richiamare</option>
+                                            <option value="2" th:selected="${registroLead.stato == 2}">Inviare email</option>
+                                            <option value="3" th:selected="${registroLead.stato == 3}">In lavorazione</option>
+                                            <option value="4" th:selected="${registroLead.stato == 4}">Completato</option>
+                                            <option value="5" th:selected="${registroLead.stato == 5}">Annullato</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-lg-12">
+                                        <label class="col-form-label">Area interesse</label>
+
+                                        <select class="form-control multiselect obbligatorio"
+                                                name="metatag"
+                                                multiple="multiple"
+                                                required>
+
+                                            <option th:each="area : ${areeInteresse}"
+                                                    th:value="${area.id}"
+                                                    th:text="${area.descrizione}"
+                                                    th:selected="${registroLead.metatag != null and #lists.contains(registroLead.metatag, area.id)}">
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                </div>
+                            </fieldset>
+
+                            <fieldset>
+                                <legend>Comunicazione</legend>
+
+                                <div class="row form-group">
+                                    <div class="col-lg-12">
+
+                                        <!-- URL pulito -->
+                                        <a th:href="@{/admin/crm/lead/nuovo/uscita/Email/utente/{idutente}(idutente=${registroLead.idutente})}"
+                                           class="mb-1 mt-1 mr-1 btn btn-primary btn-lg btn-block">
+                                            <i class="fa fa-envelope"></i> Invia email
+                                        </a>
+
+                                        <!-- URL pulito -->
+                                        <a th:href="@{/admin/crm/lead/nuovo/uscita/Sms/utente/{idutente}(idutente=${registroLead.idutente})}"
+                                           class="mb-1 mt-1 mr-1 btn btn-primary btn-lg btn-block">
+                                            <i class="fa fa-comments"></i> Invia SMS
+                                        </a>
+
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                        </div>
+                    </div>
+
+                    <!-- NOTE -->
+                    <fieldset>
+                        <legend>Note operative per gestione Lead</legend>
+                        <div class="row form-group">
+                            <div class="col-lg-12">
+                                <textarea id="tinymce5basic"
+                                          name="notalead"
+                                          class=""
+                                          th:text="${registroLead.notalead}">
+                                </textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <!-- MESSAGGIO ORIGINALE -->
+                    <fieldset th:if="${registroLead.id != null and registroLead.id != -1}">
+                        <legend>Messaggio originale</legend>
+
+                        <!-- commenti -->
+                        <div th:if="${registroLead.store == 'commenti'}">
+                            <div class="row form-group">
+                                <div class="col-lg-4">
+                                    <label class="col-form-label">Data ricezione</label>
+                                    <input type="text" class="form-control" readonly
+                                           th:value="${registroLead.commento?.data}">
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-lg-12">
+                                    <textarea class="form-control markdown" readonly
+                                              th:text="${registroLead.commento?.messaggio}"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- emailstore -->
+                        <div th:if="${registroLead.store == 'emailstore'}">
+                            <div class="row form-group">
+                                <div class="col-lg-4">
+                                    <label class="col-form-label">Data ricezione</label>
+                                    <input type="text" class="form-control" readonly
+                                           th:value="${registroLead.messaggioEmail?.dataSimple}">
+                                </div>
+                            </div>
+
+                            <div class="row form-group">
+                                <div class="col-lg-12">
+                                    <textarea class="form-control tinymce5viewonly" readonly
+                                              th:text="${registroLead.messaggioEmail?.testo}"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="row form-group"
+                                 th:if="${registroLead.messaggioEmail?.allegati != null and !#lists.isEmpty(registroLead.messaggioEmail.allegati)}">
+                                <div class="col-lg-12">
+                                    <ul class="mb-0">
+                                        <li th:each="allegato : ${registroLead.messaggioEmail.allegati}">
+                                            <a th:href="@{/admin/email/allegato(id=${registroLead.idleadstore},filename=${allegato.id})}"
+                                               target="_blank">
+                                                <img th:src="@{'/manager/assets/images/filetypes/32/' + ${allegato.type} + '.png'}"
+                                                     width="25" height="25" style="vertical-align:middle" alt="">
+                                                <span th:text="${allegato.nome}"></span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                    </fieldset>
+
+                </div>
+                <!-- /TAB 01 -->
+
+                <!-- TAB 02 -->
+                <div id="tab_02" class="tab-pane">
+
+                    <fieldset>
+                        <legend>Altri dati</legend>
+
+                        <div class="row form-group">
+
+                            <div class="col-lg-4">
+                                <label for="l1" class="col-form-label">l1</label>
+                                <select class="form-control" name="l1" id="l1">
+                                    <option value="" th:selected="${registroLead.l1 == null or registroLead.l1 == ''}">Indefinito</option>
+                                    <option value="0" th:selected="${registroLead.l1 == '0' or registroLead.l1 == 0}">Disattivo</option>
+                                    <option value="1" th:selected="${registroLead.l1 == '1' or registroLead.l1 == 1}">Attivo</option>
+                                </select>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <label for="l2" class="col-form-label">l2</label>
+                                <select class="form-control" name="l2" id="l2">
+                                    <option value="" th:selected="${registroLead.l2 == null or registroLead.l2 == ''}">Indefinito</option>
+                                    <option value="0" th:selected="${registroLead.l2 == '0' or registroLead.l2 == 0}">Disattivo</option>
+                                    <option value="1" th:selected="${registroLead.l2 == '1' or registroLead.l2 == 1}">Attivo</option>
+                                </select>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <label for="l3" class="col-form-label">l3</label>
+                                <select class="form-control" name="l3" id="l3">
+                                    <option value="" th:selected="${registroLead.l3 == null or registroLead.l3 == ''}">Indefinito</option>
+                                    <option value="0" th:selected="${registroLead.l3 == '0' or registroLead.l3 == 0}">Disattivo</option>
+                                    <option value="1" th:selected="${registroLead.l3 == '1' or registroLead.l3 == 1}">Attivo</option>
+                                </select>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <label for="l4" class="col-form-label">l4</label>
+                                <select class="form-control" name="l4" id="l4">
+                                    <option value="" th:selected="${registroLead.l4 == null or registroLead.l4 == ''}">Indefinito</option>
+                                    <option value="0" th:selected="${registroLead.l4 == '0' or registroLead.l4 == 0}">Disattivo</option>
+                                    <option value="1" th:selected="${registroLead.l4 == '1' or registroLead.l4 == 1}">Attivo</option>
+                                </select>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <label for="l5" class="col-form-label">l5</label>
+                                <select class="form-control" name="l5" id="l5">
+                                    <option value="" th:selected="${registroLead.l5 == null or registroLead.l5 == ''}">Indefinito</option>
+                                    <option value="0" th:selected="${registroLead.l5 == '0' or registroLead.l5 == 0}">Disattivo</option>
+                                    <option value="1" th:selected="${registroLead.l5 == '1' or registroLead.l5 == 1}">Attivo</option>
+                                </select>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <label for="l6" class="col-form-label">l6</label>
+                                <select class="form-control" name="l6" id="l6">
+                                    <option value="" th:selected="${registroLead.l6 == null or registroLead.l6 == ''}">Indefinito</option>
+                                    <option value="0" th:selected="${registroLead.l6 == '0' or registroLead.l6 == 0}">Disattivo</option>
+                                    <option value="1" th:selected="${registroLead.l6 == '1' or registroLead.l6 == 1}">Attivo</option>
+                                </select>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <label for="l7" class="col-form-label">l7</label>
+                                <select class="form-control" name="l7" id="l7">
+                                    <option value="" th:selected="${registroLead.l7 == null or registroLead.l7 == ''}">Indefinito</option>
+                                    <option value="0" th:selected="${registroLead.l7 == '0' or registroLead.l7 == 0}">Disattivo</option>
+                                    <option value="1" th:selected="${registroLead.l7 == '1' or registroLead.l7 == 1}">Attivo</option>
+                                </select>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <label for="l8" class="col-form-label">l8</label>
+                                <select class="form-control" name="l8" id="l8">
+                                    <option value="" th:selected="${registroLead.l8 == null or registroLead.l8 == ''}">Indefinito</option>
+                                    <option value="0" th:selected="${registroLead.l8 == '0' or registroLead.l8 == 0}">Disattivo</option>
+                                    <option value="1" th:selected="${registroLead.l8 == '1' or registroLead.l8 == 1}">Attivo</option>
+                                </select>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <label for="l9" class="col-form-label">l9</label>
+                                <select class="form-control" name="l9" id="l9">
+                                    <option value="" th:selected="${registroLead.l9 == null or registroLead.l9 == ''}">Indefinito</option>
+                                    <option value="0" th:selected="${registroLead.l9 == '0' or registroLead.l9 == 0}">Disattivo</option>
+                                    <option value="1" th:selected="${registroLead.l9 == '1' or registroLead.l9 == 1}">Attivo</option>
+                                </select>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <label for="l10" class="col-form-label">l10</label>
+                                <select class="form-control" name="l10" id="l10">
+                                    <option value="" th:selected="${registroLead.l10 == null or registroLead.l10 == ''}">Indefinito</option>
+                                    <option value="0" th:selected="${registroLead.l10 == '0' or registroLead.l10 == 0}">Disattivo</option>
+                                    <option value="1" th:selected="${registroLead.l10 == '1' or registroLead.l10 == 1}">Attivo</option>
+                                </select>
+                            </div>
+
+                        </div>
+                    </fieldset>
+
+                </div>
+                <!-- /TAB 02 -->
+
+            </div>
         </div>
 
     </form>
 
+    <script>
+        function inviaForm(e) {
+            if (e) e.preventDefault();
 
-    <script th:inline="javascript">
-        function cancellaLead(id) {
-            if (!confirm('Confermi l\'eliminazione di questa attività?')) return;
+            var form = document.getElementById('registrolead');
 
-            var baseUrl = /*[[ @{/admin/crm/lead/} ]]*/ '/admin/crm/lead/';
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                alert("Alcuni campi obbligatori del modulo richiedono un tuo intervento!");
+                return false;
+            }
 
-            fetch(baseUrl + id + '/delete', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.content ?? ''
-                }
-            })
-                .then(r => r.text())
-                .then(result => {
-                    if (result === 'OK') {
-                        window.location.href = /*[[ @{/admin/crm/lead} ]]*/ '/admin/crm/lead';
-                    } else {
-                        alert('Errore durante l\'eliminazione.');
-                    }
-                })
-                .catch(() => alert('Errore di rete.'));
+            form.classList.add('was-validated');
+            form.submit();
+            return true;
         }
 
         function resetAnagraficaLeadCRM() {
-            document.querySelector('[name="idutente"]').value = '0';
-            document.querySelector('[name="utente.nome"]').value = '';
-            document.querySelector('[name="utente.cognome"]').value = '';
-            document.querySelector('[name="utente.email"]').value = '';
-            location.reload();
+            var idUtenteField = document.getElementById('idutente');
+            if (idUtenteField) idUtenteField.value = '0';
+
+            var fields = ['utentenome', 'utentecognome', 'utenteemail', 'utentetelefono', 'utentetelefono2', 'utenteid'];
+            fields.forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.value = '';
+            });
         }
     </script>
 

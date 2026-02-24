@@ -35,13 +35,13 @@
               </a>
 
               <!-- Invia Email (lead uscita email) -->
-              <a th:href="@{/admin/crm/lead/{id}/inviaEmail}"
+              <a th:href="@{/admin/crm/lead/-1/uscita(idutente=0,idleadstore=-1,store='diretto',tipologia='Email')}"
                  class="btn btn-primary">
                 <i class="ti ti-mail"></i> Invia email
               </a>
 
               <!-- Invia SMS (lead uscita sms) -->
-              <a th:href="@{/admin/crm/lead/{id}/inviaSms}"
+              <a th:href="@{/admin/crm/lead/-1/uscita(idutente=0,idleadstore=-1,store='diretto',tipologia='Sms')}"
                  class="btn btn-primary">
                 <i class="ti ti-message"></i> Invia SMS
               </a>
