@@ -158,8 +158,6 @@ $(document).ready(function(){
     // -------------------------------------------------------
     // Misc
     // -------------------------------------------------------
-    $(".notAutocomplete").prop('autocomplete', false);
-    $(".obbligatorio").prop('required', true);
 
 });
 
@@ -310,7 +308,7 @@ function initTinyMCE(selector) {
         statusbar: false,
         content_style: 'body { font-family: Inter, sans-serif; font-size: 14px; }',
         plugins: 'advlist autolink lists link image charmap preview anchor ' +
-                 'searchreplace code fullscreen table paste wordcount',
+                 'searchreplace code fullscreen table wordcount',
         toolbar: 'undo redo | formatselect | bold italic underline | ' +
                  'forecolor backcolor | alignleft aligncenter alignright alignjustify | ' +
                  'bullist numlist outdent indent | link image table | code fullscreen',
@@ -335,15 +333,34 @@ function toggleEditor(targetId) {
 // ============================================================
 // INVIAFORM - validazione + submit
 // ============================================================
-function InviaForm() {
-    // Sincronizza tutti gli editor TinyMCE nei textarea
-    if (typeof tinymce !== 'undefined') {
-        tinymce.triggerSave();
-    }
+function InviaForm(formId) {
 
-    var form = document.getElementById('sezione');
+    // Sincronizza TinyMCE in modo sicuro (compatibile con tutte le versioni)
+        if (typeof tinymce !== 'undefined') {
+            try {
+                // TinyMCE 4.x: triggerSave()
+                // TinyMCE 5.x/6.x: editors è un array ma può essere vuoto
+                if (typeof tinymce.triggerSave === 'function') {
+                    tinymce.triggerSave();
+                } else if (tinymce.editors && tinymce.editors.length > 0) {
+                    tinymce.editors.forEach(function(editor) { editor.save(); });
+                } else if (typeof tinymce.get === 'function') {
+                    // fallback: salva tutti gli editor tramite tinymce.get()
+                    var allEditors = tinymce.editors;
+                    for (var id in allEditors) {
+                        if (allEditors.hasOwnProperty(id)) {
+                            allEditors[id].save();
+                        }
+                    }
+                }
+            } catch(e) {
+                console.warn('TinyMCE save error:', e);
+            }
+        }
+
+    var form = document.getElementById(formId);
     if (!form) {
-        showToast('Errore', 'Form non trovato.', 'danger');
+        showToast('Errore', 'Form "' + formId + '" non trovato.', 'danger');
         return;
     }
 
@@ -352,10 +369,12 @@ function InviaForm() {
     if (!form.checkValidity()) {
         var campiNonValidi = [];
         form.querySelectorAll(':invalid').forEach(function(el) {
-            var label = form.querySelector('label[for="' + el.id + '"]');
-            if (label) {
-                campiNonValidi.push(label.textContent.replace('*', '').trim());
-            }
+            var label = form.querySelector('label[for="' + el.id + '"]')
+                     || el.closest('.form-group')?.querySelector('label');
+            var nomeCampo = label
+                ? label.textContent.replace('*', '').trim()
+                : (el.name || el.placeholder || 'Campo sconosciuto');
+            campiNonValidi.push(nomeCampo);
         });
 
         var messaggio = 'Alcuni campi obbligatori richiedono un tuo intervento!';
@@ -384,6 +403,52 @@ $(document).ready(function() {
     // TinyMCE - Tab 02 Abstract e Tab 03 Contenuto
     if ($('#riassunto').length) initTinyMCE('#riassunto');
     if ($('#testo').length)     initTinyMCE('#testo');
+
+   var localeIT = {
+       firstDayOfWeek: 1,
+       weekdays: {
+           shorthand: ["Dom","Lun","Mar","Mer","Gio","Ven","Sab"],
+           longhand:  ["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"]
+       },
+       months: {
+           shorthand: ["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"],
+           longhand:  ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno",
+                       "Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"]
+       }
+   };
+
+   function aggiungiBtnOggi(fp) {
+       var btn = document.createElement("button");
+       btn.textContent = "Oggi";
+       btn.type = "button";
+       btn.className = "flatpickr-oggi";
+       btn.style.cssText = "width:100%;padding:6px;background:#1a73e8;color:#fff;border:none;cursor:pointer;font-size:13px;";
+       btn.addEventListener("click", function() {
+           fp.setDate(new Date(), true);
+           fp.close();
+       });
+       fp.calendarContainer.appendChild(btn);
+   }
+
+   // Data visualizzata — formato: 25 Marzo, 2021
+   flatpickr(".dataVisualizzata", {
+       dateFormat: "j F, Y",
+       allowInput: true,
+       locale: localeIT,
+       onReady: function(selectedDates, dateStr, fp) {
+           aggiungiBtnOggi(fp);
+       }
+   });
+
+   // Data riferimento — formato: 25-03-2021
+   flatpickr(".dataBase", {
+       dateFormat: "d-m-Y",
+       allowInput: true,
+       locale: localeIT,
+       onReady: function(selectedDates, dateStr, fp) {
+           aggiungiBtnOggi(fp);
+       }
+   });
 
     // TinyMCE - Tab 07 Text1-10: lazy init all'apertura del tab
     document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(function(tabBtn) {

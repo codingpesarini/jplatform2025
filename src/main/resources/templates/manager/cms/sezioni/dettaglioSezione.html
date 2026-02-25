@@ -6,9 +6,9 @@
 <body>
 
 <div layout:fragment="content">
-
+    <div class="card">
     <!-- Page Header -->
-    <div class="page-header d-flex align-items-center justify-content-between mb-3">
+    <div class="card-header d-flex align-items-center justify-content-between mb-3">
         <div>
             <h4 class="page-title mb-0">
                 <i class="ti ti-layout me-2 text-muted"></i>
@@ -38,7 +38,7 @@
 
             <button type="button"
                     class="btn btn-primary btn-sm"
-                    onclick="InviaForm();">
+                    onclick="InviaForm('sezione');">
                 <i class="ti ti-device-floppy me-1"></i> Salva
             </button>
 
@@ -77,12 +77,9 @@
         <input type="hidden" name="numeratore4"  th:value="${section.numeratore4}">
         <input type="hidden" name="numeratore5"  th:value="${section.numeratore5}">
 
-        <div class="card">
-
             <!-- Tab header -->
-            <div class="card position-relative">
-                <div class="card-header p-0 border-bottom-0 position-relative" style="z-index: 10;">
-                    <ul class="nav nav-tabs card-header-tabs px-3" id="sezioneTabs" role="tablist" style="position:relative; z-index: 11;">
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="sezioneTabs" role="tablist">
 
                     <li class="nav-item" role="presentation">
                         <a class="nav-link active"
@@ -173,9 +170,8 @@
                     </li>
 
                 </ul>
-            </div>
 
-            <div class="card-body">
+
                 <div class="tab-content">
 
                     <!-- ========================================================= -->
@@ -188,12 +184,12 @@
                             <div class="col-lg-6">
                                 <label for="titolo" class="form-label">Titolo <span class="text-danger">*</span></label>
                                 <input type="text" id="titolo" name="titolo"
-                                       class="form-control obbligatorio"
+                                       class="form-control "
                                        th:value="${section.titolo}" required>
                             </div>
                             <div class="col-lg-3">
                                 <label for="stato" class="form-label">Stato workflow <span class="text-danger">*</span></label>
-                                <select id="stato" name="stato" class="form-select obbligatorio" required>
+                                <select id="stato" name="stato" class="form-select " required>
                                     <option value="">----- Seleziona lo stato -----</option>
                                     <option value="0" th:selected="${section.stato == '0'}">Bozza</option>
                                     <option value="1" th:selected="${section.stato == '1'}">Pubblicato</option>
@@ -204,7 +200,7 @@
                             </div>
                             <div class="col-lg-3">
                                 <label for="id_type" class="form-label">Categoria documento <span class="text-danger">*</span></label>
-                                <select id="id_type" name="idType" class="form-select obbligatorio" required>
+                                <select id="id_type" name="idType" class="form-select " required>
                                     <option value="">----- Seleziona tipologia -----</option>
                                     <option th:each="t : ${sectionTypes}"
                                             th:value="${t.id}"
@@ -220,13 +216,13 @@
                             <div class="col-lg-3">
                                 <label for="dataVisualizzata" class="form-label">Data visualizzata</label>
                                 <input type="text" id="dataVisualizzata" name="dataVisualizzata"
-                                       class="form-control datepickerEstesa obbligatorio"
+                                       class="form-control dataVisualizzata"
                                        th:value="${section.dataVisualizzata}">
                             </div>
                             <div class="col-lg-3">
                                 <label for="data" class="form-label">Data riferimento</label>
                                 <input type="text" id="data" name="data"
-                                       class="form-control datepicker obbligatorio"
+                                       class="form-control dataBase "
                                        th:value="${section.data}">
                             </div>
                             <div class="col-lg-6">
@@ -242,14 +238,14 @@
                         <div class="row g-3 mb-3">
                             <div class="col-lg-4">
                                 <label for="s3" class="form-label">Periodo visualizzazione</label>
-                                <select id="s3" name="s3" class="form-select obbligatorio" data-onchange="AttivaDataPubblicazione">
+                                <select id="s3" name="s3" class="form-select " data-onchange="AttivaDataPubblicazione">
                                     <option value="0" th:selected="${section.s3 == '0'}">Illimitato - Sempre visibile</option>
                                     <option value="1" th:selected="${section.s3 == '1'}">Pubblicazione programmata</option>
                                 </select>
                             </div>
                             <div class="col-lg-4">
                                 <label for="menu1" class="form-label">Associa a menu</label>
-                                <select id="menu1" name="menu1" class="form-select obbligatorio">
+                                <select id="menu1" name="menu1" class="form-select ">
                                     <option value="">----- Seleziona menu -----</option>
                                     <option value="0"  th:selected="${section.menu1 == '0'}">Non visualizzare in nessun menu automatico</option>
                                     <option value="1"  th:selected="${section.menu1 == '1'}">Menu1 - Singolo</option>
@@ -277,13 +273,13 @@
                             <div class="col-lg-3">
                                 <label for="s1" class="form-label">Data inizio pubblicazione</label>
                                 <input type="text" id="s1" name="s1"
-                                       class="form-control datepicker"
+                                       class="form-control dataBase"
                                        th:value="${section.s1}">
                             </div>
                             <div class="col-lg-3">
                                 <label for="s2" class="form-label">Data fine pubblicazione</label>
                                 <input type="text" id="s2" name="s2"
-                                       class="form-control datepicker"
+                                       class="form-control dataBase"
                                        th:value="${section.s2}">
                             </div>
                         </div>
@@ -292,7 +288,7 @@
                         <div class="row g-3 mb-3">
                             <div class="col-lg-6">
                                 <label for="menu2" class="form-label">Tipo link</label>
-                                <select id="menu2" name="menu2" class="form-select obbligatorio" data-onchange="AttivaLinkEsterno">
+                                <select id="menu2" name="menu2" class="form-select " data-onchange="AttivaLinkEsterno">
                                     <option value="">----- Seleziona tipo link -----</option>
                                     <option value="0" th:selected="${section.menu2 == '0'}">Linkabile</option>
                                     <option value="1" th:selected="${section.menu2 == '1'}">Non linkabile</option>
@@ -492,7 +488,7 @@
                             <div class="col-lg-6">
                                 <label for="privato" class="form-label">Sezione privata</label>
                                 <select id="privato" name="privato"
-                                        class="form-select obbligatorio"
+                                        class="form-select "
                                         data-onchange="AttivaAutorizzazioniUtente">
                                     <option value="">----- Seleziona tipo -----</option>
                                     <option value="0" th:selected="${section.privato == '0'}">Sezione pubblica e visibile a tutti</option>
@@ -740,10 +736,9 @@
 
                 </div><!-- /tab-content -->
             </div><!-- /card-body -->
-        </div><!-- /card -->
-        </div>
-    </form>
 
+    </form>
+</div><!-- /card -->
 
 
 </div><!-- /layout:fragment -->

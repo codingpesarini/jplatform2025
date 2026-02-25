@@ -12,7 +12,6 @@
 
     <form th:action="@{/admin/contenuti/save}"
           method="post"
-          enctype="multipart/form-data"
           id="documento"
           class="form-bordered">
 
@@ -20,15 +19,6 @@
             <h2 th:text="${post.titolo}">Titolo</h2>
 
             <div class="right-wrapper text-right">
-
-                <div class="switch switch-sm switch-primary" title="Salvataggio automatico">
-                    <input type="checkbox"
-                           name="switch"
-                           title="Salvataggio automatico"
-                           data-plugin-ios-switch=""
-                           id="autosave"
-                           style="display:none;">
-                </div>
 
                 <a th:href="@{/admin/contenuti/new(id_root=${post.idRoot}, id_type=${post.idType})}"
                    onclick="return ConfermaOperazione(this.href,'creare un nuovo contenuto');"
@@ -45,11 +35,11 @@
                     <i class="fas fa-clone"></i> Duplica
                 </button>
 
-                <a href="javascript:void(0);"
-                   onclick="InviaForm(event);"
-                   class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
-                    <i class="fas fa-file-upload"></i> Salva
-                </a>
+                <button type="button"
+                        class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
+                        onclick="InviaForm('documento');">
+                    <i class="ti ti-device-floppy me-1"></i> Salva
+                </button>
 
                 <a href="javascript:void(0);"
                    onclick="CloseHsReloadBase();"
@@ -133,7 +123,9 @@
 
                     <div class="tab-content">
 
-                        <!-- TAB 01 -->
+                        <!-- ═══════════════════════════════════════════════════════
+                             TAB 01 — DEFINIZIONE
+                             ═══════════════════════════════════════════════════════ -->
                         <div id="tab_01" class="tab-pane active" role="tabpanel">
 
                             <p>
@@ -147,15 +139,15 @@
                                 (<span th:text="${post.modificato}">-</span>)
                             </p>
 
-                            <!-- hidden -->
-                            <input type="hidden" name="creato" th:value="${post.creato}">
-                            <input type="hidden" name="creatoDa" th:value="${post.creatoDa}">
+                            <!-- Campi hidden audit -->
+                            <input type="hidden" name="creato"       th:value="${post.creato}">
+                            <input type="hidden" name="creatoDa"     th:value="${post.creatoDa}">
                             <input type="hidden" name="modificatoDa" th:value="${post.modificatoDa}">
-                            <input type="hidden" name="modificato" th:value="${post.modificato}">
+                            <input type="hidden" name="modificato"   th:value="${post.modificato}">
 
                             <div class="row form-group">
                                 <div class="col-lg-6">
-                                    <label for="titolo" class="col-form-label">Titolo</label>
+                                    <label for="titolo" class="col-form-label">Titolo *</label>
                                     <input type="text"
                                            name="titolo"
                                            id="titolo"
@@ -165,7 +157,7 @@
                                 </div>
 
                                 <div class="col-lg-3">
-                                    <label for="stato" class="col-form-label">Stato workflow</label>
+                                    <label for="stato" class="col-form-label">Stato workflow *</label>
                                     <select name="stato"
                                             id="stato"
                                             class="form-control obbligatorio"
@@ -180,13 +172,13 @@
                                 </div>
 
                                 <div class="col-lg-3">
-                                    <!-- ... -->
+                                    <!-- Campo aggiuntivo riservato -->
                                 </div>
                             </div>
 
                             <div class="row form-group">
                                 <div class="col-lg-3">
-                                    <label for="dataVisualizzata" class="col-form-label">Data visualizzata</label>
+                                    <label for="dataVisualizzata" class="col-form-label">Data visualizzata *</label>
                                     <input type="text"
                                            name="dataVisualizzata"
                                            id="dataVisualizzata"
@@ -196,7 +188,7 @@
                                 </div>
 
                                 <div class="col-lg-3">
-                                    <label for="data" class="col-form-label">Data riferimento</label>
+                                    <label for="data" class="col-form-label">Data riferimento *</label>
                                     <input type="text"
                                            name="data"
                                            id="data"
@@ -218,7 +210,7 @@
 
                             <div class="row form-group">
                                 <div class="col-lg-4">
-                                    <label for="s3" class="col-form-label">Periodo visualizzazione</label>
+                                    <label for="s3" class="col-form-label">Periodo visualizzazione *</label>
                                     <select name="s3"
                                             id="s3"
                                             onchange="AttivaDataPubblicazione()"
@@ -228,8 +220,8 @@
                                         <option value="1" th:selected="${post.s3 == '1'}">Pubblicazione programmata</option>
                                     </select>
                                 </div>
-                                <div class="col-lg-4">...</div>
-                                <div class="col-lg-4">...</div>
+                                <div class="col-lg-4"><!-- campo riservato --></div>
+                                <div class="col-lg-4"><!-- campo riservato --></div>
                             </div>
 
                             <div id="datePubblicazione" class="row form-group">
@@ -252,17 +244,20 @@
                             </div>
 
                             <div class="row form-group">
-                                <div class="col-lg-6">...</div>
+                                <div class="col-lg-6"><!-- campo riservato --></div>
                             </div>
 
                             <div class="row form-group" id="linkEsterno">
-                                <div class="col-lg-3">...</div>
-                                <div class="col-lg-3">...</div>
+                                <div class="col-lg-3"><!-- campo riservato --></div>
+                                <div class="col-lg-3"><!-- campo riservato --></div>
                             </div>
 
                         </div>
+                        <!-- fine TAB 01 -->
 
-                        <!-- TAB 02 -->
+                        <!-- ═══════════════════════════════════════════════════════
+                             TAB 02 — ABSTRACT
+                             ═══════════════════════════════════════════════════════ -->
                         <div id="tab_02" class="tab-pane" role="tabpanel">
                             <div class="row form-group">
                                 <div class="col-lg-12">
@@ -278,8 +273,11 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- fine TAB 02 -->
 
-                        <!-- TAB 03 -->
+                        <!-- ═══════════════════════════════════════════════════════
+                             TAB 03 — CONTENUTO
+                             ═══════════════════════════════════════════════════════ -->
                         <div id="tab_03" class="tab-pane" role="tabpanel">
                             <div class="row form-group">
                                 <div class="col-lg-12">
@@ -295,9 +293,13 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- fine TAB 03 -->
 
-                        <!-- TAB 04 IMMAGINI -->
+                        <!-- ═══════════════════════════════════════════════════════
+                             TAB 04 — IMMAGINI
+                             ═══════════════════════════════════════════════════════ -->
                         <div id="tab_04" class="tab-pane" role="tabpanel">
+
                             <div class="row form-group">
                                 <div class="col-lg-6 text-left">
                                     <h4>
@@ -305,8 +307,7 @@
                                         <i class="fas fa-info-circle"
                                            data-toggle="tooltip"
                                            data-placement="right"
-                                           title=""
-                                           data-original-title="E' possibile inserire immagini dalla Media Library o con caricamento diretto. Cancella tutte svuota le immagini inserite e riporta il documento allo stato iniziale."></i>
+                                           data-original-title="È possibile inserire immagini dalla Media Library o con caricamento diretto. Cancella tutte svuota le immagini inserite e riporta il documento allo stato iniziale."></i>
                                     </h4>
                                     <small class="form-text text-muted">
                                         Le immagini possono essere spostate e riordinate. Per visualizzarle ingrandite fare doppio click sulla foto.
@@ -320,7 +321,7 @@
                                     </button>
                                     <button type="button"
                                             class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
-                                            onclick="return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:600,height:500, src:'/admin/immagini/new?metodo=tutti&sorgente=galleryDiretto&idfolder=1'})">
+                                            onclick="return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:600,height:500,src:'/admin/immagini/new?metodo=tutti&sorgente=galleryDiretto&idfolder=1'})">
                                         <i class="fas fa-upload"></i> Carica immagine
                                     </button>
                                     <button type="button"
@@ -333,7 +334,6 @@
 
                             <div class="row form-group">
                                 <div class="col-lg-12">
-
                                     <input type="hidden"
                                            name="galleryString"
                                            id="galleryString"
@@ -341,63 +341,60 @@
                                            th:value="${post.galleryString}">
 
                                     <div class="popup-gallery" id="divgallery">
-
                                         <div th:each="immagine : ${post.gallery}"
                                              th:attr="id=${immagine.id}"
                                              class="float-left mb-1 mr-1">
                                             <div class="img-fluid">
                                                 <img th:src="${config.imagesRepositoryWeb + immagine.fullpath}" width="200">
                                             </div>
-
                                             <a href="javascript:void(0);"
                                                th:data-id="${immagine.id}"
                                                onclick="cancellaImmagineInserita(this.getAttribute('data-id'))">
                                                 Cancella
                                             </a>
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- TAB 05 ALLEGATI -->
+                        </div>
+                        <!-- fine TAB 04 -->
+
+                        <!-- ═══════════════════════════════════════════════════════
+                             TAB 05 — ALLEGATI
+                             ═══════════════════════════════════════════════════════ -->
                         <div id="tab_05" class="tab-pane" role="tabpanel">
 
                             <div class="row form-group">
                                 <div class="col-lg-6 text-left">
                                     <h4>
-                                        Allegati inseriti nella pagine
+                                        Allegati inseriti nella pagina
                                         <i class="fas fa-info-circle"
                                            data-toggle="tooltip"
                                            data-placement="right"
-                                           title=""
-                                           data-original-title="E' possibile inserire allegati dalla Media Library o con caricamento diretto."></i>
+                                           data-original-title="È possibile inserire allegati dalla Media Library o con caricamento diretto."></i>
                                     </h4>
                                     <small class="form-text text-muted">Gli allegati possono essere spostati e riordinati.</small>
                                 </div>
-
                                 <div class="col-lg-6 text-right">
                                     <button type="button"
                                             class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
-                                            onclick="return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:900,height:700,src:'/admin/medialibrary/images'})">
+                                            onclick="return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:900,height:700,src:'/admin/medialibrary/files'})">
                                         <i class="fas fa-images"></i> Media Library
                                     </button>
-
                                     <button type="button"
                                             class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
                                             th:data-docid="${post.id}"
-                                            onclick="var id = this.getAttribute('data-docid');
-                 return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:700,height:500,src:'/admin/allegati/gestione?docid=' + id});">
+                                            onclick="var id=this.getAttribute('data-docid');
+                                                     return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:700,height:500,src:'/admin/allegati/gestione?docid='+id});">
                                         <i class="fas fa-file-upload"></i> Gestisci Allegati
                                     </button>
-
                                     <button type="button"
                                             class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
                                             th:data-docid="${post.id}"
-                                            onclick="var id = this.getAttribute('data-docid');
-                         return hs.htmlExpand(this,{align:'center',objectType:'iframe',contentId:'libreria',width:480,height:360,
-                         src:'/filemanager/UploadScanner/upload?docid=' + id + '&table=allegati&sorgente=galleryDiretto'});">
+                                            onclick="var id=this.getAttribute('data-docid');
+                                                     return hs.htmlExpand(this,{align:'center',objectType:'iframe',contentId:'libreria',width:480,height:360,
+                                                     src:'/filemanager/UploadScanner/upload?docid='+id+'&table=allegati&sorgente=galleryDiretto'});">
                                         <i class="fas fa-file-import"></i> Scansiona
                                     </button>
                                 </div>
@@ -405,9 +402,8 @@
 
                             <div class="row form-group">
                                 <div class="col-lg-12">
-
                                     <input type="hidden" name="ordineAllegatiBase" id="ordineAllegatiBase">
-                                    <input type="hidden" name="ordineAllegati" id="ordineAllegati">
+                                    <input type="hidden" name="ordineAllegati"     id="ordineAllegati">
 
                                     <div id="boxallegati">
                                         <ul id="sortableAllegato" class="list-unstyled">
@@ -420,61 +416,84 @@
 
                                                     <img style="float:left; margin-right:10px; cursor:pointer;"
                                                          th:src="@{/manager/assets/img/icons/pencil.png}"
+                                                         alt="Modifica allegato" title="Modifica allegato"
                                                          th:data-folder="${allegato.idfolder}"
                                                          th:data-id="${allegato.id}"
                                                          th:data-docid="${allegato.iddocallegati}"
-                                                         onclick="var f=this.getAttribute('data-folder'); var i=this.getAttribute('data-id'); var d=this.getAttribute('data-docid');
-              return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:600,height:400,
-              src:'/admin/allegati/edit?idfolder=' + f + '&id=' + i + '&docid=' + d});">
+                                                         onclick="var f=this.getAttribute('data-folder');
+                                                                  var i=this.getAttribute('data-id');
+                                                                  var d=this.getAttribute('data-docid');
+                                                                  return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:600,height:400,
+                                                                  src:'/admin/allegati/edit?idfolder='+f+'&id='+i+'&docid='+d});">
 
                                                     <img style="float:left; margin-right:10px; cursor:pointer;"
                                                          th:src="@{/manager/assets/img/icons/trashcan.png}"
+                                                         alt="Cancella allegato" title="Cancella allegato"
                                                          th:data-id="${allegato.id}"
                                                          th:data-docid="${allegato.iddocallegati}"
-                                                         onclick="CancellaAllegatoInserito(this.getAttribute('data-id'), this.getAttribute('data-docid'))">
+                                                         onclick="CancellaAllegatoInserito(this.getAttribute('data-id'),this.getAttribute('data-docid'))">
 
                                                     <img style="float:left; margin-right:10px;"
-                                                         th:if="${allegato.versioniIsEmpty == false}"
-                                                         src="img/icons/documents.png"
-                                                         alt="Ci sono versioni precedenti di questo documento"
+                                                         th:if="${!allegato.versioniIsEmpty}"
+                                                         th:src="@{/manager/assets/img/icons/documents.png}"
+                                                         alt="Ci sono versioni precedenti"
                                                          title="Ci sono versioni precedenti di questo documento">
 
                                                     <img style="float:left; margin-right:10px;"
-                                                         th:if="${allegato.versioniIsEmpty == true}"
-                                                         src="img/icons/access_denied_gray.png"
-                                                         alt="Non ci sono versioni precedenti di questo documento"
+                                                         th:if="${allegato.versioniIsEmpty}"
+                                                         th:src="@{/manager/assets/img/icons/access_denied_gray.png}"
+                                                         alt="Nessuna versione precedente"
                                                          title="Non ci sono versioni precedenti di questo documento">
 
                                                     <a target="_blank"
-                                                       th:href="@{/files/{id}/{l2}/{l1}.{ext}(id=${allegato.id}, l2=${allegato.l2}, l1=${allegato.l1}, ext=${allegato.type})}">
-                                                        <img th:src="@{/manager/assets/img/icons/download.png}" width="22">
+                                                       th:href="@{/files/{id}/{l2}/{l1}.{ext}(id=${allegato.id},l2=${allegato.l2},l1=${allegato.l1},ext=${allegato.type})}">
+                                                        <img th:src="@{/manager/assets/img/icons/download.png}"
+                                                             alt="Scarica" title="Scarica allegato" width="22">
                                                     </a>
 
-                                                    <img th:src="@{'img/filetypes/32/' + ${allegato.type} + '.png'}"
-                                                         alt=""
-                                                         width="22"
-                                                         height="22"
-                                                         border="0"
-                                                         style="vertical-align:middle;">
+                                                    <img th:src="@{'/manager/assets/img/filetypes/32/' + ${allegato.type} + '.png'}"
+                                                         alt="" width="22" height="22" style="vertical-align:middle;">
 
                                                     <span th:text="${allegato.l1}">Nome</span>
                                                     -
                                                     (<span th:text="${allegato.datainserimento}">data</span>)
                                                     -
                                                     (Versione <span th:text="${allegato.version}">1</span>)
-                                                </div>
 
+                                                </div>
                                             </li>
 
                                         </ul>
                                     </div>
-
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- TAB 06 -->
+                        </div>
+                        <!-- fine TAB 05 -->
+
+                        <!-- ═══════════════════════════════════════════════════════
+                             TAB 06 — AUTORIZZAZIONI
+                             ═══════════════════════════════════════════════════════ -->
                         <div id="tab_06" class="tab-pane" role="tabpanel">
+
+                            <!-- Sezione dati privata -->
+                            <div class="row form-group">
+                                <div class="col-lg-6"><!-- campo riservato --></div>
+                            </div>
+
+                            <div class="row form-group" id="GruppiAbilitati">
+                                <div class="col-lg-3"><!-- campo riservato --></div>
+                                <div class="col-lg-6">
+                                    <p>Selezionare i gruppi che avranno il permesso di accedere alla sezione ed ai documenti associati. Seleziona multipla utilizzando il tasto Maiusc.</p>
+                                </div>
+                            </div>
+
+                            <div class="row form-group" id="PermessiPersonalizzati">
+                                <div class="col-lg-3"><!-- campo riservato --></div>
+                                <div class="col-lg-6"><!-- campo riservato --></div>
+                                <div class="col-lg-3"><!-- campo riservato --></div>
+                            </div>
+
                             <div class="row form-group">
                                 <div class="col-lg-3">
                                     <label for="info2" class="col-form-label">Form contatti</label>
@@ -517,9 +536,13 @@
                                     <a href="javascript:void(0)">Vedi tutti</a>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- TAB 07 -->
+                        </div>
+                        <!-- fine TAB 06 -->
+
+                        <!-- ═══════════════════════════════════════════════════════
+                             TAB 07 — ALTRO (text1..text10)
+                             ═══════════════════════════════════════════════════════ -->
                         <div id="tab_07" class="tab-pane" role="tabpanel">
                             <div class="row form-group">
 
@@ -547,11 +570,12 @@
                                               th:text="${post.text3}"></textarea>
                                 </div>
 
+                                <!-- CORRETTO: era name="text2" -->
                                 <div class="col-lg-6">
                                     <label class="col-form-label" for="text4">text4</label>
                                     <a href="javascript:void(0)"
                                        onclick="tinymce.execCommand('mceToggleEditor',false,'text4');">Editor</a>
-                                    <textarea name="text2" id="text4" class="form-control"
+                                    <textarea name="text4" id="text4" class="form-control"
                                               th:text="${post.text4}"></textarea>
                                 </div>
 
@@ -563,11 +587,12 @@
                                               th:text="${post.text5}"></textarea>
                                 </div>
 
+                                <!-- CORRETTO: era name="text2" -->
                                 <div class="col-lg-6">
                                     <label class="col-form-label" for="text6">text6</label>
                                     <a href="javascript:void(0)"
                                        onclick="tinymce.execCommand('mceToggleEditor',false,'text6');">Editor</a>
-                                    <textarea name="text2" id="text6" class="form-control"
+                                    <textarea name="text6" id="text6" class="form-control"
                                               th:text="${post.text6}"></textarea>
                                 </div>
 
@@ -579,19 +604,40 @@
                                               th:text="${post.text7}"></textarea>
                                 </div>
 
+                                <!-- CORRETTO: era name="text2" -->
                                 <div class="col-lg-6">
                                     <label class="col-form-label" for="text8">text8</label>
                                     <a href="javascript:void(0)"
                                        onclick="tinymce.execCommand('mceToggleEditor',false,'text8');">Editor</a>
-                                    <textarea name="text2" id="text8" class="form-control"
+                                    <textarea name="text8" id="text8" class="form-control"
                                               th:text="${post.text8}"></textarea>
                                 </div>
 
-                                <!-- ... -->
+                                <!-- AGGIUNTO: mancante rispetto al legacy -->
+                                <div class="col-lg-6">
+                                    <label class="col-form-label" for="text9">text9</label>
+                                    <a href="javascript:void(0)"
+                                       onclick="tinymce.execCommand('mceToggleEditor',false,'text9');">Editor</a>
+                                    <textarea name="text9" id="text9" class="form-control"
+                                              th:text="${post.text9}"></textarea>
+                                </div>
+
+                                <!-- AGGIUNTO: mancante rispetto al legacy -->
+                                <div class="col-lg-6">
+                                    <label class="col-form-label" for="text10">text10</label>
+                                    <a href="javascript:void(0)"
+                                       onclick="tinymce.execCommand('mceToggleEditor',false,'text10');">Editor</a>
+                                    <textarea name="text10" id="text10" class="form-control"
+                                              th:text="${post.text10}"></textarea>
+                                </div>
+
                             </div>
                         </div>
+                        <!-- fine TAB 07 -->
 
-                        <!-- TAB 08 -->
+                        <!-- ═══════════════════════════════════════════════════════
+                             TAB 08 — RELAZIONI
+                             ═══════════════════════════════════════════════════════ -->
                         <div id="tab_08" class="tab-pane" role="tabpanel">
                             <div class="mt-4">
 
@@ -656,10 +702,10 @@
                                         <div class="col-lg-3">
                                             <label for="ordineExtraTag" class="col-form-label">Ordine visualizzazione</label>
                                             <select name="ordineExtraTag" id="ordineExtraTag" class="form-select">
-                                                <option value="rand()" th:selected="${post.ordineExtraTag == 'rand()'}">Casuale</option>
+                                                <option value="rand()"      th:selected="${post.ordineExtraTag == 'rand()'}">Casuale</option>
                                                 <option value="datasql-asc" th:selected="${post.ordineExtraTag == 'datasql-asc'}">Crescente data</option>
                                                 <option value="datasql-desc" th:selected="${post.ordineExtraTag == 'datasql-desc'}">Decrescente data</option>
-                                                <option value="titolo-asc" th:selected="${post.ordineExtraTag == 'titolo-asc'}">Crescente titolo</option>
+                                                <option value="titolo-asc"  th:selected="${post.ordineExtraTag == 'titolo-asc'}">Crescente titolo</option>
                                                 <option value="titolo-desc" th:selected="${post.ordineExtraTag == 'titolo-desc'}">Decrescente titolo</option>
                                                 <option value="position-asc" th:selected="${post.ordineExtraTag == 'position-asc'}">Crescente posizione</option>
                                             </select>
@@ -680,12 +726,10 @@
 
                                     <div class="row">
                                         <th:block th:each="i : ${#numbers.sequence(1, 10)}">
-
                                             <div class="col-lg-6 mb-3">
                                                 <label th:for="${'extraTagRef' + i}"
                                                        class="col-form-label"
                                                        th:text="${'Sezione associata ' + i}">Sezione associata</label>
-
                                                 <select th:name="${'extraTagRef' + i}"
                                                         th:id="${'extraTagRef' + i}"
                                                         class="form-control">
@@ -702,103 +746,51 @@
                                                 <label th:for="${'extraTag' + i}"
                                                        class="col-form-label"
                                                        th:text="${'TAG ' + i}">TAG</label>
-
                                                 <textarea th:name="${'extraTag' + i}"
                                                           th:id="${'extraTag' + i}"
                                                           class="form-control"
                                                           th:text="${__${'post.extraTag' + i}__}"
                                                           onblur="ControlloCampoTag(this);"></textarea>
                                             </div>
-
                                         </th:block>
                                     </div>
                                 </fieldset>
 
                             </div>
                         </div>
+                        <!-- fine TAB 08 -->
 
-                    </div>
-                </div>
+                    </div><!-- fine tab-content -->
+                </div><!-- fine tabs -->
             </div>
         </div>
 
-        <!-- Hidden finali -->
-        <input type="hidden" name="anno" th:value="${post.anno}">
-        <input type="hidden" name="mese" th:value="${post.mese}">
+        <!-- ═══════════════════════════════════════════════════════
+             CAMPI HIDDEN FINALI
+             ═══════════════════════════════════════════════════════ -->
+        <input type="hidden" name="anno"  th:value="${post.anno}">
+        <input type="hidden" name="mese"  th:value="${post.mese}">
 
-        <input type="hidden" name="log1" th:value="${post.log1}">
-        <input type="hidden" name="log2" th:value="${post.log2}">
-        <input type="hidden" name="log3" th:value="${post.log3}">
+        <input type="hidden" name="log1"  th:value="${post.log1}">
+        <input type="hidden" name="log2"  th:value="${post.log2}">
+        <input type="hidden" name="log3"  th:value="${post.log3}">
 
         <input type="hidden" name="idParent" id="idparent" th:value="${post.idParent}">
-        <input type="hidden" name="id" id="id" th:value="${post.id}">
-        <input type="hidden" name="idRoot" th:value="${post.idRoot}">
-        <input type="hidden" name="idType" th:value="${post.idType}">
+        <input type="hidden" name="id"       id="id"       th:value="${post.id}">
+        <input type="hidden" name="idRoot"                 th:value="${post.idRoot}">
+        <input type="hidden" name="idType"                 th:value="${post.idType}">
 
         <input type="hidden" name="temp1" th:value="${post.statoText}">
-        <input type="hidden" name="l2" value="0">
+        <input type="hidden" name="l2"    value="0">
 
-        <input type="hidden" name="privato" th:value="${post.privato}">
-        <input type="hidden" name="numeratore1" th:value="${post.numeratore1Long != null ? post.numeratore1Long : 0}">
-        <input type="hidden" name="numeratore2" th:value="${post.numeratore2Long != null ? post.numeratore2Long : 0}">
-        <input type="hidden" name="numeratore3" th:value="${post.numeratore3Long != null ? post.numeratore3Long : 0}">
-        <input type="hidden" name="numeratore4" th:value="${post.numeratore4Long != null ? post.numeratore4Long : 0}">
-        <input type="hidden" name="numeratore5" th:value="${post.numeratore5Long != null ? post.numeratore5Long : 0}">
+        <input type="hidden" name="privato"      th:value="${post.privato}">
+        <input type="hidden" name="numeratore1"  th:value="${post.numeratore1Long  != null ? post.numeratore1Long  : 0}">
+        <input type="hidden" name="numeratore2"  th:value="${post.numeratore2Long  != null ? post.numeratore2Long  : 0}">
+        <input type="hidden" name="numeratore3"  th:value="${post.numeratore3Long  != null ? post.numeratore3Long  : 0}">
+        <input type="hidden" name="numeratore4"  th:value="${post.numeratore4Long  != null ? post.numeratore4Long  : 0}">
+        <input type="hidden" name="numeratore5"  th:value="${post.numeratore5Long  != null ? post.numeratore5Long  : 0}">
 
     </form>
-
-    <script>
-        function InviaForm(e) {
-            var form = $("#documento");
-            if (form[0].checkValidity() === false) {
-                if (e) { e.preventDefault(); e.stopPropagation(); }
-                new PNotify({ title:'Attenzione!', text:'Alcuni campi obbligatori...', type:'error' });
-                form.addClass('was-validated');
-                return;
-            }
-            form.addClass('was-validated');
-            document.getElementById('documento').submit();
-        }
-
-            $(document).ready(function () {
-                AttivaDataPubblicazione();
-                AttivaLinkEsterno();
-                AttivaAutorizzazioniUtente();
-                AttivaExtraTag();
-
-                $(function () {
-                    var $form = $('form');
-                    var $formStatusHolder = $('.notifyZone');
-
-                    $form.autoSaveForm();
-
-                    $form.on('beforeSave.autoSaveForm', function (ev, $form, xhr) {
-                        if ($("#autosave").prop("checked") == false) { return false; }
-
-                        var formx = $("#sezione");
-                        if (formx.length && formx[0].checkValidity() === false) {
-                            new PNotify({
-                                title: 'Attenzione!',
-                                text: 'Alcuni campi obbligatori del modulo richiedono un tuo intervento!',
-                                type: 'error'
-                            });
-                            return false;
-                        }
-
-                        $formStatusHolder.html('Salvataggio automatico in corso...');
-                    });
-
-                    $form.on('saveError.autoSaveForm', function () {
-                        $formStatusHolder.html('Errore nel salvataggio automatico.');
-                    });
-
-                    $form.on('saveSuccess.autoSaveForm', function () {
-                        var d = new Date();
-                        $formStatusHolder.html('Ultimo salvataggio: ' + d.toLocaleTimeString());
-                    });
-                });
-            });
-    </script>
 
 </div>
 
