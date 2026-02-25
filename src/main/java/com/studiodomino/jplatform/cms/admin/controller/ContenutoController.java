@@ -84,7 +84,7 @@ public class ContenutoController {
                 }
             }
 
-            model.addAttribute("documento", datiBase);
+            model.addAttribute("post", datiBase);
             model.addAttribute("sezione", sezione);
             model.addAttribute("config", config);
 
@@ -128,7 +128,7 @@ public class ContenutoController {
             // Carica sezioni disponibili per riclassificazione
             List<Section> elencoSezioni = contentService.findRootSections(idSite);
 
-            model.addAttribute("documento", documento);
+            model.addAttribute("post", documento);
             model.addAttribute("sezione", sezione);
             model.addAttribute("elencoSezioni", elencoSezioni);
             model.addAttribute("config", config);
@@ -189,7 +189,7 @@ public class ContenutoController {
         } catch (Exception e) {
             log.error("Errore save contenuto", e);
             model.addAttribute("error", "Errore nel salvataggio: " + e.getMessage());
-            model.addAttribute("documento", documento);
+            model.addAttribute("post", documento);
             model.addAttribute("config", config);
             return ViewUtils.resolveProtectedTemplate("cms/contenuti/dettaglioContenuto");
         }

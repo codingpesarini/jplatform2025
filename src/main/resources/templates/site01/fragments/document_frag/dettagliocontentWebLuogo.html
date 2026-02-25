@@ -108,14 +108,14 @@
 
                     <!-- Ulteriori info solo se text6 non vuoto -->
                     <li class="nav-item" th:if="${post.text6 != null and !#strings.isEmpty(post.text6)}">
-                      <a class="nav-link" th:href="${post.urlRW + '#art-par-06'}">
+                      <a class="nav-link" th:href="${post.url + '#art-par-06'}">
                         <span>Ulteriori Informazioni</span>
                       </a>
                     </li>
 
                     <!-- Galleria: galleryCheck true E logo2 diverso da nofoto.jpg -->
                     <li class="nav-item" th:if="${post.galleryCheck and post.logo2 != 'nofoto.jpg'}">
-                      <a class="nav-link" th:href="${post.urlRW + '#art-par-07'}">
+                      <a class="nav-link" th:href="${post.url + '#art-par-07'}">
                         <span>Galleria fotografica</span>
                       </a>
                     </li>

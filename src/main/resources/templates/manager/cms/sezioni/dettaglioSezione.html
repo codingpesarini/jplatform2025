@@ -327,7 +327,7 @@
                             <div class="d-flex align-items-center justify-content-between mb-1">
                                 <label class="form-label mb-0" for="riassunto">Abstract</label>
                                 <button type="button" class="btn btn-outline-secondary btn-sm btn-toggle-editor"
-                                        data-target="riassunto">
+                                        data-bs-target="riassunto">
                                     <i class="ti ti-pencil me-1"></i> Toggle editor
                                 </button>
                             </div>
@@ -346,7 +346,7 @@
                             <div class="d-flex align-items-center justify-content-between mb-1">
                                 <label class="form-label mb-0" for="testo">Contenuto pagine</label>
                                 <button type="button" class="btn btn-outline-secondary btn-sm btn-toggle-editor"
-                                        data-target="testo">
+                                        data-bs-target="testo">
                                     <i class="ti ti-pencil me-1"></i> Toggle editor
                                 </button>
                             </div>
@@ -618,7 +618,7 @@
                                     <label th:for="${'text' + i}" class="form-label mb-0"
                                            th:text="${'Text' + i}">TextN</label>
                                     <button type="button" class="btn btn-outline-secondary btn-sm btn-toggle-editor"
-                                            th:data-target="${'text' + i}">
+                                            th:data-bs-target="${'text' + i}">
                                         <i class="ti ti-pencil me-1"></i> Editor
                                     </button>
                                 </div>

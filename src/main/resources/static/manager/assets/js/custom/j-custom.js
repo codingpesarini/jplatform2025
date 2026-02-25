@@ -304,6 +304,7 @@ function initTinyMCE(selector) {
     tinymce.init({
         selector: selector,
         language: 'it',
+        language_url: '/manager/assets/js/plugins/tinymce/langs/it.js',
         height: 350,
         menubar: false,
         statusbar: false,

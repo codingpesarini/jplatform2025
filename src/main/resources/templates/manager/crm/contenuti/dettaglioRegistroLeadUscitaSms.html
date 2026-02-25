@@ -39,14 +39,14 @@
                 <!-- Messaggio di conferma invio (visibile solo su lead già salvato, cioè id != -1) -->
                 <div th:if="${registroLead.id != null and registroLead.id != -1}"
                      class="alert alert-success">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <button type="button" class="close" data-bs-dismiss="alert" aria-hidden="true">&times;</button>
                     <strong>Perfetto!</strong> Ho inviato il messaggio SMS come da te richiesto.
                 </div>
 
                 <div class="tabs" id="mytabs">
                     <ul class="nav nav-tabs">
                         <li class="nav-item active">
-                            <a class="nav-link" href="#tab_01" data-toggle="tab">Definizione</a>
+                            <a class="nav-link" href="#tab_01" data-bs-toggle="tab">Definizione</a>
                         </li>
                     </ul>
 
