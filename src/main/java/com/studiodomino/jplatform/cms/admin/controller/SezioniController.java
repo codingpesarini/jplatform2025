@@ -98,7 +98,7 @@ public class SezioniController {
             log.error("Errore newForm sezione", e);
         }
 
-        return ViewUtils.resolveProtectedTemplate("cms/sezioni/dettaglioSezione");
+        return ViewUtils.resolveProtectedTemplate("cms/sezioni/dettaglioSezioneTemplate");
     }
 
     // =====================================================================
@@ -131,7 +131,7 @@ public class SezioniController {
             log.error("Errore open sezione id={}", id, e);
         }
 
-        return ViewUtils.resolveProtectedTemplate("cms/sezioni/dettaglioSezione");
+        return ViewUtils.resolveProtectedTemplate("cms/sezioni/dettaglioSezioneTemplate");
     }
 
     // =====================================================================
@@ -236,7 +236,7 @@ public class SezioniController {
             model.addAttribute("error", "Errore nel salvataggio: " + e.getMessage());
             model.addAttribute("section", section);
             model.addAttribute("config", config);
-            return ViewUtils.resolveProtectedTemplate("cms/sezioni/dettaglioSezione");
+            return ViewUtils.resolveProtectedTemplate("cms/sezioni/dettaglioSezioneTemplate");
         }
     }
 
