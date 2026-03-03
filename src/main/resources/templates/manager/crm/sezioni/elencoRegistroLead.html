@@ -4,182 +4,99 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{manager/layout/template}">
 <body>
+<th:block layout:fragment="content">
 
-<div layout:fragment="content">
   <div class="row">
 
-    <!-- ========================= -->
-    <!-- COLONNA SINISTRA -->
-    <!-- ========================= -->
-
+    <!-- ═══ SIDEBAR ═══ -->
     <div class="col-md-3">
       <section class="card card-success">
         <header class="card-header">
-          <h2 class="card-title">Gestione Messaggio Lead</h2>
+          <div class="card-actions">
+            <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+          </div>
+          <h2 class="card-title">Gestione Messaggi Web</h2>
           <p class="card-subtitle">Informazioni e parametri</p>
         </header>
-
         <div class="card-body">
-
-          <p>
-            In questa sezione sono visualizzati tutti i Lead profilati dall'amministrazione.
-            Puoi selezionare i messaggi in funzione dello stato assegnato.
-          </p>
-
-          <p>
-            E' possibile visualizzare i messaggi Lead non ancora visualizzati o quelli già completati.
-          </p>
-
-          <div class="row">
-
-            <!-- ENTRATA -->
-            <div class="col-md-6">
-              <div class="btn-group d-flex">
-                <button class="btn btn-default dropdown-toggle w-100"
-                        data-bs-toggle="dropdown">
-                  Entrata
-                </button>
-
-                <div class="dropdown-menu">
-                  <a class="dropdown-item"
-                     th:href="@{/admin/crm/lead(stato=1,direzione='e')}">Da Richiamare</a>
-                  <a class="dropdown-item"
-                     th:href="@{/admin/crm/lead(stato=2,direzione='e')}">Inviare Email</a>
-                  <a class="dropdown-item"
-                     th:href="@{/admin/crm/lead(stato=3,direzione='e')}">In lavorazione</a>
-                  <a class="dropdown-item"
-                     th:href="@{/admin/crm/lead(stato=4,direzione='e')}">Completato</a>
-                  <a class="dropdown-item"
-                     th:href="@{/admin/crm/lead(stato=5,direzione='e')}">Annullato</a>
-                  <a class="dropdown-item"
-                     th:href="@{/admin/crm/lead(stato=0,direzione='e')}">Non Gestito</a>
-                </div>
-              </div>
-            </div>
-
-            <!-- USCITA -->
-            <div class="col-md-6">
-              <div class="btn-group d-flex">
-                <button class="btn btn-default dropdown-toggle w-100"
-                        data-bs-toggle="dropdown">
-                  Uscita
-                </button>
-
-                <div class="dropdown-menu">
-                  <a class="dropdown-item"
-                     th:href="@{/admin/crm/lead(stato=1,direzione='u')}">Da Richiamare</a>
-                  <a class="dropdown-item"
-                     th:href="@{/admin/crm/lead(stato=2,direzione='u')}">Inviare Email</a>
-                  <a class="dropdown-item"
-                     th:href="@{/admin/crm/lead(stato=3,direzione='u')}">In lavorazione</a>
-                  <a class="dropdown-item"
-                     th:href="@{/admin/crm/lead(stato=4,direzione='u')}">Completato</a>
-                  <a class="dropdown-item"
-                     th:href="@{/admin/crm/lead(stato=5,direzione='u')}">Annullato</a>
-                  <a class="dropdown-item"
-                     th:href="@{/admin/crm/lead(stato=0,direzione='u')}">Non Gestito</a>
-                </div>
-              </div>
-            </div>
-
-          </div>
+          <p>In questa sezione sono visualizzati tutti i messaggi diretti utenti (LEAD) inviati tramite web-forms o altri canali diretti di comunicazione quali landing page. I messaggi email non sono riportati in questa sezione ma nella gestione web-mail del CRM.</p>
+          <p>È possibile visualizzare i commenti/messaggi non ancora visualizzati o quelli già completati.</p>
+          <a th:href="@{/admin/crm/numeratori(stato=1)}"
+             class="mb-1 mt-1 mr-1 btn btn-xs btn-success btn-lg btn-block">Da iniziare</a>
+          <a th:href="@{/admin/crm/numeratori(stato=2)}"
+             class="mb-1 mt-1 mr-1 btn btn-xs btn-success btn-lg btn-block">Completati</a>
         </div>
       </section>
     </div>
 
-
-    <!-- ========================= -->
-    <!-- COLONNA DESTRA -->
-    <!-- ========================= -->
-
+    <!-- ═══ TABELLA ═══ -->
     <div class="col-md-9">
       <section class="card card-success">
         <header class="card-header">
+          <div class="card-actions">
+            <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
+          </div>
           <h2 class="card-title">Elenco</h2>
-          <p class="card-subtitle">
-            I dati possono essere creati modificati e cancellati.
-          </p>
+          <p class="card-subtitle">I dati possono essere creati, modificati e cancellati.</p>
         </header>
-
         <div class="card-body">
-
-          <div class="text-right mb-2">
-            <a class="btn btn-success"
-               href="javascript:cancellaLeadMultipla()">
+          <div class="right-wrapper text-right mb-2">
+            <a href="javascript:void(0);" class="btn btn-success"
+               onclick="CancellaCommentoUtenteMultiplaAjax()">
               <i class="fas fa-trash-alt"></i> Cancella selezionati
             </a>
           </div>
 
-          <table class="table table-bordered table-striped">
+          <table class="table table-responsive-lg table-bordered table-striped mb-0">
             <thead>
             <tr>
               <th style="width:5%;">
-                <input type="checkbox" class="chSel_all"/>
+                <input type="checkbox" class="chSel_all inpt_c2">
               </th>
               <th>#</th>
               <th>Data</th>
-              <th>Utente</th>
-              <th style="width:50%;">Da fare</th>
-              <th>Stato</th>
+              <th>Mittente</th>
+              <th>Email</th>
               <th>Azioni</th>
             </tr>
             </thead>
-
             <tbody>
-            <tr th:if="${#lists.isEmpty(elencoRegistroLead)}">
-              <td colspan="7" class="text-center text-muted py-3">Nessun lead trovato</td>
-            </tr>
-            <tr th:each="lead : ${elencoRegistroLead}">
-
-              <td>
-                <input type="checkbox" name="row_sel" th:value="${lead.id}"/>
+            <tr th:each="row : ${elencoCommentiUtente}">
+              <td class="check">
+                <input type="checkbox" name="row_sel"
+                       th:id="${'AnagRow' + row.id}"
+                       class="inpt_c2" th:value="${row.id}">
               </td>
-
               <td>
-                <a th:href="@{/admin/crm/lead/{id}(id=${lead.id})}">
-                  <span th:text="${lead.id}"></span>
+                <a th:href="@{/admin/crm/numeratori/{id}/open(id=${row.id})}"
+                   rel="highslide-iframe"
+                   title="Modifica">
+                  <span th:text="${row.id}">0</span>
+                  <input type="hidden" th:id="${'row_' + row.id}" th:value="${row.id}">
                 </a>
               </td>
-
-              <td th:text="${lead.data}"></td>
-
+              <td th:text="${row.data}">-</td>
               <td>
-                <a th:if="${lead.utente != null}"
-                   th:href="@{/admin/crm/utenti/{id}(id=${lead.utente.id})}"
-                   th:title="'Apri anagrafica utente: ' + ${lead.utente.email}">
-                  <span th:text="${lead.utente.nome} + ' ' + ${lead.utente.cognome}"></span>
-                </a>
-                <span th:if="${lead.utente == null}" class="text-muted">—</span>
+                <span th:text="${row.nome}">-</span>
+                <span th:text="${row.cognome}">-</span>
               </td>
-
-              <td th:utext="${lead.notalead}"></td>
-
+              <td th:text="${row.email}">-</td>
               <td>
-              <span class="badge"
-                    th:classappend="${lead.stato == '0'} ? 'bg-secondary' :
-                                   (${lead.stato == '1'} ? 'bg-warning' :
-                                   (${lead.stato == '2'} ? 'bg-info' :
-                                   (${lead.stato == '3'} ? 'bg-primary' :
-                                   (${lead.stato == '4'} ? 'bg-success' : 'bg-danger'))))"
-                    th:text="${lead.stato == '0'} ? 'Non gestito' :
-                             (${lead.stato == '1'} ? 'Da richiamare' :
-                             (${lead.stato == '2'} ? 'Inviare email' :
-                             (${lead.stato == '3'} ? 'In lavorazione' :
-                             (${lead.stato == '4'} ? 'Completato' : 'Annullato'))))">
-              </span>
-              </td>
-
-              <td>
-                <a th:href="@{/admin/crm/lead/{id}(id=${lead.id})}" title="Modifica" class="text-primary me-2">
+                <a th:href="@{/admin/crm/numeratori/{id}/open(id=${row.id})}"
+                   rel="highslide-iframe" title="Modifica">
                   <i class="fas fa-pencil-alt"></i>
                 </a>
-                <a href="javascript:void(0)"
-                   th:onclick="'cancellaLead(' + ${lead.id} + ')'"
-                   title="Cancella" class="text-danger">
+                &nbsp;&nbsp;
+                <a href="javascript:void(0);"
+                   th:data-id="${row.id}"
+                   onclick="CancellaCommentoUtente(this.getAttribute('data-id'))"
+                   class="delete-row" title="Cancella">
                   <i class="far fa-trash-alt"></i>
                 </a>
               </td>
-
+            </tr>
+            <tr th:if="${#lists.isEmpty(elencoCommentiUtente)}">
+              <td colspan="6" class="text-center">Nessun messaggio trovato.</td>
             </tr>
             </tbody>
           </table>
@@ -190,48 +107,6 @@
 
   </div>
 
-  <!-- JAVASCRIPT -->
-  <script th:inline="javascript">
-    // Seleziona/deseleziona tutti
-    document.querySelector('.chSel_all')?.addEventListener('change', function () {
-      document.querySelectorAll('input[name="row_sel"]')
-              .forEach(cb => cb.checked = this.checked);
-    });
-
-    var baseUrl = /*[[ @{/admin/crm/lead/} ]]*/ '/admin/crm/lead/';
-
-    function cancellaLead(id) {
-      if (!confirm('Confermi l\'eliminazione di questa attività?')) return;
-      fetch(baseUrl + id + '/delete', {
-        method: 'POST',
-        headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.content ?? ''
-        }
-      })
-              .then(r => r.text())
-              .then(result => {
-                if (result === 'OK') location.reload();
-                else alert('Errore durante l\'eliminazione.');
-              })
-              .catch(() => alert('Errore di rete.'));
-    }
-
-    function cancellaLeadMultipla() {
-      const ids = [...document.querySelectorAll('input[name="row_sel"]:checked')]
-              .map(cb => cb.value);
-      if (ids.length === 0) { alert('Nessun elemento selezionato.'); return; }
-      if (!confirm('Confermi l\'eliminazione di ' + ids.length + ' elementi?')) return;
-
-      Promise.all(ids.map(id =>
-              fetch(baseUrl + id + '/delete', {
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.content ?? '' }
-              }).then(r => r.text())
-      )).then(() => location.reload());
-    }
-  </script>
-
-</div>
+</th:block>
 </body>
-</html>
 </html>

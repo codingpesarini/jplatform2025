@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="content">
+
+    <!--
+        dettaglioAnagraficaAmministratore.html
+        POST /admin/anagrafica/save
+        Model:
+          anagraficaUtente  (AmministratoreUtente)
+          configCore.ruoli  (List<Ruolo>)
+          configCore.gruppi (List<Gruppo>)
+        6 tab:
+          01 - Dati anagrafici
+          02 - Dati accesso  (password, 2FA, social, gruppi)
+          03 - Ruoli operativi (ruoliA1..A5)
+          04 - Permessi accesso (role1..role18)
+          05 - Autorizzazioni  (l1..l10)
+          06 - Email e PEC (accountEMAIL, accountPEC)
+    -->
+
+    <form th:action="@{/admin/anagrafica/save}"
+          method="post"
+          enctype="multipart/form-data"
+          id="anagraficaUtente"
+          class="form-bordered">
+
+        <div class="msg_box msg_error" id="form_a_errors" style="display:none"></div>
+
+        <header class="page-header mb-2">
+            <h2>Dettaglio Anagrafica</h2>
+            <div class="right-wrapper text-right">
+                <a th:href="@{/admin/anagrafica/new}"
+                   onclick="return ConfermaOperazione(this.href,'creare una nuova anagrafica')"
+                   class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+                    <i class="fas fa-file-medical"></i> Nuova
+                </a>
+                <a th:href="@{/admin/anagrafica/{id}/duplica(id=${anagraficaUtente.id})}"
+                   onclick="return ConfermaOperazione(this.href,'duplicare questa anagrafica')"
+                   class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+                    <i class="fas fa-clone"></i> Duplica
+                </a>
+                <button type="button" onclick="InviaForm();"
+                        class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+                    <i class="fas fa-file-upload"></i> Salva
+                </button>
+                <a href="javascript:void(0);" onclick="CloseHsReloadBase();"
+                   class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+                    <i class="fas fa-times-circle"></i> Esci
+                </a>
+            </div>
+        </header>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="tabs" id="mytabs">
+
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item storeTab" role="presentation">
+                            <a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Dati anagrafici</a>
+                        </li>
+                        <li class="nav-item storeTab" role="presentation">
+                            <a class="nav-link" href="#tab_02" data-bs-toggle="tab">Dati accesso</a>
+                        </li>
+                        <li class="nav-item storeTab" role="presentation">
+                            <a class="nav-link" href="#tab_03" data-bs-toggle="tab">Ruoli operativi</a>
+                        </li>
+                        <li class="nav-item storeTab" role="presentation">
+                            <a class="nav-link" href="#tab_04" data-bs-toggle="tab">Permessi accesso</a>
+                        </li>
+                        <li class="nav-item storeTab" role="presentation">
+                            <a class="nav-link" href="#tab_05" data-bs-toggle="tab">Autorizzazioni</a>
+                        </li>
+                        <li class="nav-item storeTab" role="presentation">
+                            <a class="nav-link" href="#tab_06" data-bs-toggle="tab">Email e PEC</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+
+                        <!-- ═══ TAB 01 — DATI ANAGRAFICI ═══ -->
+                        <div id="tab_01" class="tab-pane active" role="tabpanel">
+                            <fieldset class="border p-3 mb-4">
+                                <legend class="float-none w-auto px-2">
+                                    Dati anagrafici ID <span th:text="${anagraficaUtente.id}">0</span>
+                                </legend>
+
+                                <!-- hidden fields -->
+                                <input type="hidden" name="id"           th:value="${anagraficaUtente.id}">
+                                <input type="hidden" name="idsite"       th:value="${anagraficaUtente.idsite}">
+                                <input type="hidden" name="statoaccesso" value="1">
+                                <input type="hidden" name="profileImage" th:value="${anagraficaUtente.profileImage}">
+                                <input type="hidden" name="ruoli1String" th:value="${anagraficaUtente.ruoli1String}">
+                                <input type="hidden" name="ruoli2String" th:value="${anagraficaUtente.ruoli2String}">
+                                <input type="hidden" name="ruoli3String" th:value="${anagraficaUtente.ruoli3String}">
+                                <input type="hidden" name="ruoli4String" th:value="${anagraficaUtente.ruoli4String}">
+                                <input type="hidden" name="ruoli5String" th:value="${anagraficaUtente.ruoli5String}">
+
+                                <div class="row form-group">
+                                    <div class="col-lg-6 text-center">
+                                        <img th:src="${anagraficaUtente.avatar}" alt="" style="width:150px"><br>
+                                        <a href="javascript:void(0);"
+                                           th:data-id="${anagraficaUtente.id}"
+                                           onclick="return hs.htmlExpand(this,{headingText:'',align:'center',objectType:'iframe',width:400,height:600,src:'/filemanager/gestioneAvatar?idUser='+this.getAttribute('data-id')+'&userTable=utente&userTableField=image'})"
+                                           class="mb-1 mt-1 mr-1 btn btn-xs btn-default">
+                                            Carica foto utente
+                                        </a>
+                                        <a href="javascript:void(0);"
+                                           th:data-id="${anagraficaUtente.id}"
+                                           onclick="CancellaAvatar('gestioneAvatar',this.getAttribute('data-id'),'utente','image')"
+                                           class="mb-1 mt-1 mr-1 btn btn-xs btn-default">
+                                            Cancella foto
+                                        </a>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label for="cognomeU" class="col-form-label">
+                                            Cognome o denominazione <span class="required">*</span>
+                                        </label>
+                                        <input type="text" name="cognome" id="cognomeU"
+                                               th:value="${anagraficaUtente.cognome}"
+                                               class="form-control obbligatorio" required>
+                                        <label for="nome" class="col-form-label">Nome</label>
+                                        <input type="text" name="nome" id="nome"
+                                               th:value="${anagraficaUtente.nome}"
+                                               class="form-control obbligatorio" required>
+                                    </div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-lg-6">
+                                        <label for="email" class="col-form-label">Email</label>
+                                        <input type="email" name="email" id="email"
+                                               th:value="${anagraficaUtente.email}"
+                                               class="form-control obbligatorio email" required>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label for="pec" class="col-form-label">PEC</label>
+                                        <input type="text" name="pec" id="pec"
+                                               th:value="${anagraficaUtente.pec}"
+                                               class="form-control">
+                                    </div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-lg-6">
+                                        <label for="indirizzo" class="col-form-label">Via e numero civico, città</label>
+                                        <input type="text" name="indirizzo" id="indirizzo"
+                                               th:value="${anagraficaUtente.indirizzo}"
+                                               class="form-control upper">
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label for="incarico" class="col-form-label">Incarico</label>
+                                        <input type="text" name="incarico" id="incarico"
+                                               th:value="${anagraficaUtente.incarico}"
+                                               class="form-control upper">
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <label for="extra1" class="col-form-label">Definisci firma per email</label>
+                                        <input type="text" name="extra1" id="extra1"
+                                               th:value="${anagraficaUtente.extra1}"
+                                               class="form-control tinymce5basic">
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <!-- fine TAB 01 -->
+
+                        <!-- ═══ TAB 02 — DATI ACCESSO ═══ -->
+                        <div id="tab_02" class="tab-pane" role="tabpanel">
+                            <fieldset class="border p-3 mb-4">
+                                <legend class="float-none w-auto px-2">Dati di accesso</legend>
+
+                                <div class="row form-group">
+                                    <div class="col-lg-6">
+                                        <label for="username" class="col-form-label">Username accesso</label>
+                                        <input type="text" name="username" id="username"
+                                               th:value="${anagraficaUtente.username}"
+                                               class="form-control obbligatorio" required>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <!-- Password nuova utente (password vuota) -->
+                                        <th:block th:if="${anagraficaUtente.password == null or anagraficaUtente.password == ''}">
+                                            <label for="passwordNew" class="col-form-label">Password</label>
+                                            <input type="password" name="password" id="passwordNew"
+                                                   class="form-control obbligatorio" required>
+                                            <code>[da 8 a 15 caratteri con almeno una minuscola, una maiuscola, una cifra e un carattere speciale]</code>
+                                        </th:block>
+                                        <!-- Password già impostata -->
+                                        <th:block th:unless="${anagraficaUtente.password == null or anagraficaUtente.password == ''}">
+                                            <label for="passwordHidden" class="col-form-label">Modifica la password di accesso</label>
+                                            <a href="javascript:void(0);"
+                                               onclick="$('#nuovaPasswordAccesso').toggle()"
+                                               class="btn btn-lg btn-default">Cambia password</a>
+                                            <input type="hidden" name="password" id="passwordHidden"
+                                                   th:value="${anagraficaUtente.password}">
+                                        </th:block>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <label for="statoaccesso" class="col-form-label">Stato attivazione</label>
+                                        <select name="statoaccesso" id="statoaccesso" class="form-control">
+                                            <option value=""  th:selected="${anagraficaUtente.statoaccesso == ''}">Indefinito</option>
+                                            <option value="0" th:selected="${anagraficaUtente.statoaccesso == '0'}">Disattivo</option>
+                                            <option value="1" th:selected="${anagraficaUtente.statoaccesso == '1'}">Attivo</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Cambio password -->
+                                <div class="row form-group" id="nuovaPasswordAccesso" style="display:none">
+                                    <div class="col-lg-6">
+                                        <p>Inserire la nuova password con i seguenti requisiti:</p>
+                                        <code>[da 8 a 15 caratteri con almeno una minuscola, una maiuscola, una cifra e un carattere speciale]</code>
+                                        <div class="text-danger" id="nuovaPasswordAccessoError"></div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <label for="newpassword" class="col-form-label">Inserire password</label>
+                                        <input type="password" id="newpassword" name="newpassword" class="form-control">
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <label for="newpasswordretype" class="col-form-label">Inserire nuovamente password</label>
+                                        <input type="password" id="newpasswordretype" name="newpasswordretype" class="form-control">
+                                    </div>
+                                </div>
+
+                                <!-- 2FA -->
+                                <div class="row form-group">
+                                    <div class="col-lg-4">
+                                        <label for="role19" class="col-form-label">Stato autenticazione 2F - Google Authenticator</label>
+                                        <select name="role19" id="role19" class="form-control obbligatorio">
+                                            <option value=""  th:selected="${anagraficaUtente.role19 == ''}">Indefinito</option>
+                                            <option value="0" th:selected="${anagraficaUtente.role19 == '0'}">Disattivo</option>
+                                            <option value="1" th:selected="${anagraficaUtente.role19 == '1'}">Attivo</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <label for="role20" class="col-form-label">secretKey generator</label>
+                                        <input type="text" name="role20" id="role20"
+                                               th:value="${anagraficaUtente.role20}" class="form-control">
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <a href="javascript:GeneraAuthCodeGoogleAuthenticatorUtente('generare un nuovo AUTHCODE Google Authenticator')"
+                                           class="mb-0 mt-4 btn btn-primary btn-lg btn-block">
+                                            Genera AUTHCODE
+                                        </a>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <a class="mb-0 mt-4 btn btn-primary btn-lg btn-block modal-basic-anim"
+                                           href="#modalQRCODE">QRCODE</a>
+                                        <div id="modalQRCODE" class="modal-block modal-block-sd mfp-hide">
+                                            <section class="card">
+                                                <header class="card-header">
+                                                    <h2 class="card-title">Google Authenticator QR Code</h2>
+                                                </header>
+                                                <div class="card-body">
+                                                    <div class="modal-wrapper">
+                                                        <div class="modal-text">
+                                                            <p>Scansione il codice utilizzando Google Autenticator APP</p>
+                                                            <p>
+                                                                <img th:src="@{/admin/anagrafica/qrcode(email=${anagraficaUtente.email},securkey=${anagraficaUtente.role20})}"
+                                                                     class="w-100" alt="QR Code">
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <footer class="card-footer">
+                                                    <div class="row">
+                                                        <div class="col-md-12 text-end">
+                                                            <button class="btn btn-default modal-dismiss">Completato</button>
+                                                        </div>
+                                                    </div>
+                                                </footer>
+                                            </section>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Social -->
+                                <div class="row form-group">
+                                    <div class="col-lg-6">
+                                        <label for="socialId" class="col-form-label">Id social network</label>
+                                        <input type="text" name="socialId" id="socialId"
+                                               th:value="${anagraficaUtente.socialId}" class="form-control">
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label for="socialName" class="col-form-label">Social name</label>
+                                        <input type="text" name="socialName" id="socialName"
+                                               th:value="${anagraficaUtente.socialName}" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="row form-group">
+                                    <div class="col-lg-6">
+                                        <label for="socialType" class="col-form-label">Social Tipologia</label>
+                                        <input type="text" name="socialType" id="socialType"
+                                               th:value="${anagraficaUtente.socialType}" class="form-control">
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label for="socialImage" class="col-form-label">Path social Image</label>
+                                        <input type="text" name="socialImage" id="socialImage"
+                                               th:value="${anagraficaUtente.socialImage}" class="form-control">
+                                    </div>
+                                </div>
+
+                                <!-- Gruppi + dati accesso -->
+                                <div class="row form-group">
+                                    <div class="col-lg-6">
+                                        <label class="col-form-label">Gruppi associati</label>
+                                        <select name="id_gruppi" multiple size="10" class="form-control">
+                                            <option value="0">Seleziona tipologia</option>
+                                            <option th:each="g : ${configCore.gruppi}"
+                                                    th:value="${g.id}" th:text="${g.nome}"
+                                                    th:selected="${anagraficaUtente.idGruppi != null and #lists.contains(anagraficaUtente.idGruppi, g.id)}"></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-2">
+                                        <label class="col-form-label">Data di registrazione</label>
+                                        <p th:text="${anagraficaUtente.datacreazione}">-</p>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <label class="col-form-label">Data ultimo accesso | IP | Accessi totali</label>
+                                        <p>
+                                            <span th:text="${anagraficaUtente.dataultimoaccesso}">-</span> |
+                                            <span th:text="${anagraficaUtente.ipultimoaccesso}">-</span> |
+                                            <span th:text="${anagraficaUtente.numeroaccessi}">-</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <!-- fine TAB 02 -->
+
+                        <!-- ═══ TAB 03 — RUOLI OPERATIVI ═══ -->
+                        <div id="tab_03" class="tab-pane" role="tabpanel">
+                            <fieldset class="border p-3">
+                                <legend class="float-none w-auto px-2">Ruoli di servizio</legend>
+                                <div class="row form-group">
+                                    <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                                        <div class="col-lg-6 mb-3">
+                                            <label th:for="${'ruoliA' + i}" class="col-form-label"
+                                                   th:text="${'Ruolo ' + i}">Ruolo N</label>
+                                            <select th:name="${'ruoliA' + i}" th:id="${'ruoliA' + i}"
+                                                    multiple size="5" class="form-control">
+                                                <option value="0">Nessuno</option>
+                                                <option th:each="r : ${configCore.ruoli}"
+                                                        th:value="${r.id}" th:text="${r.nome}"
+                                                        th:selected="${__${'anagraficaUtente.ruoliA' + i}__ != null and #lists.contains(__${'anagraficaUtente.ruoliA' + i}__, r.id)}"></option>
+                                            </select>
+                                        </div>
+                                    </th:block>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <!-- fine TAB 03 -->
+
+                        <!-- ═══ TAB 04 — PERMESSI ACCESSO (role1..role18) ═══ -->
+                        <div id="tab_04" class="tab-pane" role="tabpanel">
+                            <fieldset class="border p-3">
+                                <legend class="float-none w-auto px-2">Altri dati</legend>
+                                <div class="row form-group">
+
+                                    <!-- role1: Amm/Sup/Red ha opzioni speciali -->
+                                    <div class="col-lg-6 mb-3">
+                                        <label for="role1" class="col-form-label">Amm/Sup/Red</label>
+                                        <select name="role1" id="role1" class="form-control">
+                                            <option value="a" th:selected="${anagraficaUtente.role1 == 'a'}">Amministratore</option>
+                                            <option value="s" th:selected="${anagraficaUtente.role1 == 's'}">Supervisore</option>
+                                            <option value="r" th:selected="${anagraficaUtente.role1 == 'r'}">Redattore</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- role2: Accesso portale -->
+                                    <div class="col-lg-6 mb-3">
+                                        <label for="role2" class="col-form-label">Accesso portale</label>
+                                        <select name="role2" id="role2" class="form-control">
+                                            <option value=""  th:selected="${anagraficaUtente.role2 == ''}">Indefinito</option>
+                                            <option value="0" th:selected="${anagraficaUtente.role2 == '0'}">Disattivo</option>
+                                            <option value="1" th:selected="${anagraficaUtente.role2 == '1'}">Attivo</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- role3..role18: pattern uniforme generato con th:each -->
+                                    <th:block th:each="i : ${#numbers.sequence(3, 18)}">
+                                        <div class="col-lg-6 mb-3">
+                                            <label th:for="${'role' + i}" class="col-form-label"
+                                                   th:text="${'Ruolo ' + i}">Ruolo N</label>
+                                            <select th:name="${'role' + i}" th:id="${'role' + i}" class="form-control">
+                                                <option value=""  th:selected="${__${'anagraficaUtente.role' + i}__ == ''}">Indefinito</option>
+                                                <option value="0" th:selected="${__${'anagraficaUtente.role' + i}__ == '0'}">Disattivo</option>
+                                                <option value="1" th:selected="${__${'anagraficaUtente.role' + i}__ == '1'}">Attivo</option>
+                                            </select>
+                                        </div>
+                                    </th:block>
+
+                                </div>
+                            </fieldset>
+                        </div>
+                        <!-- fine TAB 04 -->
+
+                        <!-- ═══ TAB 05 — AUTORIZZAZIONI (l1..l10) ═══ -->
+                        <div id="tab_05" class="tab-pane" role="tabpanel">
+                            <fieldset class="border p-3">
+                                <legend class="float-none w-auto px-2">Altri dati</legend>
+                                <div class="row form-group">
+
+                                    <!-- l1: generico -->
+                                    <div class="col-lg-6 mb-3">
+                                        <label for="l1" class="col-form-label">L1</label>
+                                        <select name="l1" id="l1" class="form-control">
+                                            <option value=""  th:selected="${anagraficaUtente.l1 == ''}">Indefinito</option>
+                                            <option value="0" th:selected="${anagraficaUtente.l1 == '0'}">Disattivo</option>
+                                            <option value="1" th:selected="${anagraficaUtente.l1 == '1'}">Attivo</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- l2: opzioni speciali "Accesso a" -->
+                                    <div class="col-lg-6 mb-3">
+                                        <label for="l2" class="col-form-label">Accesso a</label>
+                                        <select name="l2" id="l2" class="form-control">
+                                            <option value=""  th:selected="${anagraficaUtente.l2 == ''}">Indefinito</option>
+                                            <option value="0" th:selected="${anagraficaUtente.l2 == '0'}">Portale WEB</option>
+                                            <option value="1" th:selected="${anagraficaUtente.l2 == '1'}">Protocollo e gestione documentale</option>
+                                            <option value="2" th:selected="${anagraficaUtente.l2 == '2'}">Mensa</option>
+                                            <option value="3" th:selected="${anagraficaUtente.l2 == '3'}">Casa dello studente</option>
+                                            <option value="4" th:selected="${anagraficaUtente.l2 == '4'}">Gestione Bandi e Concorsi</option>
+                                        </select>
+                                        <span class="f_help">L2</span>
+                                    </div>
+
+                                    <!-- l3..l10: pattern uniforme -->
+                                    <th:block th:each="i : ${#numbers.sequence(3, 10)}">
+                                        <div class="col-lg-6 mb-3">
+                                            <label th:for="${'l' + i}" class="col-form-label"
+                                                   th:text="${'L' + i}">LN</label>
+                                            <select th:name="${'l' + i}" th:id="${'l' + i}" class="form-control">
+                                                <option value=""  th:selected="${__${'anagraficaUtente.l' + i}__ == ''}">Indefinito</option>
+                                                <option value="0" th:selected="${__${'anagraficaUtente.l' + i}__ == '0'}">Disattivo</option>
+                                                <option value="1" th:selected="${__${'anagraficaUtente.l' + i}__ == '1'}">Attivo</option>
+                                            </select>
+                                        </div>
+                                    </th:block>
+
+                                </div>
+                            </fieldset>
+                        </div>
+                        <!-- fine TAB 05 -->
+
+                        <!-- ═══ TAB 06 — EMAIL E PEC ═══ -->
+                        <div id="tab_06" class="tab-pane" role="tabpanel">
+                            <div class="row form-group">
+
+                                <!-- Account EMAIL -->
+                                <div class="col-lg-6">
+                                    <fieldset class="border p-3">
+                                        <legend class="float-none w-auto px-2">Account EMAIL</legend>
+                                        <div class="right-wrapper text-right mb-2">
+                                            <a href="javascript:void(0);"
+                                               onclick="return hs.htmlExpand(this,{headingText:'Associa account EMAIL',align:'center',objectType:'iframe',width:600,height:600,src:'/admin/account/elenco?tipo=EMAIL&table=data_tableEmail'})"
+                                               class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+                                                Associa account EMAIL
+                                            </a>
+                                        </div>
+                                        <code>Il primo account inserito è il predefinito</code>
+                                        <input type="hidden" name="idAccountEMAIL" id="idAccountEMAIL"
+                                               th:value="${anagraficaUtente.idAccountEMAIL}">
+                                        <table id="data_tableEmail"
+                                               class="table table-responsive-lg table-bordered table-striped mb-0">
+                                            <thead>
+                                            <tr><th>Descrizione</th><th>Tipologia</th><th>Rimuovi</th></tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr th:if="${#lists.isEmpty(anagraficaUtente.accountEMAIL)}">
+                                                <td colspan="3" class="text-center">Nessun account associato.</td>
+                                            </tr>
+                                            <tr th:each="acc : ${anagraficaUtente.accountEMAIL}">
+                                                <td>
+                                                    <span th:text="${acc.descrizione}">-</span>
+                                                    <input type="hidden" th:id="${'rowEMAIL_' + acc.id}" th:value="${acc.id}">
+                                                </td>
+                                                <td th:text="${acc.tipoAccount}">-</td>
+                                                <td>
+                                                    <a href="javascript:void(0);"
+                                                       th:data-id="${acc.id}"
+                                                       onclick="disassociaAccount('idAccountEMAIL',this.getAttribute('data-id'))"
+                                                       title="Cancella">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </fieldset>
+                                </div>
+
+                                <!-- Account PEC -->
+                                <div class="col-lg-6">
+                                    <fieldset class="border p-3">
+                                        <legend class="float-none w-auto px-2">Account PEC</legend>
+                                        <div class="right-wrapper text-right mb-2">
+                                            <a href="javascript:void(0);"
+                                               onclick="return hs.htmlExpand(this,{headingText:'Associa account PEC',align:'center',objectType:'iframe',width:600,height:600,src:'/admin/account/elenco?tipo=PEC&table=data_tablePec'})"
+                                               class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+                                                Associa account PEC
+                                            </a>
+                                        </div>
+                                        <code>Il primo account inserito è il predefinito</code>
+                                        <input type="hidden" name="idAccountPEC" id="idAccountPEC"
+                                               th:value="${anagraficaUtente.idAccountPEC}">
+                                        <table id="data_tablePec"
+                                               class="table table-responsive-lg table-bordered table-striped mb-0">
+                                            <thead>
+                                            <tr><th>Descrizione</th><th>Tipologia</th><th>Rimuovi</th></tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr th:if="${#lists.isEmpty(anagraficaUtente.accountPEC)}">
+                                                <td colspan="3" class="text-center">Nessun account associato.</td>
+                                            </tr>
+                                            <tr th:each="acc : ${anagraficaUtente.accountPEC}">
+                                                <td>
+                                                    <span th:text="${acc.descrizione}">-</span>
+                                                    <input type="hidden" th:id="${'rowPEC_' + acc.id}" th:value="${acc.id}">
+                                                </td>
+                                                <td th:text="${acc.tipoAccount}">-</td>
+                                                <td>
+                                                    <a href="javascript:void(0);"
+                                                       th:data-id="${acc.id}"
+                                                       onclick="disassociaAccount('idAccountPEC',this.getAttribute('data-id'))"
+                                                       title="Cancella">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </fieldset>
+                                </div>
+
+                            </div>
+                        </div>
+                        <!-- fine TAB 06 -->
+
+                    </div><!-- fine tab-content -->
+                </div><!-- fine tabs -->
+            </div>
+        </div>
+
+        <button type="submit" style="visibility:hidden"></button>
+
+    </form>
+
+    <script th:inline="javascript">
+        // Nasconde il pannello cambio password all'avvio
+        $('#nuovaPasswordAccesso').hide();
+
+        function InviaForm() {
+            var errore = '';
+
+            // Validazione password nuova (campo visibile, utente nuovo)
+            if (!$('#nuovaPasswordAccesso').is(':visible') && $('#password').is(':visible')) {
+                var p = document.getElementById('password');
+                var decimal = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!\s).{8,15}$/;
+                p.addEventListener('change', function () {
+                    if (!p.value.match(decimal)) {
+                        p.setCustomValidity('La password non corrisponde ai criteri indicati');
+                    } else {
+                        p.setCustomValidity('');
+                    }
+                }, false);
+            }
+
+            // Validazione cambio password (pannello aperto)
+            if ($('#nuovaPasswordAccesso').is(':visible')) {
+                var p1 = document.getElementById('newpassword');
+                var p2 = document.getElementById('newpasswordretype');
+                $('#newpassword').prop('required', true);
+                $('#newpasswordretype').prop('required', true);
+                var decimal = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!\s).{8,15}$/;
+                var check = function () {
+                    $('#nuovaPasswordAccessoError').empty();
+                    if (!p1.value.match(decimal)) {
+                        errore = 'La password non corrisponde ai criteri indicati';
+                        p1.setCustomValidity(errore);
+                        $('#nuovaPasswordAccessoError').append(errore);
+                    } else if (p1.value !== p2.value) {
+                        errore = 'Le password devono essere uguali';
+                        p1.setCustomValidity(errore);
+                        p2.setCustomValidity(errore);
+                        $('#nuovaPasswordAccessoError').append(errore);
+                    } else {
+                        p1.setCustomValidity('');
+                        p2.setCustomValidity('');
+                    }
+                };
+                p1.addEventListener('change', check, false);
+                p2.addEventListener('change', check, false);
+            } else {
+                $('#newpassword').removeAttr('required');
+                $('#newpasswordretype').removeAttr('required');
+            }
+
+            var form = $('#anagraficaUtente');
+            if (form[0].checkValidity() === false) {
+                new PNotify({
+                    title: 'Attenzione!',
+                    text: 'Alcuni campi obbligatori del modulo richiedono un tuo intervento!',
+                    type: 'error'
+                });
+                form.find(':submit').click();
+            } else {
+                form.addClass('was-validated');
+                document.anagraficaUtente.submit();
+            }
+            form.addClass('was-validated');
+        }
+    </script>
+
+</th:block>
+</body>
+</html>

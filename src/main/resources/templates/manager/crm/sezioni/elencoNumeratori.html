@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="it"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{manager/layout/template}">
+<body>
+
+<div layout:fragment="content">
+
+  <div class="row">
+    <div class="col-md-3">
+      <section class="card card-info">
+        <header class="card-header">
+          <div class="card-actions">
+            <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+          </div>
+          <h2 class="card-title">Gestione Numeratori</h2>
+          <p class="card-subtitle">Informazioni e parametri</p>
+        </header>
+        <div class="card-body">
+          <p>
+            Lorem Ipsum è un testo segnaposto utilizzato nel settore della tipografia e della stampa. Lorem Ipsum è considerato il testo segnaposto standard sin dal sedicesimo secolo, quando un anonimo tipografo prese una cassetta di caratteri e li assemblò per preparare un testo campione. È sopravvissuto non solo a più di cinque secoli, ma anche al passaggio alla videoimpaginazione, pervenendoci sostanzialmente inalterato. Fu reso popolare, negli anni ’60, con la diffusione dei fogli di caratteri trasferibili “Letraset”, che contenevano passaggi del Lorem Ipsum, e più recentemente da software di impaginazione come Aldus PageMaker, che includeva versioni del Lorem Ipsum.
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <div class="col-md-9">
+      <section class="card card-info">
+        <header class="card-header">
+          <div class="card-actions">
+            <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
+          </div>
+          <h2 class="card-title">Elenco</h2>
+          <p class="card-subtitle">I dati possono essere creati modificati e cancellati.</p>
+        </header>
+
+        <div class="card-body">
+
+          <div class="right-wrapper text-right mb-2">
+            <a th:href="@{/admin/numeratori/new}" class="btn btn-info">
+              <i class="fas fa-file-medical"></i> Crea nuovo
+            </a>
+
+            <a href="javascript:void(0);" class="btn btn-info" onclick="CancellaNumeratoreMultiplaAjax()">
+              <i class="fas fa-trash-alt"></i> Cancella selezionati
+            </a>
+          </div>
+
+          <table class="table table-responsive-lg table-bordered table-striped mb-0">
+            <thead>
+            <tr>
+              <th style="width:5%;" class="check">
+                <div class="th_wrapp">
+                  <input type="checkbox" class="chSel_all inpt_c2" onclick="toggleAll(this)">
+                </div>
+              </th>
+              <th><div class="th_wrapp">Descrizione</div></th>
+              <th><div class="th_wrapp">Anno gestione</div></th>
+              <th><div class="th_wrapp">Ultimo numero</div></th>
+              <th>Azioni</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="row : ${elencoNumeratori}">
+              <td class="check">
+                <input type="checkbox"
+                       name="row_sel"
+                       class="inpt_c2"
+                       th:id="${'AnagRow' + row.id}"
+                       th:value="${row.id}" />
+              </td>
+
+              <td>
+                <a title="Modifica"
+                   th:href="@{/admin/numeratori/{id}/open(id=${row.id})}">
+                  <span th:text="${row.l1}">Descrizione</span>
+                  <input type="hidden" th:id="${'row_' + row.id}" th:value="${row.id}">
+                </a>
+              </td>
+
+              <td th:text="${row.anno}">2020</td>
+              <td th:text="${row.numero}">0</td>
+
+              <td>
+                <a title="Modifica" th:href="@{/admin/numeratori/{id}/open(id=${row.id})}">
+                  <i class="fas fa-pencil-alt"></i>
+                </a>
+                &nbsp;&nbsp;
+                <a href="javascript:void(0);"
+                   class="delete-row"
+                   title="Cancella"
+                   th:onclick="|cancellaNumeratore(${row.id})|">
+                  <i class="far fa-trash-alt"></i>
+                </a>
+              </td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(elencoNumeratori)}">
+              <td colspan="5" class="text-center">Nessun numeratore presente.</td>
+            </tr>
+            </tbody>
+          </table>
+
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script th:inline="javascript">
+    function toggleAll(cb) {
+      document.querySelectorAll("input[name='row_sel']").forEach(x => x.checked = cb.checked);
+    }
+
+    function cancellaNumeratore(id) {
+      fetch('/admin/numeratori/' + id + '/delete', {method: 'POST'})
+              .then(r => r.text())
+              .then(_ => location.reload());
+    }
+
+    function CancellaNumeratoreMultiplaAjax() {
+      const ids = Array.from(document.querySelectorAll("input[name='row_sel']:checked"))
+              .map(x => x.value);
+
+      if (ids.length === 0) return;
+
+      const body = new URLSearchParams();
+      ids.forEach(i => body.append('ids', i));
+
+      fetch('/admin/numeratori/delete-multiplo', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: body.toString()
+      }).then(r => r.text()).then(_ => location.reload());
+    }
+  </script>
+
+</div>
+</body>
+</html>

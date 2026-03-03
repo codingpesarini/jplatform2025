@@ -30,8 +30,8 @@ public class StartupController {
         return startup("1", null, request, response);
     }
 
-    // ✅ REGEX: esclude percorsi che iniziano con risorse statiche
-    @GetMapping("/{idsite:(?!images|css|js|fonts|assets|static|webjars).*}")
+    // SOLO numeri (id sito) oppure type "testuale" MA escludendo rotte applicative
+    @GetMapping("/{idsite:(?!admin|login|front|error|logout|api|manager|cms|crm|favicon\\.ico|images|css|js|fonts|assets|static|webjars).*}")
     public String startupConIdsite(
             @PathVariable String idsite,
             HttpServletRequest request,
@@ -39,8 +39,8 @@ public class StartupController {
         return startup(idsite, null, request, response);
     }
 
-    // ✅ REGEX: esclude percorsi che iniziano con risorse statiche
-    @GetMapping("/{idsite:(?!images|css|js|fonts|assets|static|webjars).*}/{uscita}")
+    // uscita SOLO true/false (così /admin/numeratori NON ci entra mai)
+    @GetMapping("/{idsite:(?!admin|login|front|error|logout|api|manager|cms|crm|favicon\\.ico|images|css|js|fonts|assets|static|webjars).*}/{uscita:true|false}")
     public String startupCompleto(
             @PathVariable String idsite,
             @PathVariable Boolean uscita,

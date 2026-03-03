@@ -2,18 +2,6 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 
-<!--
-    SIDEBAR FRAGMENT - Conversione da Struts a Thymeleaf
-    Logica autorizzazioni:
-      Struts: <logic:equal name="autorizzazioni" property="valoreKey(N)" value="1">
-      Thymeleaf: th:if="${config.amministratore?.auth?.getValoreKey(N) == 1}"
-
-    Nel Controller passare la configurazione come:
-      model.addAttribute("config", configCore);
-
-    Dove config.amministratore.auth è l'oggetto Autorizzazioni con il metodo getValoreKey(int)
--->
-
 <nav th:fragment="sidebar" class="pc-sidebar">
     <div class="navbar-wrapper">
 
@@ -87,7 +75,7 @@
 
                 <!-- Mailbox - autorizzazione 13 -->
                 <li class="pc-item" id="sb01"
-                    th:if="${config.amministratore?.hasRole(13)}">
+                    th:if="${config?.amministratore?.hasRole(13)}">
                     <a th:href="@{/admin/email/list}" class="pc-link">
                         <span class="pc-micon">
                             <svg class="pc-icon">
@@ -103,7 +91,7 @@
 
                 <!-- CMS Contenuti - autorizzazione 1 -->
                 <li class="pc-item" id="sb02"
-                    th:if="${config.amministratore?.hasRole(1)}">
+                    th:if="${config?.amministratore?.hasRole(1)}">
                     <a th:href="@{/admin/sezioni}" class="pc-link">
                         <span class="pc-micon">
                             <svg class="pc-icon"><use xlink:href="#custom-document"></use></svg>
@@ -114,7 +102,7 @@
 
                 <!-- LCMS Formazione - autorizzazione 2 -->
                 <li class="pc-item" id="sb03"
-                    th:if="${config.amministratore?.hasRole(2)}">
+                    th:if="${config?.amministratore?.hasRole(2)}">
                     <a th:href="@{/admin/sezioni-lcms}" class="pc-link">
                         <span class="pc-micon">
                             <svg class="pc-icon"><use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-presentation|}"></use></svg>
@@ -125,7 +113,7 @@
 
                 <!-- CMS Media Library - autorizzazione 3 -->
                 <li class="pc-item" id="sb04"
-                    th:if="${config.amministratore?.hasRole(3)}">
+                    th:if="${config?.amministratore?.hasRole(3)}">
                     <a th:href="@{/admin/media}" class="pc-link">
                         <span class="pc-micon">
                             <svg class="pc-icon"><use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-camera|}"></use></svg>
@@ -136,7 +124,7 @@
 
                 <!-- CRM - autorizzazione 4 -->
                 <li class="pc-item pc-hasmenu" id="sb05"
-                    th:if="${config.amministratore?.hasRole(4)}">
+                    th:if="${config?.amministratore?.hasRole(4)}">
                     <a href="javascript:void(0)" class="pc-link">
                         <span class="pc-micon">
                             <svg class="pc-icon"><use xlink:href="#custom-user"></use></svg>
@@ -158,7 +146,7 @@
                             <a th:href="@{/admin/numeratori}" class="pc-link">Numeratori</a>
                         </li>
                         <li class="pc-item" id="sb055">
-                            <a th:href="@{/admin/types}" class="pc-link">Tipologia documenti</a>
+                            <a th:href="@{/admin/documenti}" class="pc-link">Tipologia documenti</a>
                         </li>
                         <li class="pc-item" id="sb056">
                             <a th:href="@{/admin/account}" class="pc-link">Mail Account</a>
@@ -168,7 +156,7 @@
 
                 <!-- Amministratori - autorizzazione 5 -->
                 <li class="pc-item" id="sb06"
-                    th:if="${config.amministratore?.hasRole(5)}">
+                    th:if="${config?.amministratore?.hasRole(5)}">
                     <a th:href="@{/admin/amministratori}" class="pc-link">
                         <span class="pc-micon">
                             <svg class="pc-icon">
@@ -181,7 +169,7 @@
 
                 <!-- Impostazioni - autorizzazione 6 (menu padre) -->
                 <li class="pc-item pc-hasmenu" id="sb061"
-                    th:if="${config.amministratore?.hasRole(6)}">
+                    th:if="${config?.amministratore?.hasRole(6)}">
                     <a href="javascript:void(0)" class="pc-link">
                         <span class="pc-micon">
                             <svg class="pc-icon"><use xlink:href="#custom-setting-2"></use></svg>
@@ -193,37 +181,37 @@
 
                         <!-- Configurazioni - autorizzazione 7 -->
                         <li class="pc-item" id="sb062"
-                            th:if="${config.amministratore?.hasRole(7)}">
+                            th:if="${config?.amministratore?.hasRole(7)}">
                             <a th:href="@{/admin/impostazioni/configurazioni}" class="pc-link">Configurazioni</a>
                         </li>
 
                         <!-- Gruppi - autorizzazione 8 -->
                         <li class="pc-item" id="sb063"
-                            th:if="${config.amministratore?.hasRole(8)}">
+                            th:if="${config?.amministratore?.hasRole(8)}">
                             <a th:href="@{/admin/impostazioni/gruppi}" class="pc-link">Gruppi</a>
                         </li>
 
                         <!-- Ruoli - autorizzazione 9 -->
                         <li class="pc-item" id="sb064"
-                            th:if="${config.amministratore?.hasRole(9)}">
+                            th:if="${config?.amministratore?.hasRole(9)}">
                             <a th:href="@{/admin/impostazioni/ruoli}" class="pc-link">Ruoli</a>
                         </li>
 
                         <!-- Numeratori - autorizzazione 10 -->
                         <li class="pc-item" id="sb065"
-                            th:if="${config.amministratore?.hasRole(10)}">
+                            th:if="${config?.amministratore?.hasRole(10)}">
                             <a th:href="@{/admin/impostazioni/numeratori}" class="pc-link">Numeratori</a>
                         </li>
 
                         <!-- Tipologia documenti - autorizzazione 11 -->
                         <li class="pc-item" id="sb066"
-                            th:if="${config.amministratore?.hasRole(11)}">
-                            <a th:href="@{/admin/impostazioni/types}" class="pc-link">Tipologia documenti</a>
+                            th:if="${config?.amministratore?.hasRole(11)}">
+                            <a th:href="@{/admin/impostazioni/documenti}" class="pc-link">Tipologia documenti</a>
                         </li>
 
                         <!-- Mail Account - autorizzazione 12 -->
                         <li class="pc-item" id="sb067"
-                            th:if="${config.amministratore?.hasRole(12)}">
+                            th:if="${config?.amministratore?.hasRole(12)}">
                             <a th:href="@{/admin/impostazioni/account}" class="pc-link">Mail Account</a>
                         </li>
 

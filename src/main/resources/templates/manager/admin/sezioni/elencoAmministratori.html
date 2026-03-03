@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="it"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{manager/layout/template}">
+<body>
+<div layout:fragment="content">
+
+  <!--
+      elencoAnagraficaAmministratore.html
+      GET  /admin/anagrafica?email=&nome=&cognome=&username=&telefono=&indirizzo=&pec=
+      POST /admin/anagrafica/ricerca  (form ricerca)
+      Model: elencoAnagrafico (List<AmministratoreUtente>)
+  -->
+
+  <div class="row">
+
+    <!-- ═══ SIDEBAR RICERCA ═══ -->
+    <div class="col-md-3">
+      <section class="card card-warning">
+        <header class="card-header">
+          <div class="card-actions">
+            <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+          </div>
+          <h2 class="card-title">Ricerca amministratori</h2>
+          <p class="card-subtitle">Indicare i parametri di ricerca dei contatti desiderati</p>
+        </header>
+
+        <form th:action="@{/admin/anagrafica/ricerca}"
+              method="get"
+              id="ricercaAnagraficaUtente"
+              class="notAutocomplete">
+          <div class="card-body">
+            <div class="row form-group">
+              <div class="col-lg-12">
+                <a href="javascript:void(0);"
+                   onclick="return hs.htmlExpand(this,{headingText:'',align:'center',objectType:'iframe',src:'/admin/anagrafica/new'});"
+                   class="mb-1 mt-1 mr-1 btn btn-primary btn-lg btn-block">
+                  <i class="fas fa-file-medical"></i> Nuova anagrafica
+                </a>
+              </div>
+              <div class="col-lg-6">
+                <label class="col-form-label" for="email">Email</label>
+                <input type="text" name="email" id="email"
+                       th:value="${param.email}" class="form-control">
+              </div>
+              <div class="col-lg-6">
+                <label class="col-form-label" for="nome">Nome</label>
+                <input type="text" name="nome" id="nome"
+                       th:value="${param.nome}" class="form-control">
+              </div>
+              <div class="col-lg-6">
+                <label class="col-form-label" for="cognome">Cognome</label>
+                <input type="text" name="cognome" id="cognome"
+                       th:value="${param.cognome}" class="form-control">
+              </div>
+              <div class="col-lg-6">
+                <label class="col-form-label" for="username">Username</label>
+                <input type="text" name="username" id="username"
+                       th:value="${param.username}" class="form-control">
+              </div>
+            </div>
+            <div class="row form-group">
+              <div class="col-lg-6">
+                <label class="col-form-label" for="telefono">Telefono/Cellulare</label>
+                <input type="text" name="telefono" id="telefono"
+                       th:value="${param.telefono}" class="form-control">
+              </div>
+              <div class="col-lg-6">
+                <label class="col-form-label" for="indirizzo">Indirizzo</label>
+                <input type="text" name="indirizzo" id="indirizzo"
+                       th:value="${param.indirizzo}" class="form-control">
+              </div>
+              <div class="col-lg-6">
+                <label class="col-form-label" for="pec">PEC</label>
+                <input type="text" name="pec" id="pec"
+                       th:value="${param.pec}" class="form-control">
+              </div>
+            </div>
+          </div>
+          <footer class="card-footer text-right">
+            <a th:href="@{/admin/anagrafica}" class="btn btn-primary reset">Pulisci</a>
+            <button class="btn btn-primary" type="submit">Ricerca contatti</button>
+          </footer>
+        </form>
+
+      </section>
+    </div>
+
+    <!-- ═══ TABELLA ELENCO ═══ -->
+    <div class="col-md-9">
+      <section class="card card-warning">
+        <header class="card-header">
+          <div class="card-actions">
+            <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
+          </div>
+          <h2 class="card-title">Elenco contatti</h2>
+          <p class="card-subtitle">Sono visualizzati i contatti richiesti. I contatti possono essere modificati e cancellati.</p>
+        </header>
+        <div class="card-body">
+          <div class="right-wrapper text-right mb-2">
+            <a href="javascript:void(0);" class="btn btn-primary"
+               onclick="CancellaAmministratoriMultiplaAjax()">
+              <i class="fas fa-trash-alt"></i> Cancella selezionati
+            </a>
+          </div>
+
+          <table class="table table-responsive-lg table-bordered table-striped mb-0">
+            <thead>
+            <tr>
+              <th style="width:5%;">
+                <input type="checkbox" class="chSel_all inpt_c2">
+              </th>
+              <th>Cognome</th>
+              <th>Contatti</th>
+              <th>Azioni</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="row : ${elencoAnagrafico}">
+              <td class="check">
+                <input type="checkbox" name="row_sel"
+                       th:id="${'AnagRow' + row.id}"
+                       class="inpt_c2" th:value="${row.id}">
+              </td>
+              <td>
+                <a th:href="@{/admin/anagrafica/{id}/open(id=${row.id})}"
+                   rel="highslide-iframe" title="Modifica">
+                  <img th:src="${row.avatar}"
+                       class="rounded-circle miniAvatar float-left" alt="">
+                  <span th:text="${row.cognome}">-</span>
+                  <span th:text="${row.nome}">-</span>
+                </a>
+              </td>
+              <td>
+                <span th:text="${row.email}">-</span> -
+                <span th:text="${row.telefono}">-</span> -
+                <span th:text="${row.pec}">-</span>
+              </td>
+              <td>
+                <a th:href="@{/admin/anagrafica/{id}/open(id=${row.id})}"
+                   rel="highslide-iframe" title="Modifica">
+                  <i class="fas fa-pencil-alt"></i>
+                </a>
+                &nbsp;&nbsp;
+                <a href="javascript:void(0);"
+                   th:data-id="${row.id}"
+                   onclick="cancellaAmministratore(this.getAttribute('data-id'))"
+                   class="delete-row" title="Cancella">
+                  <i class="far fa-trash-alt"></i>
+                </a>
+              </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(elencoAnagrafico)}">
+              <td colspan="4" class="text-center">Nessun contatto trovato.</td>
+            </tr>
+            </tbody>
+          </table>
+
+        </div>
+      </section>
+    </div>
+
+  </div>
+
+</div>
+</body>
+</html>

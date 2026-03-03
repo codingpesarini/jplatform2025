@@ -39,4 +39,17 @@ public class AdminController {
 
         return ViewUtils.resolveProtectedTemplate("front/dashboard");
     }
+
+    @GetMapping("/amministratori")
+    public String amministratori(HttpServletRequest request, Model model) {
+        HttpSession session = request.getSession();
+        Configurazione configCore = configurazioneService.getConfig(session);
+
+        if (!configCore.isLogged()) {
+            return "redirect:/login";
+        }
+
+        model.addAttribute("config", configCore);
+        return ViewUtils.resolveProtectedTemplate("admin/sezioni/elencoAmministratori");
+    }
 }

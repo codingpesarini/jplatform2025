@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="it"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz"
+      layout:decorate="~{manager/layout/template}">
+<body>
+
+<div layout:fragment="content">
+
+  <div class="msg_box msg_error" id="form_a_errors" style="display:none"></div>
+
+  <header class="page-header">
+    <h2>Dettaglio Numeratore</h2>
+
+    <div class="right-wrapper text-right">
+      <a th:href="@{/admin/numeratori/new}"
+         class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+        <i class="fas fa-file-medical"></i> Nuovo
+      </a>
+
+      <a th:if="${numeratore.id != null}"
+         th:href="@{/admin/numeratori/{id}/duplica(id=${numeratore.id})}"
+         class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+        <i class="fas fa-clone"></i> Duplica
+      </a>
+
+      <a href="javascript:void(0);" onclick="InviaForm();"
+         class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+        <i class="fas fa-file-upload"></i> Salva
+      </a>
+
+      <a th:href="@{/admin/numeratori}"
+         class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+        <i class="fas fa-times-circle"></i> Esci
+      </a>
+    </div>
+  </header>
+
+  <form th:action="@{/admin/numeratori/save}"
+        method="post"
+        id="numeratore"
+        class="form-bordered needs-validation"
+        novalidate>
+
+    <!-- Campi ID nascosti -->
+    <input type="hidden" name="id" th:value="${numeratore.id}" />
+
+    <legend th:text="${numeratore.id != null ? 'Dettaglio ID ' + numeratore.id : 'Nuovo Numeratore'}">
+      Dettaglio
+    </legend>
+
+    <div class="row">
+      <div class="col-lg-12">
+
+        <div class="tabs" id="mytabs">
+          <ul class="nav nav-tabs">
+            <li class="nav-item storeTab" id="1">
+              <a class="nav-link active" href="#tab_01" data-toggle="tab">Definizione</a>
+            </li>
+            <li class="nav-item storeTab" id="2">
+              <a class="nav-link" href="#tab_02" data-toggle="tab">Permessi 1</a>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+
+            <!-- TAB 01 -->
+            <div id="tab_01" class="tab-pane active">
+              <fieldset>
+                <legend th:text="|Dettaglio ID ${numeratore.id}|">Dettaglio ID</legend>
+
+                <div class="row form-group">
+                  <div class="col-lg-12">
+                    <label for="l1" class="col-form-label">Descrizione</label>
+                    <input type="text" name="l1" id="l1" th:value="${numeratore.l1}" class="form-control obbligatorio" required />
+                  </div>
+
+                  <div class="col-lg-6">
+                    <label for="anno" class="col-form-label">Anno gestione</label>
+                    <input type="text" name="anno" id="anno" th:value="${numeratore.anno}" class="form-control obbligatorio" required />
+                  </div>
+
+                  <div class="col-lg-6">
+                    <label for="numero" class="col-form-label">Numero iniziale/Ultimo numero inserito</label>
+                    <input type="text" name="numero" id="numero" th:value="${numeratore.numero}" class="form-control obbligatorio" required />
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+            <!-- TAB 02 -->
+            <div id="tab_02" class="tab-pane">
+              <fieldset>
+                <legend>Altri dati</legend>
+
+                <!-- L2 e L3 -->
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label for="l2" class="col-form-label">l2</label>
+                    <select name="l2" id="l2" class="form-control">
+                      <option value=""  th:selected="${numeratore.l2 == null}">Indefinito</option>
+                      <option value="0" th:selected="${numeratore.l2 == 0}">Disattivo</option>
+                      <option value="1" th:selected="${numeratore.l2 == 1}">Attivo</option>
+                    </select>
+                  </div>
+                  <div class="col-lg-6">
+                    <label for="l3" class="col-form-label">l3</label>
+                    <select name="l3" id="l3" class="form-control">
+                      <option value=""  th:selected="${numeratore.l3 == null}">Indefinito</option>
+                      <option value="0" th:selected="${numeratore.l3 == 0}">Disattivo</option>
+                      <option value="1" th:selected="${numeratore.l3 == 1}">Attivo</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- L4 e L5 -->
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label for="l4" class="col-form-label">l4</label>
+                    <select name="l4" id="l4" class="form-control">
+                      <option value=""  th:selected="${numeratore.l4 == null}">Indefinito</option>
+                      <option value="0" th:selected="${numeratore.l4 == 0}">Disattivo</option>
+                      <option value="1" th:selected="${numeratore.l4 == 1}">Attivo</option>
+                    </select>
+                  </div>
+                  <div class="col-lg-6">
+                    <label for="l5" class="col-form-label">l5</label>
+                    <select name="l5" id="l5" class="form-control">
+                      <option value=""  th:selected="${numeratore.l5 == null}">Indefinito</option>
+                      <option value="0" th:selected="${numeratore.l5 == 0}">Disattivo</option>
+                      <option value="1" th:selected="${numeratore.l5 == 1}">Attivo</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- L6 e L7 -->
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label for="l6" class="col-form-label">l6</label>
+                    <select name="l6" id="l6" class="form-control">
+                      <option value=""  th:selected="${numeratore.l6 == null}">Indefinito</option>
+                      <option value="0" th:selected="${numeratore.l6 == 0}">Disattivo</option>
+                      <option value="1" th:selected="${numeratore.l6 == 1}">Attivo</option>
+                    </select>
+                  </div>
+                  <div class="col-lg-6">
+                    <label for="l7" class="col-form-label">l7</label>
+                    <select name="l7" id="l7" class="form-control">
+                      <option value=""  th:selected="${numeratore.l7 == null}">Indefinito</option>
+                      <option value="0" th:selected="${numeratore.l7 == 0}">Disattivo</option>
+                      <option value="1" th:selected="${numeratore.l7 == 1}">Attivo</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- L8 e L9 -->
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label for="l8" class="col-form-label">l8</label>
+                    <select name="l8" id="l8" class="form-control">
+                      <option value=""  th:selected="${numeratore.l8 == null}">Indefinito</option>
+                      <option value="0" th:selected="${numeratore.l8 == 0}">Disattivo</option>
+                      <option value="1" th:selected="${numeratore.l8 == 1}">Attivo</option>
+                    </select>
+                  </div>
+                  <div class="col-lg-6">
+                    <label for="l9" class="col-form-label">l9</label>
+                    <select name="l9" id="l9" class="form-control">
+                      <option value=""  th:selected="${numeratore.l9 == null}">Indefinito</option>
+                      <option value="0" th:selected="${numeratore.l9 == 0}">Disattivo</option>
+                      <option value="1" th:selected="${numeratore.l9 == 1}">Attivo</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- L10 -->
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label for="l10" class="col-form-label">l10</label>
+                    <select name="l10" id="l10" class="form-control">
+                      <option value=""   th:selected="${numeratore.l10 == null}">Indefinito</option>
+                      <option value="0"  th:selected="${numeratore.l10 == 0}">Disattivo</option>
+                      <option value="1"  th:selected="${numeratore.l10 == 1}">Attivo</option>
+                    </select>
+                  </div>
+                </div>
+
+              </fieldset>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </form>
+
+  <script>
+    function InviaForm() {
+      var form = $("#numeratore");
+      if (form[0].checkValidity() === false) {
+        event.preventDefault();
+        event.stopPropagation();
+        new PNotify({
+          title: 'Attenzione!',
+          text: 'Alcuni campi obbligatori del modulo richiedono un tuo intervento!',
+          type: 'error'
+        });
+      } else {
+        form.addClass('was-validated');
+        document.getElementById("numeratore").submit();
+      }
+      form.addClass('was-validated');
+    }
+  </script>
+
+</div>
+</body>
+</html>
