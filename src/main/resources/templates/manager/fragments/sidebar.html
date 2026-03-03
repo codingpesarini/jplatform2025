@@ -54,10 +54,6 @@
                                 <i class="ti ti-user"></i>
                                 <span>Il mio Account</span>
                             </a>
-                            <a href="#!">
-                                <i class="ti ti-settings"></i>
-                                <span>Impostazioni</span>
-                            </a>
                             <a href="javascript:void(0)" onclick="confirmAction('Sei sicuro di voler effettuare il logout?', function(){ window.location.href='/logout'; })">
                                 <i class="ti ti-power"></i>
                                 <span>Logout</span>
@@ -186,7 +182,7 @@
                 <!-- Impostazioni - autorizzazione 6 (menu padre) -->
                 <li class="pc-item pc-hasmenu" id="sb061"
                     th:if="${config.amministratore?.hasRole(6)}">
-                    <a href="#!" class="pc-link">
+                    <a href="javascript:void(0)" class="pc-link">
                         <span class="pc-micon">
                             <svg class="pc-icon"><use xlink:href="#custom-setting-2"></use></svg>
                         </span>
@@ -198,37 +194,37 @@
                         <!-- Configurazioni - autorizzazione 7 -->
                         <li class="pc-item" id="sb062"
                             th:if="${config.amministratore?.hasRole(7)}">
-                            <a th:href="@{/admin/configurazioni}" class="pc-link">Configurazioni</a>
+                            <a th:href="@{/admin/impostazioni/configurazioni}" class="pc-link">Configurazioni</a>
                         </li>
 
                         <!-- Gruppi - autorizzazione 8 -->
                         <li class="pc-item" id="sb063"
                             th:if="${config.amministratore?.hasRole(8)}">
-                            <a th:href="@{/admin/gruppi}" class="pc-link">Gruppi</a>
+                            <a th:href="@{/admin/impostazioni/gruppi}" class="pc-link">Gruppi</a>
                         </li>
 
                         <!-- Ruoli - autorizzazione 9 -->
                         <li class="pc-item" id="sb064"
                             th:if="${config.amministratore?.hasRole(9)}">
-                            <a th:href="@{/admin/ruoli}" class="pc-link">Ruoli</a>
+                            <a th:href="@{/admin/impostazioni/ruoli}" class="pc-link">Ruoli</a>
                         </li>
 
                         <!-- Numeratori - autorizzazione 10 -->
                         <li class="pc-item" id="sb065"
                             th:if="${config.amministratore?.hasRole(10)}">
-                            <a th:href="@{/admin/numeratori}" class="pc-link">Numeratori</a>
+                            <a th:href="@{/admin/impostazioni/numeratori}" class="pc-link">Numeratori</a>
                         </li>
 
                         <!-- Tipologia documenti - autorizzazione 11 -->
                         <li class="pc-item" id="sb066"
                             th:if="${config.amministratore?.hasRole(11)}">
-                            <a th:href="@{/admin/types}" class="pc-link">Tipologia documenti</a>
+                            <a th:href="@{/admin/impostazioni/types}" class="pc-link">Tipologia documenti</a>
                         </li>
 
                         <!-- Mail Account - autorizzazione 12 -->
                         <li class="pc-item" id="sb067"
                             th:if="${config.amministratore?.hasRole(12)}">
-                            <a th:href="@{/admin/account}" class="pc-link">Mail Account</a>
+                            <a th:href="@{/admin/impostazioni/account}" class="pc-link">Mail Account</a>
                         </li>
 
                     </ul>

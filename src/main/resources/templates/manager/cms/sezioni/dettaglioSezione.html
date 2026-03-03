@@ -1,61 +1,53 @@
-<!doctype html>
-<html lang="it"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{manager/layout/template}">
-<body>
+<th:block th:fragment="content">
 
-<div layout:fragment="content">
     <div class="card">
-    <!-- Page Header -->
-    <div class="card-header d-flex align-items-center justify-content-between mb-3">
-        <div>
-            <h4 class="page-title mb-0">
-                <i class="ti ti-layout me-2 text-muted"></i>
-                <span th:text="${section.titolo}">Titolo sezione</span>
-            </h4>
-            <small class="text-muted">
-                ID: <strong th:text="${section.id}">0</strong>
-                &nbsp;|&nbsp; Creato da: <span th:text="${section.creatoDa}">-</span>
-                (<span th:text="${section.creato}">-</span>)
-                &nbsp;|&nbsp; Ultima modifica: <span th:text="${section.modificatoDa}">-</span>
-                (<span th:text="${section.modificato}">-</span>)
-            </small>
+        <!-- Page Header -->
+        <div class="card-header d-flex align-items-center justify-content-between mb-3">
+            <div>
+                <h4 class="page-title mb-0">
+                    <i class="ti ti-layout me-2 text-muted"></i>
+                    <span th:text="${section.titolo}">Titolo sezione</span>
+                </h4>
+                <small class="text-muted">
+                    ID: <strong th:text="${section.id}">0</strong>
+                    &nbsp;|&nbsp; Creato da: <span th:text="${section.creatoDa}">-</span>
+                    (<span th:text="${section.creato}">-</span>)
+                    &nbsp;|&nbsp; Ultima modifica: <span th:text="${section.modificatoDa}">-</span>
+                    (<span th:text="${section.modificato}">-</span>)
+                </small>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a th:href="@{/admin/sezioni/new}" class="btn btn-outline-secondary btn-sm">
+                    <i class="ti ti-file-plus me-1"></i> Nuova
+                </a>
+
+                <button type="button"
+                        class="btn btn-outline-secondary btn-sm btn-duplica"
+                        th:data-id="${section.id}">
+                    <i class="ti ti-copy me-1"></i> Duplica
+                </button>
+
+                <button type="button"
+                        class="btn btn-primary btn-sm"
+                        onclick="InviaForm('sezione');">
+                    <i class="ti ti-device-floppy me-1"></i> Salva
+                </button>
+
+                <a th:href="@{/admin/sezioni}"
+                   class="btn btn-outline-secondary btn-sm">
+                    <i class="ti ti-arrow-left me-1"></i> Torna alla struttura
+                </a>
+            </div>
         </div>
 
-        <!-- Toolbar azioni -->
-        <div class="d-flex flex-wrap gap-2">
-
-            <a th:href="@{/admin/sezioni/new}" class="btn btn-outline-secondary btn-sm">
-                <i class="ti ti-file-plus me-1"></i> Nuova
-            </a>
-
-            <button type="button"
-                    class="btn btn-outline-secondary btn-sm btn-duplica"
-                    th:data-id="${section.id}">
-                <i class="ti ti-copy me-1"></i> Duplica
-            </button>
-
-            <button type="button"
-                    class="btn btn-primary btn-sm"
-                    onclick="InviaForm('sezione');">
-                <i class="ti ti-device-floppy me-1"></i> Salva
-            </button>
-
-            <a th:href="@{/admin/sezioni}"
-               class="btn btn-outline-secondary btn-sm">
-                <i class="ti ti-arrow-left me-1"></i> Torna alla struttura
-            </a>
-
-        </div>
-    </div>
-
-    <!-- Form principale -->
-    <form th:action="@{/admin/sezioni/save}"
-          method="post"
-          id="sezione"
-          class="needs-validation"
-          novalidate>
+        <!-- Form principale -->
+        <form th:action="@{/admin/sezioni/save}"
+              method="post"
+              id="sezione"
+              name="sezione"
+              class="needs-validation"
+              novalidate>
 
         <!-- hidden audit fields -->
         <input type="hidden" name="creato"       th:value="${section.creato}">
@@ -76,6 +68,7 @@
         <input type="hidden" name="numeratore3"  th:value="${section.numeratore3}">
         <input type="hidden" name="numeratore4"  th:value="${section.numeratore4}">
         <input type="hidden" name="numeratore5"  th:value="${section.numeratore5}">
+        <input type="hidden" name="dataSql"      th:value="${section.dataSql}">
 
             <!-- Tab header -->
             <div class="card-body">
@@ -736,12 +729,7 @@
 
                 </div><!-- /tab-content -->
             </div><!-- /card-body -->
-
-    </form>
-</div><!-- /card -->
-
-
-</div><!-- /layout:fragment -->
-
-</body>
-</html>
+        </form>>
+    </div>
+    </th:block>
+</th:block><!-- /card -->

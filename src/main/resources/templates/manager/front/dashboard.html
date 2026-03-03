@@ -163,15 +163,22 @@
                 </div>
                 <div class="card-body">
                     <div class="btn-group" role="group">
-                        <a href="#" class="btn btn-primary">
+
+                        <!-- Nuovo contenuto -->
+                        <a th:href="@{/admin/contenuti/new}" class="btn btn-primary">
                             <i class="ti ti-plus me-2"></i> Nuovo contenuto
                         </a>
-                        <a href="#" class="btn btn-success">
+
+                        <!-- Nuovo utente -->
+                        <a th:href="@{/admin/utenti/new}" class="btn btn-success">
                             <i class="ti ti-user-plus me-2"></i> Nuovo utente
                         </a>
-                        <a href="#" class="btn btn-info">
+
+                        <!-- Impostazioni -->
+                        <a th:href="@{/admin/impostazioni}" class="btn btn-info">
                             <i class="ti ti-settings me-2"></i> Impostazioni
                         </a>
+
                     </div>
                 </div>
             </div>

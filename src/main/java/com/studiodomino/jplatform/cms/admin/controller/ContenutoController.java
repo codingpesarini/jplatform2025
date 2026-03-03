@@ -2,6 +2,7 @@ package com.studiodomino.jplatform.cms.admin.controller;
 
 import com.studiodomino.jplatform.cms.entity.DatiBase;
 import com.studiodomino.jplatform.cms.entity.Section;
+import com.studiodomino.jplatform.cms.entity.SectionType;
 import com.studiodomino.jplatform.cms.service.ContentService;
 import com.studiodomino.jplatform.shared.config.Configurazione;
 import com.studiodomino.jplatform.shared.service.ConfigurazioneService;
@@ -16,22 +17,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
  * Controller admin per la gestione dei contenuti CMS.
- * Conversione da GestioneDocumenti.java (Struts DispatchAction) a Spring MVC Controller.
- *
- * Mapping URL:
- *   GET  /admin/contenuti/new              → newForm
- *   GET  /admin/contenuti/{id}             → open (dettaglio/modifica)
- *   POST /admin/contenuti/save             → save
- *   POST /admin/contenuti/{id}/delete      → delete
- *   POST /admin/contenuti/deleteMultiplo   → deleteMultiplo (AJAX)
- *   POST /admin/contenuti/{id}/duplicate   → duplicate
- *   POST /admin/contenuti/riclassifica     → riclassificaDocumenti (AJAX)
- *   POST /admin/contenuti/ordina           → ordinaDocumentiApplica (AJAX)
  */
 @Controller
 @RequestMapping("/admin/contenuti")
@@ -44,9 +35,7 @@ public class ContenutoController {
 
     // =====================================================================
     // NEW FORM - Nuovo contenuto
-    // Vecchio: newForm() → forward "successopen"
     // =====================================================================
-
     @GetMapping("/new")
     public String newForm(
             @RequestParam(value = "id_root", defaultValue = "0") Integer idRoot,
@@ -64,6 +53,7 @@ public class ContenutoController {
             // Nuovo contenuto vuoto
             DatiBase datiBase = new DatiBase();
             datiBase.setId("-1");
+            datiBase.setIdSite(idSite);
             datiBase.setIdRoot(String.valueOf(idRoot));
             datiBase.setIdType(idType);
             datiBase.setData(today);
@@ -73,33 +63,45 @@ public class ContenutoController {
 
             // Carica la sezione padre
             Section sezione = contentService.findSectionById(idRoot, idSite).orElse(null);
-            if (sezione != null) {
-                datiBase.setSection(sezione);
-                datiBase.setIdParent(sezione.getIdParent());
 
-                // Propaga extratag dalla sezione al nuovo contenuto
-                for (int i = 1; i <= 10; i++) {
-                    datiBase.setExtraTag(i, sezione.getExtraTag(i));
-                    datiBase.setExtraTagRef(i, sezione.getExtraTagRef(i));
+            if (sezione == null) {
+                // placeholder per evitare NPE nel template (content.section....)
+                sezione = new Section();
+                sezione.setId(idRoot);
+                sezione.setSectionType(new SectionType());
+            } else {
+                // sezione esiste ma magari sectionType è NULL nel DB
+                if (sezione.getSectionType() == null) {
+                    sezione.setSectionType(new SectionType());
                 }
             }
 
-            model.addAttribute("post", datiBase);
+            datiBase.setSection(sezione);
+            datiBase.setIdParent(sezione.getIdParent());
+
+            // Propaga extratag dalla sezione al nuovo contenuto
+            for (int i = 1; i <= 10; i++) {
+                datiBase.setExtraTag(i, sezione.getExtraTag(i));
+                datiBase.setExtraTagRef(i, sezione.getExtraTagRef(i));
+            }
+
+            // >>> IMPORTANTISSIMO: il template usa "content", non "post"
+            model.addAttribute("content", datiBase);
+            model.addAttribute("post", datiBase);        // compatibilità se altrove usi "post"
             model.addAttribute("sezione", sezione);
+            model.addAttribute("elencoSezioni", contentService.findRootSections(idSite));
             model.addAttribute("config", config);
 
         } catch (Exception e) {
             log.error("Errore newForm contenuto", e);
         }
 
-        return ViewUtils.resolveProtectedTemplate("cms/contenuti/dettaglioContenuto");
+        return ViewUtils.resolveProtectedTemplate("cms/dettaglioContenutoTemplate");
     }
 
     // =====================================================================
     // OPEN - Apri contenuto esistente per modifica
-    // Vecchio: open() → forward "successopen"
     // =====================================================================
-
     @GetMapping("/{id}")
     public String open(@PathVariable Integer id,
                        HttpServletRequest request, Model model) {
@@ -116,35 +118,47 @@ public class ContenutoController {
 
             // Carica la sezione padre
             Integer idRoot = parseIntSafe(documento.getIdRoot());
-            Section sezione = contentService.findSectionById(idRoot, idSite).orElse(null);
+            Section sezione = (idRoot != null)
+                    ? contentService.findSectionById(idRoot, idSite).orElse(null)
+                    : null;
 
-            if (sezione != null) {
-                documento.setSection(sezione);
-
-                // Carica contenuti correlati dalla sezione (campi L15, L11)
-                caricaDocumentiCorrelati(documento, sezione, idSite);
+            if (sezione == null) {
+                // placeholder per evitare NPE nel template (content.section....)
+                sezione = new Section();
+                sezione.setId(idRoot != null ? idRoot : 0);
+                sezione.setSectionType(new SectionType());
+            } else {
+                if (sezione.getSectionType() == null) {
+                    sezione.setSectionType(new SectionType());
+                }
             }
+
+            documento.setSection(sezione);
+
+            // Carica contenuti correlati dalla sezione (campi L15, L11)
+            caricaDocumentiCorrelati(documento, sezione, idSite);
 
             // Carica sezioni disponibili per riclassificazione
             List<Section> elencoSezioni = contentService.findRootSections(idSite);
 
-            model.addAttribute("post", documento);
+            // >>> IMPORTANTISSIMO: il template usa "content", non "post"
+            model.addAttribute("content", documento);
+            model.addAttribute("post", documento);       // compatibilità
             model.addAttribute("sezione", sezione);
             model.addAttribute("elencoSezioni", elencoSezioni);
             model.addAttribute("config", config);
 
         } catch (Exception e) {
             log.error("Errore open contenuto id={}", id, e);
+            return "redirect:/admin/contenuti?error=open";
         }
 
-        return ViewUtils.resolveProtectedTemplate("cms/contenuti/dettaglioContenuto");
+        return ViewUtils.resolveProtectedTemplate("cms/dettaglioContenutoTemplate");
     }
 
     // =====================================================================
     // SAVE - Salva contenuto (nuovo o esistente)
-    // Vecchio: save() → forward "successopen"
     // =====================================================================
-
     @PostMapping("/save")
     public String save(@ModelAttribute DatiBase documento,
                        HttpServletRequest request, Model model) {
@@ -155,15 +169,21 @@ public class ContenutoController {
 
         try {
             String idSite = String.valueOf(config.getIdSito());
-            String now = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm"));
+
+            // 1. FIX: Usiamo LocalDateTime per supportare il pattern con ore e minuti (HH:mm)
+            String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm"));
             String operatore = config.getAmministratore().getNomeCompleto();
+
+            // 2. FIX: Protezione per la colonna 'datasql' che non può essere null nel DB
+            if (documento.getDataSql() == null) {
+                documento.setDataSql(LocalDate.now());
+            }
 
             boolean isNew = documento.getId() == null
                     || documento.getId().equals("-1")
                     || documento.getId().equals("0");
 
             if (isNew) {
-                // CREA nuovo contenuto
                 documento.setIdSite(idSite);
                 documento.setCreato(now);
                 documento.setCreatoDa(operatore);
@@ -171,35 +191,55 @@ public class ContenutoController {
 
                 DatiBase saved = contentService.saveContent(documento);
                 log.info("Contenuto creato: id={} titolo={}", saved.getId(), saved.getTitolo());
-
                 return "redirect:/admin/contenuti/" + saved.getId();
 
             } else {
-                // AGGIORNA contenuto esistente
                 documento.setModificato(now);
                 documento.setModificatoDa(operatore);
                 parseDataVisualizzata(documento);
 
                 contentService.saveContent(documento);
                 log.info("Contenuto salvato: id={}", documento.getId());
-
                 return "redirect:/admin/contenuti/" + documento.getId();
             }
 
         } catch (Exception e) {
             log.error("Errore save contenuto", e);
+
+            String idSite = String.valueOf(config.getIdSito());
+
+            // Gestione sezione per il ritorno alla vista in caso di errore
+            Section sezione = null;
+            Integer idRoot = parseIntSafe(documento.getIdRoot());
+            if (idRoot != null) {
+                sezione = contentService.findSectionById(idRoot, idSite).orElse(null);
+            }
+
+            // Protezione sectionType per evitare crash nel template
+            if (sezione == null) {
+                sezione = new Section();
+                sezione.setId(idRoot != null ? idRoot : 0);
+                sezione.setSectionType(new SectionType());
+            } else if (sezione.getSectionType() == null) {
+                sezione.setSectionType(new SectionType());
+            }
+
+            documento.setSection(sezione);
+
             model.addAttribute("error", "Errore nel salvataggio: " + e.getMessage());
+            model.addAttribute("content", documento);
             model.addAttribute("post", documento);
+            model.addAttribute("sezione", sezione);
+            model.addAttribute("elencoSezioni", contentService.findRootSections(idSite));
             model.addAttribute("config", config);
-            return ViewUtils.resolveProtectedTemplate("cms/contenuti/dettaglioContenuto");
+
+            return ViewUtils.resolveProtectedTemplate("cms/dettaglioContenutoTemplate");
         }
     }
 
     // =====================================================================
     // DELETE MULTIPLO - Elimina più contenuti (AJAX)
-    // Vecchio: deleteMultiplo() → forward "successDatiAjax"
     // =====================================================================
-
     @PostMapping("/deleteMultiplo")
     @ResponseBody
     public ResponseEntity<String> deleteMultiplo(
@@ -225,9 +265,7 @@ public class ContenutoController {
 
     // =====================================================================
     // DUPLICATE - Duplica contenuto esistente
-    // Vecchio: duplicate() → forward "successopen"
     // =====================================================================
-
     @PostMapping("/{id}/duplicate")
     public String duplicate(@PathVariable Integer id,
                             HttpServletRequest request) {
@@ -242,16 +280,15 @@ public class ContenutoController {
             DatiBase original = contentService.findContentById(id, idSite)
                     .orElseThrow(() -> new RuntimeException("Contenuto non trovato"));
 
-            // Crea copia
             DatiBase copia = new DatiBase();
-            copia.setId("-1"); // forza creazione
+            copia.setId("-1");
             copia.setIdSite(idSite);
             copia.setIdRoot(original.getIdRoot());
             copia.setIdType(original.getIdType());
             copia.setTitolo(original.getTitolo() + " (2)");
             copia.setRiassunto(original.getRiassunto());
             copia.setTesto(original.getTesto());
-            copia.setStato("0"); // bozza
+            copia.setStato("0");
             copia.setNumeratore1String("00000000");
 
             DatiBase saved = contentService.saveContent(copia);
@@ -267,9 +304,7 @@ public class ContenutoController {
 
     // =====================================================================
     // RICLASSIFICA - Sposta contenuti in altra sezione (AJAX)
-    // Vecchio: riclassificaDocumenti() → forward "successDatiAjax"
     // =====================================================================
-
     @PostMapping("/riclassifica")
     @ResponseBody
     public ResponseEntity<String> riclassificaDocumenti(
@@ -307,9 +342,7 @@ public class ContenutoController {
 
     // =====================================================================
     // ORDINA - Applica nuovo ordinamento contenuti (AJAX)
-    // Vecchio: ordinaDocumentiApplica() → forward "successelencoDocumentiOrdina"
     // =====================================================================
-
     @PostMapping("/ordina")
     @ResponseBody
     public ResponseEntity<String> ordinaDocumenti(
@@ -325,14 +358,17 @@ public class ContenutoController {
             if (!ordine.equals(ordineBase) && !ordine.isEmpty()) {
                 String[] ids = ordine.split(";");
                 int position = 1;
+
                 for (String idStr : ids) {
-                    if (idStr.isEmpty()) continue;
+                    if (idStr == null || idStr.isBlank()) continue;
                     int id = Integer.parseInt(idStr.trim());
                     int pos = position;
+
                     contentService.findDatiBaseById(id).ifPresent(doc -> {
                         doc.setPosition(String.valueOf(pos));
                         contentService.saveContent(doc);
                     });
+
                     position++;
                 }
             }
@@ -348,10 +384,6 @@ public class ContenutoController {
     // UTILITY PRIVATI
     // =====================================================================
 
-    /**
-     * Carica i documenti correlati dalla sezione (campi L15 e L11).
-     * Vecchio: DAO.getContenutiRelazione(sezione.getL15()) e DAO.getElencoDocumentiCorrelati(sezione.getL11())
-     */
     private void caricaDocumentiCorrelati(DatiBase documento, Section sezione, String idSite) {
         try {
             String l15 = sezione.getL(15);
@@ -378,9 +410,6 @@ public class ContenutoController {
         }
     }
 
-    /**
-     * Estrae anno e mese dalla dataVisualizzata e li imposta sul documento.
-     */
     private void parseDataVisualizzata(DatiBase documento) {
         try {
             String dataVis = documento.getDataVisualizzata();

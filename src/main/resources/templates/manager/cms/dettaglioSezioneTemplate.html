@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="it"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{manager/layout/template}">
+<body>
+
+<div layout:fragment="content">
+
+    <!-- ========================================
+         SWITCH CONTENUTO SEZIONE
+         Routing basato su section.sectionType.page1
+         ======================================== -->
+    <div th:switch="${section.sectionType.page1}">
+
+        <!-- Sezione Web Standard-->
+        <th:block th:case="'dettaglioSezione'">
+            <th:block th:replace="~{manager/cms/sezioni/dettaglioSezione :: content}"></th:block>
+        </th:block>
+
+        <th:block th:case="'dettaglioSezioneArgomento'">
+            <th:block th:replace="~{manager/cms/sezioni/dettaglioSezioneArgomento :: content}"></th:block>
+        </th:block>
+
+        <th:block th:case="'dettaglioSezioneDataset'">
+            <th:block th:replace="~{manager/cms/sezioni/dettaglioSezioneDataset :: content}"></th:block>
+        </th:block>
+
+        <th:block th:case="'dettaglioSezioneDocumenti'">
+            <th:block th:replace="~{manager/cms/sezioni/dettaglioSezioneDocumenti :: content}"></th:block>
+        </th:block>
+
+        <th:block th:case="'dettaglioSezioneEvento'">
+            <th:block th:replace="~{manager/cms/sezioni/dettaglioSezioneEvento :: content}"></th:block>
+        </th:block>
+
+        <th:block th:case="'dettaglioSezioneHome'">
+            <th:block th:replace="~{manager/cms/sezioni/dettaglioSezioneHome :: content}"></th:block>
+        </th:block>
+
+        <th:block th:case="'dettaglioSezioneLuogo'">
+            <th:block th:replace="~{manager/cms/sezioni/dettaglioSezioneLuogo :: content}"></th:block>
+        </th:block>
+
+        <th:block th:case="'dettaglioSezioneNCS'">
+            <th:block th:replace="~{manager/cms/sezioni/dettaglioSezioneNCS :: content}"></th:block>
+        </th:block>
+
+        <th:block th:case="'dettaglioSezionePersona'">
+            <th:block th:replace="~{manager/cms/sezioni/dettaglioSezionePersona :: content}"></th:block>
+        </th:block>
+
+        <th:block th:case="'dettaglioSezioneServizio'">
+            <th:block th:replace="~{manager/cms/sezioni/dettaglioSezioneServizio :: content}"></th:block>
+        </th:block>
+
+        <th:block th:case="'dettaglioSezioneUO'">
+            <th:block th:replace="~{manager/cms/sezioni/dettaglioSezioneUO :: content}"></th:block>
+        </th:block>
+
+        <th:block th:case="*">
+            <th:block th:replace="~{manager/cms/sezioni/dettaglioSezione :: content}"></th:block>
+        </th:block>
+
+    </div>
+
+</div>
+
+</body>
+</html>
