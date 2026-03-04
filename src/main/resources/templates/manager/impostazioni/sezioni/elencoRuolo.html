@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{manager/layout/template}">
+<head><title>Elenco Ruoli</title></head>
+<body>
+<div layout:fragment="content">
+
+  <div class="row">
+    <div class="col-md-3">
+      <section class="card card-primary">
+        <header class="card-header">
+          <div class="card-actions"><a href="#" class="card-action card-action-toggle" data-card-toggle=""></a></div>
+          <h2 class="card-title">Gestione Ruoli</h2>
+          <p class="card-subtitle">Informazioni e parametri</p>
+        </header>
+        <div class="card-body">
+          <p>I ruoli definiscono i permessi operativi degli amministratori sulla piattaforma.
+            Ogni ruolo può avere fino a 10 livelli e 10 sezioni di autorizzazione configurabili.</p>
+        </div>
+      </section>
+    </div>
+
+    <div class="col-md-9">
+      <section class="card card-primary">
+        <header class="card-header">
+          <div class="card-actions"><a href="#" class="card-action card-action-toggle" data-card-toggle></a></div>
+          <h2 class="card-title">Elenco</h2>
+          <p class="card-subtitle">I dati possono essere creati, modificati e cancellati.</p>
+        </header>
+        <div class="card-body">
+
+          <div class="right-wrapper text-right mb-3">
+            <a th:href="@{/admin/impostazioni/ruoli/new}" class="btn btn-primary">
+              <i class="fas fa-file-medical"></i> Crea nuovo
+            </a>
+            <a href="javascript:void(0);" onclick="cancellaMultiplo()" class="btn btn-primary">
+              <i class="fas fa-trash-alt"></i> Cancella selezionati
+            </a>
+          </div>
+
+          <table class="table table-responsive-lg table-bordered table-striped mb-0">
+            <thead>
+            <tr>
+              <th style="width:5%;"><input type="checkbox" id="selAll"/></th>
+              <th>Etichetta ruolo</th>
+              <th>Descrizione</th>
+              <th>Data modifica</th>
+              <th>Azioni</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="ruolo : ${elencoRuolo}">
+              <td class="text-center">
+                <input type="checkbox" name="row_sel" th:value="${ruolo.id}" class="inpt_c2"/>
+              </td>
+              <td>
+                <a th:href="@{/admin/impostazioni/ruoli/{id}/open(id=${ruolo.id})}">
+                  <span th:text="${ruolo.nome + ' - ' + ruolo.id}"></span>
+                </a>
+              </td>
+              <td th:text="${ruolo.descrizione}"></td>
+              <td th:text="${ruolo.datamodifica}"></td>
+              <td>
+                <a th:href="@{/admin/impostazioni/ruoli/{id}/open(id=${ruolo.id})}" title="Modifica">
+                  <i class="fas fa-pencil-alt"></i>
+                </a>
+                &nbsp;&nbsp;
+                <a href="javascript:void(0);" th:onclick="|cancellaRuolo(${ruolo.id})|" title="Cancella">
+                  <i class="far fa-trash-alt"></i>
+                </a>
+              </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(elencoRuolo)}">
+              <td colspan="5" class="text-center text-muted">Nessun ruolo presente.</td>
+            </tr>
+            </tbody>
+          </table>
+
+        </div>
+      </section>
+    </div>
+  </div>
+
+</div>
+<th:block layout:fragment="scripts">
+  <script>
+    document.getElementById('selAll').addEventListener('change', function() {
+      document.querySelectorAll('input[name="row_sel"]').forEach(cb => cb.checked = this.checked);
+    });
+
+    function cancellaRuolo(id) {
+      if (!confirm('Confermi la cancellazione?')) return;
+      fetch('/admin/impostazioni/ruoli/' + id + '/delete', { method: 'POST' })
+              .then(r => r.text()).then(res => { if (res === 'OK') location.reload(); else alert('Errore.'); });
+    }
+
+    function cancellaMultiplo() {
+      const ids = [...document.querySelectorAll('input[name="row_sel"]:checked')].map(cb => cb.value);
+      if (ids.length === 0) { alert('Seleziona almeno un elemento.'); return; }
+      if (!confirm('Confermi la cancellazione di ' + ids.length + ' elementi?')) return;
+      const params = new URLSearchParams();
+      ids.forEach(id => params.append('ids', id));
+      fetch('/admin/impostazioni/ruoli/delete-multiplo', {
+        method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString()
+      }).then(r => r.text()).then(res => { if (res === 'OK') location.reload(); else alert('Errore.'); });
+    }
+  </script>
+</th:block>
+</body>
+</html>

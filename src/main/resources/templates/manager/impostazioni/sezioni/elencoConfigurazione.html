@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{manager/layout/template}">
+<head>
+  <title>Elenco Configurazioni</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+  <!-- start: page -->
+  <div class="row">
+
+    <!-- Sidebar info -->
+    <div class="col-md-3">
+      <section class="card card-warning">
+        <header class="card-header">
+          <div class="card-actions">
+            <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+          </div>
+          <h2 class="card-title">Gestione Configurazioni</h2>
+          <p class="card-subtitle">Informazioni e parametri</p>
+        </header>
+        <div class="card-body">
+          <p>Lorem Ipsum è un testo segnaposto utilizzato nel settore della tipografia e della stampa. Lorem Ipsum è considerato il testo segnaposto standard sin dal sedicesimo secolo, quando un anonimo tipografo prese una cassetta di caratteri e li assemblò per preparare un testo campione. È sopravvissuto non solo a più di cinque secoli, ma anche al passaggio alla videoimpaginazione, pervenendoci sostanzialmente inalterato. Fu reso popolare, negli anni ’60, con la diffusione dei fogli di caratteri trasferibili “Letraset”, che contenevano passaggi del Lorem Ipsum, e più recentemente da software di impaginazione come Aldus PageMaker, che includeva versioni del Lorem Ipsum.</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- Tabella elenco -->
+    <div class="col-md-9">
+      <section class="card card-warning">
+        <header class="card-header">
+          <div class="card-actions">
+            <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
+          </div>
+          <h2 class="card-title">Elenco configurazioni</h2>
+          <p class="card-subtitle">I dati possono essere creati, modificati e cancellati.</p>
+        </header>
+        <div class="card-body">
+
+          <!-- Azioni toolbar -->
+          <div class="right-wrapper text-right mb-3">
+            <a th:href="@{/admin/impostazioni/configurazioni/new}"
+               class="btn btn-warning">
+              <i class="fas fa-file-medical"></i> Crea nuovo
+            </a>
+            <a href="javascript:void(0);"
+               class="btn btn-primary" onclick="CancellaAnagraficaMultiplaAjax()">
+              <i class="fas fa-trash-alt"></i> Cancella selezionati
+            </a>
+          </div>
+
+          <!-- Tabella -->
+          <table class="table table-responsive-lg table-bordered table-striped mb-0">
+            <thead>
+            <tr>
+              <th style="width:5%;">
+                <input type="checkbox" class="chSel_all" id="selAll"/>
+              </th>
+              <th>Titolo</th>
+              <th>URL</th>
+              <th>Repository</th>
+              <th>Azioni</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="sito : ${elencoConfigurazione}">
+              <td class="text-center">
+                <input type="checkbox" name="row_sel"
+                       th:value="${sito.id}"
+                       class="inpt_c2"/>
+              </td>
+              <td>
+                <a th:href="@{/admin/impostazioni/configurazioni/{id}/open(id=${sito.id})}">
+                  <!-- Sito attivo evidenziato in verde -->
+                  <span th:if="${config.sito != null and config.sito.id == sito.id}"
+                        class="badge badge-success"
+                        th:text="${sito.type}">Titolo</span>
+                  <span th:unless="${config.sito != null and config.sito.id == sito.id}"
+                        class="badge badge-info"
+                        th:text="${sito.type}">Titolo</span>
+                </a>
+              </td>
+              <td th:text="${sito.descrizione}"></td>
+              <td th:text="${sito.pathRepository}"></td>
+              <td>
+                <a th:href="@{/admin/impostazioni/configurazioni/{id}/open(id=${sito.id})}"
+                   title="Modifica">
+                  <i class="fas fa-pencil-alt"></i>
+                </a>
+                &nbsp;&nbsp;
+                <a href="javascript:void(0);"
+                   th:onclick="|cancellaConfigurazione(${sito.id})|"
+                   title="Cancella">
+                  <i class="far fa-trash-alt"></i>
+                </a>
+              </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(elencoConfigurazione)}">
+              <td colspan="5" class="text-center text-muted">
+                Nessuna configurazione presente.
+              </td>
+            </tr>
+            </tbody>
+          </table>
+
+        </div>
+      </section>
+    </div>
+
+  </div>
+  <!-- end: page -->
+
+</div>
+
+<!-- Script -->
+<th:block layout:fragment="scripts">
+  <script th:inline="javascript">
+    // Seleziona/deseleziona tutti
+    document.getElementById('selAll').addEventListener('change', function() {
+      document.querySelectorAll('input[name="row_sel"]').forEach(cb => cb.checked = this.checked);
+    });
+
+    // Cancella singolo
+    function cancellaConfigurazione(id) {
+      if (!confirm('Confermi la cancellazione di questa configurazione?')) return;
+      fetch('/admin/impostazioni/configurazioni/' + id + '/delete', { method: 'POST' })
+              .then(r => r.text())
+              .then(res => {
+                if (res === 'OK') location.reload();
+                else alert('Errore durante la cancellazione.');
+              });
+    }
+
+    // Cancella multiplo
+    function cancellaMultiplo() {
+      const selezionati = [...document.querySelectorAll('input[name="row_sel"]:checked')]
+              .map(cb => cb.value);
+      if (selezionati.length === 0) {
+        alert('Seleziona almeno un elemento.');
+        return;
+      }
+      if (!confirm('Confermi la cancellazione di ' + selezionati.length + ' elementi?')) return;
+
+      const params = new URLSearchParams();
+      selezionati.forEach(id => params.append('ids', id));
+
+      fetch('/admin/impostazioni/configurazioni/delete-multiplo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString()
+      })
+              .then(r => r.text())
+              .then(res => {
+                if (res === 'OK') location.reload();
+                else alert('Errore durante la cancellazione multipla.');
+              });
+    }
+
+    function CancellaAnagraficaMultiplaAjax() {
+      const ids = Array.from(document.querySelectorAll(".row_sel:checked")).map(cb => cb.value);
+      if (ids.length === 0) { alert("Seleziona almeno un contatto."); return; }
+      // TODO: chiamata AJAX tua
+      console.log("Da cancellare:", ids);
+    }
+  </script>
+</th:block>
+
+</div>
+</body>
+</html>

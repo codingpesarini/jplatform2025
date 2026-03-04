@@ -17,7 +17,7 @@
           <!-- Immagine principale (prima della gallery) -->
           <th:block th:if="${post.galleryCheck == true and post.gallery != null and !post.gallery.isEmpty()}">
             <div class="section d-none d-sm-none d-md-block pt-1 pb-1">
-              <div id="slideShowHome" class="carousel slide w-100" data-ride="carousel" style="overflow:hidden">
+              <div id="slideShowHome" class="carousel slide w-100" data-bs-ride="carousel" style="overflow:hidden">
                 <th:block th:each="immagine, iterStat : ${post.gallery}" th:if="${iterStat.index == 0}">
                   <div class="carousel-item active">
                     <img class="d-block w-100"

@@ -7,36 +7,37 @@
 
 <div layout:fragment="content">
 
+
   <div class="msg_box msg_error" id="form_a_errors" style="display:none"></div>
 
   <header class="page-header">
     <h2>Dettaglio Numeratore</h2>
 
     <div class="right-wrapper text-right">
-      <a th:href="@{/admin/numeratori/new}"
+      <a th:href="@{/admin/impostazioni/numeratori/new}"
          class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
         <i class="fas fa-file-medical"></i> Nuovo
       </a>
 
       <a th:if="${numeratore.id != null}"
-         th:href="@{/admin/numeratori/{id}/duplica(id=${numeratore.id})}"
+         th:href="@{/admin/impostazioni/numeratori/{id}/duplica(id=${numeratore.id})}"
          class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
         <i class="fas fa-clone"></i> Duplica
       </a>
 
-      <a href="javascript:void(0);" onclick="InviaForm();"
+      <a href="javascript:void(0);" onclick="InviaForm('numeratore');"
          class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
         <i class="fas fa-file-upload"></i> Salva
       </a>
 
-      <a th:href="@{/admin/numeratori}"
+      <a th:href="@{/admin/impostazioni/numeratori}"
          class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
         <i class="fas fa-times-circle"></i> Esci
       </a>
     </div>
   </header>
 
-  <form th:action="@{/admin/numeratori/save}"
+  <form th:action="@{/admin/impostazioni/numeratori/save}"
         method="post"
         id="numeratore"
         class="form-bordered needs-validation"
@@ -55,10 +56,10 @@
         <div class="tabs" id="mytabs">
           <ul class="nav nav-tabs">
             <li class="nav-item storeTab" id="1">
-              <a class="nav-link active" href="#tab_01" data-toggle="tab">Definizione</a>
+              <a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Definizione</a>
             </li>
             <li class="nav-item storeTab" id="2">
-              <a class="nav-link" href="#tab_02" data-toggle="tab">Permessi 1</a>
+              <a class="nav-link" href="#tab_02" data-bs-toggle="tab">Permessi 1</a>
             </li>
           </ul>
 

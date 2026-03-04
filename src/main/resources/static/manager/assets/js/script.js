@@ -119,7 +119,9 @@ document.addEventListener('DOMContentLoaded', menu_click);
 // Initialize various components on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function () {
   // feather icon start
-  feather.replace();
+  if (window.feather && typeof window.feather.replace === "function") {
+    window.feather.replace();
+  }
   // feather icon end
 
   // Check for specific layout and add scrollbar if necessary(add scrollbar from 1024 screen size in horizontal layout)

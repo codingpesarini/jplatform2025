@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{manager/layout/template}">
+<head><title>Dettaglio Ruolo</title></head>
+<body>
+<div layout:fragment="content">
+
+  <form id="ruolo" th:action="@{/admin/impostazioni/ruoli/save}" th:object="${ruolo}" method="post">
+    <input type="hidden" th:field="${ruolo.id}"/>
+    <div class="msg_box msg_error" id="form_a_errors" style="display:none"></div>
+
+    <header class="page-header">
+      <h2>Dettaglio Ruolo <small th:if="${ruolo.id != null}" th:text="'ID: ' + ${ruolo.id}"></small></h2>
+      <div class="right-wrapper text-right">
+        <a th:href="@{/admin/impostazioni/ruoli/new}" class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+          <i class="fas fa-file-medical"></i> Nuovo
+        </a>
+        <a th:if="${ruolo.id != null}"
+           th:href="@{/admin/impostazioni/ruoli/{id}/duplica(id=${ruolo.id})}"
+           class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+          <i class="fas fa-clone"></i> Duplica
+        </a>
+        <a href="javascript:void(0);" onclick="InviaForm();" class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+          <i class="fas fa-file-upload"></i> Salva
+        </a>
+        <a th:href="@{/admin/impostazioni/ruoli}" class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+          <i class="fas fa-times-circle"></i> Esci
+        </a>
+      </div>
+    </header>
+
+    <div class="row"><div class="col-lg-12">
+      <div class="tabs" id="mytabs">
+        <ul class="nav nav-tabs">
+          <li class="nav-item"><a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Definizione</a></li>
+          <li class="nav-item"><a class="nav-link" href="#tab_02" data-bs-toggle="tab">Permessi 1 (l1-l10)</a></li>
+          <li class="nav-item"><a class="nav-link" href="#tab_03" data-bs-toggle="tab">Permessi 2 (s1-s10)</a></li>
+        </ul>
+        <div class="tab-content">
+
+          <!-- ══════════════════════════════════ TAB 01: DEFINIZIONE -->
+          <div id="tab_01" class="tab-pane active">
+            <fieldset>
+              <legend>Dati principali</legend>
+              <div class="row form-group">
+                <div class="col-lg-12">
+                  <label class="col-form-label">Nome</label>
+                  <input type="text" th:field="${ruolo.nome}" class="form-control" required/>
+                </div>
+                <div class="col-lg-6">
+                  <label class="col-form-label">Descrizione</label>
+                  <input type="text" th:field="${ruolo.descrizione}" class="form-control"/>
+                </div>
+                <div class="col-lg-6">
+                  <label class="col-form-label">Data di modifica</label>
+                  <input type="text" th:field="${ruolo.datamodifica}" class="form-control datepicker"/>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- ══════════════════════════════════ TAB 02: PERMESSI L1-L10 -->
+          <div id="tab_02" class="tab-pane">
+            <fieldset>
+              <legend>Livelli permessi (l1-l10)</legend>
+
+              <!-- Usiamo una sequenza numerica da 1 a 9 con passo 2 (1, 3, 5, 7, 9) -->
+              <div th:each="n : ${#numbers.sequence(1, 9, 2)}" class="row form-group">
+
+                <!-- Prima Colonna (l1, l3, l5...) -->
+                <div class="col-lg-6">
+                  <label th:for="${'l' + n}" class="col-form-label" th:text="${'l' + n}"></label>
+                  <select th:name="${'l' + n}" th:id="${'l' + n}" class="form-control">
+                    <option value=""  th:selected="${numeratore['l' + n] == null}">Indefinito</option>
+                    <option value="0" th:selected="${numeratore['l' + n] == 0}">Disattivo</option>
+                    <option value="1" th:selected="${numeratore['l' + n] == 1}">Attivo</option>
+                  </select>
+                </div>
+
+                <!-- Seconda Colonna (l2, l4, l6...) -->
+                <div class="col-lg-6">
+                  <label th:for="${'l' + (n + 1)}" class="col-form-label" th:text="${'l' + (n + 1)}"></label>
+                  <select th:name="${'l' + (n + 1)}" th:id="${'l' + (n + 1)}" class="form-control">
+                    <option value=""  th:selected="${numeratore['l' + (n + 1)] == null}">Indefinito</option>
+                    <option value="0" th:selected="${numeratore['l' + (n + 1)] == 0}">Disattivo</option>
+                    <option value="1" th:selected="${numeratore['l' + (n + 1)] == 1}">Attivo</option>
+                  </select>
+                </div>
+
+              </div>
+            </fieldset>
+          </div>
+
+
+          <!-- ══════════════════════════════════ TAB 03: PERMESSI S1-S10 -->
+          <div id="tab_03" class="tab-pane">
+            <fieldset>
+              <legend>Sezioni permessi (s1-s10)</legend>
+
+              <!-- Ciclo i numeri da 1 a 9, saltando di 2 (quindi 1, 3, 5, 7, 9) -->
+              <div th:each="n : ${#numbers.sequence(1, 9, 2)}" class="row form-group">
+
+                <!-- Colonna per il campo corrente (s1, s3, s5...) -->
+                <div class="col-lg-6">
+                  <label th:for="${'s' + n}" class="col-form-label" th:text="${'s' + n}"></label>
+                  <select th:name="${'s' + n}"
+                          th:id="${'s' + n}"
+                          class="form-control">
+                    <option value=""  th:selected="${numeratore['s' + n] == null}">Indefinito</option>
+                    <option value="0" th:selected="${numeratore['s' + n] == 0}">Disattivo</option>
+                    <option value="1" th:selected="${numeratore['s' + n] == 1}">Attivo</option>
+                  </select>
+                </div>
+
+                <!-- Colonna per il campo successivo (s2, s4, s6...) -->
+                <div class="col-lg-6">
+                  <label th:for="${'s' + (n + 1)}" class="col-form-label" th:text="${'s' + (n + 1)}"></label>
+                  <select th:name="${'s' + (n + 1)}"
+                          th:id="${'s' + (n + 1)}"
+                          class="form-control">
+                    <option value=""  th:selected="${numeratore['s' + (n + 1)] == null}">Indefinito</option>
+                    <option value="0" th:selected="${numeratore['s' + (n + 1)] == 0}">Disattivo</option>
+                    <option value="1" th:selected="${numeratore['s' + (n + 1)] == 1}">Attivo</option>
+                  </select>
+                </div>
+
+              </div>
+            </fieldset>
+          </div>
+
+
+        </div>
+      </div>
+    </div></div>
+  </form>
+
+</div>
+<th:block layout:fragment="scripts">
+  <script>
+    function InviaForm() {
+      var form = document.getElementById('ruolo');
+      if (!form.checkValidity()) { form.classList.add('was-validated'); return; }
+      form.submit();
+    }
+  </script>
+</th:block>
+</body>
+</html>

@@ -1,42 +1,30 @@
 <!doctype html>
-<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<html lang="it"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{manager/layout/template}">
 <body>
-<th:block th:fragment="content">
+<div layout:fragment="content">
 
-    <!--
-        dettaglioAnagraficaAmministratore.html
-        POST /admin/anagrafica/save
-        Model:
-          anagraficaUtente  (AmministratoreUtente)
-          configCore.ruoli  (List<Ruolo>)
-          configCore.gruppi (List<Gruppo>)
-        6 tab:
-          01 - Dati anagrafici
-          02 - Dati accesso  (password, 2FA, social, gruppi)
-          03 - Ruoli operativi (ruoliA1..A5)
-          04 - Permessi accesso (role1..role18)
-          05 - Autorizzazioni  (l1..l10)
-          06 - Email e PEC (accountEMAIL, accountPEC)
-    -->
-
-    <form th:action="@{/admin/anagrafica/save}"
+    <form th:action="@{/admin/anagraafica/save}"
           method="post"
           enctype="multipart/form-data"
-          id="anagraficaUtente"
+          id="amministratoriUtente"
           class="form-bordered">
 
         <div class="msg_box msg_error" id="form_a_errors" style="display:none"></div>
 
         <header class="page-header mb-2">
-            <h2>Dettaglio Anagrafica</h2>
+            <h2>Dettaglio amministratori</h2>
             <div class="right-wrapper text-right">
-                <a th:href="@{/admin/anagrafica/new}"
-                   onclick="return ConfermaOperazione(this.href,'creare una nuova anagrafica')"
+                <a th:href="@{/admin/amministratori/new}"
+                   onclick="return ConfermaOperazione(this.href,'creare una nuova amministratori')"
                    class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
                     <i class="fas fa-file-medical"></i> Nuova
                 </a>
-                <a th:href="@{/admin/anagrafica/{id}/duplica(id=${anagraficaUtente.id})}"
-                   onclick="return ConfermaOperazione(this.href,'duplicare questa anagrafica')"
+                <a th:if="${amministratoriUtente != null and amministratoriUtente.id != null}"
+                   th:href="@{|/admin/amministratori/${amministratoriUtente.id}/duplica|}"
+                   onclick="return ConfermaOperazione(this,'duplicare questa amministratori')"
                    class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
                     <i class="fas fa-clone"></i> Duplica
                 </a>
@@ -44,7 +32,7 @@
                         class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
                     <i class="fas fa-file-upload"></i> Salva
                 </button>
-                <a href="javascript:void(0);" onclick="CloseHsReloadBase();"
+                <a th:href="@{/admin/amministratori}" onclick="CloseHsReloadBase();"
                    class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
                     <i class="fas fa-times-circle"></i> Esci
                 </a>
@@ -82,31 +70,31 @@
                         <div id="tab_01" class="tab-pane active" role="tabpanel">
                             <fieldset class="border p-3 mb-4">
                                 <legend class="float-none w-auto px-2">
-                                    Dati anagrafici ID <span th:text="${anagraficaUtente.id}">0</span>
+                                    Dati anagrafici ID <span th:text="${amministratoriUtente.id}">0</span>
                                 </legend>
 
                                 <!-- hidden fields -->
-                                <input type="hidden" name="id"           th:value="${anagraficaUtente.id}">
-                                <input type="hidden" name="idsite"       th:value="${anagraficaUtente.idsite}">
+                                <input type="hidden" name="id"           th:value="${amministratoriUtente.id}">
+                                <input type="hidden" name="idsite"       th:value="${amministratoriUtente.idsite}">
                                 <input type="hidden" name="statoaccesso" value="1">
-                                <input type="hidden" name="profileImage" th:value="${anagraficaUtente.profileImage}">
-                                <input type="hidden" name="ruoli1String" th:value="${anagraficaUtente.ruoli1String}">
-                                <input type="hidden" name="ruoli2String" th:value="${anagraficaUtente.ruoli2String}">
-                                <input type="hidden" name="ruoli3String" th:value="${anagraficaUtente.ruoli3String}">
-                                <input type="hidden" name="ruoli4String" th:value="${anagraficaUtente.ruoli4String}">
-                                <input type="hidden" name="ruoli5String" th:value="${anagraficaUtente.ruoli5String}">
+                                <input type="hidden" name="profileImage" th:value="${amministratoriUtente.profileImage}">
+                                <input type="hidden" name="ruoli1String" th:value="${amministratoriUtente.ruoli1String}">
+                                <input type="hidden" name="ruoli2String" th:value="${amministratoriUtente.ruoli2String}">
+                                <input type="hidden" name="ruoli3String" th:value="${amministratoriUtente.ruoli3String}">
+                                <input type="hidden" name="ruoli4String" th:value="${amministratoriUtente.ruoli4String}">
+                                <input type="hidden" name="ruoli5String" th:value="${amministratoriUtente.ruoli5String}">
 
                                 <div class="row form-group">
                                     <div class="col-lg-6 text-center">
-                                        <img th:src="${anagraficaUtente.avatar}" alt="" style="width:150px"><br>
+                                        <img th:src="${amministratoriUtente.avatar}" alt="" style="width:150px"><br>
                                         <a href="javascript:void(0);"
-                                           th:data-id="${anagraficaUtente.id}"
+                                           th:data-id="${amministratoriUtente.id}"
                                            onclick="return hs.htmlExpand(this,{headingText:'',align:'center',objectType:'iframe',width:400,height:600,src:'/filemanager/gestioneAvatar?idUser='+this.getAttribute('data-id')+'&userTable=utente&userTableField=image'})"
                                            class="mb-1 mt-1 mr-1 btn btn-xs btn-default">
                                             Carica foto utente
                                         </a>
                                         <a href="javascript:void(0);"
-                                           th:data-id="${anagraficaUtente.id}"
+                                           th:data-id="${amministratoriUtente.id}"
                                            onclick="CancellaAvatar('gestioneAvatar',this.getAttribute('data-id'),'utente','image')"
                                            class="mb-1 mt-1 mr-1 btn btn-xs btn-default">
                                             Cancella foto
@@ -117,11 +105,11 @@
                                             Cognome o denominazione <span class="required">*</span>
                                         </label>
                                         <input type="text" name="cognome" id="cognomeU"
-                                               th:value="${anagraficaUtente.cognome}"
+                                               th:value="${amministratoriUtente.cognome}"
                                                class="form-control obbligatorio" required>
                                         <label for="nome" class="col-form-label">Nome</label>
                                         <input type="text" name="nome" id="nome"
-                                               th:value="${anagraficaUtente.nome}"
+                                               th:value="${amministratoriUtente.nome}"
                                                class="form-control obbligatorio" required>
                                     </div>
                                 </div>
@@ -129,13 +117,13 @@
                                     <div class="col-lg-6">
                                         <label for="email" class="col-form-label">Email</label>
                                         <input type="email" name="email" id="email"
-                                               th:value="${anagraficaUtente.email}"
+                                               th:value="${amministratoriUtente.email}"
                                                class="form-control obbligatorio email" required>
                                     </div>
                                     <div class="col-lg-6">
                                         <label for="pec" class="col-form-label">PEC</label>
                                         <input type="text" name="pec" id="pec"
-                                               th:value="${anagraficaUtente.pec}"
+                                               th:value="${amministratoriUtente.pec}"
                                                class="form-control">
                                     </div>
                                 </div>
@@ -143,19 +131,19 @@
                                     <div class="col-lg-6">
                                         <label for="indirizzo" class="col-form-label">Via e numero civico, città</label>
                                         <input type="text" name="indirizzo" id="indirizzo"
-                                               th:value="${anagraficaUtente.indirizzo}"
+                                               th:value="${amministratoriUtente.indirizzo}"
                                                class="form-control upper">
                                     </div>
                                     <div class="col-lg-6">
                                         <label for="incarico" class="col-form-label">Incarico</label>
                                         <input type="text" name="incarico" id="incarico"
-                                               th:value="${anagraficaUtente.incarico}"
+                                               th:value="${amministratoriUtente.incarico}"
                                                class="form-control upper">
                                     </div>
                                     <div class="col-lg-12">
                                         <label for="extra1" class="col-form-label">Definisci firma per email</label>
                                         <input type="text" name="extra1" id="extra1"
-                                               th:value="${anagraficaUtente.extra1}"
+                                               th:value="${amministratoriUtente.extra1}"
                                                class="form-control tinymce5basic">
                                     </div>
                                 </div>
@@ -172,33 +160,33 @@
                                     <div class="col-lg-6">
                                         <label for="username" class="col-form-label">Username accesso</label>
                                         <input type="text" name="username" id="username"
-                                               th:value="${anagraficaUtente.username}"
+                                               th:value="${amministratoriUtente.username}"
                                                class="form-control obbligatorio" required>
                                     </div>
                                     <div class="col-lg-2">
                                         <!-- Password nuova utente (password vuota) -->
-                                        <th:block th:if="${anagraficaUtente.password == null or anagraficaUtente.password == ''}">
+                                        <th:block th:if="${amministratoriUtente.password == null or amministratoriUtente.password == ''}">
                                             <label for="passwordNew" class="col-form-label">Password</label>
                                             <input type="password" name="password" id="passwordNew"
                                                    class="form-control obbligatorio" required>
                                             <code>[da 8 a 15 caratteri con almeno una minuscola, una maiuscola, una cifra e un carattere speciale]</code>
                                         </th:block>
                                         <!-- Password già impostata -->
-                                        <th:block th:unless="${anagraficaUtente.password == null or anagraficaUtente.password == ''}">
+                                        <th:block th:unless="${amministratoriUtente.password == null or amministratoriUtente.password == ''}">
                                             <label for="passwordHidden" class="col-form-label">Modifica la password di accesso</label>
                                             <a href="javascript:void(0);"
                                                onclick="$('#nuovaPasswordAccesso').toggle()"
                                                class="btn btn-lg btn-default">Cambia password</a>
                                             <input type="hidden" name="password" id="passwordHidden"
-                                                   th:value="${anagraficaUtente.password}">
+                                                   th:value="${amministratoriUtente.password}">
                                         </th:block>
                                     </div>
                                     <div class="col-lg-4">
                                         <label for="statoaccesso" class="col-form-label">Stato attivazione</label>
                                         <select name="statoaccesso" id="statoaccesso" class="form-control">
-                                            <option value=""  th:selected="${anagraficaUtente.statoaccesso == ''}">Indefinito</option>
-                                            <option value="0" th:selected="${anagraficaUtente.statoaccesso == '0'}">Disattivo</option>
-                                            <option value="1" th:selected="${anagraficaUtente.statoaccesso == '1'}">Attivo</option>
+                                            <option value=""  th:selected="${anagraficaUtente.statoaccesso == null}">Indefinito</option>
+                                            <option value="0" th:selected="${anagraficaUtente.statoaccesso == 0}">Disattivo</option>
+                                            <option value="1" th:selected="${amministratoriUtente.statoaccesso == 1}">Attivo</option>
                                         </select>
                                     </div>
                                 </div>
@@ -225,51 +213,65 @@
                                     <div class="col-lg-4">
                                         <label for="role19" class="col-form-label">Stato autenticazione 2F - Google Authenticator</label>
                                         <select name="role19" id="role19" class="form-control obbligatorio">
-                                            <option value=""  th:selected="${anagraficaUtente.role19 == ''}">Indefinito</option>
-                                            <option value="0" th:selected="${anagraficaUtente.role19 == '0'}">Disattivo</option>
-                                            <option value="1" th:selected="${anagraficaUtente.role19 == '1'}">Attivo</option>
+                                            <option value=""  th:selected="${amministratoriUtente.role19 == ''}">Indefinito</option>
+                                            <option value="0" th:selected="${amministratoriUtente.role19 == '0'}">Disattivo</option>
+                                            <option value="1" th:selected="${amministratoriUtente.role19 == '1'}">Attivo</option>
                                         </select>
                                     </div>
+
+
                                     <div class="col-lg-4">
                                         <label for="role20" class="col-form-label">secretKey generator</label>
-                                        <input type="text" name="role20" id="role20"
-                                               th:value="${anagraficaUtente.role20}" class="form-control">
+                                        <input type="text"
+                                               name="role20"
+                                               id="role20"
+                                               th:value="${amministratoriUtente.role20}"
+                                               class="form-control">
                                     </div>
+
                                     <div class="col-lg-2">
-                                        <a href="javascript:GeneraAuthCodeGoogleAuthenticatorUtente('generare un nuovo AUTHCODE Google Authenticator')"
-                                           class="mb-0 mt-4 btn btn-primary btn-lg btn-block">
+                                        <a href="javascript:void(0);"
+                                           class="mb-0 mt-4 btn btn-primary btn-lg btn-block"
+                                           onclick="GeneraAuthCodeGoogleAuthenticatorUtente('Generare un nuovo AUTHCODE Google Authenticator?')">
                                             Genera AUTHCODE
                                         </a>
                                     </div>
+
                                     <div class="col-lg-2">
-                                        <a class="mb-0 mt-4 btn btn-primary btn-lg btn-block modal-basic-anim"
-                                           href="#modalQRCODE">QRCODE</a>
-                                        <div id="modalQRCODE" class="modal-block modal-block-sd mfp-hide">
-                                            <section class="card">
-                                                <header class="card-header">
-                                                    <h2 class="card-title">Google Authenticator QR Code</h2>
-                                                </header>
-                                                <div class="card-body">
-                                                    <div class="modal-wrapper">
-                                                        <div class="modal-text">
-                                                            <p>Scansione il codice utilizzando Google Autenticator APP</p>
-                                                            <p>
-                                                                <img th:src="@{/admin/anagrafica/qrcode(email=${anagraficaUtente.email},securkey=${anagraficaUtente.role20})}"
-                                                                     class="w-100" alt="QR Code">
-                                                            </p>
-                                                        </div>
-                                                    </div>
+                                        <!-- Bottone che apre la modale -->
+                                        <a href="javascript:void(0);"
+                                           class="mb-0 mt-4 btn btn-primary btn-lg btn-block"
+                                           data-bs-toggle="modal"
+                                           data-bs-target="#modalQRCODE">
+                                            QRCODE
+                                        </a>
+                                    </div>
+
+                                    <!-- MODALE BOOTSTRAP -->
+                                    <div class="modal fade" id="modalQRCODE" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                                            <div class="modal-content">
+
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Google Authenticator QR Code</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
                                                 </div>
-                                                <footer class="card-footer">
-                                                    <div class="row">
-                                                        <div class="col-md-12 text-end">
-                                                            <button class="btn btn-default modal-dismiss">Completato</button>
-                                                        </div>
-                                                    </div>
-                                                </footer>
-                                            </section>
+
+                                                <div class="modal-body">
+                                                    <p>Scansiona il codice utilizzando Google Authenticator APP</p>
+
+                                                    <!-- QR: caricato solo all'apertura -->
+                                                    <p><img th:src="@{/admin/amministratori/qrcode(email=${amministratoriUtente.email},securkey=${amministratoriUtente.role20})}" class="w-100" alt="QR Code"></p>
+                                                </div>
+
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Completato</button>
+                                                </div>
+
+                                            </div>
                                         </div>
                                     </div>
+
                                 </div>
 
                                 <!-- Social -->
@@ -277,24 +279,24 @@
                                     <div class="col-lg-6">
                                         <label for="socialId" class="col-form-label">Id social network</label>
                                         <input type="text" name="socialId" id="socialId"
-                                               th:value="${anagraficaUtente.socialId}" class="form-control">
+                                               th:value="${amministratoriUtente.socialId}" class="form-control">
                                     </div>
                                     <div class="col-lg-6">
                                         <label for="socialName" class="col-form-label">Social name</label>
                                         <input type="text" name="socialName" id="socialName"
-                                               th:value="${anagraficaUtente.socialName}" class="form-control">
+                                               th:value="${amministratoriUtente.socialName}" class="form-control">
                                     </div>
                                 </div>
                                 <div class="row form-group">
                                     <div class="col-lg-6">
                                         <label for="socialType" class="col-form-label">Social Tipologia</label>
                                         <input type="text" name="socialType" id="socialType"
-                                               th:value="${anagraficaUtente.socialType}" class="form-control">
+                                               th:value="${amministratoriUtente.socialType}" class="form-control">
                                     </div>
                                     <div class="col-lg-6">
                                         <label for="socialImage" class="col-form-label">Path social Image</label>
                                         <input type="text" name="socialImage" id="socialImage"
-                                               th:value="${anagraficaUtente.socialImage}" class="form-control">
+                                               th:value="${amministratoriUtente.socialImage}" class="form-control">
                                     </div>
                                 </div>
 
@@ -306,19 +308,19 @@
                                             <option value="0">Seleziona tipologia</option>
                                             <option th:each="g : ${configCore.gruppi}"
                                                     th:value="${g.id}" th:text="${g.nome}"
-                                                    th:selected="${anagraficaUtente.idGruppi != null and #lists.contains(anagraficaUtente.idGruppi, g.id)}"></option>
+                                                    th:selected="${amministratoriUtente.idGruppi != null and #lists.contains(amministratoriUtente.idGruppi, g.id)}"></option>
                                         </select>
                                     </div>
                                     <div class="col-lg-2">
                                         <label class="col-form-label">Data di registrazione</label>
-                                        <p th:text="${anagraficaUtente.datacreazione}">-</p>
+                                        <p th:text="${amministratoriUtente.datacreazione}">-</p>
                                     </div>
                                     <div class="col-lg-4">
                                         <label class="col-form-label">Data ultimo accesso | IP | Accessi totali</label>
                                         <p>
-                                            <span th:text="${anagraficaUtente.dataultimoaccesso}">-</span> |
-                                            <span th:text="${anagraficaUtente.ipultimoaccesso}">-</span> |
-                                            <span th:text="${anagraficaUtente.numeroaccessi}">-</span>
+                                            <span th:text="${amministratoriUtente.dataultimoaccesso}">-</span> |
+                                            <span th:text="${amministratoriUtente.ipultimoaccesso}">-</span> |
+                                            <span th:text="${amministratoriUtente.numeroaccessi}">-</span>
                                         </p>
                                     </div>
                                 </div>
@@ -340,7 +342,7 @@
                                                 <option value="0">Nessuno</option>
                                                 <option th:each="r : ${configCore.ruoli}"
                                                         th:value="${r.id}" th:text="${r.nome}"
-                                                        th:selected="${__${'anagraficaUtente.ruoliA' + i}__ != null and #lists.contains(__${'anagraficaUtente.ruoliA' + i}__, r.id)}"></option>
+                                                        th:selected="${__${'amministratoriUtente.ruoliA' + i}__ != null and #lists.contains(__${'amministratoriUtente.ruoliA' + i}__, r.id)}"></option>
                                             </select>
                                         </div>
                                     </th:block>
@@ -359,9 +361,9 @@
                                     <div class="col-lg-6 mb-3">
                                         <label for="role1" class="col-form-label">Amm/Sup/Red</label>
                                         <select name="role1" id="role1" class="form-control">
-                                            <option value="a" th:selected="${anagraficaUtente.role1 == 'a'}">Amministratore</option>
-                                            <option value="s" th:selected="${anagraficaUtente.role1 == 's'}">Supervisore</option>
-                                            <option value="r" th:selected="${anagraficaUtente.role1 == 'r'}">Redattore</option>
+                                            <option value="a" th:selected="${amministratoriUtente.role1 == 'a'}">Amministratore</option>
+                                            <option value="s" th:selected="${amministratoriUtente.role1 == 's'}">Supervisore</option>
+                                            <option value="r" th:selected="${amministratoriUtente.role1 == 'r'}">Redattore</option>
                                         </select>
                                     </div>
 
@@ -369,9 +371,9 @@
                                     <div class="col-lg-6 mb-3">
                                         <label for="role2" class="col-form-label">Accesso portale</label>
                                         <select name="role2" id="role2" class="form-control">
-                                            <option value=""  th:selected="${anagraficaUtente.role2 == ''}">Indefinito</option>
-                                            <option value="0" th:selected="${anagraficaUtente.role2 == '0'}">Disattivo</option>
-                                            <option value="1" th:selected="${anagraficaUtente.role2 == '1'}">Attivo</option>
+                                            <option value=""  th:selected="${amministratoriUtente.role2 == ''}">Indefinito</option>
+                                            <option value="0" th:selected="${amministratoriUtente.role2 == '0'}">Disattivo</option>
+                                            <option value="1" th:selected="${amministratoriUtente.role2 == '1'}">Attivo</option>
                                         </select>
                                     </div>
 
@@ -381,9 +383,9 @@
                                             <label th:for="${'role' + i}" class="col-form-label"
                                                    th:text="${'Ruolo ' + i}">Ruolo N</label>
                                             <select th:name="${'role' + i}" th:id="${'role' + i}" class="form-control">
-                                                <option value=""  th:selected="${__${'anagraficaUtente.role' + i}__ == ''}">Indefinito</option>
-                                                <option value="0" th:selected="${__${'anagraficaUtente.role' + i}__ == '0'}">Disattivo</option>
-                                                <option value="1" th:selected="${__${'anagraficaUtente.role' + i}__ == '1'}">Attivo</option>
+                                                <option value=""  th:selected="${__${'amministratoriUtente.role' + i}__ == ''}">Indefinito</option>
+                                                <option value="0" th:selected="${__${'amministratoriUtente.role' + i}__ == '0'}">Disattivo</option>
+                                                <option value="1" th:selected="${__${'amministratoriUtente.role' + i}__ == '1'}">Attivo</option>
                                             </select>
                                         </div>
                                     </th:block>
@@ -403,9 +405,9 @@
                                     <div class="col-lg-6 mb-3">
                                         <label for="l1" class="col-form-label">L1</label>
                                         <select name="l1" id="l1" class="form-control">
-                                            <option value=""  th:selected="${anagraficaUtente.l1 == ''}">Indefinito</option>
-                                            <option value="0" th:selected="${anagraficaUtente.l1 == '0'}">Disattivo</option>
-                                            <option value="1" th:selected="${anagraficaUtente.l1 == '1'}">Attivo</option>
+                                            <option value=""  th:selected="${amministratoriUtente.l1 == ''}">Indefinito</option>
+                                            <option value="0" th:selected="${amministratoriUtente.l1 == '0'}">Disattivo</option>
+                                            <option value="1" th:selected="${amministratoriUtente.l1 == '1'}">Attivo</option>
                                         </select>
                                     </div>
 
@@ -413,12 +415,12 @@
                                     <div class="col-lg-6 mb-3">
                                         <label for="l2" class="col-form-label">Accesso a</label>
                                         <select name="l2" id="l2" class="form-control">
-                                            <option value=""  th:selected="${anagraficaUtente.l2 == ''}">Indefinito</option>
-                                            <option value="0" th:selected="${anagraficaUtente.l2 == '0'}">Portale WEB</option>
-                                            <option value="1" th:selected="${anagraficaUtente.l2 == '1'}">Protocollo e gestione documentale</option>
-                                            <option value="2" th:selected="${anagraficaUtente.l2 == '2'}">Mensa</option>
-                                            <option value="3" th:selected="${anagraficaUtente.l2 == '3'}">Casa dello studente</option>
-                                            <option value="4" th:selected="${anagraficaUtente.l2 == '4'}">Gestione Bandi e Concorsi</option>
+                                            <option value=""  th:selected="${amministratoriUtente.l2 == ''}">Indefinito</option>
+                                            <option value="0" th:selected="${amministratoriUtente.l2 == '0'}">Portale WEB</option>
+                                            <option value="1" th:selected="${amministratoriUtente.l2 == '1'}">Protocollo e gestione documentale</option>
+                                            <option value="2" th:selected="${amministratoriUtente.l2 == '2'}">Mensa</option>
+                                            <option value="3" th:selected="${amministratoriUtente.l2 == '3'}">Casa dello studente</option>
+                                            <option value="4" th:selected="${amministratoriUtente.l2 == '4'}">Gestione Bandi e Concorsi</option>
                                         </select>
                                         <span class="f_help">L2</span>
                                     </div>
@@ -429,9 +431,9 @@
                                             <label th:for="${'l' + i}" class="col-form-label"
                                                    th:text="${'L' + i}">LN</label>
                                             <select th:name="${'l' + i}" th:id="${'l' + i}" class="form-control">
-                                                <option value=""  th:selected="${__${'anagraficaUtente.l' + i}__ == ''}">Indefinito</option>
-                                                <option value="0" th:selected="${__${'anagraficaUtente.l' + i}__ == '0'}">Disattivo</option>
-                                                <option value="1" th:selected="${__${'anagraficaUtente.l' + i}__ == '1'}">Attivo</option>
+                                                <option value=""  th:selected="${__${'amministratoriUtente.l' + i}__ == ''}">Indefinito</option>
+                                                <option value="0" th:selected="${__${'amministratoriUtente.l' + i}__ == '0'}">Disattivo</option>
+                                                <option value="1" th:selected="${__${'amministratoriUtente.l' + i}__ == '1'}">Attivo</option>
                                             </select>
                                         </div>
                                     </th:block>
@@ -457,27 +459,31 @@
                                             </a>
                                         </div>
                                         <code>Il primo account inserito è il predefinito</code>
-                                        <input type="hidden" name="idAccountEMAIL" id="idAccountEMAIL"
-                                               th:value="${anagraficaUtente.idAccountEMAIL}">
+                                        <input type="hidden" name="idaccountemail" id="idaccountemail"
+                                               th:value="${amministratoriUtente.idaccountemail}">
                                         <table id="data_tableEmail"
                                                class="table table-responsive-lg table-bordered table-striped mb-0">
                                             <thead>
                                             <tr><th>Descrizione</th><th>Tipologia</th><th>Rimuovi</th></tr>
                                             </thead>
                                             <tbody>
-                                            <tr th:if="${#lists.isEmpty(anagraficaUtente.accountEMAIL)}">
+                                            <tr th:if="${#lists.isEmpty(amministratoriUtente.idaccountemail)}">
                                                 <td colspan="3" class="text-center">Nessun account associato.</td>
                                             </tr>
-                                            <tr th:each="acc : ${anagraficaUtente.accountEMAIL}">
+                                            <tr th:if="${amministratoriUtente.idaccountemail != null and !#strings.isEmpty(amministratoriUtente.idaccountemail)}">
                                                 <td>
-                                                    <span th:text="${acc.descrizione}">-</span>
-                                                    <input type="hidden" th:id="${'rowEMAIL_' + acc.id}" th:value="${acc.id}">
+                                                    <span th:text="${amministratoriUtente.idaccountemail}">-</span>
+                                                    <input type="hidden"
+                                                           th:id="${'rowEMAIL_' + #strings.replace(#strings.replace(amministratoriUtente.idaccountemail,'@','_'),'.','_')}"
+                                                           th:value="${amministratoriUtente.idaccountemail}">
                                                 </td>
-                                                <td th:text="${acc.tipoAccount}">-</td>
+
+                                                <td>-</td>
+
                                                 <td>
                                                     <a href="javascript:void(0);"
-                                                       th:data-id="${acc.id}"
-                                                       onclick="disassociaAccount('idAccountEMAIL',this.getAttribute('data-id'))"
+                                                       th:data-id="${amministratoriUtente.idaccountemail}"
+                                                       onclick="disassociaAccount('idaccountemail',this.getAttribute('data-id'))"
                                                        title="Cancella">
                                                         <i class="fas fa-trash-alt"></i>
                                                     </a>
@@ -500,27 +506,31 @@
                                             </a>
                                         </div>
                                         <code>Il primo account inserito è il predefinito</code>
-                                        <input type="hidden" name="idAccountPEC" id="idAccountPEC"
-                                               th:value="${anagraficaUtente.idAccountPEC}">
+                                        <input type="hidden" name="idaccountpec" id="idaccountpec"
+                                               th:value="${amministratoriUtente.idaccountpec}">
                                         <table id="data_tablePec"
                                                class="table table-responsive-lg table-bordered table-striped mb-0">
                                             <thead>
                                             <tr><th>Descrizione</th><th>Tipologia</th><th>Rimuovi</th></tr>
                                             </thead>
                                             <tbody>
-                                            <tr th:if="${#lists.isEmpty(anagraficaUtente.accountPEC)}">
+                                            <tr th:if="${#lists.isEmpty(amministratoriUtente.idaccountpec)}">
                                                 <td colspan="3" class="text-center">Nessun account associato.</td>
                                             </tr>
-                                            <tr th:each="acc : ${anagraficaUtente.accountPEC}">
+                                            <tr th:if="${amministratoriUtente.idaccountpec != null and !#strings.isEmpty(amministratoriUtente.idaccountpec)}">
                                                 <td>
-                                                    <span th:text="${acc.descrizione}">-</span>
-                                                    <input type="hidden" th:id="${'rowPEC_' + acc.id}" th:value="${acc.id}">
+                                                    <span th:text="${amministratoriUtente.idaccountpec}">-</span>
+                                                    <input type="hidden"
+                                                           th:id="${'rowPEC_' + #strings.replace(#strings.replace(amministratoriUtente.idaccountpec,'@','_'),'.','_')}"
+                                                           th:value="${amministratoriUtente.idaccountpec}">
                                                 </td>
-                                                <td th:text="${acc.tipoAccount}">-</td>
+
+                                                <td>-</td>
+
                                                 <td>
                                                     <a href="javascript:void(0);"
-                                                       th:data-id="${acc.id}"
-                                                       onclick="disassociaAccount('idAccountPEC',this.getAttribute('data-id'))"
+                                                       th:data-id="${amministratoriUtente.idaccountpec}"
+                                                       onclick="disassociaAccount('idaccountpec',this.getAttribute('data-id'))"
                                                        title="Cancella">
                                                         <i class="fas fa-trash-alt"></i>
                                                     </a>
@@ -594,7 +604,7 @@
                 $('#newpasswordretype').removeAttr('required');
             }
 
-            var form = $('#anagraficaUtente');
+            var form = $('#amministratoriUtente');
             if (form[0].checkValidity() === false) {
                 new PNotify({
                     title: 'Attenzione!',
@@ -604,12 +614,12 @@
                 form.find(':submit').click();
             } else {
                 form.addClass('was-validated');
-                document.anagraficaUtente.submit();
+                document.amministratoriUtente.submit();
             }
             form.addClass('was-validated');
         }
     </script>
 
-</th:block>
+</div>
 </body>
 </html>

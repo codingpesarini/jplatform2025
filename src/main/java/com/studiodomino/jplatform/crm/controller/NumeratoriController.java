@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 
 @Controller
-@RequestMapping("/admin/numeratori")
+@RequestMapping("/admin/impostazioni/numeratori")
 @RequiredArgsConstructor
 @Slf4j
 public class NumeratoriController {
@@ -38,7 +38,7 @@ public class NumeratoriController {
         model.addAttribute("config", config);
         model.addAttribute("elencoNumeratori", numeratoreRepository.findAll());
 
-        return ViewUtils.resolveProtectedTemplate("crm/sezioni/elencoNumeratori");
+        return ViewUtils.resolveProtectedTemplate("impostazioni/sezioni/elencoNumeratori");
     }
 
     // ─── NEW ─────────────────────────────────────────────────────────────────
@@ -52,7 +52,7 @@ public class NumeratoriController {
         model.addAttribute("config", config);
         model.addAttribute("numeratore", new Numeratore());
 
-        return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioNumeratori");
+        return ViewUtils.resolveProtectedTemplate("impostazioni/contenuti/dettaglioNumeratori");
     }
 
     // ─── OPEN ────────────────────────────────────────────────────────────────
@@ -64,14 +64,14 @@ public class NumeratoriController {
         if (!config.isLogged()) return "redirect:/login";
 
         Numeratore numeratore = numeratoreRepository.findById(id).orElse(null);
-        if (numeratore == null) return "redirect:/admin/numeratori";
+        if (numeratore == null) return "redirect:/admin/impostazioni/numeratori";
 
         log.info("=== NUMERATORI OPEN === id: {}", id);
 
         model.addAttribute("config", config);
         model.addAttribute("numeratore", numeratore);
 
-        return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioNumeratori");
+        return ViewUtils.resolveProtectedTemplate("impostazioni/contenuti/dettaglioNumeratori");
     }
 
     // ─── SAVE ────────────────────────────────────────────────────────────────
@@ -90,7 +90,7 @@ public class NumeratoriController {
         model.addAttribute("config", config);
         model.addAttribute("numeratore", salvato);
 
-        return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioNumeratori");
+        return ViewUtils.resolveProtectedTemplate("impostazioni/contenuti/dettaglioNumeratori");
     }
 
     // ─── DELETE SINGOLO (AJAX) ───────────────────────────────────────────────

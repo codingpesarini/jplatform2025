@@ -21,9 +21,9 @@
         <div class="card-body">
           <p>In questa sezione sono visualizzati tutti i messaggi diretti utenti (LEAD) inviati tramite web-forms o altri canali diretti di comunicazione quali landing page. I messaggi email non sono riportati in questa sezione ma nella gestione web-mail del CRM.</p>
           <p>È possibile visualizzare i commenti/messaggi non ancora visualizzati o quelli già completati.</p>
-          <a th:href="@{/admin/crm/numeratori(stato=1)}"
+          <a th:href="@{/admin/numeratori}"
              class="mb-1 mt-1 mr-1 btn btn-xs btn-success btn-lg btn-block">Da iniziare</a>
-          <a th:href="@{/admin/crm/numeratori(stato=2)}"
+          <a th:href="@{/admin/numeratori}"
              class="mb-1 mt-1 mr-1 btn btn-xs btn-success btn-lg btn-block">Completati</a>
         </div>
       </section>
@@ -40,9 +40,8 @@
           <p class="card-subtitle">I dati possono essere creati, modificati e cancellati.</p>
         </header>
         <div class="card-body">
-          <div class="right-wrapper text-right mb-2">
-            <a href="javascript:void(0);" class="btn btn-success"
-               onclick="CancellaCommentoUtenteMultiplaAjax()">
+          <div class="right-wrapper text-right">
+            <a href="javascript:void(0);" class="btn btn-primary" onclick="CancellaAnagraficaMultiplaAjax()">
               <i class="fas fa-trash-alt"></i> Cancella selezionati
             </a>
           </div>
@@ -106,6 +105,16 @@
     </div>
 
   </div>
+
+  <script>
+
+    function CancellaAnagraficaMultiplaAjax() {
+      const ids = Array.from(document.querySelectorAll(".row_sel:checked")).map(cb => cb.value);
+      if (ids.length === 0) { alert("Seleziona almeno un contatto."); return; }
+      // TODO: chiamata AJAX tua
+      console.log("Da cancellare:", ids);
+    }
+  </script>
 
 </th:block>
 </body>

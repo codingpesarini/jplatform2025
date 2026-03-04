@@ -39,7 +39,6 @@ public class StartupController {
         return startup(idsite, null, request, response);
     }
 
-    // uscita SOLO true/false (così /admin/numeratori NON ci entra mai)
     @GetMapping("/{idsite:(?!admin|login|front|error|logout|api|manager|cms|crm|favicon\\.ico|images|css|js|fonts|assets|static|webjars).*}/{uscita:true|false}")
     public String startupCompleto(
             @PathVariable String idsite,

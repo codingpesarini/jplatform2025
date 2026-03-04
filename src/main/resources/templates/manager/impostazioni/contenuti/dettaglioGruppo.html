@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{manager/layout/template}">
+<head><title>Dettaglio Gruppo</title></head>
+<body>
+<div layout:fragment="content">
+
+  <form id="gruppo" th:action="@{/admin/impostazioni/gruppi/save}" th:object="${gruppo}" method="post">
+    <input type="hidden" th:field="${gruppo.id}"/>
+    <div class="msg_box msg_error" id="form_a_errors" style="display:none"></div>
+
+    <header class="page-header">
+      <h2>Dettaglio Gruppo <small th:if="${gruppo.id != null}" th:text="'ID: ' + ${gruppo.id}"></small></h2>
+      <div class="right-wrapper text-right">
+        <a th:href="@{/admin/impostazioni/gruppi/new}" class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+          <i class="fas fa-file-medical"></i> Nuovo
+        </a>
+        <a th:if="${gruppo.id != null}"
+           th:href="@{/admin/impostazioni/gruppi/{id}/duplica(id=${gruppo.id})}"
+           class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+          <i class="fas fa-clone"></i> Duplica
+        </a>
+        <a href="javascript:void(0);" onclick="InviaForm();" class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+          <i class="fas fa-file-upload"></i> Salva
+        </a>
+        <a th:href="@{/admin/impostazioni/gruppi}" class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+          <i class="fas fa-times-circle"></i> Esci
+        </a>
+      </div>
+    </header>
+
+    <div class="row"><div class="col-lg-12">
+      <div class="tabs" id="mytabs">
+        <ul class="nav nav-tabs">
+          <li class="nav-item"><a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Definizione</a></li>
+          <li class="nav-item"><a class="nav-link" href="#tab_02" data-bs-toggle="tab">Altri dati</a></li>
+        </ul>
+        <div class="tab-content">
+
+          <!-- ══════════════════════════════════ TAB 01: DEFINIZIONE -->
+          <div id="tab_01" class="tab-pane active">
+            <fieldset>
+              <legend>Dati principali</legend>
+              <div class="row form-group">
+                <div class="col-lg-12">
+                  <label class="col-form-label">Nome</label>
+                  <input type="text" th:field="${gruppo.nome}" class="form-control" required/>
+                </div>
+                <div class="col-lg-6">
+                  <label class="col-form-label">Data di modifica</label>
+                  <input type="text" th:field="${gruppo.datamodifica}" class="form-control datepicker"/>
+                </div>
+                <div class="col-lg-6">
+                  <label class="col-form-label">Accesso pubblico (l1)</label>
+                  <select th:field="${gruppo.l1}" class="form-control">
+                    <option value="">Indefinito</option>
+                    <option value="0">Disattivo</option>
+                    <option value="1">Attivo</option>
+                  </select>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- ══════════════════════════════════ TAB 02: ALTRI DATI -->
+          <div id="tab_02" class="tab-pane">
+            <fieldset>
+              <legend>Altri dati</legend>
+
+              <!-- Macro: genera una riga con 2 select per i livelli l2-l10 -->
+              <div class="row form-group">
+                <div class="col-lg-6">
+                  <label class="col-form-label">l2</label>
+                  <select th:field="${gruppo.l2}" class="form-control">
+                    <option value="">Indefinito</option>
+                    <option value="0">Disattivo</option>
+                    <option value="1">Attivo</option>
+                  </select>
+                </div>
+                <div class="col-lg-6">
+                  <label class="col-form-label">l3</label>
+                  <select th:field="${gruppo.l3}" class="form-control">
+                    <option value="">Indefinito</option>
+                    <option value="0">Disattivo</option>
+                    <option value="1">Attivo</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-lg-6">
+                  <label class="col-form-label">l4</label>
+                  <select th:field="${gruppo.l4}" class="form-control">
+                    <option value="">Indefinito</option>
+                    <option value="0">Disattivo</option>
+                    <option value="1">Attivo</option>
+                  </select>
+                </div>
+                <div class="col-lg-6">
+                  <label class="col-form-label">l5</label>
+                  <select th:field="${gruppo.l5}" class="form-control">
+                    <option value="">Indefinito</option>
+                    <option value="0">Disattivo</option>
+                    <option value="1">Attivo</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-lg-6">
+                  <label class="col-form-label">l6</label>
+                  <select th:field="${gruppo.l6}" class="form-control">
+                    <option value="">Indefinito</option>
+                    <option value="0">Disattivo</option>
+                    <option value="1">Attivo</option>
+                  </select>
+                </div>
+                <div class="col-lg-6">
+                  <label class="col-form-label">l7</label>
+                  <select th:field="${gruppo.l7}" class="form-control">
+                    <option value="">Indefinito</option>
+                    <option value="0">Disattivo</option>
+                    <option value="1">Attivo</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-lg-6">
+                  <label class="col-form-label">l8</label>
+                  <select th:field="${gruppo.l8}" class="form-control">
+                    <option value="">Indefinito</option>
+                    <option value="0">Disattivo</option>
+                    <option value="1">Attivo</option>
+                  </select>
+                </div>
+                <div class="col-lg-6">
+                  <label class="col-form-label">l9</label>
+                  <select th:field="${gruppo.l9}" class="form-control">
+                    <option value="">Indefinito</option>
+                    <option value="0">Disattivo</option>
+                    <option value="1">Attivo</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row form-group">
+                <div class="col-lg-6">
+                  <label class="col-form-label">l10</label>
+                  <select th:field="${gruppo.l10}" class="form-control">
+                    <option value="">Indefinito</option>
+                    <option value="0">Disattivo</option>
+                    <option value="1">Attivo</option>
+                  </select>
+                </div>
+              </div>
+
+            </fieldset>
+          </div>
+
+        </div>
+      </div>
+    </div></div>
+  </form>
+
+</div>
+<th:block layout:fragment="scripts">
+  <script>
+    function InviaForm() {
+      var form = document.getElementById('gruppo');
+      if (!form.checkValidity()) { form.classList.add('was-validated'); return; }
+      form.submit();
+    }
+  </script>
+</th:block>
+</body>
+</html>

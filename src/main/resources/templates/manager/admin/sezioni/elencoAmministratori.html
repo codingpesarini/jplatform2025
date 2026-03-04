@@ -6,13 +6,6 @@
 <body>
 <div layout:fragment="content">
 
-  <!--
-      elencoAnagraficaAmministratore.html
-      GET  /admin/anagrafica?email=&nome=&cognome=&username=&telefono=&indirizzo=&pec=
-      POST /admin/anagrafica/ricerca  (form ricerca)
-      Model: elencoAnagrafico (List<AmministratoreUtente>)
-  -->
-
   <div class="row">
 
     <!-- ═══ SIDEBAR RICERCA ═══ -->
@@ -26,17 +19,16 @@
           <p class="card-subtitle">Indicare i parametri di ricerca dei contatti desiderati</p>
         </header>
 
-        <form th:action="@{/admin/anagrafica/ricerca}"
+        <form th:action="@{/admin/amministratori/ricerca}"
               method="get"
-              id="ricercaAnagraficaUtente"
+              id="ricercaamministratoriUtente"
               class="notAutocomplete">
           <div class="card-body">
             <div class="row form-group">
               <div class="col-lg-12">
-                <a href="javascript:void(0);"
-                   onclick="return hs.htmlExpand(this,{headingText:'',align:'center',objectType:'iframe',src:'/admin/anagrafica/new'});"
+                <a th:href="@{/admin/amministratori/new}"
                    class="mb-1 mt-1 mr-1 btn btn-primary btn-lg btn-block">
-                  <i class="fas fa-file-medical"></i> Nuova anagrafica
+                  <i class="fas fa-file-medical"></i> Nuova amministratori
                 </a>
               </div>
               <div class="col-lg-6">
@@ -79,7 +71,7 @@
             </div>
           </div>
           <footer class="card-footer text-right">
-            <a th:href="@{/admin/anagrafica}" class="btn btn-primary reset">Pulisci</a>
+            <a th:href="@{/admin/amministratori}" class="btn btn-primary reset">Pulisci</a>
             <button class="btn btn-primary" type="submit">Ricerca contatti</button>
           </footer>
         </form>
@@ -124,7 +116,7 @@
                        class="inpt_c2" th:value="${row.id}">
               </td>
               <td>
-                <a th:href="@{/admin/anagrafica/{id}/open(id=${row.id})}"
+                <a th:href="@{/admin/amministratori/{id}/open(id=${row.id})}"
                    rel="highslide-iframe" title="Modifica">
                   <img th:src="${row.avatar}"
                        class="rounded-circle miniAvatar float-left" alt="">
@@ -138,7 +130,7 @@
                 <span th:text="${row.pec}">-</span>
               </td>
               <td>
-                <a th:href="@{/admin/anagrafica/{id}/open(id=${row.id})}"
+                <a th:href="@{/admin/amministratori/{id}/open(id=${row.id})}"
                    rel="highslide-iframe" title="Modifica">
                   <i class="fas fa-pencil-alt"></i>
                 </a>

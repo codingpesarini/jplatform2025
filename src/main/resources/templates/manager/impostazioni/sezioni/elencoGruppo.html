@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{manager/layout/template}">
+<head><title>Elenco Gruppi</title></head>
+<body>
+<div layout:fragment="content">
+
+  <div class="row">
+    <div class="col-md-3">
+      <section class="card card-success">
+        <header class="card-header">
+          <div class="card-actions"><a href="#" class="card-action card-action-toggle" data-card-toggle=""></a></div>
+          <h2 class="card-title">Gestione Gruppi</h2>
+          <p class="card-subtitle">Informazioni e parametri</p>
+        </header>
+        <div class="card-body">
+          <p>I gruppi definiscono i livelli di accesso degli utenti alla piattaforma.
+            Ogni gruppo può avere fino a 10 livelli di autorizzazione configurabili.</p>
+        </div>
+      </section>
+    </div>
+
+    <div class="col-md-9">
+      <section class="card card-success">
+        <header class="card-header">
+          <div class="card-actions"><a href="#" class="card-action card-action-toggle" data-card-toggle></a></div>
+          <h2 class="card-title">Elenco</h2>
+          <p class="card-subtitle">I dati possono essere creati, modificati e cancellati.</p>
+        </header>
+        <div class="card-body">
+
+          <div class="right-wrapper text-right mb-3">
+            <a th:href="@{/admin/impostazioni/gruppi/new}" class="btn btn-success">
+              <i class="fas fa-file-medical"></i> Crea nuovo
+            </a>
+            <a href="javascript:void(0);" onclick="cancellaMultiplo()" class="btn btn-success">
+              <i class="fas fa-trash-alt"></i> Cancella selezionati
+            </a>
+          </div>
+
+          <table class="table table-responsive-lg table-bordered table-striped mb-0">
+            <thead>
+            <tr>
+              <th style="width:5%;"><input type="checkbox" id="selAll"/></th>
+              <th>Nome gruppo</th>
+              <th>Accesso pubblico</th>
+              <th>Data modifica</th>
+              <th>Iscritti</th>
+              <th>Azioni</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="gruppo : ${elencoGruppo}">
+              <td class="text-center">
+                <input type="checkbox" name="row_sel" th:value="${gruppo.id}" class="inpt_c2"/>
+              </td>
+              <td>
+                <a th:href="@{/admin/impostazioni/gruppi/{id}/open(id=${gruppo.id})}">
+                  <span th:text="${gruppo.nome + ' - ID: ' + gruppo.id}"></span>
+                </a>
+              </td>
+              <td>
+                <span th:if="${'1'.equals(gruppo.l1)}" class="badge badge-success">Attivo</span>
+                <span th:if="${'0'.equals(gruppo.l1)}" class="badge badge-secondary">Disattivo</span>
+                <span th:if="${gruppo.l1 == null or gruppo.l1.isEmpty()}" class="badge badge-light">Indefinito</span>
+              </td>
+              <td th:text="${gruppo.datamodifica}"></td>
+              <td th:text="${gruppo.iscritti}"></td>
+              <td>
+                <a th:href="@{/admin/impostazioni/gruppi/{id}/open(id=${gruppo.id})}" title="Modifica">
+                  <i class="fas fa-pencil-alt"></i>
+                </a>
+                &nbsp;&nbsp;
+                <a href="javascript:void(0);" th:onclick="|cancellaGruppo(${gruppo.id})|" title="Cancella">
+                  <i class="far fa-trash-alt"></i>
+                </a>
+              </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(elencoGruppo)}">
+              <td colspan="6" class="text-center text-muted">Nessun gruppo presente.</td>
+            </tr>
+            </tbody>
+          </table>
+
+        </div>
+      </section>
+    </div>
+  </div>
+
+</div>
+<th:block layout:fragment="scripts">
+  <script>
+    document.getElementById('selAll').addEventListener('change', function() {
+      document.querySelectorAll('input[name="row_sel"]').forEach(cb => cb.checked = this.checked);
+    });
+
+    function cancellaGruppo(id) {
+      if (!confirm('Confermi la cancellazione?')) return;
+      fetch('/admin/impostazioni/gruppi/' + id + '/delete', { method: 'POST' })
+              .then(r => r.text()).then(res => { if (res === 'OK') location.reload(); else alert('Errore.'); });
+    }
+
+    function cancellaMultiplo() {
+      const ids = [...document.querySelectorAll('input[name="row_sel"]:checked')].map(cb => cb.value);
+      if (ids.length === 0) { alert('Seleziona almeno un elemento.'); return; }
+      if (!confirm('Confermi la cancellazione di ' + ids.length + ' elementi?')) return;
+      const params = new URLSearchParams();
+      ids.forEach(id => params.append('ids', id));
+      fetch('/admin/impostazioni/gruppi/delete-multiplo', {
+        method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString()
+      }).then(r => r.text()).then(res => { if (res === 'OK') location.reload(); else alert('Errore.'); });
+    }
+  </script>
+</th:block>
+</body>
+</html>

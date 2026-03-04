@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{manager/layout/template}">
+<head>
+  <title>Dettaglio Configurazione</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+  <form id="sito" th:action="@{/admin/impostazioni/configurazioni/save}" th:object="${sito}" method="post" enctype="multipart/form-data">
+    <input type="hidden" th:field="${sito.id}"/>
+    <div class="msg_box msg_error" id="form_a_errors" style="display:none"></div>
+
+    <header class="page-header">
+      <h2>Dettaglio Configurazione <small th:if="${sito.id != null}" th:text="'ID: ' + ${sito.id}"></small></h2>
+      <div class="right-wrapper text-right">
+        <a th:href="@{/admin/impostazioni/configurazioni/new}"
+           class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+          <i class="fas fa-file-medical"></i> Nuova
+        </a>
+        <a th:if="${sito.id != null}"
+           th:href="@{/admin/impostazioni/configurazioni/{id}/duplica(id=${sito.id})}"
+           class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+          <i class="fas fa-clone"></i> Duplica
+        </a>
+        <a href="javascript:void(0);" onclick="InviaForm();"
+           class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+          <i class="fas fa-file-upload"></i> Salva
+        </a>
+        <a th:href="@{/admin/impostazioni/configurazioni}"
+           class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+          <i class="fas fa-times-circle"></i> Esci
+        </a>
+      </div>
+    </header>
+
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="tabs" id="mytabs">
+
+          <ul class="nav nav-tabs">
+            <li class="nav-item"><a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Info</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab_02" data-bs-toggle="tab">Email</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab_03" data-bs-toggle="tab">Documenti</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab_04" data-bs-toggle="tab">Elementi comuni</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab_05" data-bs-toggle="tab">Sms</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab_06" data-bs-toggle="tab">Proxy</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab_07" data-bs-toggle="tab">Altro</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab_08" data-bs-toggle="tab">PEC</a></li>
+          </ul>
+
+          <div class="tab-content">
+
+            <!-- ═══════════════════════════════════════════════════════ TAB 01: INFO -->
+            <div id="tab_01" class="tab-pane active">
+              <fieldset>
+                <legend>Dati configurazione base</legend>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Descrizione sito</label>
+                    <input type="text" th:field="${sito.type}" class="form-control" required/>
+                  </div>
+                  <div class="col-lg-6">
+                    <label class="col-form-label">URL sito</label>
+                    <input type="text" th:field="${sito.descrizione}" class="form-control"/>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-3">
+                    <label class="col-form-label">Data di modifica</label>
+                    <input type="text" th:field="${sito.data}" class="form-control datepicker"/>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">Attivazione</label>
+                    <select th:field="${sito.status}" class="form-control">
+                      <option value="0">Disattivo</option>
+                      <option value="1">Attivo</option>
+                    </select>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">Lingua</label>
+                    <select th:field="${sito.lang}" class="form-control">
+                      <option value="ITA">Italiano</option>
+                      <option value="ENG">Inglese</option>
+                      <option value="DET">Tedesco</option>
+                      <option value="FRA">Francese</option>
+                      <option value="ESP">Spagnolo</option>
+                    </select>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">Nome template web</label>
+                    <input type="text" th:field="${sito.path2}" class="form-control"/>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-4">
+                    <label class="col-form-label">Multilingua</label>
+                    <select th:field="${sito.libero9}" class="form-control">
+                      <option value="1">Monolingua</option>
+                      <option value="2">Due lingue</option>
+                      <option value="3">Traduzione automatica</option>
+                    </select>
+                  </div>
+                  <div class="col-lg-4">
+                    <label class="col-form-label">Accesso iniziale</label>
+                    <select th:field="${sito.accesso}" class="form-control">
+                      <option value="0">Non assegnato</option>
+                      <option value="1">Accesso autenticato</option>
+                      <option value="2">Interfaccia pubblica</option>
+                    </select>
+                  </div>
+                  <div class="col-lg-4">
+                    <label class="col-form-label">Autenticazione utente</label>
+                    <select th:field="${sito.servizi5}" class="form-control">
+                      <option value="">Non assegnato</option>
+                      <option value="1">Autenticazione base</option>
+                      <option value="2">Autenticazione 2F-G-Auth</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label class="col-form-label">&lt;keywords&gt;</label>
+                    <textarea th:field="${sito.keywords}" rows="4" class="form-control"></textarea>
+                  </div>
+                  <div class="col-lg-6">
+                    <label class="col-form-label">&lt;description&gt;</label>
+                    <textarea th:field="${sito.libero2}" rows="4" class="form-control"></textarea>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════ TAB 02: EMAIL -->
+            <div id="tab_02" class="tab-pane">
+              <fieldset>
+                <legend>Email</legend>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Email invio comunicazioni</label>
+                    <input type="text" th:field="${sito.newsletteremail}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Mittente invio comunicazioni</label>
+                    <input type="text" th:field="${sito.emailintestazione}" class="form-control"/>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Email username account</label>
+                    <input type="text" th:field="${sito.newsletteruser}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Email password account</label>
+                    <input type="text" th:field="${sito.newsletterpassword}" class="form-control"/>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-4">
+                    <label class="col-form-label">Email POP</label>
+                    <input type="text" th:field="${sito.emailpop}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-4">
+                    <label class="col-form-label">Email SMTP</label>
+                    <input type="text" th:field="${sito.emailsmtp}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-4">
+                    <label class="col-form-label">Autenticazione server invio</label>
+                    <select th:field="${sito.emailsmtpauth}" class="form-control">
+                      <option value="">Non assegnato</option>
+                      <option value="TRUE">Si</option>
+                      <option value="FALSE">No</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Invio notifiche alla modifica dei contenuti</label>
+                    <select th:field="${sito.libero8}" class="form-control">
+                      <option value="1">Si</option>
+                      <option value="0">No</option>
+                    </select>
+                  </div>
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Indirizzo per ricezione email</label>
+                    <input type="text" th:field="${sito.emailrisposta}" class="form-control"/>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════ TAB 03: DOCUMENTI -->
+            <div id="tab_03" class="tab-pane">
+              <fieldset>
+                <legend>Repository e Document Management System</legend>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Path server store</label>
+                    <input type="text" th:field="${sito.pathRepository}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Path accesso WEB</label>
+                    <input type="text" th:field="${sito.pathWeb}" class="form-control"/>
+                    <input type="hidden" th:field="${sito.path1}"/>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-3">
+                    <label class="col-form-label">AWS access key ID</label>
+                    <input type="text" th:field="${sito.servizi1}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">AWS secret access key</label>
+                    <input type="text" th:field="${sito.servizi2}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">AWS CloudFront Domain</label>
+                    <input type="text" th:field="${sito.servizi3}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">AWS Default Bucket store</label>
+                    <input type="text" th:field="${sito.servizi4}" class="form-control"/>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Attivazione zona login utente</label>
+                    <select th:field="${sito.libero5}" class="form-control">
+                      <option value="0">Disattivato</option>
+                      <option value="1">Attivato a Popup</option>
+                      <option value="2">Attivato Inline</option>
+                    </select>
+                  </div>
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Attivazione automatica utente registrato</label>
+                    <select th:field="${sito.libero3}" class="form-control">
+                      <option value="0">Disattivato</option>
+                      <option value="1">Attivato</option>
+                      <option value="2">Attivato da completare</option>
+                    </select>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════ TAB 04: ELEMENTI COMUNI -->
+            <div id="tab_04" class="tab-pane">
+              <fieldset>
+                <legend>Numeratori Front-end (slot 1-10)</legend>
+                <p class="text-muted small">ID sezione indica il contenitore di contenuti.
+                  Per caricare sottosezioni anteporre 0 (zero) all'ID (es. 01 carica le sottosezioni di 1).
+                  Separato/terminato da virgola.</p>
+                <table class="table table-responsive-md table-hover mb-0">
+                  <thead>
+                  <tr>
+                    <th>#ID Front</th>
+                    <th>ID Sezione</th>
+                    <th>Max Elementi</th>
+                    <th>Ordine</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr th:each="slot : ${#numbers.sequence(1, 10)}">
+                    <td th:text="${slot}"></td>
+                    <td>
+                      <input type="text"
+                             th:name="|contenutiFront0${slot}|"
+                             th:value="${sito.getContenutiFrontBySlot(slot)}"
+                             class="form-control"/>
+                    </td>
+                    <td>
+                      <input type="text"
+                             th:name="|maxContenutiFront0${slot}|"
+                             th:value="${sito.getMaxContenutiFrontBySlot(slot)}"
+                             class="form-control"/>
+                    </td>
+                    <td>
+                      <select th:name="|contenutiOrdineFront0${slot}|" class="form-control">
+                        <option value="datasql asc, id ASC"
+                                th:selected="${sito.getContenutiOrdineFrontBySlot(slot) == 'datasql asc, id ASC'}">Crescente dataSql</option>
+                        <option value="datasql desc, id ASC"
+                                th:selected="${sito.getContenutiOrdineFrontBySlot(slot) == 'datasql desc, id ASC'}">Decrescente dataSql</option>
+                        <option value="titolo asc, id ASC"
+                                th:selected="${sito.getContenutiOrdineFrontBySlot(slot) == 'titolo asc, id ASC'}">Crescente titolo</option>
+                        <option value="titolo desc, id ASC"
+                                th:selected="${sito.getContenutiOrdineFrontBySlot(slot) == 'titolo desc, id ASC'}">Decrescente titolo</option>
+                        <option value="position asc, id ASC"
+                                th:selected="${sito.getContenutiOrdineFrontBySlot(slot) == 'position asc, id ASC'}">Crescente posizione</option>
+                        <option value=" rand() "
+                                th:selected="${sito.getContenutiOrdineFrontBySlot(slot) == ' rand() '}">Casuale</option>
+                      </select>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </fieldset>
+
+              <fieldset class="mt-4">
+                <legend>Paginazione</legend>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Massimo elementi per pagina</label>
+                    <input type="text" th:field="${sito.libero6}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Ordine elementi per pagina</label>
+                    <select th:field="${sito.libero7}" class="form-control">
+                      <option value="datasql asc, id ASC">Crescente dataSql</option>
+                      <option value="datasql desc, id ASC">Decrescente dataSql</option>
+                      <option value="titolo asc, id ASC">Crescente titolo</option>
+                      <option value="titolo desc, id ASC">Decrescente titolo</option>
+                      <option value="position asc, id ASC">Crescente posizione</option>
+                      <option value=" rand() ">Casuale</option>
+                    </select>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset class="mt-4">
+                <legend>CSS aggiuntivo</legend>
+                <div class="row form-group">
+                  <div class="col-lg-12">
+                    <label class="col-form-label">Definizione CSS aggiuntivo</label>
+                    <textarea th:field="${sito.css}" class="form-control" rows="6"></textarea>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════ TAB 05: SMS -->
+            <div id="tab_05" class="tab-pane">
+              <fieldset>
+                <legend>Servizio SMS</legend>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Attiva servizio SMS</label>
+                    <div class="switch switch-sm switch-primary">
+                      <input type="checkbox" th:field="${sito.smsStatus}" value="1" class="toggleButton"/>
+                    </div>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-3">
+                    <label class="col-form-label">Gateway servizio invio SMS</label>
+                    <input type="text" th:field="${sito.smsUrl}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">Username account SMS</label>
+                    <input type="text" th:field="${sito.smsLogin}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">Password account SMS</label>
+                    <input type="text" th:field="${sito.smsPassword}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">Intestazione SMS</label>
+                    <input type="text" th:field="${sito.smsSender}" maxlength="11" class="form-control"/>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════ TAB 06: PROXY -->
+            <div id="tab_06" class="tab-pane">
+              <fieldset>
+                <legend>Servizio PROXY</legend>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Attiva Proxy</label>
+                    <div class="switch switch-sm switch-primary">
+                      <input type="checkbox" th:field="${sito.proxy}" value="1" class="toggleButton"/>
+                    </div>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-3">
+                    <label class="col-form-label">PROXY IP</label>
+                    <input type="text" th:field="${sito.proxyip}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">Porta</label>
+                    <input type="text" th:field="${sito.proxyport}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">Proxy username</label>
+                    <input type="text" th:field="${sito.proxyuser}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">Proxy password</label>
+                    <input type="text" th:field="${sito.proxypassword}" class="form-control"/>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════ TAB 07: ALTRO -->
+            <div id="tab_07" class="tab-pane">
+              <fieldset>
+                <legend>Altri elementi</legend>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Javascript page</label>
+                    <textarea th:field="${sito.html1}" class="form-control" rows="4"></textarea>
+                    <code>html1</code>
+                  </div>
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Social Network Init Parameters</label>
+                    <textarea th:field="${sito.html3}" class="form-control" rows="4"></textarea>
+                    <code>html3</code>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Header Email invio</label>
+                    <textarea th:field="${sito.html4}" class="form-control" rows="4"></textarea>
+                    <code>html4</code>
+                  </div>
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Footer Email invio</label>
+                    <textarea th:field="${sito.html5}" class="form-control" rows="4"></textarea>
+                    <code>html5</code>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Codice per Statistiche</label>
+                    <textarea th:field="${sito.stat}" class="form-control" rows="4"></textarea>
+                    <code>stat</code>
+                  </div>
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Codice per Analytics e Google Maps</label>
+                    <textarea th:field="${sito.analytics}" class="form-control" rows="4"></textarea>
+                    <code>analytics</code>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label class="col-form-label">Codice per Adsense</label>
+                    <textarea th:field="${sito.adsense}" class="form-control" rows="4"></textarea>
+                    <code>adsense</code>
+                  </div>
+                  <div class="col-lg-6">
+                    <label class="col-form-label">GDPR JSON Compliance</label>
+                    <textarea th:field="${sito.text1}" class="form-control" rows="4"></textarea>
+                    <code>text1</code>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label class="col-form-label">HTML2</label>
+                    <textarea th:field="${sito.html2}" class="form-control" rows="4"></textarea>
+                    <code>html2</code>
+                  </div>
+                  <div class="col-lg-6">
+                    <label class="col-form-label">TEXT2</label>
+                    <textarea th:field="${sito.text2}" class="form-control" rows="4"></textarea>
+                    <code>text2</code>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════ TAB 08: PEC -->
+            <div id="tab_08" class="tab-pane">
+              <fieldset>
+                <legend>Dati configurazione PEC</legend>
+                <div class="row form-group">
+                  <div class="col-lg-3">
+                    <label class="col-form-label">Email PEC</label>
+                    <input type="text" th:field="${sito.pecEmail}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">Intestazione PEC</label>
+                    <input type="text" th:field="${sito.pecIntestazione}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">PEC account username</label>
+                    <input type="text" th:field="${sito.pecUsername}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">PEC account password</label>
+                    <input type="text" th:field="${sito.pecPassword}" class="form-control"/>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-3">
+                    <label class="col-form-label">PEC POPS</label>
+                    <input type="text" th:field="${sito.pecPop3}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">PEC POPS Porta</label>
+                    <input type="text" th:field="${sito.pecPopPort}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">PEC SMTPS</label>
+                    <input type="text" th:field="${sito.pecSmtp}" class="form-control"/>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">PEC SMTPS Porta</label>
+                    <input type="text" th:field="${sito.pecSmtpPort}" class="form-control"/>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label class="col-form-label">PEC HTML 1</label>
+                    <textarea th:field="${sito.pecHtml1}" class="form-control" rows="4"></textarea>
+                  </div>
+                  <div class="col-lg-6">
+                    <label class="col-form-label">PEC HTML 2</label>
+                    <textarea th:field="${sito.pecHtml2}" class="form-control" rows="4"></textarea>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label class="col-form-label">PEC HTML 3</label>
+                    <textarea th:field="${sito.pecHtml3}" class="form-control" rows="4"></textarea>
+                  </div>
+                  <div class="col-lg-6">
+                    <label class="col-form-label">PEC HTML 4</label>
+                    <textarea th:field="${sito.pecHtml4}" class="form-control" rows="4"></textarea>
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label class="col-form-label">PEC HTML 5</label>
+                    <textarea th:field="${sito.pecHtml5}" class="form-control" rows="4"></textarea>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+          </div><!-- /tab-content -->
+        </div><!-- /tabs -->
+      </div>
+    </div>
+
+  </form>
+
+</div>
+
+<!-- Script -->
+<th:block layout:fragment="scripts">
+  <script th:inline="javascript">
+    function InviaForm() {
+      var form = document.getElementById('sito');
+      if (!form.checkValidity()) {
+        form.classList.add('was-validated');
+        return false;
+      }
+      form.submit();
+    }
+  </script>
+</th:block>
+
+</body>
+</html>

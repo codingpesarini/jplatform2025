@@ -467,4 +467,25 @@ $(document).ready(function() {
         if (target) toggleEditor(target);
     });
 
+    // Genera AUTHCODE per Google Authenticator
+    window.GeneraAuthCodeGoogleAuthenticatorUtente = function (msg) {
+        if (msg && !confirm(msg)) return;
+
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+        let secret = "";
+        for (let i = 0; i < 32; i++) {
+            secret += chars[Math.floor(Math.random() * chars.length)];
+        }
+
+        const input = document.getElementById("role20");
+        if (input) input.value = secret;
+
+        // opzionale: aggiorna QR se presente
+        const qr = document.getElementById("qrImg");
+        if (qr && qr.getAttribute("data-src")) {
+            qr.src = qr.getAttribute("data-src") + "&_=" + Date.now();
+            qr.style.display = "";
+        }
+    };
+
 });
