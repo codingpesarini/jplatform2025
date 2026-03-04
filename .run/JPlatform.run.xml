@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="JPlatform" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="jplatform" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.studiodomino.jplatform.JPlatformApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
