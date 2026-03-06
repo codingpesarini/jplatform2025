@@ -21,9 +21,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-/**
- * Controller admin per la gestione dei contenuti CMS.
- */
 @Controller
 @RequestMapping("/admin/contenuti")
 @RequiredArgsConstructor
@@ -34,7 +31,7 @@ public class ContenutoController {
     private final ContentService contentService;
 
     // =====================================================================
-    // NEW FORM - Nuovo contenuto
+    // NEW FORM
     // =====================================================================
     @GetMapping("/new")
     public String newForm(
@@ -50,9 +47,8 @@ public class ContenutoController {
             String idSite = String.valueOf(config.getIdSito());
             String today = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
 
-            // Nuovo contenuto vuoto
             DatiBase datiBase = new DatiBase();
-            datiBase.setId("-1");
+            datiBase.setId(null);
             datiBase.setIdSite(idSite);
             datiBase.setIdRoot(String.valueOf(idRoot));
             datiBase.setIdType(idType);
@@ -61,36 +57,27 @@ public class ContenutoController {
             datiBase.setS2(today);
             datiBase.setGalleryString("");
 
-            // Carica la sezione padre
             Section sezione = contentService.findSectionById(idRoot, idSite).orElse(null);
-
-            if (sezione == null) {
-                // placeholder per evitare NPE nel template (content.section....)
-                sezione = new Section();
-                sezione.setId(idRoot);
-                sezione.setSectionType(new SectionType());
-            } else {
-                // sezione esiste ma magari sectionType è NULL nel DB
-                if (sezione.getSectionType() == null) {
-                    sezione.setSectionType(new SectionType());
-                }
-            }
+            sezione = normalizzaSezione(sezione, idRoot);
 
             datiBase.setSection(sezione);
             datiBase.setIdParent(sezione.getIdParent());
 
-            // Propaga extratag dalla sezione al nuovo contenuto
             for (int i = 1; i <= 10; i++) {
                 datiBase.setExtraTag(i, sezione.getExtraTag(i));
                 datiBase.setExtraTagRef(i, sezione.getExtraTagRef(i));
             }
 
-            // >>> IMPORTANTISSIMO: il template usa "content", non "post"
             model.addAttribute("content", datiBase);
-            model.addAttribute("post", datiBase);        // compatibilità se altrove usi "post"
+            model.addAttribute("post", datiBase);
             model.addAttribute("sezione", sezione);
             model.addAttribute("elencoSezioni", contentService.findRootSections(idSite));
             model.addAttribute("config", config);
+
+            log.info("NEW CONTENUTO -> idRoot={}, idType={}, page2={}",
+                    idRoot,
+                    idType,
+                    sezione.getSectionType() != null ? sezione.getSectionType().getPage2() : null);
 
         } catch (Exception e) {
             log.error("Errore newForm contenuto", e);
@@ -99,8 +86,44 @@ public class ContenutoController {
         return ViewUtils.resolveProtectedTemplate("cms/dettaglioContenutoTemplate");
     }
 
+    private Section normalizzaSezione(Section sezione, Integer idRoot) {
+        if (sezione == null) {
+            sezione = new Section();
+            sezione.setId(idRoot != null ? idRoot : 0);
+            sezione.setSectionType(new SectionType());
+            return sezione;
+        }
+
+        if (sezione.getSectionType() == null && sezione.getIdType() != null) {
+            SectionType st = contentService.getSectionTypeById(sezione.getIdType());
+            sezione.setSectionType(st != null ? st : new SectionType());
+        } else if (sezione.getSectionType() == null) {
+            sezione.setSectionType(new SectionType());
+        }
+
+        return sezione;
+    }
+
+    @GetMapping("/new/{idRoot}")
+    public String newFormPulito(@PathVariable Integer idRoot,
+                                HttpServletRequest request,
+                                Model model) {
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+        if (!config.isLogged()) return "redirect:/login";
+
+        String idSite = String.valueOf(config.getIdSito());
+        Section sezione = contentService.findSectionById(idRoot, idSite).orElse(null);
+
+        String idType = (sezione != null && sezione.getIdType() != null)
+                ? sezione.getIdType().toString()
+                : "0";
+
+        return newForm(idRoot, idType, request, model);
+    }
+
     // =====================================================================
-    // OPEN - Apri contenuto esistente per modifica
+    // OPEN
     // =====================================================================
     @GetMapping("/{id}")
     public String open(@PathVariable Integer id,
@@ -116,37 +139,28 @@ public class ContenutoController {
             DatiBase documento = contentService.findContentById(id, idSite)
                     .orElseThrow(() -> new RuntimeException("Contenuto non trovato: " + id));
 
-            // Carica la sezione padre
             Integer idRoot = parseIntSafe(documento.getIdRoot());
             Section sezione = (idRoot != null)
                     ? contentService.findSectionById(idRoot, idSite).orElse(null)
                     : null;
 
-            if (sezione == null) {
-                // placeholder per evitare NPE nel template (content.section....)
-                sezione = new Section();
-                sezione.setId(idRoot != null ? idRoot : 0);
-                sezione.setSectionType(new SectionType());
-            } else {
-                if (sezione.getSectionType() == null) {
-                    sezione.setSectionType(new SectionType());
-                }
-            }
+            sezione = normalizzaSezione(sezione, idRoot);
 
             documento.setSection(sezione);
-
-            // Carica contenuti correlati dalla sezione (campi L15, L11)
             caricaDocumentiCorrelati(documento, sezione, idSite);
 
-            // Carica sezioni disponibili per riclassificazione
             List<Section> elencoSezioni = contentService.findRootSections(idSite);
 
-            // >>> IMPORTANTISSIMO: il template usa "content", non "post"
             model.addAttribute("content", documento);
-            model.addAttribute("post", documento);       // compatibilità
+            model.addAttribute("post", documento);
             model.addAttribute("sezione", sezione);
             model.addAttribute("elencoSezioni", elencoSezioni);
             model.addAttribute("config", config);
+
+            log.info("OPEN CONTENUTO -> id={}, idRoot={}, page2={}",
+                    id,
+                    idRoot,
+                    sezione.getSectionType() != null ? sezione.getSectionType().getPage2() : null);
 
         } catch (Exception e) {
             log.error("Errore open contenuto id={}", id, e);
@@ -157,7 +171,7 @@ public class ContenutoController {
     }
 
     // =====================================================================
-    // SAVE - Salva contenuto (nuovo o esistente)
+    // SAVE
     // =====================================================================
     @PostMapping("/save")
     public String save(@ModelAttribute DatiBase documento,
@@ -169,21 +183,18 @@ public class ContenutoController {
 
         try {
             String idSite = String.valueOf(config.getIdSito());
-
-            // 1. FIX: Usiamo LocalDateTime per supportare il pattern con ore e minuti (HH:mm)
             String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm"));
             String operatore = config.getAmministratore().getNomeCompleto();
 
-            // 2. FIX: Protezione per la colonna 'datasql' che non può essere null nel DB
             if (documento.getDataSql() == null) {
                 documento.setDataSql(LocalDate.now());
             }
 
-            boolean isNew = documento.getId() == null
-                    || documento.getId().equals("-1")
-                    || documento.getId().equals("0");
+            boolean isNew = (documento.getId() == null || documento.getId().isBlank()
+                    || documento.getId().equals("0") || documento.getId().equals("-1"));
 
             if (isNew) {
+                documento.setId(null);  // forza INSERT
                 documento.setIdSite(idSite);
                 documento.setCreato(now);
                 documento.setCreatoDa(operatore);
@@ -194,36 +205,102 @@ public class ContenutoController {
                 return "redirect:/admin/contenuti/" + saved.getId();
 
             } else {
-                documento.setModificato(now);
-                documento.setModificatoDa(operatore);
-                parseDataVisualizzata(documento);
+                // UPDATE: carica dal DB e aggiorna solo i campi modificabili
+                DatiBase db = contentService.findContentById(
+                                Integer.parseInt(documento.getId()), idSite)
+                        .orElseThrow(() -> new RuntimeException("Contenuto non trovato"));
 
-                contentService.saveContent(documento);
-                log.info("Contenuto salvato: id={}", documento.getId());
-                return "redirect:/admin/contenuti/" + documento.getId();
+                db.setTitolo(documento.getTitolo());
+                db.setRiassunto(documento.getRiassunto());
+                db.setTesto(documento.getTesto());
+
+                db.setStato(documento.getStato());
+                db.setData(documento.getData());
+                db.setDataVisualizzata(documento.getDataVisualizzata());
+                db.setTag(documento.getTag());
+
+                db.setS1(documento.getS1());
+                db.setS2(documento.getS2());
+                db.setS3(documento.getS3());
+
+                db.setClick(documento.getClick());
+
+                db.setInfo1(documento.getInfo1());
+                db.setInfo2(documento.getInfo2());
+                db.setInfo3(documento.getInfo3());
+                db.setInfo4(documento.getInfo4());
+                db.setInfo5(documento.getInfo5());
+
+                db.setPrivato(documento.getPrivato());
+
+                db.setL2(documento.getL2());
+                db.setL3(documento.getL3());
+                db.setL4(documento.getL4());
+                db.setL11(documento.getL11());
+                db.setL15(documento.getL15());
+
+                db.setPosition(documento.getPosition());
+
+                db.setVarchar1(documento.getVarchar1());
+                db.setVarchar2(documento.getVarchar2());
+                db.setVarchar3(documento.getVarchar3());
+                db.setVarchar4(documento.getVarchar4());
+                db.setVarchar5(documento.getVarchar5());
+                db.setVarchar6(documento.getVarchar6());
+                db.setVarchar7(documento.getVarchar7());
+                db.setVarchar8(documento.getVarchar8());
+                db.setVarchar9(documento.getVarchar9());
+                db.setVarchar10(documento.getVarchar10());
+
+                db.setText1(documento.getText1());
+                db.setText2(documento.getText2());
+                db.setText3(documento.getText3());
+                db.setText4(documento.getText4());
+                db.setText5(documento.getText5());
+                db.setText6(documento.getText6());
+                db.setText7(documento.getText7());
+                db.setText8(documento.getText8());
+                db.setText9(documento.getText9());
+                db.setText10(documento.getText10());
+
+                db.setRegolaExtraTag1(documento.getRegolaExtraTag1());
+                db.setMaxExtraTag(documento.getMaxExtraTag());
+                db.setOrdineExtraTag(documento.getOrdineExtraTag());
+
+                for (int i = 1; i <= 10; i++) {
+                    db.setExtraTag(i, documento.getExtraTag(i));
+                    db.setExtraTagRef(i, documento.getExtraTagRef(i));
+                }
+
+                db.setIdRoot(documento.getIdRoot());
+                db.setIdType(documento.getIdType());
+                db.setIdParent(documento.getIdParent());
+
+                db.setGalleryString(documento.getGalleryString());
+
+                db.setAnno(documento.getAnno());
+                db.setMese(documento.getMese());
+
+                db.setLog1(documento.getLog1());
+                db.setLog2(documento.getLog2());
+                db.setLog3(documento.getLog3());
+
+                db.setTemp1(documento.getTemp1());
+
+                db.setModificato(now);
+                db.setModificatoDa(operatore);
+                parseDataVisualizzata(db);
+
+                contentService.saveContent(db);
+                log.info("Contenuto salvato: id={}", db.getId());
+                return "redirect:/admin/contenuti/" + db.getId();
             }
 
         } catch (Exception e) {
             log.error("Errore save contenuto", e);
 
             String idSite = String.valueOf(config.getIdSito());
-
-            // Gestione sezione per il ritorno alla vista in caso di errore
-            Section sezione = null;
-            Integer idRoot = parseIntSafe(documento.getIdRoot());
-            if (idRoot != null) {
-                sezione = contentService.findSectionById(idRoot, idSite).orElse(null);
-            }
-
-            // Protezione sectionType per evitare crash nel template
-            if (sezione == null) {
-                sezione = new Section();
-                sezione.setId(idRoot != null ? idRoot : 0);
-                sezione.setSectionType(new SectionType());
-            } else if (sezione.getSectionType() == null) {
-                sezione.setSectionType(new SectionType());
-            }
-
+            Section sezione = buildFallbackSezione(parseIntSafe(documento.getIdRoot()), idSite);
             documento.setSection(sezione);
 
             model.addAttribute("error", "Errore nel salvataggio: " + e.getMessage());
@@ -238,7 +315,38 @@ public class ContenutoController {
     }
 
     // =====================================================================
-    // DELETE MULTIPLO - Elimina più contenuti (AJAX)
+    // DELETE SINGOLO
+    // =====================================================================
+    @PostMapping("/{id}/delete")
+    public String delete(@PathVariable Integer id,
+                         HttpServletRequest request) {
+
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+        if (!config.isLogged()) return "redirect:/login";
+
+        String idSite = String.valueOf(config.getIdSito());
+        String redirectTo = "/admin/sezioni";
+
+        try {
+            // Recupero la sezione padre PRIMA di cancellare
+            DatiBase content = contentService.findContentById(id, idSite).orElse(null);
+            if (content != null && content.getIdRoot() != null && !content.getIdRoot().isBlank()) {
+                redirectTo = "/admin/sezioni/" + content.getIdRoot() + "/preview";
+            }
+
+            contentService.deleteContent(id);
+            log.info("Contenuto eliminato: id={}", id);
+
+        } catch (Exception e) {
+            log.error("Errore delete contenuto id={}", id, e);
+        }
+
+        return "redirect:" + redirectTo;
+    }
+
+    // =====================================================================
+    // DELETE MULTIPLO (AJAX)
     // =====================================================================
     @PostMapping("/deleteMultiplo")
     @ResponseBody
@@ -264,7 +372,7 @@ public class ContenutoController {
     }
 
     // =====================================================================
-    // DUPLICATE - Duplica contenuto esistente
+    // DUPLICATE
     // =====================================================================
     @PostMapping("/{id}/duplicate")
     public String duplicate(@PathVariable Integer id,
@@ -281,15 +389,19 @@ public class ContenutoController {
                     .orElseThrow(() -> new RuntimeException("Contenuto non trovato"));
 
             DatiBase copia = new DatiBase();
-            copia.setId("-1");
+            copia.setId(null);  // FIX: NULL = INSERT, non "-1" !
             copia.setIdSite(idSite);
             copia.setIdRoot(original.getIdRoot());
             copia.setIdType(original.getIdType());
-            copia.setTitolo(original.getTitolo() + " (2)");
+            copia.setTitolo(original.getTitolo() + " (copia)");
             copia.setRiassunto(original.getRiassunto());
             copia.setTesto(original.getTesto());
             copia.setStato("0");
-            copia.setNumeratore1String("00000000");
+            copia.setDataSql(LocalDate.now());
+
+            String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm"));
+            copia.setCreato(now);
+            copia.setCreatoDa(config.getAmministratore().getNomeCompleto());
 
             DatiBase saved = contentService.saveContent(copia);
             log.info("Contenuto duplicato: original={} → new={}", id, saved.getId());
@@ -303,7 +415,7 @@ public class ContenutoController {
     }
 
     // =====================================================================
-    // RICLASSIFICA - Sposta contenuti in altra sezione (AJAX)
+    // RICLASSIFICA (AJAX)
     // =====================================================================
     @PostMapping("/riclassifica")
     @ResponseBody
@@ -322,8 +434,8 @@ public class ContenutoController {
             Section nuovaSezione = contentService.findSectionById(nuovaSezioneId, idSite)
                     .orElseThrow(() -> new RuntimeException("Sezione non trovata"));
 
-            for (Integer id : ids) {
-                contentService.findDatiBaseById(id).ifPresent(doc -> {
+            for (Integer contId : ids) {
+                contentService.findDatiBaseById(contId).ifPresent(doc -> {
                     doc.setIdRoot(nuovaSezione.getId().toString());
                     doc.setIdType(nuovaSezione.getIdType() != null
                             ? nuovaSezione.getIdType().toString() : "0");
@@ -341,7 +453,7 @@ public class ContenutoController {
     }
 
     // =====================================================================
-    // ORDINA - Applica nuovo ordinamento contenuti (AJAX)
+    // ORDINA (AJAX)
     // =====================================================================
     @PostMapping("/ordina")
     @ResponseBody
@@ -361,10 +473,10 @@ public class ContenutoController {
 
                 for (String idStr : ids) {
                     if (idStr == null || idStr.isBlank()) continue;
-                    int id = Integer.parseInt(idStr.trim());
+                    int contId = Integer.parseInt(idStr.trim());
                     int pos = position;
 
-                    contentService.findDatiBaseById(id).ifPresent(doc -> {
+                    contentService.findDatiBaseById(contId).ifPresent(doc -> {
                         doc.setPosition(String.valueOf(pos));
                         contentService.saveContent(doc);
                     });
@@ -384,6 +496,22 @@ public class ContenutoController {
     // UTILITY PRIVATI
     // =====================================================================
 
+    private Section buildFallbackSezione(Integer idRoot, String idSite) {
+        if (idRoot != null) {
+            try {
+                Section s = contentService.findSectionById(idRoot, idSite).orElse(null);
+                if (s != null) {
+                    if (s.getSectionType() == null) s.setSectionType(new SectionType());
+                    return s;
+                }
+            } catch (Exception ignored) {}
+        }
+        Section fallback = new Section();
+        fallback.setId(idRoot != null ? idRoot : 0);
+        fallback.setSectionType(new SectionType());
+        return fallback;
+    }
+
     private void caricaDocumentiCorrelati(DatiBase documento, Section sezione, String idSite) {
         try {
             String l15 = sezione.getL(15);
@@ -391,18 +519,15 @@ public class ContenutoController {
                 Integer idRootCorrelati = parseIntSafe(l15);
                 if (idRootCorrelati != null) {
                     documento.setDocCorrelati1(
-                            contentService.findContentsBySection(idSite, idRootCorrelati)
-                    );
+                            contentService.findContentsBySection(idSite, idRootCorrelati));
                 }
             }
-
             String l11 = sezione.getL(11);
             if (l11 != null && !l11.isEmpty()) {
                 Integer idRootCorrelati2 = parseIntSafe(l11);
                 if (idRootCorrelati2 != null) {
                     documento.setDocCorrelati2(
-                            contentService.findContentsBySection(idSite, idRootCorrelati2)
-                    );
+                            contentService.findContentsBySection(idSite, idRootCorrelati2));
                 }
             }
         } catch (Exception e) {

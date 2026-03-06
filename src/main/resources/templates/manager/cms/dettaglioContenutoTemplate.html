@@ -16,11 +16,6 @@
             <th:block th:replace="~{manager/cms/contenuti/dettaglioContenutoArgomento :: content}"></th:block>
         </th:block>
 
-        <!--Dettaglio Blog-->
-        <th:block th:case="'dettaglioContenutoDataset'">
-            <th:block th:replace="~{manager/cms/contenuti/dettaglioContenutoDataset :: content}"></th:block>
-        </th:block>
-
         <th:block th:case="'dettaglioContenutoServizio'">
             <th:block th:replace="~{manager/cms/contenuti/dettaglioContenutoServizio :: content}"></th:block>
         </th:block>
@@ -40,6 +35,18 @@
 
         <th:block th:case="'dettaglioContenutoDocumenti'">
             <th:block th:replace="~{manager/cms/contenuti/dettaglioContenutoDocumenti :: content}"></th:block>
+        </th:block>
+
+        <th:block th:case="'dettaglioContenutoPersona'">
+            <th:block th:replace="~{manager/cms/contenuti/dettaglioContenutoPersona :: content}"></th:block>
+        </th:block>
+
+        <th:block th:case="'dettaglioContenutoHome'">
+            <th:block th:replace="~{manager/cms/contenuti/dettaglioContenutoHome :: content}"></th:block>
+        </th:block>
+
+        <th:block th:case="'dettaglioContenutoUO'">
+            <th:block th:replace="~{manager/cms/contenuti/dettaglioContenutoUO :: content}"></th:block>
         </th:block>
 
         <th:block th:case="*">

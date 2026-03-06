@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{manager/layout/template}">
+<head><title>Dettaglio Tipologia Documento</title></head>
+<body>
+<div layout:fragment="content">
+
+    <form id="type" th:action="@{/admin/tipologia-documenti/save}" th:object="${sectionType}" method="post">
+        <input type="hidden" th:field="*{id}"/>
+        <div class="msg_box msg_error" id="form_a_errors" style="display:none"></div>
+
+        <header class="page-header">
+            <h2>Dettaglio Tipo Documento <small th:if="${sectionType.id != null}" th:text="'ID: ' + ${sectionType.id}"></small></h2>
+            <div class="right-wrapper text-right">
+                <a th:href="@{/admin/tipologia-documenti/new}" class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+                    <i class="fas fa-file-medical"></i> Nuovo
+                </a>
+                <a th:if="${sectionType.id != null}"
+                   th:href="@{/admin/tipologia-documenti/{id}/duplica(id=${sectionType.id})}"
+                   class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+                    <i class="fas fa-clone"></i> Duplica
+                </a>
+                <a href="javascript:void(0);" onclick="InviaForm('type');" class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+                    <i class="fas fa-file-upload"></i> Salva
+                </a>
+                <a th:href="@{/admin/tipologia-documenti}" class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+                    <i class="fas fa-times-circle"></i> Esci
+                </a>
+            </div>
+        </header>
+
+        <div class="row"><div class="col-lg-12">
+            <div class="tabs" id="mytabs">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item"><a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Definizione</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#tab_02" data-bs-toggle="tab">Attributi</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#tab_03" data-bs-toggle="tab">Pagine</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#tab_04" data-bs-toggle="tab">Numeratori</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#tab_05" data-bs-toggle="tab">Special</a></li>
+                </ul>
+                <div class="tab-content">
+
+                    <!-- ══════════════════════════════════ TAB 01: DEFINIZIONE -->
+                    <div id="tab_01" class="tab-pane active">
+                        <fieldset>
+                            <legend>Definizione</legend>
+                            <div class="row form-group">
+                                <div class="col-lg-12">
+                                    <label class="col-form-label">Nome assegnato</label>
+                                    <input type="text" th:field="*{type}" class="form-control" required/>
+                                </div>
+                                <div class="col-lg-12">
+                                    <label class="col-form-label">Descrizione</label>
+                                    <input type="text" th:field="*{description}" class="form-control" required/>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <!-- ══════════════════════════════════ TAB 02: ATTRIBUTI -->
+                    <div id="tab_02" class="tab-pane">
+                        <fieldset>
+                            <legend>Attributi (l1-l5)</legend>
+                            <div class="row form-group">
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">l1</label>
+                                    <select th:field="*{l1}" class="form-control">
+                                        <option value="">Indefinito</option>
+                                        <option value="0">Disattivo</option>
+                                        <option value="1">Attivo</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">l2</label>
+                                    <select th:field="*{l2}" class="form-control">
+                                        <option value="">Indefinito</option>
+                                        <option value="0">Disattivo</option>
+                                        <option value="1">Attivo</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">l3</label>
+                                    <select th:field="*{l3}" class="form-control">
+                                        <option value="">Indefinito</option>
+                                        <option value="0">Disattivo</option>
+                                        <option value="1">Attivo</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">l4</label>
+                                    <select th:field="*{l4}" class="form-control">
+                                        <option value="">Indefinito</option>
+                                        <option value="0">Disattivo</option>
+                                        <option value="1">Attivo</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">l5</label>
+                                    <select th:field="*{l5}" class="form-control">
+                                        <option value="">Indefinito</option>
+                                        <option value="0">Disattivo</option>
+                                        <option value="1">Attivo</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <!-- ══════════════════════════════════ TAB 03: PAGINE -->
+                    <div id="tab_03" class="tab-pane">
+                        <fieldset>
+                            <legend>Pagine template</legend>
+                            <div class="row form-group">
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Dettaglio sezione ADMIN</label>
+                                    <input type="text" th:field="*{page1}" class="form-control" required/>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Dettaglio documento ADMIN</label>
+                                    <input type="text" th:field="*{page2}" class="form-control" required/>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Dettaglio sezione FRONT</label>
+                                    <input type="text" th:field="*{page3}" class="form-control" required/>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Dettaglio documento FRONT</label>
+                                    <input type="text" th:field="*{page4}" class="form-control" required/>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Dettaglio (page5)</label>
+                                    <input type="text" th:field="*{page5}" class="form-control"/>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <!-- ══════════════════════════════════ TAB 04: NUMERATORI -->
+                    <div id="tab_04" class="tab-pane">
+                        <fieldset>
+                            <legend>Numeratori</legend>
+                            <p class="text-muted small">Inserire l'ID del numeratore da associare a questa tipologia.</p>
+                            <div class="row form-group">
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Numeratore 1</label>
+                                    <input type="text" th:field="*{numeratore1}" class="form-control"/>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Numeratore 2</label>
+                                    <input type="text" th:field="*{numeratore2}" class="form-control"/>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Numeratore 3</label>
+                                    <input type="text" th:field="*{numeratore3}" class="form-control"/>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Numeratore 4</label>
+                                    <input type="text" th:field="*{numeratore4}" class="form-control"/>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Numeratore 5</label>
+                                    <input type="text" th:field="*{numeratore5}" class="form-control"/>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <!-- ══════════════════════════════════ TAB 05: SPECIAL -->
+                    <div id="tab_05" class="tab-pane">
+                        <fieldset>
+                            <legend>Special</legend>
+                            <div class="row form-group">
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Azioni speciali per questa tipologia</label>
+                                    <select th:field="*{special1}" class="form-control">
+                                        <option value="">Indefinito</option>
+                                        <option value="newsletter">Invio newsletter</option>
+                                        <option value="sms">Invio sms</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Special 2</label>
+                                    <select th:field="*{special2}" class="form-control">
+                                        <option value="">Indefinito</option>
+                                        <option value="CMS">CMS</option>
+                                        <option value="LCMS">LCMS</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Special 3</label>
+                                    <input type="text" th:field="*{special3}" class="form-control"/>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Special 4</label>
+                                    <input type="text" th:field="*{special4}" class="form-control"/>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Special 5</label>
+                                    <input type="text" th:field="*{special5}" class="form-control"/>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Special 6</label>
+                                    <textarea th:field="*{special6}" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Special 7</label>
+                                    <textarea th:field="*{special7}" class="form-control" rows="3"></textarea>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Special 8</label>
+                                    <textarea th:field="*{special8}" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Special 9</label>
+                                    <textarea th:field="*{special9}" class="form-control" rows="3"></textarea>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label class="col-form-label">Special 10</label>
+                                    <textarea th:field="*{special10}" class="form-control" rows="3"></textarea>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                </div>
+            </div>
+        </div></div>
+    </form>
+
+
+    <script>
+        function InviaForm() {
+          var form = document.getElementById('type');
+          if (!form.checkValidity()) { form.classList.add('was-validated'); return; }
+          form.submit();
+        }
+    </script>
+</div>
+</body>
+</html>

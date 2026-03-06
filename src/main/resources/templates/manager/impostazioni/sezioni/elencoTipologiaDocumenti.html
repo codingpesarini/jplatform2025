@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{manager/layout/template}">
+<head><title>Elenco Tipologia Documenti</title></head>
+<body>
+<div layout:fragment="content">
+
+  <div class="row">
+    <div class="col-md-3">
+      <section class="card card-danger">
+        <header class="card-header">
+          <div class="card-actions"><a href="#" class="card-action card-action-toggle" data-card-toggle=""></a></div>
+          <h2 class="card-title">Gestione Tipo Documenti</h2>
+          <p class="card-subtitle">Informazioni e parametri</p>
+        </header>
+        <div class="card-body">
+          <p>Le tipologie documento definiscono il comportamento e i template di visualizzazione
+            per ogni categoria di contenuto della piattaforma, sia lato admin che lato pubblico.</p>
+        </div>
+      </section>
+    </div>
+
+    <div class="col-md-9">
+      <section class="card card-danger">
+        <header class="card-header">
+          <div class="card-actions"><a href="#" class="card-action card-action-toggle" data-card-toggle></a></div>
+          <h2 class="card-title">Elenco configurazioni</h2>
+          <p class="card-subtitle">I dati possono essere creati, modificati e cancellati.</p>
+        </header>
+        <div class="card-body">
+
+          <div class="right-wrapper text-right mb-3">
+            <a th:href="@{/admin/tipologia-documenti/new}" class="btn btn-danger">
+              <i class="fas fa-file-medical"></i> Crea nuovo
+            </a>
+            <a href="javascript:void(0);" onclick="cancellaMultiplo()" class="btn btn-danger">
+              <i class="fas fa-trash-alt"></i> Cancella selezionati
+            </a>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="table table-bordered table-striped mb-0" style="table-layout: fixed; width: 100%;">
+              <colgroup>
+                <col style="width: 40px;"/>
+                <col style="width: 160px;"/>
+                <col style="width: 180px;"/>
+                <col style="width: 220px;"/>
+                <col style="width: 220px;"/>
+                <col style="width: 80px;"/>
+              </colgroup>
+              <thead>
+              <tr>
+                <th><input type="checkbox" id="selAll"/></th>
+                <th>Nome</th>
+                <th>Descrizione</th>
+                <th>Dettaglio Admin</th>
+                <th>Dettaglio Pubblico</th>
+                <th>Azioni</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr th:each="st : ${elencoTypes}">
+                <td class="text-center">
+                  <input type="checkbox" name="row_sel" th:value="${st.id}" class="inpt_c2"/>
+                </td>
+                <td class="text-truncate">
+                  <a th:href="@{/admin/tipologia-documenti/{id}/open(id=${st.id})}"
+                     th:text="${st.type}" th:title="${st.type}"></a>
+                </td>
+                <td class="text-truncate"
+                    th:text="${st.id + ' - ' + (st.description != null ? st.description : '')}"
+                    th:title="${st.id + ' - ' + (st.description != null ? st.description : '')}"></td>
+                <td class="text-truncate"
+                    th:utext="|${st.page1 ?: ''} - <br/> ${st.page2 ?: ''}|"
+                    th:title="|${st.page1 ?: ''} - ${st.page2 ?: ''}|">
+                </td>
+
+                <td class="text-truncate"
+                    th:utext="|${st.page3 ?: ''} - <br/> ${st.page4 ?: ''}|"
+                    th:title="|${st.page3 ?: ''} - ${st.page4 ?: ''}|">
+                </td>
+                <td class="text-nowrap">
+                  <a th:href="@{/admin/tipologia-documenti/{id}/open(id=${st.id})}" title="Modifica">
+                    <i class="fas fa-pencil-alt"></i>
+                  </a>
+                  &nbsp;
+                  <a href="javascript:void(0);" th:onclick="|cancellaType(${st.id})|" title="Cancella">
+                    <i class="far fa-trash-alt"></i>
+                  </a>
+                </td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(elencoTypes)}">
+                <td colspan="6" class="text-center text-muted">Nessuna tipologia presente.</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('selAll').addEventListener('change', function() {
+      document.querySelectorAll('input[name="row_sel"]').forEach(cb => cb.checked = this.checked);
+    });
+
+    function cancellaType(id) {
+      if (!confirm('Confermi la cancellazione?')) return;
+      fetch('/admin/tipologia-documenti/' + id + '/delete', { method: 'POST' })
+        .then(r => r.text()).then(res => { if (res === 'OK') location.reload(); else alert('Errore.'); });
+    }
+
+    function cancellaMultiplo() {
+      const ids = [...document.querySelectorAll('input[name="row_sel"]:checked')].map(cb => cb.value);
+      if (ids.length === 0) { alert('Seleziona almeno un elemento.'); return; }
+      if (!confirm('Confermi la cancellazione di ' + ids.length + ' elementi?')) return;
+      const params = new URLSearchParams();
+      ids.forEach(id => params.append('ids', id));
+      fetch('/admin/tipologia-documenti/delete-multiplo', {
+        method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString()
+      }).then(r => r.text()).then(res => { if (res === 'OK') location.reload(); else alert('Errore.'); });
+    }
+  </script>
+</div>
+</body>
+</html>

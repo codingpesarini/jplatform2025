@@ -37,7 +37,7 @@ public class Content {
     private String idParent = "0";
 
     @Column(name = "label")
-    private String label;
+    private String label = "";
 
     // ========================================
     // CONTENUTO BASE
@@ -73,10 +73,10 @@ public class Content {
     private String privato = "0";
 
     @Column(name = "idgruppo")
-    private String idGruppo;
+    private String idGruppo = "";
 
     @Column(name = "visualizza")
-    private String visualizza;
+    private String visualizza = "1";
 
     @Column(name = "`check`")  // Keyword SQL, escaped
     private Integer check;
@@ -91,7 +91,7 @@ public class Content {
     @Column(name = "first_page")
     private String firstPage = "0";
 
-    @Column(name = "click")
+    @Column(name = "click", nullable = false)
     private Integer click = 0;
 
     // ========================================
@@ -99,19 +99,19 @@ public class Content {
     // ========================================
 
     @Column(name = "menu1")
-    private String menu1;
+    private String menu1 = "0";
 
     @Column(name = "menu2")
-    private String menu2;
+    private String menu2 = "0";
 
     @Column(name = "menu3")
-    private String menu3;
+    private String menu3 = "0";
 
     @Column(name = "menu4")
-    private String menu4;
+    private String menu4 = "0";
 
     @Column(name = "menu5")
-    private String menu5;
+    private String menu5 = "0";
 
     // ========================================
     // MEDIA E ALLEGATI

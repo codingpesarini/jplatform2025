@@ -15,7 +15,7 @@
 
             <div class="right-wrapper text-right">
 
-                <a th:href="@{/admin/contenuti/new}"
+                <a th:href="@{/admin/contenuti/new/{idRoot}(idRoot=${post.idRoot})}"
                    class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
                     <i class="fas fa-file-medical"></i> Nuova
                 </a>
@@ -34,8 +34,7 @@
                     <i class="ti ti-device-floppy me-1"></i> Salva
                 </button>
 
-                <a href="javascript:void(0);"
-                   onclick="CloseHsReloadBase();"
+                <a th:href="@{/admin/sezioni/{id}/preview(id=${post.idRoot})}"
                    class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
                     <i class="fas fa-times-circle"></i> Esci
                 </a>
@@ -117,16 +116,18 @@
 
                             <div class="row form-group">
                                 <div class="col-lg-3">
-                                    <label for="dataVisualizzata" class="col-form-label">Data visualizzata *</label>
-                                    <input type="text" name="dataVisualizzata" id="dataVisualizzata"
-                                           th:value="${post.dataVisualizzata}"
-                                           class="form-control datepickerEstesa obbligatorio" required>
+                                    <br>
+                                    <label for="dataVisualizzata" class="form-label">Data visualizzata</label>
+                                    <input type="text" id="dataVisualizzata" name="dataVisualizzata"
+                                           class="form-control dataVisualizzata"
+                                           th:value="${post.dataVisualizzata}">
                                 </div>
                                 <div class="col-lg-3">
-                                    <label for="data" class="col-form-label">Data riferimento *</label>
-                                    <input type="text" name="data" id="data"
-                                           th:value="${post.data}"
-                                           class="form-control datepicker obbligatorio" required>
+                                    <br>
+                                    <label for="data" class="form-label">Data riferimento</label>
+                                    <input type="text" id="data" name="data"
+                                           class="form-control dataBase "
+                                           th:value="${post.data}">
                                 </div>
                                 <div class="col-lg-6">
                                     <label for="tag" class="col-form-label">TAG</label>

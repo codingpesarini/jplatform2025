@@ -2,24 +2,10 @@
 <html lang="it" xmlns:th="http://www.thymeleaf.org">
 <body>
 <th:block th:fragment="content">
-
-  <!--
-      dettaglioSezioneDocumenti.html — contentWebDocumenti
-      Identico a UO. Tab02: Cosa fa, Sede principale, Riferimento telefonico, Posizione GPS, Ulteriori informazioni.
-      Tab02 specifico:
-        - varchar1: Tipologia organizzazione (Politica / Amministrativa / Altra tipologia)
-        - riassunto: Abstract
-        - text1: Cosa fa
-        - text2: Sede principale
-        - text3: Riferimento telefonico
-        - text4: Posizione GPS
-        - text5: Ulteriori informazioni
-      Tutti gli altri tab identici al default.
-  -->
+  <!-- dettaglioSezioneDocumenti — contentWebDocumenti -->
 
   <form th:action="@{/admin/sezioni/save(storeId=${sezione.id})}"
         method="post"
-        enctype="multipart/form-data"
         id="sezione"
         class="form-bordered">
 
@@ -34,15 +20,15 @@
           <i class="fas fa-file-medical"></i> Nuova
         </a>
         <a th:href="@{/admin/sezioni/{id}/duplicate(id=${sezione.id})}"
-           onclick="return ConfermaOperazione(this.href,'duplicare questa sezione')"
+           onclick="return ConfermaOperazione(this.href,'duplicare questa sezione in una nuova sezione')"
            class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
           <i class="fas fa-clone"></i> Duplica
         </a>
         <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
                 onclick="InviaForm('sezione');">
-          <i class="fas fa-file-upload"></i> Salva
+          <i class="ti ti-device-floppy me-1"></i> Salva
         </button>
-        <a href="javascript:void(0);" onclick="CloseHsReloadBase();"
+        <a th:href="@{/admin/sezioni}" onclick="CloseHsReloadBase();"
            class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
           <i class="fas fa-times-circle"></i> Esci
         </a>
@@ -55,48 +41,49 @@
 
           <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item storeTab" role="presentation">
-              <a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Definizione</a>
+              <a class="nav-link active" href="#tab_01" data-bs-toggle="tab" role="tab">Definizione</a>
             </li>
             <li class="nav-item storeTab" role="presentation">
-              <a class="nav-link" href="#tab_02" data-bs-toggle="tab">Informazioni essenziali</a>
+              <a class="nav-link" href="#tab_02" data-bs-toggle="tab" role="tab">Informazioni essenziali</a>
             </li>
             <li class="nav-item storeTab" role="presentation">
-              <a class="nav-link" href="#tab_03" data-bs-toggle="tab">Contenuto WEB</a>
+              <a class="nav-link" href="#tab_03" data-bs-toggle="tab" role="tab">Contenuto WEB</a>
             </li>
             <li class="nav-item storeTab" role="presentation">
-              <a class="nav-link" href="#tab_04" data-bs-toggle="tab">Immagini</a>
+              <a class="nav-link" href="#tab_04" data-bs-toggle="tab" role="tab">Immagini</a>
             </li>
             <li class="nav-item storeTab" role="presentation">
-              <a class="nav-link" href="#tab_05" data-bs-toggle="tab">Allegati</a>
+              <a class="nav-link" href="#tab_05" data-bs-toggle="tab" role="tab">Allegati</a>
             </li>
             <li class="nav-item storeTab" role="presentation">
-              <a class="nav-link" href="#tab_06" data-bs-toggle="tab">Autorizzazioni</a>
+              <a class="nav-link" href="#tab_06" data-bs-toggle="tab" role="tab">Autorizzazioni</a>
             </li>
             <li class="nav-item storeTab" role="presentation">
-              <a class="nav-link" href="#tab_07" data-bs-toggle="tab">Altro</a>
+              <a class="nav-link" href="#tab_07" data-bs-toggle="tab" role="tab">Altro</a>
             </li>
             <li class="nav-item storeTab" role="presentation">
-              <a class="nav-link" href="#tab_08" data-bs-toggle="tab">Relazioni</a>
+              <a class="nav-link" href="#tab_08" data-bs-toggle="tab" role="tab">Relazioni</a>
             </li>
           </ul>
 
           <div class="tab-content">
 
-            <!-- ═══════════════════════════════════════════════════ TAB 01 — DEFINIZIONE -->
+            <!-- TAB 01 — DEFINIZIONE -->
             <div id="tab_01" class="tab-pane active" role="tabpanel">
               <p>
                 ID: <span th:text="${sezione.id}">0</span>
                 | Numero associato: <span th:text="${sezione.numeratore1}">0</span>
                 | URL: <span th:text="${sezione.urlRW}">/</span><br/>
-                Creato da: <span th:text="${sezione.creatoda}">-</span>
+                Creato da: <span th:text="${sezione.creatoDa}">-</span>
                 (<span th:text="${sezione.creato}">-</span>)
-                | Ultima modifica: <span th:text="${sezione.modificatoda}">-</span>
+                | Ultima modifica: <span th:text="${sezione.modificatoDa}">-</span>
                 (<span th:text="${sezione.modificato}">-</span>)
               </p>
-              <input type="hidden" name="creato"       th:value="${sezione.creato}">
-              <input type="hidden" name="creatoda"     th:value="${sezione.creatoda}">
-              <input type="hidden" name="modificatoda" th:value="${sezione.modificatoda}">
-              <input type="hidden" name="modificato"   th:value="${sezione.modificato}">
+
+              <input type="hidden" name="creato"        th:value="${sezione.creato}">
+              <input type="hidden" name="creatoDa"      th:value="${sezione.creatoDa}">
+              <input type="hidden" name="modificatoDa"  th:value="${sezione.modificatoDa}">
+              <input type="hidden" name="modificato"    th:value="${sezione.modificato}">
 
               <div class="row form-group">
                 <div class="col-lg-6">
@@ -117,11 +104,12 @@
                   </select>
                 </div>
                 <div class="col-lg-3">
-                  <label for="id_type" class="col-form-label">Categoria documento *</label>
-                  <select name="id_type" id="id_type" class="form-control obbligatorio" required>
+                  <label for="idType" class="col-form-label">Categoria documento *</label>
+                  <select name="idType" id="idType" class="form-control obbligatorio" required>
                     <option value="">----- Seleziona tipologia sezione -----</option>
                     <option th:each="type : ${sezione.sectionTypes}"
-                            th:value="${type.id}" th:text="${type.description}"
+                            th:value="${type.id}"
+                            th:text="${type.description}"
                             th:selected="${type.id == sezione.idType}"></option>
                   </select>
                 </div>
@@ -230,12 +218,12 @@
             </div>
             <!-- fine TAB 01 -->
 
-            <!-- ═══════════════════════════════════════════════════ TAB 02 — SPECIFICO UO -->
+            <!-- TAB 02 — INFORMAZIONI ESSENZIALI -->
             <div id="tab_02" class="tab-pane" role="tabpanel">
               <div class="row form-group">
                 <div class="col-lg-6">
-                  <label for="varchar1" class="col-form-label">Tipologia organizzazione *</label>
-                  <select name="varchar1" id="varchar1" class="form-control obbligatorio" required>
+                  <label for="varchar1" class="col-form-label">Tipologia organizzazione</label>
+                  <select name="varchar1" id="varchar1" class="form-control obbligatorio">
                     <option value="">----- Seleziona Tipologia organizzazione -----</option>
                     <option value="Politica"        th:selected="${sezione.varchar1 == 'Politica'}">Politica</option>
                     <option value="Amministrativa"  th:selected="${sezione.varchar1 == 'Amministrativa'}">Amministrativa</option>
@@ -300,13 +288,12 @@
             </div>
             <!-- fine TAB 02 -->
 
-            <!-- ═══════════════════════════════════════════════════ TAB 03 — CONTENUTO WEB -->
+            <!-- TAB 03 — CONTENUTO WEB -->
             <div id="tab_03" class="tab-pane" role="tabpanel">
               <div class="row form-group">
                 <div class="col-lg-12">
-                  <label class="col-form-label" for="testo">Contenuto pagine
-                    <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'testo');">Editor</a>
-                  </label>
+                  <label class="col-form-label" for="testo">Contenuto pagine</label>
+                  <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'testo');">Editor</a>
                   <textarea name="testo" id="testo"
                             class="tinymce5 form-control"
                             th:text="${sezione.testo}"></textarea>
@@ -314,7 +301,7 @@
               </div>
             </div>
 
-            <!-- ═══════════════════════════════════════════════════ TAB 04 — IMMAGINI -->
+            <!-- TAB 04 — IMMAGINI -->
             <div id="tab_04" class="tab-pane" role="tabpanel">
               <div class="row form-group">
                 <div class="col-lg-6">
@@ -357,7 +344,7 @@
               </div>
             </div>
 
-            <!-- ═══════════════════════════════════════════════════ TAB 05 — ALLEGATI -->
+            <!-- TAB 05 — ALLEGATI -->
             <div id="tab_05" class="tab-pane" role="tabpanel">
               <div class="row form-group">
                 <div class="col-lg-6">
@@ -415,7 +402,7 @@
                              th:href="@{/files/{id}/{l2}/{l1}.{ext}(id=${allegato.id},l2=${allegato.l2},l1=${allegato.l1},ext=${allegato.type})}">
                             <img th:src="@{/manager/assets/img/icons/download.png}" width="22">
                           </a>
-                          <img th:src="@{'/manager/assets/img/filetypes/32/'+${allegato.type}+'.png'}" width="22">
+                          <img th:src="@{'/manager/assets/img/filetypes/32/'+${allegato.type}+'.png'}" width="22" height="22">
                           <span th:text="${allegato.l1}">Nome</span>
                           - (<span th:text="${allegato.datainserimento}">data</span>)
                           - (Versione <span th:text="${allegato.version}">1</span>)
@@ -427,7 +414,7 @@
               </div>
             </div>
 
-            <!-- ═══════════════════════════════════════════════════ TAB 06 — AUTORIZZAZIONI -->
+            <!-- TAB 06 — AUTORIZZAZIONI -->
             <div id="tab_06" class="tab-pane" role="tabpanel">
               <div class="row form-group">
                 <div class="col-lg-6">
@@ -446,8 +433,9 @@
                   <label class="col-form-label">Gruppi associati</label>
                   <select name="idgruppi" id="idgruppi" multiple size="5" class="form-control">
                     <option value="0">Standard</option>
-                    <option th:each="gruppo : ${configCore.gruppi}"
-                            th:value="${gruppo.id}" th:text="${gruppo.nome}"
+                    <option th:each="gruppo : ${config.gruppi}"
+                            th:value="${gruppo.id}"
+                            th:text="${gruppo.nome}"
                             th:selected="${sezione.idgruppi != null and #lists.contains(sezione.idgruppi, gruppo.id)}"></option>
                   </select>
                 </div>
@@ -458,23 +446,25 @@
               <div class="row form-group" id="PermessiPersonalizzati">
                 <div class="col-lg-3">
                   <label class="col-form-label">Cerca utente da inserire nelle autorizzazioni</label>
-                  <input name="cognomePermessoPrivato" id="cognomePermessoPrivato" type="text" class="form-control">
+                  <input name="cognomePermessoPrivato" id="cognomePermessoPrivato"
+                         type="text" class="form-control">
                   <input type="hidden" name="utentiAssociatiString" id="utentiAssociatiString"
                          th:value="${sezione.utentiAssociatiString}">
                 </div>
                 <div class="col-lg-6">
                   <div id="utenti" style="overflow:auto;height:100px;">
-                    <div th:each="u : ${sezione.utentiAssociati}" th:attr="id=${u.id}">
+                    <div th:each="utenteAssociato : ${sezione.utentiAssociati}"
+                         th:attr="id=${utenteAssociato.id}">
                       <img th:src="@{/manager/assets/img/icons/trashcan_gray.png}"
-                           width="15" style="cursor:pointer;"
-                           th:data-id="${u.id}"
+                           width="15" height="15" style="cursor:pointer;"
+                           th:data-id="${utenteAssociato.id}"
                            onclick="RimuoviUtenteAssociato(this.getAttribute('data-id'))">
-                      <span th:text="${u.nome + ' ' + u.cognome}"></span>
+                      <span th:text="${utenteAssociato.nome + ' ' + utenteAssociato.cognome}"></span>
                     </div>
                   </div>
                 </div>
                 <div class="col-lg-3">
-                  <p>Ricercare gli utenti che saranno autorizzati singolarmente ad accedere alla sezione ed ai documenti associati.</p>
+                  <p>Ricercare gli utenti che saranno autorizzati singolarmente ad accedere alla sezione.</p>
                 </div>
               </div>
               <div class="row form-group">
@@ -515,14 +505,15 @@
                 </div>
               </div>
             </div>
+            <!-- fine TAB 06 -->
 
-            <!-- ═══════════════════════════════════════════════════ TAB 07 — ALTRO -->
+            <!-- TAB 07 — ALTRO -->
             <div id="tab_07" class="tab-pane" role="tabpanel">
               <div class="row form-group">
                 <th:block th:each="i : ${#numbers.sequence(2, 10)}">
                   <div class="col-lg-3">
                     <label th:for="${'varchar' + i}" class="col-form-label"
-                           th:text="${'Varchar' + i}"></label>
+                           th:text="${'Varchar' + i}">Varchar</label>
                     <input type="text" th:name="${'varchar' + i}" th:id="${'varchar' + i}"
                            class="form-control" th:value="${sezione['varchar' + i]}">
                   </div>
@@ -535,21 +526,23 @@
               </div>
             </div>
 
-            <!-- ═══════════════════════════════════════════════════ TAB 08 — RELAZIONI -->
+            <!-- TAB 08 — RELAZIONI -->
             <div id="tab_08" class="tab-pane" role="tabpanel">
               <fieldset class="border p-3 mb-4">
                 <legend class="float-none w-auto px-2">Relazioni dirette</legend>
                 <div class="row">
                   <div class="col-lg-6">
                     <label for="l15" class="col-form-label">ID sezioni associate 1</label>
-                    <input type="text" name="l15" id="l15" class="form-control"
-                           th:value="${sezione.l15}" onblur="ControlloCampoTag(this);">
+                    <input type="text" name="l15" id="l15"
+                           class="form-control" th:value="${sezione.l15}"
+                           onblur="ControlloCampoTag(this);">
                     <small class="form-text text-muted">ID sezioni da associare separate da virgola</small>
                   </div>
                   <div class="col-lg-6">
                     <label for="l11" class="col-form-label">ID sezioni associate 2</label>
-                    <input type="text" name="l11" id="l11" class="form-control"
-                           th:value="${sezione.l11}" onblur="ControlloCampoTag(this);">
+                    <input type="text" name="l11" id="l11"
+                           class="form-control" th:value="${sezione.l11}"
+                           onblur="ControlloCampoTag(this);">
                     <small class="form-text text-muted">ID sezioni da associare separate da virgola</small>
                   </div>
                 </div>
@@ -619,23 +612,24 @@
                 </div>
               </fieldset>
             </div>
+            <!-- fine TAB 08 -->
 
           </div><!-- fine tab-content -->
         </div><!-- fine tabs -->
       </div>
     </div>
 
-    <!-- HIDDEN FIELDS -->
+    <!-- CAMPI HIDDEN FINALI -->
     <input type="hidden" name="anno"        th:value="${sezione.anno}">
     <input type="hidden" name="mese"        th:value="${sezione.mese}">
     <input type="hidden" name="id"          id="id"         th:value="${sezione.id}">
     <input type="hidden" name="log1"        th:value="${sezione.log1}">
     <input type="hidden" name="log2"        th:value="${sezione.log2}">
     <input type="hidden" name="log3"        th:value="${sezione.log3}">
-    <input type="hidden" name="idparent"    id="idparent"   th:value="${sezione.idparent}">
+    <input type="hidden" name="idParent"    id="idParent"   th:value="${sezione.idParent}">
     <input type="hidden" name="temp1"       th:value="${sezione.statoText}">
-    <input type="hidden" name="id_root"     th:value="${sezione.idRoot}">
-    <input type="hidden" name="id_site"     th:value="${sezione.idSite}">
+    <input type="hidden" name="idRoot"      th:value="${sezione.idRoot}">
+    <input type="hidden" name="idSite"      th:value="${sezione.idSite}">
     <input type="hidden" name="numeratore2" th:value="${sezione.numeratore2}">
     <input type="hidden" name="numeratore3" th:value="${sezione.numeratore3}">
     <input type="hidden" name="numeratore4" th:value="${sezione.numeratore4}">
@@ -643,7 +637,7 @@
 
   </form>
 
-  <script th:inline="javascript">
+  <script>
     $(document).ready(function () {
       AttivaDataPubblicazione();
       AttivaLinkEsterno();

@@ -88,8 +88,6 @@
     </div>
   </div>
 
-</div>
-<th:block layout:fragment="scripts">
   <script>
     document.getElementById('selAll').addEventListener('change', function() {
       document.querySelectorAll('input[name="row_sel"]').forEach(cb => cb.checked = this.checked);
@@ -112,6 +110,6 @@
       }).then(r => r.text()).then(res => { if (res === 'OK') location.reload(); else alert('Errore.'); });
     }
   </script>
-</th:block>
+</div>
 </body>
 </html>

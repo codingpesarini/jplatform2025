@@ -72,7 +72,7 @@ public class SezioniController {
             String today = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
 
             Section section = new Section();
-            section.setId(-1);
+            section.setId(null);
             section.setIdParent(idParent);
             section.setIdGruppo(groupId);
             section.setData(today);
@@ -168,9 +168,7 @@ public class SezioniController {
     }
 
     @PostMapping("/save")
-    public String save(@ModelAttribute Section form,
-                       HttpServletRequest request, Model model) {
-
+    public String save(@ModelAttribute Section form, HttpServletRequest request, Model model) {
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
@@ -180,75 +178,119 @@ public class SezioniController {
             String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm"));
             String operatore = config.getAmministratore().getNomeCompleto();
 
-            boolean isNew = form.getId() == null || form.getId() == -1 || form.getId() == 0;
+            Section db;
+            boolean isNew = form.getId() == null || form.getId() <= 0;
 
             if (isNew) {
-                // NEW: qui puoi salvare direttamente (ma assicurati ai NOT NULL)
-                form.setIdSite(idSite);
-                form.setIdRoot(-1);
-                form.setCreato(now);
-                form.setCreatoDa(operatore);
+                db = form;
+                db.setIdSite(idSite);
+                db.setIdRoot(null); // Di solito le sezioni hanno idRoot -1
+                db.setCreato(now);
+                db.setCreatoDa(operatore);
+                if (db.getClick() == null) db.setClick(0);
+            } else {
+                db = contentService.findSectionById(form.getId(), idSite)
+                        .orElseThrow(() -> new RuntimeException("Sezione non trovata"));
 
-                // ---- DEFAULT MINIMI per colonne NOT NULL ----
-                if (form.getLabel() == null || form.getLabel().isBlank()) {
-                    form.setLabel(form.getTitolo()); // oppure "sezione"
-                }
-                if (form.getDataSql() == null) {
-                    form.setDataSql(LocalDate.now());
-                }
+                // MERGE CAMPI BASE
+                db.setTitolo(form.getTitolo());
+                db.setStato(form.getStato());
+                db.setIdType(form.getIdType());
+                db.setDataVisualizzata(form.getDataVisualizzata());
+                db.setData(form.getData());
+                db.setTag(form.getTag());
+                db.setRiassunto(form.getRiassunto());
+                db.setTesto(form.getTesto());
 
-                parseDataVisualizzata(form);
-                Section saved = contentService.saveSection(form);
-                return "redirect:/admin/sezioni/" + saved.getId();
+                // MERGE CAMPI MULTIPLI (Varchar 1-10)
+                db.setVarchar1(form.getVarchar1()); db.setVarchar2(form.getVarchar2());
+                db.setVarchar3(form.getVarchar3()); db.setVarchar4(form.getVarchar4());
+                db.setVarchar5(form.getVarchar5()); db.setVarchar6(form.getVarchar6());
+                db.setVarchar7(form.getVarchar7()); db.setVarchar8(form.getVarchar8());
+                db.setVarchar9(form.getVarchar9()); db.setVarchar10(form.getVarchar10());
+
+                // MERGE CAMPI TESTO (Text 1-10)
+                db.setText1(form.getText1()); db.setText2(form.getText2());
+                db.setText3(form.getText3()); db.setText4(form.getText4());
+                db.setText5(form.getText5()); db.setText6(form.getText6());
+                db.setText7(form.getText7()); db.setText8(form.getText8());
+                db.setText9(form.getText9()); db.setText10(form.getText10());
+
+                // MERGE EXTRA TAG REF
+                db.setExtraTagRef1(form.getExtraTagRef1()); db.setExtraTagRef2(form.getExtraTagRef2());
+                db.setExtraTagRef3(form.getExtraTagRef3()); db.setExtraTagRef4(form.getExtraTagRef4());
+                db.setExtraTagRef5(form.getExtraTagRef5());
+
+                // MERGE INFO & MENU
+                db.setInfo1(form.getInfo1()); db.setInfo2(form.getInfo2());
+                db.setInfo3(form.getInfo3()); db.setInfo4(form.getInfo4());
+                db.setInfo5(form.getInfo5());
+                db.setMenu1(form.getMenu1()); db.setMenu2(form.getMenu2());
+                db.setMenu3(form.getMenu3()); db.setMenu4(form.getMenu4());
+                db.setMenu5(form.getMenu5());
+                db.setS1(form.getS1()); db.setS2(form.getS2()); db.setS3(form.getS3());
+
+                db.setModificato(now);
+                db.setModificatoDa(operatore);
             }
 
-            // UPDATE: carica dal DB e fai MERGE
-            Section db = contentService.findSectionById(form.getId(), idSite)
-                    .orElseThrow(() -> new RuntimeException("Sezione non trovata: " + form.getId()));
-
-            // campi modificabili dalla pagina
-            db.setTitolo(form.getTitolo());
-            db.setStato(form.getStato());
-            db.setIdType(form.getIdType());
-            db.setDataVisualizzata(form.getDataVisualizzata());
-            db.setData(form.getData());
-            db.setTag(form.getTag());
-            db.setS3(form.getS3());
-            db.setMenu1(form.getMenu1());
-            db.setMenu5(form.getMenu5());
-            db.setS1(form.getS1());
-            db.setS2(form.getS2());
-            db.setMenu2(form.getMenu2());
-            db.setMenu3(form.getMenu3());
-            db.setMenu4(form.getMenu4());
-            db.setRiassunto(form.getRiassunto());
-            db.setTesto(form.getTesto());
-            // ecc… (tutti quelli che hai nel form)
-
-            // audit
-            db.setModificato(now);
-            db.setModificatoDa(operatore);
-
-            // parse che aggiorna anno/mese ecc
+            // Validazioni e Parsing finali
+            if (db.getLabel() == null || db.getLabel().isBlank()) db.setLabel(db.getTitolo());
+            if (db.getDataSql() == null) db.setDataSql(LocalDate.now());
             parseDataVisualizzata(db);
 
-            // se label è NOT NULL e non lo gestisci in form, garantiscilo qui:
-            if (db.getLabel() == null || db.getLabel().isBlank()) {
-                db.setLabel(db.getTitolo());
-            }
-            if (db.getDataSql() == null) {
-                db.setDataSql(LocalDate.now());
-            }
-
-            contentService.saveSection(db);
-            return "redirect:/admin/sezioni/" + db.getId();
+            Section saved = contentService.saveSection(db);
+            return "redirect:/admin/sezioni/" + saved.getId() + "?success=saved";
 
         } catch (Exception e) {
             log.error("Errore save sezione", e);
-            populateDetailModel(model, config, String.valueOf(config.getIdSito()));
-            model.addAttribute("error", "Errore nel salvataggio: " + e.getMessage());
+            model.addAttribute("error", "Errore: " + e.getMessage());
             model.addAttribute("section", form);
+            populateDetailModel(model, config, String.valueOf(config.getIdSito()));
             return ViewUtils.resolveProtectedTemplate("cms/dettaglioSezioneTemplate");
+        }
+    }
+
+    // =====================================================================
+    // CANCELLAZIONE SEZIONE
+    // =====================================================================
+
+    @PostMapping("/{id}/delete")
+    public String delete(@PathVariable Integer id, HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+        if (!config.isLogged()) return "redirect:/login";
+
+        try {
+            // Passiamo solo l'ID come richiesto dal service attuale
+            contentService.deleteSection(id);
+
+            return "redirect:/admin/sezioni?success=deleted";
+        } catch (Exception e) {
+            log.error("Errore durante la cancellazione della sezione id={}", id, e);
+            return "redirect:/admin/sezioni?error=delete_failed";
+        }
+    }
+
+    @PostMapping("/deleteMultiplo")
+    @ResponseBody
+    public ResponseEntity<String> deleteMultiplo(@RequestParam("delSezioniID") List<Integer> ids,
+                                                 HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+        if (!config.isLogged() || ids == null || ids.isEmpty()) {
+            return ResponseEntity.badRequest().body("Parametri non validi");
+        }
+
+        try {
+            for (Integer id : ids) {
+                // Anche qui, passiamo solo l'ID
+                contentService.deleteSection(id);
+            }
+            return ResponseEntity.ok("Cancellazione completata");
+        } catch (Exception e) {
+            log.error("Errore cancellazione multipla sezioni", e);
+            return ResponseEntity.internalServerError().body("Errore durante la cancellazione");
         }
     }
 

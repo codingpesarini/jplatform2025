@@ -875,6 +875,23 @@ public String getExtraTag(int numero) {
 }
 
     @Transient
+    public String getExtraTagRef(int numero) {
+        return switch (numero) {
+            case 1 -> extraTagRef1;
+            case 2 -> extraTagRef2;
+            case 3 -> extraTagRef3;
+            case 4 -> extraTagRef4;
+            case 5 -> extraTagRef5;
+            case 6 -> extraTagRef6;
+            case 7 -> extraTagRef7;
+            case 8 -> extraTagRef8;
+            case 9 -> extraTagRef9;
+            case 10 -> extraTagRef10;
+            default -> null;
+        };
+    }
+
+    @Transient
     public void setExtraTag(int numero, String value) {
         switch (numero) {
             case 1 -> this.extraTag1 = value;
