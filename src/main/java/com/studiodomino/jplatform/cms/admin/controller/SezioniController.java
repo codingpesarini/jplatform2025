@@ -1,5 +1,6 @@
 package com.studiodomino.jplatform.cms.admin.controller;
 
+import com.studiodomino.jplatform.cms.entity.DatiBase;
 import com.studiodomino.jplatform.cms.entity.Section;
 import com.studiodomino.jplatform.cms.entity.SectionType;
 import com.studiodomino.jplatform.cms.service.ContentService;
@@ -104,14 +105,10 @@ public class SezioniController {
             Section section = contentService.findSectionById(id, idSite)
                     .orElseThrow(() -> new RuntimeException("Sezione non trovata: " + id));
 
-            // =====================================================================
-            // FIX FONDAMENTALE:
-            // Se la sezione nel database non ha un tipo (id_type è null),
-            // creiamo un oggetto SectionType vuoto.
-            // Questo attiverà i tuoi metodi "getPage1OrDefault()" evitando il crash.
-            // =====================================================================
-            if (section.getSectionType() == null) {
-                log.warn("La sezione {} ha un SectionType NULL. Applico default.", id);
+            if (section.getSectionType() == null && section.getIdType() != null) {
+                SectionType st = contentService.getSectionTypeById(section.getIdType());
+                section.setSectionType(st != null ? st : new SectionType());
+            } else if (section.getSectionType() == null) {
                 section.setSectionType(new SectionType());
             }
 
@@ -124,6 +121,134 @@ public class SezioniController {
         }
 
         return ViewUtils.resolveProtectedTemplate("cms/dettaglioSezioneTemplate");
+    }
+
+    @PostMapping("/{id}/duplicate")
+    public String duplicate(@PathVariable Integer id,
+                            HttpServletRequest request) {
+
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+        if (!config.isLogged()) return "redirect:/login";
+
+        String idSite = String.valueOf(config.getIdSito());
+
+        try {
+            Section original = contentService.findSectionById(id, idSite)
+                    .orElseThrow(() -> new RuntimeException("Sezione non trovata"));
+
+            Section copia = new Section();
+            copia.setId(null);   // INSERT
+            copia.setIdSite(idSite);
+
+            copia.setIdRoot(original.getIdRoot());
+            copia.setIdParent(original.getIdParent());
+            copia.setIdType(original.getIdType());
+
+            copia.setTitolo(original.getTitolo() + " (copia)");
+            copia.setRiassunto(original.getRiassunto());
+            copia.setTesto(original.getTesto());
+
+            copia.setTag(original.getTag());
+            copia.setData(original.getData());
+            copia.setDataVisualizzata(original.getDataVisualizzata());
+            copia.setDataSql(LocalDate.now());
+
+            copia.setStato("0");
+            copia.setPrivato(original.getPrivato());
+
+            copia.setMenu1(original.getMenu1());
+            copia.setMenu2(original.getMenu2());
+            copia.setMenu3(original.getMenu3());
+            copia.setMenu4(original.getMenu4());
+            copia.setMenu5(original.getMenu5());
+
+            copia.setS1(original.getS1());
+            copia.setS2(original.getS2());
+            copia.setS3(original.getS3());
+
+            copia.setInfo1(original.getInfo1());
+            copia.setInfo2(original.getInfo2());
+            copia.setInfo3(original.getInfo3());
+            copia.setInfo4(original.getInfo4());
+            copia.setInfo5(original.getInfo5());
+
+            copia.setVarchar1(original.getVarchar1());
+            copia.setVarchar2(original.getVarchar2());
+            copia.setVarchar3(original.getVarchar3());
+            copia.setVarchar4(original.getVarchar4());
+            copia.setVarchar5(original.getVarchar5());
+            copia.setVarchar6(original.getVarchar6());
+            copia.setVarchar7(original.getVarchar7());
+            copia.setVarchar8(original.getVarchar8());
+            copia.setVarchar9(original.getVarchar9());
+            copia.setVarchar10(original.getVarchar10());
+
+            copia.setText1(original.getText1());
+            copia.setText2(original.getText2());
+            copia.setText3(original.getText3());
+            copia.setText4(original.getText4());
+            copia.setText5(original.getText5());
+            copia.setText6(original.getText6());
+            copia.setText7(original.getText7());
+            copia.setText8(original.getText8());
+            copia.setText9(original.getText9());
+            copia.setText10(original.getText10());
+
+            copia.setL11(original.getL11());
+            copia.setL15(original.getL15());
+
+            copia.setExtraTagRef1(original.getExtraTagRef1());
+            copia.setExtraTagRef2(original.getExtraTagRef2());
+            copia.setExtraTagRef3(original.getExtraTagRef3());
+            copia.setExtraTagRef4(original.getExtraTagRef4());
+            copia.setExtraTagRef5(original.getExtraTagRef5());
+            copia.setExtraTagRef6(original.getExtraTagRef6());
+            copia.setExtraTagRef7(original.getExtraTagRef7());
+            copia.setExtraTagRef8(original.getExtraTagRef8());
+            copia.setExtraTagRef9(original.getExtraTagRef9());
+            copia.setExtraTagRef10(original.getExtraTagRef10());
+
+            copia.setExtraTag(1, original.getExtraTag(1));
+            copia.setExtraTag(2, original.getExtraTag(2));
+            copia.setExtraTag(3, original.getExtraTag(3));
+            copia.setExtraTag(4, original.getExtraTag(4));
+            copia.setExtraTag(5, original.getExtraTag(5));
+            copia.setExtraTag(6, original.getExtraTag(6));
+            copia.setExtraTag(7, original.getExtraTag(7));
+            copia.setExtraTag(8, original.getExtraTag(8));
+            copia.setExtraTag(9, original.getExtraTag(9));
+            copia.setExtraTag(10, original.getExtraTag(10));
+
+            copia.setOrdineExtraTag(original.getOrdineExtraTag());
+            copia.setMaxExtraTag(original.getMaxExtraTag());
+            copia.setRegolaExtraTag1(original.getRegolaExtraTag1());
+            copia.setRegolaExtraTag2(original.getRegolaExtraTag2());
+
+            copia.setLabel(original.getLabel());
+            copia.setAnno(original.getAnno());
+            copia.setMese(original.getMese());
+
+            // campi obbligatori / sicuri
+            copia.setClick(0);
+
+            String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm"));
+            String operatore = config.getAmministratore().getNomeCompleto();
+
+            copia.setCreato(now);
+            copia.setCreatoDa(operatore);
+            copia.setModificato(now);
+            copia.setModificatoDa(operatore);
+
+            Section saved = contentService.saveSection(copia);
+            log.info("Sezione duplicata: original={} -> new={}", id, saved.getId());
+
+            return "redirect:/admin/sezioni/" + saved.getId();
+
+        } catch (Exception e) {
+            log.error("Errore duplicate sezione id={}", id, e);
+            return "redirect:/admin/sezioni";
+        }
     }
 
     @GetMapping("/{id}/preview")

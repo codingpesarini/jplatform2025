@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="content">
+
+    <header class="page-header">
+        <h2>Dettaglio E-Mail</h2>
+        <div class="right-wrapper text-right">
+            <ol class="breadcrumbs">
+                <li>
+                    <a href="javascript:void(0)">
+                        <i class="fas fa-envelope-open-text"></i>
+                    </a>
+                </li>
+                <li><span>Mailbox</span></li>
+                <li><span th:text="${messaggioEmail.nomeAccount}">account</span></li>
+                <li><span></span></li>
+            </ol>
+        </div>
+    </header>
+
+    <!-- start: page -->
+    <section class="content-with-menu mailbox">
+        <div class="content-with-menu-container" data-mailbox data-mailbox-view="email">
+
+            <div class="inner-body mailbox-email">
+
+                <!-- intestazione messaggio -->
+                <div class="mailbox-email-header mb-3">
+                    <h3 class="mailbox-email-subject m-0 font-weight-light"
+                        th:text="${messaggioEmail.oggetto}">Oggetto</h3>
+
+                    <p class="mt-2 mb-0 text-5">
+                        da
+                        <!-- mittente noto: link ad anagrafica -->
+                        <a th:if="${messaggioEmail.mittenteNoto}"
+                           href="javascript:void(0);"
+                           th:onclick="|return hs.htmlExpand(this, { align: 'center', objectType: 'iframe', contentId: 'dettaglioAnagrafica', src: '/admin/anagraficaUtente/open?id=${messaggioEmail.idMittenteNoto}' });|">
+                            <i class="fas fa-user-check"></i>
+                            <span th:text="${messaggioEmail.mittente}">Mittente</span>
+                        </a>
+                        <!-- mittente non noto: solo testo -->
+                        <span th:if="${!messaggioEmail.mittenteNoto}"
+                              th:text="${messaggioEmail.mittente}">Mittente</span>
+                        | <span th:text="${messaggioEmail.indirizzoMittente}">email@example.com</span>,
+                        in data <span th:text="${messaggioEmail.date}">01/01/2025</span>
+                    </p>
+                    <p class="mt-2 mb-0 text-muted">
+                        Altri destinatari:
+                        <span th:text="${messaggioEmail.indirizziTO}"></span>
+                        <span th:text="${messaggioEmail.indirizziCC}"></span>
+                    </p>
+                </div>
+
+                <!-- azioni CRM -->
+                <div class="text-right mt-3">
+                    <!-- già salvata -->
+                    <button th:if="${messaggioEmail.salvato}"
+                            class="mt-3 mb-3 ws-normal btn btn-success">
+                        Email già registrata nel CRM
+                    </button>
+
+                    <!-- non ancora salvata -->
+                    <th:block th:if="${!messaggioEmail.salvato}">
+                        <!-- mittente noto -->
+                        <a th:if="${messaggioEmail.mittenteNoto}"
+                           rel="highslide-iframe"
+                           th:href="@{/admin/crm/lead/open(id=-1,idutente=${messaggioEmail.idMittenteNoto},idleadstore=${messaggioEmail.id},store='emailstore')}"
+                           class="btn btn-primary">
+                            <i class="fas fa-paper-plane mr-1"></i> Profila LEAD per utente
+                        </a>
+                        <!-- mittente non noto -->
+                        <a th:if="${!messaggioEmail.mittenteNoto}"
+                           rel="highslide-iframe"
+                           th:href="@{/admin/crm/lead/open(id=-1,idutente=0,idleadstore=${messaggioEmail.id},store='emailstore')}"
+                           class="btn btn-primary">
+                            <i class="fas fa-paper-plane mr-1"></i> Profila LEAD per nuovo utente
+                        </a>
+                    </th:block>
+                </div>
+
+                <!-- corpo messaggio -->
+                <div class="mailbox-email-container">
+                    <div class="mailbox-email-screen pt-4">
+                        <div class="card mb-3">
+
+                            <div class="card-header">
+                                <h4>Messaggio email</h4>
+                                <div class="card-actions">
+                                    <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
+                                    <a th:href="@{/admin/email/open(id=${messaggioEmail.id},idAccount=${config.actualMailboxId},rispondi=true)}"
+                                       class="fas fa-reply" title="Rispondi"></a>
+                                    <a th:href="@{/admin/email/open(id=${messaggioEmail.id},idAccount=${config.actualMailboxId},rispondiTutti=true)}"
+                                       class="fas fa-reply-all" title="Rispondi a tutti"></a>
+                                    <a th:href="@{/admin/email/open(id=${messaggioEmail.id},idAccount=${config.actualMailboxId},inoltra=true)}"
+                                       class="far fa-paper-plane" title="Inoltra"></a>
+                                </div>
+                            </div>
+
+                            <div class="card-body">
+                                <!-- iframe per rendering HTML email -->
+                                <iframe width="100%" height="500px" id="myframe" frameBorder="0"></iframe>
+                                <textarea name="content" rows="1" style="visibility:hidden" id="textmail"
+                                          th:text="${messaggioEmail.testo}"></textarea>
+
+                                <!-- allegati -->
+                                <section class="card mt-3">
+                                    <header class="card-header">
+                                        <div class="card-actions">
+                                            <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+                                        </div>
+                                        <h2 class="card-title">Allegati</h2>
+                                        <p class="card-subtitle">Elenco file allegati all'Email</p>
+                                    </header>
+                                    <div class="card-body">
+                                        <ul class="list-unstyled">
+                                            <li th:each="allegato : ${messaggioEmail.allegati}">
+                                                <a th:href="@{/admin/email/allegato(id=${messaggioEmail.id},filename=${allegato.id},idAccount=${config.actualMailboxId})}"
+                                                   target="_blank">
+                                                    <img th:src="@{'/manager/assets/img/filetypes/32/' + ${allegato.type} + '.png'}"
+                                                         alt="" width="25" height="25" class="me-1">
+                                                    <span th:text="${allegato.nome}">file.pdf</span>
+                                                    <span th:text="${allegato.idorigine}" class="text-muted"></span>
+                                                </a>
+                                            </li>
+                                            <li th:if="${#lists.isEmpty(messaggioEmail.allegati)}"
+                                                class="text-muted">Nessun allegato.</li>
+                                        </ul>
+                                    </div>
+                                </section>
+                            </div>
+
+                            <div class="card-footer">
+                                <p class="m-0"><small th:text="${messaggioEmail.date}">01/01/2025</small></p>
+                                <p class="text-muted small">
+                                    Lead: potenziale acquirente di un dato prodotto o servizio. Si genera un lead quando,
+                                    attraverso un'iniziativa di marketing, un'impresa ottiene dall'utente informazioni utili
+                                    a stabilire un contatto commerciale, da utilizzare in un secondo momento per generare
+                                    un'opportunità di vendita.
+                                </p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div><!-- fine inner-body -->
+        </div>
+    </section>
+    <!-- end: page -->
+
+    <script>
+        $(document).ready(function () {
+          var myFrame = $("#myframe").contents().find('body');
+          var textareaValue = $("#textmail").val();
+          myFrame.html(textareaValue);
+          var iFrame = document.getElementById('myframe');
+          iFrame.style.height = iFrame.contentWindow.document.documentElement.scrollHeight + 'px';
+        });
+    </script>
+
+</th:block>
+</body>
+</html>

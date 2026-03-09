@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="it"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{manager/layout/template}">
+<body>
+
+<div layout:fragment="content">
+
+  <!-- start: page -->
+  <div class="row">
+
+    <!-- colonna info -->
+    <div class="col-md-3">
+      <section class="card card-info">
+        <header class="card-header">
+          <div class="card-actions">
+            <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+          </div>
+          <h2 class="card-title">Gestione Mail Account</h2>
+          <p class="card-subtitle">Informazioni e parametri</p>
+        </header>
+        <div class="card-body">
+          <p>Gestisci qui gli account email e PEC utilizzati dalla piattaforma per l'invio e la ricezione dei messaggi.</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- colonna tabella -->
+    <div class="col-md-9">
+      <section class="card card-info">
+        <header class="card-header">
+          <div class="card-actions">
+            <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
+          </div>
+          <h2 class="card-title">Elenco configurazioni</h2>
+          <p class="card-subtitle">I dati possono essere creati, modificati e cancellati.</p>
+        </header>
+        <div class="card-body">
+
+          <div class="right-wrapper text-right mb-3">
+            <a th:href="@{/admin/account/new}" class="btn btn-info" rel="highslide-iframe">
+              <i class="fas fa-file-medical"></i> Crea nuovo
+            </a>
+            <a href="javascript:void(0);" class="btn btn-info" onclick="CancellaAccountMultiplaAjax()">
+              <i class="fas fa-trash-alt"></i> Cancella selezionati
+            </a>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped mb-0" id="tabellaAccount">
+              <thead>
+              <tr>
+                <th style="width:5%">
+                  <input type="checkbox" class="chSel_all inpt_c2"/>
+                </th>
+                <th>Descrizione</th>
+                <th>Tipologia</th>
+                <th>Azioni</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr th:if="${#lists.isEmpty(elencoAccount)}">
+                <td colspan="4" class="text-center text-muted">Nessun account configurato.</td>
+              </tr>
+              <tr th:each="account : ${elencoAccount}">
+                <td class="check">
+                  <input type="checkbox" name="row_sel"
+                         th:id="${'AnagRow' + account.id}"
+                         class="inpt_c2"
+                         th:value="${account.id}"/>
+                </td>
+                <td>
+                  <a title="Modifica"
+                     th:href="@{/admin/account/{id}(id=${account.id})}"
+                     rel="highslide-iframe"
+                     th:text="${account.descrizione}">Descrizione</a>
+                  <input type="hidden"
+                         th:id="${'row_' + account.id}"
+                         th:value="${account.id}"/>
+                </td>
+                <td th:text="${account.tipoAccount}">EMAIL</td>
+                <td>
+                  <a title="Modifica"
+                     th:href="@{/admin/account/{id}(id=${account.id})}"
+                     rel="highslide-iframe">
+                    <i class="fas fa-pencil-alt"></i>
+                  </a>
+                  &nbsp;&nbsp;
+                  <form th:action="@{/admin/account/{id}/delete(id=${account.id})}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-link p-0 text-danger"
+                            onclick="return confirm('Sei sicuro di voler cancellare questo account?')">
+                      <i class="far fa-trash-alt"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </section>
+    </div>
+
+  </div>
+  <!-- end: page -->
+
+  <script th:inline="javascript">
+    function CancellaAccountMultiplaAjax() {
+        // Recuperiamo tutti gli ID selezionati
+        let selezionati = [];
+        document.querySelectorAll('input[name="row_sel"]:checked').forEach((checkbox) => {
+            selezionati.push(checkbox.value);
+        });
+
+        if (selezionati.length === 0) {
+            alert("Seleziona almeno un account da cancellare.");
+            return;
+        }
+
+        if (confirm("Vuoi cancellare " + selezionati.length + " account selezionati?")) {
+            // Chiamata AJAX verso il controller
+            fetch('/admin/account/eliminaMultiplo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'ids=' + selezionati.join(',')
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload(); // Ricarica la pagina per vedere le modifiche
+                } else {
+                    alert("Errore durante la cancellazione.");
+                }
+            })
+            .catch(error => console.error('Errore:', error));
+        }
+    }
+
+    // Per la funzione singola se vuoi mantenere il tasto originale
+    function CancellaAccount(id) {
+        if (confirm("Sei sicuro di voler cancellare questo account?")) {
+            fetch('/admin/account/' + id + '/delete', {
+                method: 'POST'
+            }).then(() => location.reload());
+        }
+    }
+  </script>
+
+</div>
+</body>
+</html>

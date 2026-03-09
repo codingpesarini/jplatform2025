@@ -75,21 +75,21 @@
 
               <div class="row form-group">
                 <div class="col-lg-6">
-                  <label for="titolo" class="col-form-label">Titolo *</label>
+                  <label for="titolo" class="col-form-label">Titolo</label>
                   <input type="text" name="titolo" id="titolo"
                          th:value="${post.titolo}"
                          class="form-control obbligatorio" required>
                 </div>
 
                 <div class="col-lg-3">
-                  <label for="titoloEN" class="col-form-label">Titolo breve (25 car) *</label>
+                  <label for="titoloEN" class="col-form-label">Titolo breve (25 car)</label>
                   <input type="text" name="titoloEN" id="titoloEN"
                          th:value="${post.titoloEN}"
                          class="form-control obbligatorio maxSize25" maxlength="25" required>
                 </div>
 
                 <div class="col-lg-3">
-                  <label for="stato" class="col-form-label">Stato workflow *</label>
+                  <label for="stato" class="col-form-label">Stato workflow</label>
                   <select name="stato" id="stato" class="form-control obbligatorio" required>
                     <option value="">----- Seleziona lo stato -----</option>
                     <option value="0" th:selected="${post.stato == '0'}">Bozza</option>
@@ -127,7 +127,7 @@
 
               <div class="row form-group">
                 <div class="col-lg-4">
-                  <label for="s3" class="col-form-label">Periodo visualizzazione *</label>
+                  <label for="s3" class="col-form-label">Periodo visualizzazione</label>
                   <select name="s3" id="s3" onchange="AttivaDataPubblicazione()"
                           class="form-control obbligatorio" required>
                     <option value="0" th:selected="${post.s3 == '0'}">Illimitato - Sempre visibile</option>
@@ -155,7 +155,7 @@
             <div id="tab_02" class="tab-pane" role="tabpanel">
               <div class="row form-group">
                 <div class="col-lg-6">
-                  <label for="varchar1" class="col-form-label">Tipologia organizzazione *</label>
+                  <label for="varchar1" class="col-form-label">Tipologia organizzazione</label>
                   <select name="varchar1" id="varchar1" class="form-control obbligatorio" required>
                     <option value="">----- Seleziona Tipologia organizzazione -----</option>
                     <option value="Politica"        th:selected="${post.varchar1 == 'Politica'}">Politica</option>

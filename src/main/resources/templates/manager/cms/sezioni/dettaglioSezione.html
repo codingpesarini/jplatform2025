@@ -106,13 +106,14 @@
                                     </select>
                                 </div>
                                 <div class="col-lg-3">
-                                    <label for="idType" class="col-form-label">Categoria documento *</label>
+                                    <label for="idType" class="col-form-label">Categoria documento</label>
                                     <select name="idType" id="idType" class="form-control obbligatorio" required>
                                         <option value="">----- Seleziona tipologia sezione -----</option>
-                                        <option th:each="type : ${elencoTipi}"
+                                        <option th:each="type : ${sectionTypes}"
                                                 th:value="${type.id}"
                                                 th:text="${type.description}"
-                                                th:selected="${type.id == section.idType}"></option>
+                                                th:selected="${section != null and type.id == section.idType}">
+                                        </option>
                                     </select>
                                 </div>
                             </div>

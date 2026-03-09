@@ -3,28 +3,13 @@
 <body>
 <th:block th:fragment="content">
 
-    <!--
-        dettaglioSezionePersona.html — contentWebPersona
-        Identico a UO. Tab02: Cosa fa, Sede principale, Riferimento telefonico, Posizione GPS, Ulteriori informazioni.
-        Tab02 specifico:
-          - varchar1: Tipologia organizzazione (Politica / Amministrativa / Altra tipologia)
-          - riassunto: Abstract
-          - text1: Cosa fa
-          - text2: Sede principale
-          - text3: Riferimento telefonico
-          - text4: Posizione GPS
-          - text5: Ulteriori informazioni
-        Tutti gli altri tab identici al default.
-    -->
-
-    <form th:action="@{/admin/sezioni/save(storeId=${sezione.id})}"
+    <form th:action="@{/admin/sezioni/save(storeId=${section.id})}"
           method="post"
-          enctype="multipart/form-data"
           id="sezione"
           class="form-bordered">
 
         <header class="page-header mb-2">
-            <h2 th:text="${sezione.titolo}">Titolo</h2>
+            <h2 th:text="${section.titolo}">Titolo</h2>
             <div class="right-wrapper text-right">
                 <div class="switch switch-sm switch-primary" title="Salvataggio automatico">
                     <input type="checkbox" name="switch" title="Salvataggio automatico"
@@ -33,7 +18,7 @@
                 <a th:href="@{/admin/sezioni/new}" class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
                     <i class="fas fa-file-medical"></i> Nuova
                 </a>
-                <a th:href="@{/admin/sezioni/{id}/duplicate(id=${sezione.id})}"
+                <a th:href="@{/admin/sezioni/{id}/duplicate(id=${section.id})}"
                    onclick="return ConfermaOperazione(this.href,'duplicare questa sezione')"
                    class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
                     <i class="fas fa-clone"></i> Duplica
@@ -82,109 +67,108 @@
 
                     <div class="tab-content">
 
-                        <!-- ═══════════════════════════════════════════════════ TAB 01 — DEFINIZIONE -->
                         <div id="tab_01" class="tab-pane active" role="tabpanel">
                             <p>
-                                ID: <span th:text="${sezione.id}">0</span>
-                                | Numero associato: <span th:text="${sezione.numeratore1}">0</span>
-                                | URL: <span th:text="${sezione.urlRW}">/</span><br/>
-                                Creato da: <span th:text="${sezione.creatoda}">-</span>
-                                (<span th:text="${sezione.creato}">-</span>)
-                                | Ultima modifica: <span th:text="${sezione.modificatoda}">-</span>
-                                (<span th:text="${sezione.modificato}">-</span>)
+                                ID: <span th:text="${section.id}">0</span>
+                                | Numero associato: <span th:text="${section.numeratore1}">0</span>
+                                | URL: <span th:text="${section.urlRW}">/</span><br/>
+                                Creato da: <span th:text="${section.creatoDa}">-</span>
+                                (<span th:text="${section.creato}">-</span>)
+                                | Ultima modifica: <span th:text="${section.modificatoDa}">-</span>
+                                (<span th:text="${section.modificato}">-</span>)
                             </p>
-                            <input type="hidden" name="creato"       th:value="${sezione.creato}">
-                            <input type="hidden" name="creatoda"     th:value="${sezione.creatoda}">
-                            <input type="hidden" name="modificatoda" th:value="${sezione.modificatoda}">
-                            <input type="hidden" name="modificato"   th:value="${sezione.modificato}">
+                            <input type="hidden" name="creato"       th:value="${section.creato}">
+                            <input type="hidden" name="creatoda"     th:value="${section.creatoDa}">
+                            <input type="hidden" name="modificatoda" th:value="${section.modificatoDa}">
+                            <input type="hidden" name="modificato"   th:value="${section.modificato}">
 
                             <div class="row form-group">
                                 <div class="col-lg-6">
-                                    <label for="titolo" class="col-form-label">Titolo *</label>
+                                    <label for="titolo" class="col-form-label">Titolo</label>
                                     <input type="text" name="titolo" id="titolo"
-                                           th:value="${sezione.titolo}"
+                                           th:value="${section.titolo}"
                                            class="form-control obbligatorio" required>
                                 </div>
                                 <div class="col-lg-3">
-                                    <label for="stato" class="col-form-label">Stato workflow *</label>
+                                    <label for="stato" class="col-form-label">Stato workflow</label>
                                     <select name="stato" id="stato" class="form-control obbligatorio" required>
                                         <option value="">----- Seleziona lo stato -----</option>
-                                        <option value="0" th:selected="${sezione.stato == '0'}">Bozza</option>
-                                        <option value="1" th:selected="${sezione.stato == '1'}">Pubblicato</option>
-                                        <option value="2" th:selected="${sezione.stato == '2'}">Archiviato</option>
-                                        <option value="3" th:selected="${sezione.stato == '3'}">In revisione</option>
-                                        <option value="4" th:selected="${sezione.stato == '4'}">Altro</option>
+                                        <option value="0" th:selected="${section.stato == '0'}">Bozza</option>
+                                        <option value="1" th:selected="${section.stato == '1'}">Pubblicato</option>
+                                        <option value="2" th:selected="${section.stato == '2'}">Archiviato</option>
+                                        <option value="3" th:selected="${section.stato == '3'}">In revisione</option>
+                                        <option value="4" th:selected="${section.stato == '4'}">Altro</option>
                                     </select>
                                 </div>
                                 <div class="col-lg-3">
-                                    <label for="id_type" class="col-form-label">Categoria documento *</label>
+                                    <label for="id_type" class="col-form-label">Categoria documento</label>
                                     <select name="id_type" id="id_type" class="form-control obbligatorio" required>
                                         <option value="">----- Seleziona tipologia sezione -----</option>
-                                        <option th:each="type : ${sezione.sectionTypes}"
+                                        <option th:each="type : ${section.sectionTypes}"
                                                 th:value="${type.id}" th:text="${type.description}"
-                                                th:selected="${type.id == sezione.idType}"></option>
+                                                th:selected="${type.id == section.idType}"></option>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="row form-group">
                                 <div class="col-lg-3">
-                                    <label for="dataVisualizzata" class="col-form-label">Data visualizzata *</label>
+                                    <label for="dataVisualizzata" class="col-form-label">Data visualizzata</label>
                                     <input type="text" name="dataVisualizzata" id="dataVisualizzata"
-                                           th:value="${sezione.dataVisualizzata}"
+                                           th:value="${section.dataVisualizzata}"
                                            class="form-control datepickerEstesa obbligatorio" required>
                                 </div>
                                 <div class="col-lg-3">
-                                    <label for="data" class="col-form-label">Data riferimento *</label>
+                                    <label for="data" class="col-form-label">Data riferimento</label>
                                     <input type="text" name="data" id="data"
-                                           th:value="${sezione.data}"
+                                           th:value="${section.data}"
                                            class="form-control datepicker obbligatorio" required>
                                 </div>
                                 <div class="col-lg-6">
                                     <label for="tag" class="col-form-label">TAG</label>
                                     <input type="text" name="tag" id="tag"
-                                           th:value="${sezione.tag}"
+                                           th:value="${section.tag}"
                                            class="form-control" onblur="ControlloCampoTag(this);">
                                 </div>
                             </div>
 
                             <div class="row form-group">
                                 <div class="col-lg-4">
-                                    <label for="s3" class="col-form-label">Periodo visualizzazione *</label>
+                                    <label for="s3" class="col-form-label">Periodo visualizzazione</label>
                                     <select name="s3" id="s3" onchange="AttivaDataPubblicazione()"
                                             class="form-control obbligatorio" required>
-                                        <option value="0" th:selected="${sezione.s3 == '0'}">Illimitato - Sempre visibile</option>
-                                        <option value="1" th:selected="${sezione.s3 == '1'}">Pubblicazione programmata</option>
+                                        <option value="0" th:selected="${section.s3 == '0'}">Illimitato - Sempre visibile</option>
+                                        <option value="1" th:selected="${section.s3 == '1'}">Pubblicazione programmata</option>
                                     </select>
                                 </div>
                                 <div class="col-lg-4">
-                                    <label for="menu1" class="col-form-label">Associa a menu *</label>
+                                    <label for="menu1" class="col-form-label">Associa a menu</label>
                                     <select name="menu1" id="menu1" class="form-control obbligatorio" required>
                                         <option value="">----- Seleziona menu di visualizzazione -----</option>
-                                        <option value="0"  th:selected="${sezione.menu1 == '0'}">Non visualizzare in nessun menu automatico</option>
-                                        <option value="1"  th:selected="${sezione.menu1 == '1'}">Menu principale - Singolo</option>
-                                        <option value="2"  th:selected="${sezione.menu1 == '2'}">Menu principale - Dropdown</option>
-                                        <option value="3"  th:selected="${sezione.menu1 == '3'}">Menu principale - Megamenu semplice</option>
-                                        <option value="4"  th:selected="${sezione.menu1 == '4'}">Menu principale - Megamenu PROMO</option>
-                                        <option value="5"  th:selected="${sezione.menu1 == '5'}">Menu 5</option>
-                                        <option value="6"  th:selected="${sezione.menu1 == '6'}">Menu 6</option>
-                                        <option value="7"  th:selected="${sezione.menu1 == '7'}">Menu 7</option>
-                                        <option value="8"  th:selected="${sezione.menu1 == '8'}">Menu 8</option>
-                                        <option value="9"  th:selected="${sezione.menu1 == '9'}">Menu 9</option>
-                                        <option value="10" th:selected="${sezione.menu1 == '10'}">Menu 10</option>
-                                        <option value="11" th:selected="${sezione.menu1 == '11'}">Menu 11</option>
-                                        <option value="12" th:selected="${sezione.menu1 == '12'}">Menu 12</option>
-                                        <option value="13" th:selected="${sezione.menu1 == '13'}">Menu 13</option>
-                                        <option value="14" th:selected="${sezione.menu1 == '14'}">Menu 14</option>
-                                        <option value="15" th:selected="${sezione.menu1 == '15'}">Menu 15</option>
+                                        <option value="0"  th:selected="${section.menu1 == '0'}">Non visualizzare in nessun menu automatico</option>
+                                        <option value="1"  th:selected="${section.menu1 == '1'}">Menu principale - Singolo</option>
+                                        <option value="2"  th:selected="${section.menu1 == '2'}">Menu principale - Dropdown</option>
+                                        <option value="3"  th:selected="${section.menu1 == '3'}">Menu principale - Megamenu semplice</option>
+                                        <option value="4"  th:selected="${section.menu1 == '4'}">Menu principale - Megamenu PROMO</option>
+                                        <option value="5"  th:selected="${section.menu1 == '5'}">Menu 5</option>
+                                        <option value="6"  th:selected="${section.menu1 == '6'}">Menu 6</option>
+                                        <option value="7"  th:selected="${section.menu1 == '7'}">Menu 7</option>
+                                        <option value="8"  th:selected="${section.menu1 == '8'}">Menu 8</option>
+                                        <option value="9"  th:selected="${section.menu1 == '9'}">Menu 9</option>
+                                        <option value="10" th:selected="${section.menu1 == '10'}">Menu 10</option>
+                                        <option value="11" th:selected="${section.menu1 == '11'}">Menu 11</option>
+                                        <option value="12" th:selected="${section.menu1 == '12'}">Menu 12</option>
+                                        <option value="13" th:selected="${section.menu1 == '13'}">Menu 13</option>
+                                        <option value="14" th:selected="${section.menu1 == '14'}">Menu 14</option>
+                                        <option value="15" th:selected="${section.menu1 == '15'}">Menu 15</option>
                                     </select>
                                 </div>
                                 <div class="col-lg-4">
                                     <label for="menu5" class="col-form-label">Visualizza come</label>
                                     <select name="menu5" id="menu5" class="form-control">
-                                        <option value="0" th:selected="${sezione.menu5 == '0'}">Sezione</option>
-                                        <option value="1" th:selected="${sezione.menu5 == '1'}">Lista contenuti</option>
-                                        <option value="2" th:selected="${sezione.menu5 == '2'}">Lista sottosezioni</option>
+                                        <option value="0" th:selected="${section.menu5 == '0'}">Sezione</option>
+                                        <option value="1" th:selected="${section.menu5 == '1'}">Lista contenuti</option>
+                                        <option value="2" th:selected="${section.menu5 == '2'}">Lista sottosezioni</option>
                                     </select>
                                 </div>
                             </div>
@@ -193,24 +177,24 @@
                                 <div class="col-lg-2">
                                     <label for="s1" class="col-form-label">Data inizio pubblicazione</label>
                                     <input type="text" name="s1" id="s1"
-                                           th:value="${sezione.s1}" class="form-control datepicker">
+                                           th:value="${section.s1}" class="form-control datepicker">
                                 </div>
                                 <div class="col-lg-2">
                                     <label for="s2" class="col-form-label">Data fine pubblicazione</label>
                                     <input type="text" name="s2" id="s2"
-                                           th:value="${sezione.s2}" class="form-control datepicker">
+                                           th:value="${section.s2}" class="form-control datepicker">
                                 </div>
                             </div>
 
                             <div class="row form-group">
                                 <div class="col-lg-6">
-                                    <label for="menu2" class="col-form-label">Tipo link *</label>
+                                    <label for="menu2" class="col-form-label">Tipo link</label>
                                     <select name="menu2" id="menu2" onchange="AttivaLinkEsterno()"
                                             class="form-control obbligatorio" required>
                                         <option value="">----- Seleziona tipo link menu -----</option>
-                                        <option value="0" th:selected="${sezione.menu2 == '0'}">Linkabile</option>
-                                        <option value="1" th:selected="${sezione.menu2 == '1'}">Non linkabile</option>
-                                        <option value="2" th:selected="${sezione.menu2 == '2'}">Punta a link esterno</option>
+                                        <option value="0" th:selected="${section.menu2 == '0'}">Linkabile</option>
+                                        <option value="1" th:selected="${section.menu2 == '1'}">Non linkabile</option>
+                                        <option value="2" th:selected="${section.menu2 == '2'}">Punta a link esterno</option>
                                     </select>
                                 </div>
                             </div>
@@ -219,27 +203,25 @@
                                 <div class="col-lg-3">
                                     <label for="menu3" class="col-form-label">URL link esterno</label>
                                     <input type="text" name="menu3" id="menu3"
-                                           th:value="${sezione.menu3}" class="form-control">
+                                           th:value="${section.menu3}" class="form-control">
                                 </div>
                                 <div class="col-lg-3">
                                     <label for="menu4" class="col-form-label">Titolo link esterno</label>
                                     <input type="text" name="menu4" id="menu4"
-                                           th:value="${sezione.menu4}" class="form-control">
+                                           th:value="${section.menu4}" class="form-control">
                                 </div>
                             </div>
                         </div>
-                        <!-- fine TAB 01 -->
 
-                        <!-- ═══════════════════════════════════════════════════ TAB 02 — SPECIFICO UO -->
                         <div id="tab_02" class="tab-pane" role="tabpanel">
                             <div class="row form-group">
                                 <div class="col-lg-6">
-                                    <label for="varchar1" class="col-form-label">Tipologia organizzazione *</label>
+                                    <label for="varchar1" class="col-form-label">Tipologia organizzazione</label>
                                     <select name="varchar1" id="varchar1" class="form-control obbligatorio" required>
                                         <option value="">----- Seleziona Tipologia organizzazione -----</option>
-                                        <option value="Politica"        th:selected="${sezione.varchar1 == 'Politica'}">Politica</option>
-                                        <option value="Amministrativa"  th:selected="${sezione.varchar1 == 'Amministrativa'}">Amministrativa</option>
-                                        <option value="Altra tipologia" th:selected="${sezione.varchar1 == 'Altra tipologia'}">Altra tipologia</option>
+                                        <option value="Politica"        th:selected="${section.varchar1 == 'Politica'}">Politica</option>
+                                        <option value="Amministrativa"  th:selected="${section.varchar1 == 'Amministrativa'}">Amministrativa</option>
+                                        <option value="Altra tipologia" th:selected="${section.varchar1 == 'Altra tipologia'}">Altra tipologia</option>
                                     </select>
                                 </div>
                                 <div class="col-lg-6">
@@ -249,7 +231,7 @@
                                     </label>
                                     <textarea name="riassunto" id="riassunto"
                                               class="tinymce5minimal form-control"
-                                              th:text="${sezione.riassunto}"></textarea>
+                                              th:text="${section.riassunto}"></textarea>
                                 </div>
                                 <div class="col-lg-6">
                                     <label class="col-form-label" for="text1">
@@ -258,7 +240,7 @@
                                     </label>
                                     <textarea name="text1" id="text1"
                                               class="tinymce5minimal form-control"
-                                              th:text="${sezione.text1}"></textarea>
+                                              th:text="${section.text1}"></textarea>
                                 </div>
                                 <div class="col-lg-6">
                                     <label class="col-form-label" for="text2">
@@ -267,7 +249,7 @@
                                     </label>
                                     <textarea name="text2" id="text2"
                                               class="tinymce5minimal form-control"
-                                              th:text="${sezione.text2}"></textarea>
+                                              th:text="${section.text2}"></textarea>
                                 </div>
                                 <div class="col-lg-6">
                                     <label class="col-form-label" for="text3">
@@ -276,7 +258,7 @@
                                     </label>
                                     <textarea name="text3" id="text3"
                                               class="tinymce5minimal form-control"
-                                              th:text="${sezione.text3}"></textarea>
+                                              th:text="${section.text3}"></textarea>
                                 </div>
                                 <div class="col-lg-6">
                                     <label class="col-form-label" for="text4">
@@ -285,7 +267,7 @@
                                     </label>
                                     <textarea name="text4" id="text4"
                                               class="form-control"
-                                              th:text="${sezione.text4}"></textarea>
+                                              th:text="${section.text4}"></textarea>
                                 </div>
                                 <div class="col-lg-6">
                                     <label class="col-form-label" for="text5">
@@ -294,13 +276,11 @@
                                     </label>
                                     <textarea name="text5" id="text5"
                                               class="form-control"
-                                              th:text="${sezione.text5}"></textarea>
+                                              th:text="${section.text5}"></textarea>
                                 </div>
                             </div>
                         </div>
-                        <!-- fine TAB 02 -->
 
-                        <!-- ═══════════════════════════════════════════════════ TAB 03 — CONTENUTO WEB -->
                         <div id="tab_03" class="tab-pane" role="tabpanel">
                             <div class="row form-group">
                                 <div class="col-lg-12">
@@ -309,12 +289,11 @@
                                     </label>
                                     <textarea name="testo" id="testo"
                                               class="tinymce5 form-control"
-                                              th:text="${sezione.testo}"></textarea>
+                                              th:text="${section.testo}"></textarea>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- ═══════════════════════════════════════════════════ TAB 04 — IMMAGINI -->
                         <div id="tab_04" class="tab-pane" role="tabpanel">
                             <div class="row form-group">
                                 <div class="col-lg-6">
@@ -342,9 +321,9 @@
                             <div class="row form-group">
                                 <div class="col-lg-12">
                                     <input type="hidden" name="galleryString" id="galleryString"
-                                           class="galleryString" th:value="${sezione.galleryString}">
+                                           class="galleryString" th:value="${section.galleryString}">
                                     <div class="popup-gallery" id="divgallery">
-                                        <div th:each="immagine : ${sezione.gallery}"
+                                        <div th:each="immagine : ${section.gallery}"
                                              th:attr="id=${immagine.id}" class="float-left mb-1 mr-1">
                                             <div class="img-fluid">
                                                 <img th:src="${config.imagesRepositoryWeb + immagine.fullpath}" width="200">
@@ -357,7 +336,6 @@
                             </div>
                         </div>
 
-                        <!-- ═══════════════════════════════════════════════════ TAB 05 — ALLEGATI -->
                         <div id="tab_05" class="tab-pane" role="tabpanel">
                             <div class="row form-group">
                                 <div class="col-lg-6">
@@ -373,12 +351,12 @@
                                         <i class="fas fa-images"></i> Media Library
                                     </button>
                                     <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
-                                            th:data-docid="${sezione.id}"
+                                            th:data-docid="${section.id}"
                                             onclick="var id=this.getAttribute('data-docid'); return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:600,height:500,src:'/admin/allegati/new?metodo=all&sorgente=galleryDiretto&idfolder=1&docid='+id})">
                                         <i class="fas fa-file-upload"></i> Carica allegato
                                     </button>
                                     <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
-                                            th:data-docid="${sezione.id}"
+                                            th:data-docid="${section.id}"
                                             onclick="var id=this.getAttribute('data-docid'); return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:480,height:360,src:'/filemanager/UploadScanner/upload?docid='+id+'&table=allegati&sorgente=galleryDiretto'})">
                                         <i class="fas fa-file-import"></i> Scansiona
                                     </button>
@@ -390,7 +368,7 @@
                                     <input type="hidden" name="ordineAllegati"     id="ordineAllegati">
                                     <div id="boxallegati">
                                         <ul id="sortableAllegato" class="list-unstyled">
-                                            <li th:each="allegato : ${sezione.allegati}"
+                                            <li th:each="allegato : ${section.allegati}"
                                                 th:if="${allegato.id != -1}"
                                                 th:attr="id=${allegato.iddocallegati}">
                                                 <div th:attr="id=${'boxallegato_' + allegato.iddocallegati}">
@@ -427,7 +405,6 @@
                             </div>
                         </div>
 
-                        <!-- ═══════════════════════════════════════════════════ TAB 06 — AUTORIZZAZIONI -->
                         <div id="tab_06" class="tab-pane" role="tabpanel">
                             <div class="row form-group">
                                 <div class="col-lg-6">
@@ -435,9 +412,9 @@
                                     <select name="privato" id="privato"
                                             onchange="AttivaAutorizzazioniUtente()" class="form-control obbligatorio">
                                         <option value="">----- Seleziona tipo accesso -----</option>
-                                        <option value="0" th:selected="${sezione.privato == '0'}">Sezione pubblica e visibile a tutti</option>
-                                        <option value="1" th:selected="${sezione.privato == '1'}">Sezione privata e visibile al gruppo autorizzato</option>
-                                        <option value="2" th:selected="${sezione.privato == '2'}">Autorizzazione personalizzata</option>
+                                        <option value="0" th:selected="${section.privato == '0'}">Sezione pubblica e visibile a tutti</option>
+                                        <option value="1" th:selected="${section.privato == '1'}">Sezione privata e visibile al gruppo autorizzato</option>
+                                        <option value="2" th:selected="${section.privato == '2'}">Autorizzazione personalizzata</option>
                                     </select>
                                 </div>
                             </div>
@@ -446,9 +423,9 @@
                                     <label class="col-form-label">Gruppi associati</label>
                                     <select name="idgruppi" id="idgruppi" multiple size="5" class="form-control">
                                         <option value="0">Standard</option>
-                                        <option th:each="gruppo : ${configCore.gruppi}"
+                                        <option th:each="gruppo : ${config.gruppi}"
                                                 th:value="${gruppo.id}" th:text="${gruppo.nome}"
-                                                th:selected="${sezione.idgruppi != null and #lists.contains(sezione.idgruppi, gruppo.id)}"></option>
+                                                th:selected="${section.idgruppi != null and #lists.contains(section.idgruppi, gruppo.id)}"></option>
                                     </select>
                                 </div>
                                 <div class="col-lg-6">
@@ -460,11 +437,11 @@
                                     <label class="col-form-label">Cerca utente da inserire nelle autorizzazioni</label>
                                     <input name="cognomePermessoPrivato" id="cognomePermessoPrivato" type="text" class="form-control">
                                     <input type="hidden" name="utentiAssociatiString" id="utentiAssociatiString"
-                                           th:value="${sezione.utentiAssociatiString}">
+                                           th:value="${section.utentiAssociatiString}">
                                 </div>
                                 <div class="col-lg-6">
                                     <div id="utenti" style="overflow:auto;height:100px;">
-                                        <div th:each="u : ${sezione.utentiAssociati}" th:attr="id=${u.id}">
+                                        <div th:each="u : ${section.utentiAssociati}" th:attr="id=${u.id}">
                                             <img th:src="@{/manager/assets/img/icons/trashcan_gray.png}"
                                                  width="15" style="cursor:pointer;"
                                                  th:data-id="${u.id}"
@@ -481,29 +458,29 @@
                                 <div class="col-lg-3">
                                     <label for="info2" class="col-form-label">Form contatti</label>
                                     <select name="info2" id="info2" class="form-control">
-                                        <option value="0" th:selected="${sezione.info2 == '0'}">Non visualizzare</option>
-                                        <option value="1" th:selected="${sezione.info2 == '1'}">Visualizza</option>
+                                        <option value="0" th:selected="${section.info2 == '0'}">Non visualizzare</option>
+                                        <option value="1" th:selected="${section.info2 == '1'}">Visualizza</option>
                                     </select>
                                 </div>
                                 <div class="col-lg-3">
                                     <label for="info1" class="col-form-label">Form commenti</label>
                                     <select name="info1" id="info1" class="form-control">
-                                        <option value="0" th:selected="${sezione.info1 == '0'}">Non visualizzare</option>
-                                        <option value="1" th:selected="${sezione.info1 == '1'}">Visualizza</option>
+                                        <option value="0" th:selected="${section.info1 == '0'}">Non visualizzare</option>
+                                        <option value="1" th:selected="${section.info1 == '1'}">Visualizza</option>
                                     </select>
                                 </div>
                                 <div class="col-lg-3">
                                     <label for="info3" class="col-form-label">Visualizza commenti</label>
                                     <select name="info3" id="info3" class="form-control">
-                                        <option value="0" th:selected="${sezione.info3 == '0'}">Non visualizzare</option>
-                                        <option value="1" th:selected="${sezione.info3 == '1'}">Visualizza</option>
+                                        <option value="0" th:selected="${section.info3 == '0'}">Non visualizzare</option>
+                                        <option value="1" th:selected="${section.info3 == '1'}">Visualizza</option>
                                     </select>
                                 </div>
                                 <div class="col-lg-3">
                                     <label for="info4" class="col-form-label">Filtro categoria su pagina elenco</label>
                                     <select name="info4" id="info4" class="form-control">
-                                        <option value="0" th:selected="${sezione.info4 == '0'}">Non filtrare</option>
-                                        <option value="1" th:selected="${sezione.info4 == '1'}">Filtra</option>
+                                        <option value="0" th:selected="${section.info4 == '0'}">Non filtrare</option>
+                                        <option value="1" th:selected="${section.info4 == '1'}">Filtra</option>
                                     </select>
                                 </div>
                             </div>
@@ -511,31 +488,59 @@
                                 <div class="col-lg-3">
                                     <label for="click" class="col-form-label">Numero di click</label>
                                     <input type="text" name="click" id="click"
-                                           class="form-control" th:value="${sezione.click}">
+                                           class="form-control" th:value="${section.click}">
                                 </div>
                             </div>
                         </div>
 
-                        <!-- ═══════════════════════════════════════════════════ TAB 07 — ALTRO -->
                         <div id="tab_07" class="tab-pane" role="tabpanel">
                             <div class="row form-group">
-                                <th:block th:each="i : ${#numbers.sequence(2, 10)}">
-                                    <div class="col-lg-3">
-                                        <label th:for="${'varchar' + i}" class="col-form-label"
-                                               th:text="${'Varchar' + i}"></label>
-                                        <input type="text" th:name="${'varchar' + i}" th:id="${'varchar' + i}"
-                                               class="form-control" th:value="${sezione['varchar' + i]}">
-                                    </div>
-                                </th:block>
+                                <div class="col-lg-3">
+                                    <label for="varchar2" class="col-form-label">Varchar2</label>
+                                    <input type="text" name="varchar2" id="varchar2" class="form-control" th:value="${section.varchar2}">
+                                </div>
+                                <div class="col-lg-3">
+                                    <label for="varchar3" class="col-form-label">Varchar3</label>
+                                    <input type="text" name="varchar3" id="varchar3" class="form-control" th:value="${section.varchar3}">
+                                </div>
+                                <div class="col-lg-3">
+                                    <label for="varchar4" class="col-form-label">Varchar4</label>
+                                    <input type="text" name="varchar4" id="varchar4" class="form-control" th:value="${section.varchar4}">
+                                </div>
+                                <div class="col-lg-3">
+                                    <label for="varchar5" class="col-form-label">Varchar5</label>
+                                    <input type="text" name="varchar5" id="varchar5" class="form-control" th:value="${section.varchar5}">
+                                </div>
+
+                                <div class="col-lg-3">
+                                    <label for="varchar6" class="col-form-label">Varchar6</label>
+                                    <input type="text" name="varchar6" id="varchar6" class="form-control" th:value="${section.varchar6}">
+                                </div>
+                                <div class="col-lg-3">
+                                    <label for="varchar7" class="col-form-label">Varchar7</label>
+                                    <input type="text" name="varchar7" id="varchar7" class="form-control" th:value="${section.varchar7}">
+                                </div>
+                                <div class="col-lg-3">
+                                    <label for="varchar8" class="col-form-label">Varchar8</label>
+                                    <input type="text" name="varchar8" id="varchar8" class="form-control" th:value="${section.varchar8}">
+                                </div>
+                                <div class="col-lg-3">
+                                    <label for="varchar9" class="col-form-label">Varchar9</label>
+                                    <input type="text" name="varchar9" id="varchar9" class="form-control" th:value="${section.varchar9}">
+                                </div>
+
+                                <div class="col-lg-3">
+                                    <label for="varchar10" class="col-form-label">Varchar10</label>
+                                    <input type="text" name="varchar10" id="varchar10" class="form-control" th:value="${section.varchar10}">
+                                </div>
                                 <div class="col-lg-6">
                                     <label for="info5" class="col-form-label">Sfondo Breadcrumb page (lasciare zero per default)</label>
                                     <input type="text" name="info5" id="info5"
-                                           class="form-control" th:value="${sezione.info5}">
+                                           class="form-control" th:value="${section.info5}">
                                 </div>
                             </div>
                         </div>
 
-                        <!-- ═══════════════════════════════════════════════════ TAB 08 — RELAZIONI -->
                         <div id="tab_08" class="tab-pane" role="tabpanel">
                             <fieldset class="border p-3 mb-4">
                                 <legend class="float-none w-auto px-2">Relazioni dirette</legend>
@@ -543,17 +548,18 @@
                                     <div class="col-lg-6">
                                         <label for="l15" class="col-form-label">ID sezioni associate 1</label>
                                         <input type="text" name="l15" id="l15" class="form-control"
-                                               th:value="${sezione.l15}" onblur="ControlloCampoTag(this);">
+                                               th:value="${section.l15}" onblur="ControlloCampoTag(this);">
                                         <small class="form-text text-muted">ID sezioni da associare separate da virgola</small>
                                     </div>
                                     <div class="col-lg-6">
                                         <label for="l11" class="col-form-label">ID sezioni associate 2</label>
                                         <input type="text" name="l11" id="l11" class="form-control"
-                                               th:value="${sezione.l11}" onblur="ControlloCampoTag(this);">
+                                               th:value="${section.l11}" onblur="ControlloCampoTag(this);">
                                         <small class="form-text text-muted">ID sezioni da associare separate da virgola</small>
                                     </div>
                                 </div>
                             </fieldset>
+
                             <fieldset class="border p-3 mb-4">
                                 <legend class="float-none w-auto px-2">Gestione ExtraTAG</legend>
                                 <div class="row mb-3">
@@ -561,8 +567,8 @@
                                         <label for="regolaExtraTag1" class="col-form-label">Attivazione</label>
                                         <select name="regolaExtraTag1" id="regolaExtraTag1"
                                                 class="form-select" onchange="AttivaExtraTag()">
-                                            <option value="0" th:selected="${sezione.regolaExtraTag1 == '0'}">Disattivato</option>
-                                            <option value="1" th:selected="${sezione.regolaExtraTag1 == '1'}">Attivato</option>
+                                            <option value="0" th:selected="${section.regolaExtraTag1 == '0'}">Disattivato</option>
+                                            <option value="1" th:selected="${section.regolaExtraTag1 == '1'}">Attivato</option>
                                         </select>
                                         <small class="form-text text-muted">Attiva o disattiva dispositivo ExtraTAG</small>
                                     </div>
@@ -571,18 +577,18 @@
                                     <div class="col-lg-3">
                                         <label for="maxExtraTag" class="col-form-label">Numero elementi</label>
                                         <input type="text" name="maxExtraTag" id="maxExtraTag"
-                                               class="form-control" th:value="${sezione.maxExtraTag}">
+                                               class="form-control" th:value="${section.maxExtraTag}">
                                         <small class="form-text text-muted">Numero massimo elementi visualizzati</small>
                                     </div>
                                     <div class="col-lg-3">
                                         <label for="ordineExtraTag" class="col-form-label">Ordine visualizzazione</label>
                                         <select name="ordineExtraTag" id="ordineExtraTag" class="form-select">
-                                            <option value="rand()"       th:selected="${sezione.ordineExtraTag == 'rand()'}">Casuale</option>
-                                            <option value="datasql-asc"  th:selected="${sezione.ordineExtraTag == 'datasql-asc'}">Crescente data</option>
-                                            <option value="datasql-desc" th:selected="${sezione.ordineExtraTag == 'datasql-desc'}">Decrescente data</option>
-                                            <option value="titolo-asc"   th:selected="${sezione.ordineExtraTag == 'titolo-asc'}">Crescente titolo</option>
-                                            <option value="titolo-desc"  th:selected="${sezione.ordineExtraTag == 'titolo-desc'}">Decrescente titolo</option>
-                                            <option value="position-asc" th:selected="${sezione.ordineExtraTag == 'position-asc'}">Crescente posizione</option>
+                                            <option value="rand()"       th:selected="${section.ordineExtraTag == 'rand()'}">Casuale</option>
+                                            <option value="datasql-asc"  th:selected="${section.ordineExtraTag == 'datasql-asc'}">Crescente data</option>
+                                            <option value="datasql-desc" th:selected="${section.ordineExtraTag == 'datasql-desc'}">Decrescente data</option>
+                                            <option value="titolo-asc"   th:selected="${section.ordineExtraTag == 'titolo-asc'}">Crescente titolo</option>
+                                            <option value="titolo-desc"  th:selected="${section.ordineExtraTag == 'titolo-desc'}">Decrescente titolo</option>
+                                            <option value="position-asc" th:selected="${section.ordineExtraTag == 'position-asc'}">Crescente posizione</option>
                                         </select>
                                     </div>
                                     <div class="col-lg-6 d-flex align-items-center" id="SpazioEreditaExtraTag">
@@ -593,10 +599,11 @@
                                     </div>
                                 </div>
                             </fieldset>
+
                             <fieldset id="ZonaExtraTag" class="border p-3">
                                 <legend class="w-auto px-2">Campi aggiuntivi</legend>
                                 <div class="row">
-                                    <th:block th:each="i : ${#numbers.sequence(1, 10)}">
+                                    <th:block th:each="i : ${#numbers.sequence(1,10)}">
                                         <div class="col-lg-6 mb-3">
                                             <label th:for="${'extraTagRef' + i}" class="col-form-label"
                                                    th:text="${'Sezione associata ' + i}"></label>
@@ -604,7 +611,7 @@
                                                 <option value="0">Nessuna relazione</option>
                                                 <option th:each="sez : ${elencoSezioniCompleto}"
                                                         th:value="${sez.id}" th:text="${sez.titolo}"
-                                                        th:selected="${sez.id == __${'sezione.extraTagRef' + i}__}"></option>
+                                                        th:selected="${sez.id != null and sez.id.toString() == section.getExtraTagRef(i)}"></option>
                                             </select>
                                         </div>
                                         <div class="col-lg-6 mb-3">
@@ -612,7 +619,7 @@
                                                    th:text="${'TAG ' + i}"></label>
                                             <textarea th:name="${'extraTag' + i}" th:id="${'extraTag' + i}"
                                                       class="form-control"
-                                                      th:text="${__${'sezione.extraTag' + i}__}"
+                                                      th:text="${section.getExtraTag(i)}"
                                                       onblur="ControlloCampoTag(this);"></textarea>
                                         </div>
                                     </th:block>
@@ -620,26 +627,25 @@
                             </fieldset>
                         </div>
 
-                    </div><!-- fine tab-content -->
-                </div><!-- fine tabs -->
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- HIDDEN FIELDS -->
-        <input type="hidden" name="anno"        th:value="${sezione.anno}">
-        <input type="hidden" name="mese"        th:value="${sezione.mese}">
-        <input type="hidden" name="id"          id="id"         th:value="${sezione.id}">
-        <input type="hidden" name="log1"        th:value="${sezione.log1}">
-        <input type="hidden" name="log2"        th:value="${sezione.log2}">
-        <input type="hidden" name="log3"        th:value="${sezione.log3}">
-        <input type="hidden" name="idparent"    id="idparent"   th:value="${sezione.idparent}">
-        <input type="hidden" name="temp1"       th:value="${sezione.statoText}">
-        <input type="hidden" name="id_root"     th:value="${sezione.idRoot}">
-        <input type="hidden" name="id_site"     th:value="${sezione.idSite}">
-        <input type="hidden" name="numeratore2" th:value="${sezione.numeratore2}">
-        <input type="hidden" name="numeratore3" th:value="${sezione.numeratore3}">
-        <input type="hidden" name="numeratore4" th:value="${sezione.numeratore4}">
-        <input type="hidden" name="numeratore5" th:value="${sezione.numeratore5}">
+        <input type="hidden" name="anno"        th:value="${section.anno}">
+        <input type="hidden" name="mese"        th:value="${section.mese}">
+        <input type="hidden" name="id"          id="id"         th:value="${section.id}">
+        <input type="hidden" name="log1"        th:value="${section.log1}">
+        <input type="hidden" name="log2"        th:value="${section.log2}">
+        <input type="hidden" name="log3"        th:value="${section.log3}">
+        <input type="hidden" name="idparent"    id="idparent"   th:value="${section.idParent}">
+        <input type="hidden" name="temp1"       th:value="${section.statoText}">
+        <input type="hidden" name="id_root"     th:value="${section.idRoot}">
+        <input type="hidden" name="id_site"     th:value="${section.idSite}">
+        <input type="hidden" name="numeratore2" th:value="${section.numeratore2}">
+        <input type="hidden" name="numeratore3" th:value="${section.numeratore3}">
+        <input type="hidden" name="numeratore4" th:value="${section.numeratore4}">
+        <input type="hidden" name="numeratore5" th:value="${section.numeratore5}">
 
     </form>
 

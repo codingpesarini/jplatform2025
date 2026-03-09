@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="content">
+
+  <form th:action="@{/admin/email/invia}"
+        method="post"
+        id="messaggioEmail"
+        class="form-horizontal form-bordered">
+
+    <section role="main" class="content-body">
+
+      <header class="page-header">
+        <h2>Componi messaggio</h2>
+        <div class="right-wrapper text-right">
+          <ol class="breadcrumbs">
+            <li>
+              <a href="javascript:void(0)">
+                <i class="fas fa-envelope-open-text"></i>
+              </a>
+            </li>
+            <li><span>Mailbox</span></li>
+            <li><span th:text="${config.actualMailbox?.emailUser}"></span></li>
+            <li><span></span></li>
+          </ol>
+        </div>
+      </header>
+
+      <section class="content-with-menu content-with-menu-has-toolbar mailbox">
+        <div class="content-with-menu-container" data-mailbox data-mailbox-view="compose">
+
+          <div class="inner-body">
+
+            <!-- toolbar azioni -->
+            <div class="inner-toolbar clearfix">
+              <ul>
+                <li>
+                  <a href="javascript:InviaForm()">
+                    <i class="far fa-paper-plane mr-2"></i> Invia
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:scroll_to('uploaderEmailAttach')">
+                    <i class="fas fa-paperclip mr-2"></i> Allegati
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:CloseComponiEmail()">
+                    <i class="fas fa-times mr-2"></i> Chiudi
+                  </a>
+                </li>
+                <!-- notifica invio avvenuto -->
+                <li th:if="${messaggioEmail.letto}">
+                  <a href="javascript:void(0)">
+                    <i class="fas fa-thumbs-up mr-2"></i> Messaggio inviato correttamente
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="mailbox-compose">
+
+              <!-- TO -->
+              <div class="form-group form-group-invisible to">
+                <label for="tags-inputTO" class="control-label-invisible">To:</label>
+                <div class="col-md-12 mailbox-compose-field">
+                  <input type="text"
+                         name="to"
+                         id="tags-inputTO"
+                         data-role="tagsinput"
+                         data-tag-class="badge badge-primary"
+                         class="form-control"
+                         th:value="${messaggioEmail.indirizzoMittente}">
+                </div>
+              </div>
+
+              <!-- CC -->
+              <div class="form-group form-group-invisible cc">
+                <label for="tags-inputCC" class="control-label-invisible">CC:</label>
+                <div class="col-md-12 mailbox-compose-field">
+                  <input type="text"
+                         name="cc"
+                         id="tags-inputCC"
+                         data-role="tagsinput"
+                         data-tag-class="badge badge-primary"
+                         class="form-control"
+                         th:value="${messaggioEmail.indirizzoCc}">
+                </div>
+              </div>
+
+              <!-- OGGETTO -->
+              <div class="form-group form-group-invisible">
+                <label for="oggetto" class="control-label-invisible">Oggetto:</label>
+                <div class="col-md-12 mailbox-compose-field">
+                  <input type="text"
+                         name="oggetto"
+                         id="oggetto"
+                         class="form-control form-control-invisible obbligatorio"
+                         th:value="${messaggioEmail.oggetto}"
+                         required>
+                </div>
+              </div>
+
+              <!-- TESTO -->
+              <div class="form-group">
+                <div class="compose">
+                  <textarea name="testo"
+                            id="compose-field"
+                            class="compose-control"
+                            th:text="${messaggioEmail.testo}"></textarea>
+                </div>
+              </div>
+
+              <!-- ALLEGATI -->
+              <div class="form-group">
+                <div class="row compose">
+
+                  <!-- lista allegati già inseriti -->
+                  <div class="col-md-9">
+                    <div id="boxallegati">
+                      <ul id="sortableAllegato" class="list-unstyled">
+                        <li th:each="allegato : ${messaggioEmail.allegati}"
+                            th:attr="id=${allegato.iddocallegati}">
+                          <div th:attr="id=${'boxallegato_' + allegato.id}">
+                            <img style="float:left;margin-right:10px;"
+                                 th:src="@{/manager/assets/img/icons/trashcan.png}"
+                                 alt="Cancella allegato" title="Cancella allegato"
+                                 th:data-id="${allegato.id}"
+                                 onclick="CancellaAllegatoInseritoEmail(this.getAttribute('data-id'))">
+                            <a target="_blank"
+                               th:href="@{/admin/email/allegato-sessione(id=${allegato.id})}">
+                              <img th:src="@{'/manager/assets/img/filetypes/32/' + ${allegato.type} + '.png'}"
+                                   alt="" width="32" height="32" style="vertical-align:middle">
+                              <span th:text="${allegato.nome}">file.pdf</span>
+                            </a>
+                          </div>
+                        </li>
+                        <li th:if="${#lists.isEmpty(messaggioEmail.allegati)}"
+                            class="text-muted small">Nessun allegato.</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <!-- uploader allegati -->
+                  <div class="col-md-3">
+                    <div id="uploaderEmailAttach">
+                      <input type="file" name="file_upload" id="upload" class="form-control">
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+            </div><!-- fine mailbox-compose -->
+          </div><!-- fine inner-body -->
+        </div>
+      </section>
+
+    </section>
+  </form>
+
+  <!-- notifica PNotify se email inviata -->
+  <th:block th:if="${messaggioEmail.letto}">
+    <script>
+      $(document).ready(function () {
+        new PNotify({
+          title: 'Notifica invio messaggio',
+          text: 'Il messaggio email è stato inviato correttamente!',
+          type: 'success',
+          width: "100%"
+        });
+      });
+    </script>
+  </th:block>
+
+  <script>
+    function InviaForm() {
+      var form = $("#messaggioEmail");
+      var TO = document.getElementById("tags-inputTO").value;
+      if (TO === "") {
+        new PNotify({
+          title: 'Attenzione!',
+          text: 'Deve essere specificato almeno un destinatario!',
+          type: 'error'
+        });
+        return false;
+      }
+      if (form[0].checkValidity() === false) {
+        new PNotify({
+          title: 'Attenzione!',
+          text: 'Il campo oggetto è obbligatorio!',
+          type: 'error'
+        });
+      } else {
+        form.addClass('was-validated');
+        form[0].submit();
+      }
+      form.addClass('was-validated');
+    }
+
+    parent.hs.Expander.prototype.onBeforeClose = function () {
+      AjaxCall("/admin/email/cancella-sessione");
+    };
+  </script>
+
+</th:block>
+</body>
+</html>
