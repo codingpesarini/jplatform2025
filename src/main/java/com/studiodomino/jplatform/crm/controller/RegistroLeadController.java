@@ -78,6 +78,7 @@ public class RegistroLeadController {
         return ViewUtils.resolveProtectedTemplate("crm/sezioni/elencoRegistroLead");
     }
 
+
     // =====================================================================
     // OPEN (entrata)
     // Vecchio: openRegistroLead() → forward "successopenRegistroLead"

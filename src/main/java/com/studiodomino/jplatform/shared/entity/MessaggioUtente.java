@@ -201,6 +201,13 @@ public class MessaggioUtente implements Serializable {
     private UtenteEsterno utente;
 
     /**
+     * Allegati associati al messaggio/email
+     */
+    @Transient
+    @Builder.Default
+    private List<AllegatoEmail> allegati = new ArrayList<>();
+
+    /**
      * Lista risposte a questo messaggio (thread)
      */
     @Transient

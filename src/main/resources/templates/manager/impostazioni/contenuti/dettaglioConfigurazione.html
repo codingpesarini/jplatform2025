@@ -12,34 +12,44 @@
     <input type="hidden" th:field="${sito.id}"/>
     <div class="msg_box msg_error" id="form_a_errors" style="display:none"></div>
 
-    <header class="page-header">
-      <h2>Dettaglio Configurazione <small th:if="${sito.id != null}" th:text="'ID: ' + ${sito.id}"></small></h2>
-      <div class="right-wrapper text-right">
+    <header class="page-header mb-2">
+      <div class="title-container mb-3">
+        <h2 style="border-left: 5px solid #0088cc; padding-left: 15px;">
+          Dettaglio Configurazione
+          <small th:if="${sito.id != null}" th:text="'ID: ' + ${sito.id}" style="font-size: 0.6em; vertical-align: middle; opacity: 0.8;"></small>
+        </h2>
+      </div>
+
+      <div class="right-wrapper text-right" style="margin-left: auto; margin-right: 10%;">
         <a th:href="@{/admin/impostazioni/configurazioni/new}"
-           class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
-          <i class="fas fa-file-medical"></i> Nuova
+           class="mb-1 mt-1 mr-1 btn btn-sm btn-success">
+          <i class="fas fa-plus-circle"></i> Nuova
         </a>
+
         <a th:if="${sito.id != null}"
            th:href="@{/admin/impostazioni/configurazioni/{id}/duplica(id=${sito.id})}"
-           class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+           class="mb-1 mt-1 mr-1 btn btn-sm btn-info">
           <i class="fas fa-clone"></i> Duplica
         </a>
+
         <a href="javascript:void(0);" onclick="InviaForm('sito');"
-           class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
-          <i class="fas fa-file-upload"></i> Salva
+           class="mb-1 mt-1 mr-1 btn btn-sm btn-primary">
+          <i class="fas fa-save"></i> Salva
         </a>
+
         <a th:href="@{/admin/impostazioni/configurazioni}"
-           class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+           class="mb-1 mt-1 mr-1 btn btn-sm btn-danger">
           <i class="fas fa-times-circle"></i> Esci
         </a>
       </div>
     </header>
 
-    <div class="row">
+    <div class="row" style="margin-top: -25px">
       <div class="col-lg-12">
-        <div class="tabs" id="mytabs">
+        <div class="card shadow-sm border-0" style="border-radius: 15px; background: #fff; padding: 20px;">
 
-          <ul class="nav nav-tabs">
+          <div class="tabs" id="mytabs">
+            <ul class="nav nav-tabs border-0" role="tablist">
             <li class="nav-item"><a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Info</a></li>
             <li class="nav-item"><a class="nav-link" href="#tab_02" data-bs-toggle="tab">Email</a></li>
             <li class="nav-item"><a class="nav-link" href="#tab_03" data-bs-toggle="tab">Documenti</a></li>
@@ -48,7 +58,8 @@
             <li class="nav-item"><a class="nav-link" href="#tab_06" data-bs-toggle="tab">Proxy</a></li>
             <li class="nav-item"><a class="nav-link" href="#tab_07" data-bs-toggle="tab">Altro</a></li>
             <li class="nav-item"><a class="nav-link" href="#tab_08" data-bs-toggle="tab">PEC</a></li>
-          </ul>
+            </ul>
+          </div>
 
           <div class="tab-content">
 

@@ -348,21 +348,26 @@ public class ContenutoController {
     // =====================================================================
     // DELETE MULTIPLO (AJAX)
     // =====================================================================
+
     @PostMapping("/deleteMultiplo")
     @ResponseBody
     public ResponseEntity<String> deleteMultiplo(
-            @RequestParam("delContenutiID") List<Integer> ids,
+            @RequestParam(value = "delContID", required = false) List<Integer> ids,
+            @RequestParam(value = "delContID[]", required = false) List<Integer> ids2,
             HttpServletRequest request) {
 
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return ResponseEntity.status(401).body("KO");
 
+        List<Integer> lista = (ids != null && !ids.isEmpty()) ? ids : ids2;
+        if (lista == null || lista.isEmpty()) return ResponseEntity.badRequest().body("KO");
+
         try {
-            for (Integer id : ids) {
+            for (Integer id : lista) {
                 contentService.deleteContent(id);
             }
-            log.info("Eliminati {} contenuti", ids.size());
+            log.info("Eliminati {} contenuti", lista.size());
             return ResponseEntity.ok("OK");
 
         } catch (Exception e) {
@@ -389,15 +394,22 @@ public class ContenutoController {
                     .orElseThrow(() -> new RuntimeException("Contenuto non trovato"));
 
             DatiBase copia = new DatiBase();
-            copia.setId(null);  // FIX: NULL = INSERT, non "-1" !
+            copia.setId(null);
             copia.setIdSite(idSite);
             copia.setIdRoot(original.getIdRoot());
+            copia.setIdParent(original.getIdParent());
             copia.setIdType(original.getIdType());
             copia.setTitolo(original.getTitolo() + " (copia)");
             copia.setRiassunto(original.getRiassunto());
             copia.setTesto(original.getTesto());
             copia.setStato("0");
+            copia.setData(original.getData());
+            copia.setDataVisualizzata(original.getDataVisualizzata());
+            copia.setAnno(original.getAnno());
+            copia.setMese(original.getMese());
+            copia.setTag(original.getTag());
             copia.setDataSql(LocalDate.now());
+            copia.setGalleryString("");
 
             String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm"));
             copia.setCreato(now);
@@ -410,7 +422,15 @@ public class ContenutoController {
 
         } catch (Exception e) {
             log.error("Errore duplicate contenuto id={}", id, e);
-            return "redirect:/admin/contenuti";
+            // FIX: redirect alla sezione padre, non a /admin/contenuti che non esiste
+            String idSite2 = String.valueOf(config.getIdSito());
+            try {
+                DatiBase original = contentService.findContentById(id, idSite2).orElse(null);
+                if (original != null && original.getIdRoot() != null) {
+                    return "redirect:/admin/sezioni/" + original.getIdRoot() + "/preview";
+                }
+            } catch (Exception ignored) {}
+            return "redirect:/admin/sezioni";
         }
     }
 

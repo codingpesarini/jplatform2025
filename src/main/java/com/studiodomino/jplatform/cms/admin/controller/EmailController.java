@@ -30,19 +30,18 @@ public class EmailController {
     // ELENCO INBOX
     // ─────────────────────────────────────────────────────────────
 
-    @GetMapping
+    @GetMapping({"", "/inbox", "/inbox/{idAccount}"})
     public String inbox(
-            @RequestParam(value = "idAccount", required = false) String idAccount,
-            @RequestParam(value = "folder",    defaultValue = "INBOX") String folder,
-            HttpServletRequest request, Model model) {
+            @PathVariable(value = "idAccount", required = false) String idAccount,
+            @RequestParam(value = "folder", defaultValue = "INBOX") String folder,
+            HttpServletRequest request,
+            Model model) {
 
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
         try {
-            // TODO: sostituire con EmailService.getInbox(account, folder)
-            // List<MessaggioUtente> lista = emailService.getInbox(account, folder);
             model.addAttribute("listaEmailArrivo", Collections.emptyList());
             model.addAttribute("erroreMailer", null);
         } catch (Exception e) {
@@ -59,38 +58,36 @@ public class EmailController {
     // DETTAGLIO MESSAGGIO
     // ─────────────────────────────────────────────────────────────
 
-    @GetMapping("/open")
+    @GetMapping({"/open/{id}", "/open/{id}/{idAccount}"})
     public String openEmail(
-            @RequestParam("id") int id,
-            @RequestParam(value = "idAccount",     required = false) String idAccount,
-            @RequestParam(value = "rispondi",      required = false) String rispondi,
+            @PathVariable("id") int id,
+            @PathVariable(value = "idAccount", required = false) String idAccount,
+            @RequestParam(value = "rispondi", required = false) String rispondi,
             @RequestParam(value = "rispondiTutti", required = false) String rispondiTutti,
-            @RequestParam(value = "inoltra",       required = false) String inoltra,
-            HttpServletRequest request, Model model) {
+            @RequestParam(value = "inoltra", required = false) String inoltra,
+            HttpServletRequest request,
+            Model model) {
 
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
         try {
-            // TODO: MessaggioUtente messaggio = emailService.open(id, idAccount, config);
             MessaggioUtente messaggio = new MessaggioUtente();
 
-            // Gestione azioni risposta/inoltro
             if (rispondi != null) {
-                // TODO: emailService.preparaRisposta(messaggio, config)
                 model.addAttribute("messaggioEmail", messaggio);
                 model.addAttribute("config", config);
                 return ViewUtils.resolveProtectedTemplate("email/componiEmail");
             }
+
             if (rispondiTutti != null) {
-                // TODO: emailService.preparaRispostaTutti(messaggio, config)
                 model.addAttribute("messaggioEmail", messaggio);
                 model.addAttribute("config", config);
                 return ViewUtils.resolveProtectedTemplate("email/componiEmail");
             }
+
             if (inoltra != null) {
-                // TODO: emailService.preparaInoltro(messaggio)
                 model.addAttribute("messaggioEmail", messaggio);
                 model.addAttribute("config", config);
                 return ViewUtils.resolveProtectedTemplate("email/componiEmail");
@@ -111,17 +108,17 @@ public class EmailController {
     // COMPOSIZIONE
     // ─────────────────────────────────────────────────────────────
 
-    @GetMapping("/componi")
+    @GetMapping({"/componi", "/componi/{idAccount}"})
     public String componiEmail(
-            @RequestParam(value = "idAccount", required = false) String idAccount,
-            HttpServletRequest request, Model model) {
+            @PathVariable(value = "idAccount", required = false) String idAccount,
+            HttpServletRequest request,
+            Model model) {
 
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
         try {
-            // TODO: MessaggioUtente messaggio = emailService.nuovoMessaggio(config);
             MessaggioUtente messaggio = new MessaggioUtente();
             model.addAttribute("messaggioEmail", messaggio);
         } catch (Exception e) {
@@ -135,18 +132,18 @@ public class EmailController {
 
     @PostMapping("/invia")
     public String inviaEmail(
-            @RequestParam("to")                           String to,
-            @RequestParam(value = "cc",    required = false) String cc,
-            @RequestParam("oggetto")                      String oggetto,
-            @RequestParam("testo")                        String testo,
-            HttpServletRequest request, Model model) {
+            @RequestParam("to") String to,
+            @RequestParam(value = "cc", required = false) String cc,
+            @RequestParam("oggetto") String oggetto,
+            @RequestParam("testo") String testo,
+            HttpServletRequest request,
+            Model model) {
 
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
         try {
-            // TODO: emailService.invia(to, cc, oggetto, testo, config.getActualMailbox())
             log.info("Invio email a={} cc={} oggetto={}", to, cc, oggetto);
             model.addAttribute("esito", "ok");
         } catch (Exception e) {
@@ -163,10 +160,10 @@ public class EmailController {
     // ELIMINA
     // ─────────────────────────────────────────────────────────────
 
-    @PostMapping("/elimina")
+    @PostMapping({"/elimina/{idAccount}", "/elimina"})
     public String eliminaEmail(
-            @RequestParam("id")                              String ids,
-            @RequestParam(value = "idAccount", required = false) String idAccount,
+            @RequestParam("id") String ids,
+            @PathVariable(value = "idAccount", required = false) String idAccount,
             HttpServletRequest request) {
 
         HttpSession session = request.getSession();
@@ -174,20 +171,22 @@ public class EmailController {
         if (!config.isLogged()) return "redirect:/login";
 
         try {
-            // TODO: emailService.elimina(ids, idAccount, config)
             log.info("Eliminazione email ids={} account={}", ids, idAccount);
         } catch (Exception e) {
             log.error("Errore eliminazione email ids={}", ids, e);
         }
 
-        return "redirect:/admin/email?idAccount=" + (idAccount != null ? idAccount : "");
+        if (idAccount != null && !idAccount.isBlank()) {
+            return "redirect:/admin/email/inbox/" + idAccount;
+        }
+        return "redirect:/admin/email/inbox";
     }
 
-    @PostMapping("/eliminaMultiplo")
+    @PostMapping({"/eliminaMultiplo/{idAccount}", "/eliminaMultiplo"})
     @ResponseBody
     public ResponseEntity<String> eliminaMultiplo(
-            @RequestParam("ids")                             List<String> ids,
-            @RequestParam(value = "idAccount", required = false) String idAccount,
+            @RequestParam("ids") List<String> ids,
+            @PathVariable(value = "idAccount", required = false) String idAccount,
             HttpServletRequest request) {
 
         HttpSession session = request.getSession();
@@ -197,7 +196,6 @@ public class EmailController {
         }
 
         try {
-            // TODO: emailService.eliminaMultiplo(ids, idAccount, config)
             log.info("Eliminazione multipla email ids={} account={}", ids, idAccount);
             return ResponseEntity.ok("Cancellazione completata");
         } catch (Exception e) {
@@ -210,24 +208,22 @@ public class EmailController {
     // DOWNLOAD ALLEGATO
     // ─────────────────────────────────────────────────────────────
 
-    @GetMapping("/allegato")
+    @GetMapping({"/allegato/{id}/{filename}", "/allegato/{id}/{filename}/{idAccount}"})
     public void getAllegato(
-            @RequestParam("id")       int id,
-            @RequestParam("filename") int allegatoIndex,
-            @RequestParam(value = "idAccount", required = false) String idAccount,
+            @PathVariable("id") int id,
+            @PathVariable("filename") int allegatoIndex,
+            @PathVariable(value = "idAccount", required = false) String idAccount,
             HttpServletRequest request,
             HttpServletResponse response) throws IOException {
 
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
-        if (!config.isLogged()) { response.sendError(403); return; }
+        if (!config.isLogged()) {
+            response.sendError(403);
+            return;
+        }
 
         try {
-            // TODO: InputStream in = emailService.getAllegato(id, allegatoIndex, idAccount, config);
-            // response.setContentType("application/octet-stream");
-            // response.setHeader("Content-Disposition", "attachment; filename=\"" + nome + "\"");
-            // IOUtils.copy(in, response.getOutputStream());
-            // response.getOutputStream().flush();
             log.info("Download allegato emailId={} index={} account={}", id, allegatoIndex, idAccount);
             response.sendError(501, "Non ancora implementato");
         } catch (Exception e) {

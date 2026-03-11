@@ -6,42 +6,44 @@
 <body>
 <div layout:fragment="content">
 
-    <form th:action="@{/admin/anagraafica/save}"
+    <form th:action="@{/admin/anagrafica/save}"
           method="post"
-          enctype="multipart/form-data"
           id="amministratoriUtente"
           class="form-bordered">
 
         <div class="msg_box msg_error" id="form_a_errors" style="display:none"></div>
 
         <header class="page-header mb-2">
-            <h2>Dettaglio amministratori</h2>
-            <div class="right-wrapper text-right">
+            <div class="title-container mb-3">
+                <h2 style="border-left: 5px solid #0088cc; padding-left: 15px;">Dettaglio amministratori</h2></div>
+                <div class="right-wrapper text-right" style="margin-left: auto; margin-right: 10%;">
+
                 <a th:href="@{/admin/amministratori/new}"
-                   onclick="return ConfermaOperazione(this.href,'creare una nuova amministratori')"
-                   class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
-                    <i class="fas fa-file-medical"></i> Nuova
+                   class="mb-1 mt-1 mr-1 btn btn-sm btn-success">
+                    <i class="fas fa-plus-circle"></i> Nuova
                 </a>
-                <a th:if="${amministratoriUtente != null and amministratoriUtente.id != null}"
-                   th:href="@{|/admin/amministratori/${amministratoriUtente.id}/duplica|}"
-                   onclick="return ConfermaOperazione(this,'duplicare questa amministratori')"
-                   class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
-                    <i class="fas fa-clone"></i> Duplica
-                </a>
+
+                    <a th:if="${amministratoriUtente != null and amministratoriUtente.id != null}"
+                       th:href="@{|/admin/amministratori/${amministratoriUtente.id}/duplica|}"
+                       onclick="return ConfermaOperazione(this.href, 'duplicare questa amministratori')"
+                       class="mb-1 mt-1 mr-1 btn btn-sm btn-info">
+                        <i class="fas fa-clone"></i> Duplica
+                    </a>
+
                 <button type="button" onclick="InviaForm();"
-                        class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
-                    <i class="fas fa-file-upload"></i> Salva
+                        class="mb-1 mt-1 mr-1 btn btn-sm btn-primary">
+                    <i class="fas fa-save"></i> Salva
                 </button>
                 <a th:href="@{/admin/amministratori}" onclick="CloseHsReloadBase();"
-                   class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+                   class="mb-1 mt-1 mr-1 btn btn-sm btn-danger">
                     <i class="fas fa-times-circle"></i> Esci
                 </a>
             </div>
         </header>
 
-        <div class="row">
+        <div class="row" style="margin-top: -25px">
             <div class="col-lg-12">
-                <div class="tabs" id="mytabs">
+                <div class="card shadow-sm border-0" style="border-radius: 15px; background: #fff; padding: 20px;">
 
                     <ul class="nav nav-tabs" role="tablist">
                         <li class="nav-item storeTab" role="presentation">
@@ -555,68 +557,69 @@
     </form>
 
     <script th:inline="javascript">
-        // Nasconde il pannello cambio password all'avvio
-        $('#nuovaPasswordAccesso').hide();
-
         function InviaForm() {
+            var form = $('#amministratoriUtente');
             var errore = '';
 
-            // Validazione password nuova (campo visibile, utente nuovo)
-            if (!$('#nuovaPasswordAccesso').is(':visible') && $('#password').is(':visible')) {
-                var p = document.getElementById('password');
-                var decimal = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!\s).{8,15}$/;
-                p.addEventListener('change', function () {
-                    if (!p.value.match(decimal)) {
-                        p.setCustomValidity('La password non corrisponde ai criteri indicati');
-                    } else {
-                        p.setCustomValidity('');
-                    }
-                }, false);
+            // reset messaggi
+            $('#nuovaPasswordAccessoError').empty();
+
+            // caso 1: utente nuovo -> password iniziale
+            if ($('#passwordNew').length && $('#passwordNew').is(':visible')) {
+                var p = document.getElementById('passwordNew');
+                var regexPwd = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!\s).{8,15}$/;
+
+                if (p.value && !regexPwd.test(p.value)) {
+                    errore = 'La password non corrisponde ai criteri indicati';
+                    p.setCustomValidity(errore);
+                } else {
+                    p.setCustomValidity('');
+                }
             }
 
-            // Validazione cambio password (pannello aperto)
+            // caso 2: cambio password
             if ($('#nuovaPasswordAccesso').is(':visible')) {
                 var p1 = document.getElementById('newpassword');
                 var p2 = document.getElementById('newpasswordretype');
+                var regexPwd2 = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!\s).{8,15}$/;
+
                 $('#newpassword').prop('required', true);
                 $('#newpasswordretype').prop('required', true);
-                var decimal = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!\s).{8,15}$/;
-                var check = function () {
-                    $('#nuovaPasswordAccessoError').empty();
-                    if (!p1.value.match(decimal)) {
-                        errore = 'La password non corrisponde ai criteri indicati';
-                        p1.setCustomValidity(errore);
-                        $('#nuovaPasswordAccessoError').append(errore);
-                    } else if (p1.value !== p2.value) {
-                        errore = 'Le password devono essere uguali';
-                        p1.setCustomValidity(errore);
-                        p2.setCustomValidity(errore);
-                        $('#nuovaPasswordAccessoError').append(errore);
-                    } else {
-                        p1.setCustomValidity('');
-                        p2.setCustomValidity('');
-                    }
-                };
-                p1.addEventListener('change', check, false);
-                p2.addEventListener('change', check, false);
+
+                if (p1.value && !regexPwd2.test(p1.value)) {
+                    errore = 'La password non corrisponde ai criteri indicati';
+                    p1.setCustomValidity(errore);
+                    p2.setCustomValidity('');
+                    $('#nuovaPasswordAccessoError').text(errore);
+                } else if (p1.value !== p2.value) {
+                    errore = 'Le password devono essere uguali';
+                    p1.setCustomValidity(errore);
+                    p2.setCustomValidity(errore);
+                    $('#nuovaPasswordAccessoError').text(errore);
+                } else {
+                    p1.setCustomValidity('');
+                    p2.setCustomValidity('');
+                }
             } else {
-                $('#newpassword').removeAttr('required');
-                $('#newpasswordretype').removeAttr('required');
+                $('#newpassword').prop('required', false);
+                $('#newpasswordretype').prop('required', false);
+                $('#newpassword')[0]?.setCustomValidity('');
+                $('#newpasswordretype')[0]?.setCustomValidity('');
             }
 
-            var form = $('#amministratoriUtente');
             if (form[0].checkValidity() === false) {
                 new PNotify({
                     title: 'Attenzione!',
                     text: 'Alcuni campi obbligatori del modulo richiedono un tuo intervento!',
                     type: 'error'
                 });
-                form.find(':submit').click();
-            } else {
+
                 form.addClass('was-validated');
-                document.amministratoriUtente.submit();
+                return false;
             }
+
             form.addClass('was-validated');
+            form[0].submit();
         }
     </script>
 

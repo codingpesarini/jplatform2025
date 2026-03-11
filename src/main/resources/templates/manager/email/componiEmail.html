@@ -1,7 +1,10 @@
 <!doctype html>
-<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{manager/layout/template}">
 <body>
-<th:block th:fragment="content">
+
+<div layout:fragment="content">
 
   <form th:action="@{/admin/email/invia}"
         method="post"
@@ -20,7 +23,7 @@
               </a>
             </li>
             <li><span>Mailbox</span></li>
-            <li><span th:text="${config.actualMailbox?.emailUser}"></span></li>
+            <li><span th:text="${config.amministratore.email}"></span></li>
             <li><span></span></li>
           </ol>
         </div>
@@ -31,7 +34,6 @@
 
           <div class="inner-body">
 
-            <!-- toolbar azioni -->
             <div class="inner-toolbar clearfix">
               <ul>
                 <li>
@@ -49,8 +51,7 @@
                     <i class="fas fa-times mr-2"></i> Chiudi
                   </a>
                 </li>
-                <!-- notifica invio avvenuto -->
-                <li th:if="${messaggioEmail.letto}">
+                <li th:if="${messaggioEmail.lettoDaDestinatario}">
                   <a href="javascript:void(0)">
                     <i class="fas fa-thumbs-up mr-2"></i> Messaggio inviato correttamente
                   </a>
@@ -60,7 +61,6 @@
 
             <div class="mailbox-compose">
 
-              <!-- TO -->
               <div class="form-group form-group-invisible to">
                 <label for="tags-inputTO" class="control-label-invisible">To:</label>
                 <div class="col-md-12 mailbox-compose-field">
@@ -70,11 +70,10 @@
                          data-role="tagsinput"
                          data-tag-class="badge badge-primary"
                          class="form-control"
-                         th:value="${messaggioEmail.indirizzoMittente}">
+                         th:value="${messaggioEmail.emailMittente}">
                 </div>
               </div>
 
-              <!-- CC -->
               <div class="form-group form-group-invisible cc">
                 <label for="tags-inputCC" class="control-label-invisible">CC:</label>
                 <div class="col-md-12 mailbox-compose-field">
@@ -83,39 +82,22 @@
                          id="tags-inputCC"
                          data-role="tagsinput"
                          data-tag-class="badge badge-primary"
-                         class="form-control"
-                         th:value="${messaggioEmail.indirizzoCc}">
+                         class="form-control">
                 </div>
               </div>
 
-              <!-- OGGETTO -->
-              <div class="form-group form-group-invisible">
-                <label for="oggetto" class="control-label-invisible">Oggetto:</label>
-                <div class="col-md-12 mailbox-compose-field">
-                  <input type="text"
-                         name="oggetto"
-                         id="oggetto"
-                         class="form-control form-control-invisible obbligatorio"
-                         th:value="${messaggioEmail.oggetto}"
-                         required>
-                </div>
-              </div>
-
-              <!-- TESTO -->
               <div class="form-group">
                 <div class="compose">
                   <textarea name="testo"
                             id="compose-field"
                             class="compose-control"
-                            th:text="${messaggioEmail.testo}"></textarea>
+                            th:text="${messaggioEmail.messaggio}"></textarea>
                 </div>
               </div>
 
-              <!-- ALLEGATI -->
               <div class="form-group">
                 <div class="row compose">
 
-                  <!-- lista allegati già inseriti -->
                   <div class="col-md-9">
                     <div id="boxallegati">
                       <ul id="sortableAllegato" class="list-unstyled">
@@ -141,7 +123,6 @@
                     </div>
                   </div>
 
-                  <!-- uploader allegati -->
                   <div class="col-md-3">
                     <div id="uploaderEmailAttach">
                       <input type="file" name="file_upload" id="upload" class="form-control">
@@ -151,16 +132,15 @@
                 </div>
               </div>
 
-            </div><!-- fine mailbox-compose -->
-          </div><!-- fine inner-body -->
+            </div>
+          </div>
         </div>
       </section>
 
     </section>
   </form>
 
-  <!-- notifica PNotify se email inviata -->
-  <th:block th:if="${messaggioEmail.letto}">
+  <th:block th:if="${messaggioEmail.lettoDaDestinatario}">
     <script>
       $(document).ready(function () {
         new PNotify({
@@ -203,6 +183,6 @@
     };
   </script>
 
-</th:block>
+</div>
 </body>
 </html>

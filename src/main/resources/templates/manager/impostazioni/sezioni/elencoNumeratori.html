@@ -9,30 +9,33 @@
 
   <div class="row">
     <div class="col-md-3">
-      <section class="card card-info">
-        <header class="card-header">
+      <section class="card card-info" style="border-radius: 15px; overflow: hidden; border: none;">
+        <header class="card-header" style="background-color: #3EC9D6; border-bottom: none; padding: 15px 20px;">
           <div class="card-actions">
-            <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+            <a href="#" class="card-action card-action-toggle" data-card-toggle="" style="color: #fff;"></a>
           </div>
-          <h2 class="card-title">Gestione Numeratori</h2>
-          <p class="card-subtitle">Informazioni e parametri</p>
+          <h2 class="card-title" style="color: #fff; font-weight: bold;">Gestione Numeratori</h2>
+          <p class="card-subtitle" style="color: rgba(255, 255, 255, 0.9);">Informazioni e parametri</p>
         </header>
-        <div class="card-body">
+        <div class="card-body" style="background: #fff; padding: 20px;">
           <p>
-            Lorem Ipsum è un testo segnaposto utilizzato nel settore della tipografia e della stampa. Lorem Ipsum è considerato il testo segnaposto standard sin dal sedicesimo secolo, quando un anonimo tipografo prese una cassetta di caratteri e li assemblò per preparare un testo campione. È sopravvissuto non solo a più di cinque secoli, ma anche al passaggio alla videoimpaginazione, pervenendoci sostanzialmente inalterato. Fu reso popolare, negli anni ’60, con la diffusione dei fogli di caratteri trasferibili “Letraset”, che contenevano passaggi del Lorem Ipsum, e più recentemente da software di impaginazione come Aldus PageMaker, che includeva versioni del Lorem Ipsum.
+            In questa sezione è possibile gestire i numeratori utilizzati dal sistema
+            per generare automaticamente i numeri progressivi dei documenti.
+            Per ogni numeratore è possibile visualizzare l’anno di gestione
+            e l’ultimo numero assegnato.
           </p>
         </div>
       </section>
     </div>
 
     <div class="col-md-9">
-      <section class="card card-info">
-        <header class="card-header">
+      <section class="card card-info" style="border-radius: 15px; overflow: hidden; border: none;">
+        <header class="card-header" style="background-color: #3EC9D6; border-bottom: none; padding: 15px 20px;">
           <div class="card-actions">
-            <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
+            <a href="#" class="card-action card-action-toggle" data-card-toggle style="color: #fff;"></a>
           </div>
-          <h2 class="card-title">Elenco</h2>
-          <p class="card-subtitle">I dati possono essere creati modificati e cancellati.</p>
+          <h2 class="card-title" style="color: #fff; font-weight: bold;">Elenco</h2>
+          <p class="card-subtitle" style="color: rgba(255, 255, 255, 0.9);">I dati possono essere creati, modificati e cancellati.</p>
         </header>
 
         <div class="card-body">
@@ -42,7 +45,7 @@
               <i class="fas fa-file-medical"></i> Crea nuovo
             </a>
 
-            <a href="javascript:void(0);" class="btn btn-primary" onclick="CancellaNumeratoreMultiplaAjax()">
+            <a href="javascript:void(0);" class="btn btn-info" onclick="CancellaNumeratoreMultiplaAjax()">
               <i class="fas fa-trash-alt"></i> Cancella selezionati
             </a>
           </div>

@@ -14,30 +14,36 @@
 
     <div class="msg_box msg_error" id="form_a_errors" style="display:none"></div>
 
-    <header class="page-header">
-      <h2>Dettaglio Account</h2>
-      <div class="right-wrapper text-right">
+    <header class="page-header mb-2">
+      <div class="title-container mb-3">
+        <h2 style="border-left: 5px solid #0088cc; padding-left: 15px;">
+          Dettaglio Account
+          <small th:if="${account.id != null}" th:text="'ID: ' + ${account.id}" style="font-size: 0.6em; vertical-align: middle; opacity: 0.8;"></small>
+        </h2>
+      </div>
+
+      <div class="right-wrapper text-right" style="margin-left: auto; margin-right: 10%;">
         <a th:href="@{/admin/account/new}"
-           class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
-          <i class="fas fa-file-medical"></i> Nuovo
+           class="mb-1 mt-1 mr-1 btn btn-sm btn-success">
+          <i class="fas fa-plus-circle"></i> Nuovo
         </a>
 
         <a th:if="${account.id != null}"
            th:href="@{/admin/account/duplica(id=${account.id})}"
            onclick="return ConfermaOperazione(this.href, 'duplicare questo Account')"
-           class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+           class="mb-1 mt-1 mr-1 btn btn-sm btn-info">
           <i class="fas fa-clone"></i> Duplica
         </a>
 
         <button type="button"
                 onclick="InviaForm('account');"
-                class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
-          <i class="fas fa-file-upload"></i> Salva
+                class="mb-1 mt-1 mr-1 btn btn-sm btn-primary">
+          <i class="fas fa-save"></i> Salva
         </button>
 
         <a th:href="@{/admin/account}"
            onclick="CloseHsReloadBase();"
-           class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+           class="mb-1 mt-1 mr-1 btn btn-sm btn-danger">
           <i class="fas fa-times-circle"></i> Esci
         </a>
       </div>
@@ -45,22 +51,23 @@
 
     <input type="hidden" name="id" th:value="${account.id}"/>
 
-    <div class="row">
+    <div class="row" style="margin-top: -25px">
       <div class="col-lg-12">
-        <div class="tabs tabs-secondary" id="mytabs">
+        <div class="card shadow-sm border-0" style="border-radius: 15px; background: #fff; padding: 20px;">
 
-          <ul class="nav nav-tabs">
-            <li class="nav-item storeTab" id="1">
-              <a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Generale</a>
-            </li>
-            <li class="nav-item storeTab" id="2">
-              <a class="nav-link" href="#tab_02" data-bs-toggle="tab">Dati Account Email</a>
-            </li>
-            <li class="nav-item storeTab" id="3">
-              <a class="nav-link" href="#tab_03" data-bs-toggle="tab">Dati Account PEC</a>
-            </li>
-          </ul>
-
+          <div class="tabs tabs-secondary" id="mytabs">
+            <ul class="nav nav-tabs border-0" role="tablist">
+              <li class="nav-item storeTab" id="1" role="presentation">
+                <a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Generale</a>
+              </li>
+              <li class="nav-item storeTab" id="2">
+                <a class="nav-link" href="#tab_02" data-bs-toggle="tab">Dati Account Email</a>
+              </li>
+              <li class="nav-item storeTab" id="3">
+                <a class="nav-link" href="#tab_03" data-bs-toggle="tab">Dati Account PEC</a>
+              </li>
+            </ul>
+          </div>
           <div class="tab-content">
 
             <!-- TAB 01 — Generale -->

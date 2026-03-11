@@ -1,9 +1,11 @@
 <!doctype html>
-<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{manager/layout/template}">
 <body>
-<th:block th:fragment="content">
 
-  <!-- start: page -->
+<div layout:fragment="content">
+
   <section class="content-with-menu mailbox">
     <div class="content-with-menu-container" data-mailbox data-mailbox-view="folder">
 
@@ -14,27 +16,19 @@
       </div>
 
       <menu id="content-menu" class="inner-menu" role="menu">
-        <div class="nano">
-          <div class="nano-content">
-            <div class="inner-menu-toggle-inside">
-              <a href="javascript:void(0)" class="inner-menu-collapse">
-                <i class="fas fa-chevron-up d-inline-block d-md-none"></i>
-                <i class="fas fa-chevron-left d-none d-md-inline-block"></i> Nascondi
-              </a>
-              <a href="javascript:void(0)" class="inner-menu-expand" data-open="inner-menu">
-                Mostra <i class="fas fa-chevron-down"></i>
-              </a>
-            </div>
 
             <div class="inner-menu-content">
-              <a th:href="@{/admin/email/inbox(idAccount=${config.actualMailboxId})}"
+              <a th:href="@{/admin/email/inbox/{id}(id=${config.actualMailboxId})}"
                  class="btn btn-block btn-primary btn-sd pt-1 pb-1 text-3">
                 <i class="fas fa-sync mr-1"></i> Aggiorna
               </a>
-              <a th:href="@{/admin/email/componi(idAccount=${config.actualMailboxId})}"
-                 class="btn btn-block btn-primary btn-sd pt-1 pb-1 text-3" rel="highslide-iframe">
+
+              <a th:href="@{/admin/email/componi/{id}(id=${config.actualMailboxId})}"
+                 class="btn btn-block btn-primary btn-sd pt-1 pb-1 text-3"
+                 rel="highslide-iframe">
                 <i class="fas fa-envelope mr-1"></i> Scrivi
               </a>
+
               <a href="javascript:CancellaEmailMultiplaAjax([[${config.actualMailboxId}]])"
                  class="btn btn-block btn-primary btn-sd pt-1 pb-1 text-3">
                 <i class="fas fa-trash-alt mr-1"></i> Cancella
@@ -49,10 +43,10 @@
                 </div>
                 <div class="widget-content">
                   <ul class="list-unstyled mailbox-bullets">
-                    <li th:each="mailbox : ${config.amministratore.accountEMAIL}">
-                      <a th:href="@{/admin/email/inbox(idAccount=${mailbox.id})}"
+                    <li>
+                      <a th:href="@{/admin/email/inbox/{id}(id=${config.amministratore.idaccountemail})}"
                          class="menu-item"
-                         th:text="${mailbox.emailAccount}">account@example.com</a>
+                         th:text="${config.amministratore.email}">account@example.com</a>
                     </li>
                   </ul>
                 </div>
@@ -60,13 +54,10 @@
 
               <hr class="separator"/>
             </div>
-          </div>
-        </div>
       </menu>
 
       <div class="inner-body mailbox-folder p-3">
 
-        <!-- header -->
         <header class="m-2">
           <div class="row">
             <div class="col-md-12">
@@ -75,7 +66,6 @@
           </div>
         </header>
 
-        <!-- errore connessione -->
         <div th:if="${erroreMailer != null}" class="alert alert-warning">
           <i class="fas fa-exclamation-triangle mr-2"></i>
           <span th:switch="${erroreMailer}">
@@ -88,7 +78,6 @@
           </span>
         </div>
 
-        <!-- tabella email -->
         <div class="table-responsive">
           <table class="table table-bordered table-striped table-hover mb-3" id="tabellaEmail">
             <thead>
@@ -115,7 +104,7 @@
               </td>
               <td>
                 <a title="Apri messaggio"
-                   th:href="@{/admin/email/open(id=${msg.id},idAccount=${config.actualMailboxId})}"
+                   th:href="@{/admin/email/open/{id}/{acc}(id=${msg.id},acc=${config.actualMailboxId})}"
                    rel="highslide-iframe">
                   <img th:src="@{'/manager/assets/img/icons/' + ${msg.letto ? 'trueEmail' : 'falseEmail'} + '.png'}"
                        width="32" height="32" alt=""/>
@@ -123,7 +112,7 @@
               </td>
               <td th:text="${msg.data}">01/01/2025</td>
               <td>
-                <a th:href="@{/admin/email/open(id=${msg.id},idAccount=${config.actualMailboxId})}"
+                <a th:href="@{/admin/email/open/{id}/{acc}(id=${msg.id},acc=${config.actualMailboxId})}"
                    rel="highslide-iframe"
                    th:text="${msg.oggetto}">Oggetto</a>
               </td>
@@ -134,11 +123,10 @@
           </table>
         </div>
 
-      </div><!-- fine inner-body -->
+      </div>
     </div>
   </section>
-  <!-- end: page -->
 
-</th:block>
+</div>
 </body>
 </html>

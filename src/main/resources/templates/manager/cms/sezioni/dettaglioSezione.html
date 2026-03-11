@@ -9,38 +9,43 @@
           class="form-bordered">
 
         <header class="page-header mb-2">
-            <h2 th:text="${section.titolo != null and !#strings.isEmpty(section.titolo) ? section.titolo : 'Nuova sezione'}">Titolo</h2>
-            <div class="right-wrapper text-right">
-                <div class="switch switch-sm switch-primary" title="Salvataggio automatico">
-                    <input type="checkbox" name="switch" title="Salvataggio automatico"
-                           data-plugin-ios-switch="" id="autosave" style="display:none;">
-                </div>
-                <a href="javascript:ConfermaOperazione('/admin/sezioni/new','creare una nuova sezione')"
-                   class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
-                    <i class="fas fa-file-medical"></i> Nuova
+            <div class="title-container mb-3">
+                <h2 style="border-left: 5px solid #0088cc; padding-left: 15px;"
+                    th:text="${section.titolo != null and !#strings.isEmpty(section.titolo) ? section.titolo : 'Nuova sezione'}">
+                    Titolo
+                </h2>
+            </div>
+
+            <div class="right-wrapper text-right" style="margin-left: auto; margin-right: 10%;">
+
+                <a th:href="@{/admin/sezioni/new}" class="mb-1 mt-1 mr-1 btn btn-sm btn-success">
+                    <i class="fas fa-plus-circle"></i> Nuova
                 </a>
+
                 <button type="submit"
-                        th:formaction="@{/admin/sezioni/{id}/duplicate(id=${section.id})}"
                         formmethod="post"
-                        onclick="return ConfermaOperazione('','duplicare questa sezione')"
-                        class="mb-1 mt-1 mr-1 btn btn-sm btn-default"
-                        th:disabled="${section.id == null or section.id == 0}">
+                        th:formaction="@{/admin/sezioni/{id}/duplicate(id=${section.id})}"
+                        class="mb-1 mt-1 mr-1 btn btn-sm btn-info"
+                        th:disabled="${section.id == null}"
+                        onclick="return confirm('Confermi di voler duplicare questa sezione?');">
                     <i class="fas fa-clone"></i> Duplica
                 </button>
+
                 <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
                         onclick="InviaForm('sezione');">
-                    <i class="fas fa-file-upload"></i> Salva
+                    <i class="fas fa-save"></i> Salva
                 </button>
+
                 <a th:href="@{/admin/sezioni}" onclick="CloseHsReloadBase();"
-                   class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+                   class="mb-1 mt-1 mr-1 btn btn-sm btn-danger">
                     <i class="fas fa-times-circle"></i> Esci
                 </a>
             </div>
         </header>
 
-        <div class="row">
+        <div class="row" style="margin-top: -25px">
             <div class="col-lg-12">
-                <div class="tabs" id="mytabs">
+                <div class="card shadow-sm border-0" style="border-radius: 15px; background: #fff; padding: 20px;">
 
                     <ul class="nav nav-tabs" role="tablist">
                         <li class="nav-item storeTab" role="presentation">
@@ -76,7 +81,7 @@
                             <p>
                                 ID: <span th:text="${section.id}">0</span>
                                 | Numero associato: <span th:text="${section.numeratore1}">0</span>
-                                | URL: <span th:text="${section.urlRW}">/</span><br/>
+                                | URL: <span th:text="${section.url}">/</span><br/>
                                 Creato da: <span th:text="${section.creatoDa}">-</span>
                                 (<span th:text="${section.creato}">-</span>)
                                 | Ultima modifica: <span th:text="${section.modificatoDa}">-</span>

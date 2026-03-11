@@ -14,15 +14,18 @@
     <!-- Sidebar info -->
     <div class="col-md-3">
       <section class="card card-warning">
-        <header class="card-header">
+        <header class="card-header" style="background-color: #f39c12; border-color: #f39c12; border-radius: 15px 15px 0 0;">
           <div class="card-actions">
-            <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+            <a href="#" class="card-action card-action-toggle" data-card-toggle=""  style="color: #fff;"></a>
           </div>
-          <h2 class="card-title">Gestione Configurazioni</h2>
-          <p class="card-subtitle">Informazioni e parametri</p>
+          <h2 class="card-title" style="color: #fff; font-weight: bold;">Gestione Configurazioni</h2>
+          <p class="card-subtitle" style="color: rgba(255, 255, 255, 0.8);">Informazioni e parametri</p>
         </header>
         <div class="card-body">
-          <p>Lorem Ipsum è un testo segnaposto utilizzato nel settore della tipografia e della stampa. Lorem Ipsum è considerato il testo segnaposto standard sin dal sedicesimo secolo, quando un anonimo tipografo prese una cassetta di caratteri e li assemblò per preparare un testo campione. È sopravvissuto non solo a più di cinque secoli, ma anche al passaggio alla videoimpaginazione, pervenendoci sostanzialmente inalterato. Fu reso popolare, negli anni ’60, con la diffusione dei fogli di caratteri trasferibili “Letraset”, che contenevano passaggi del Lorem Ipsum, e più recentemente da software di impaginazione come Aldus PageMaker, che includeva versioni del Lorem Ipsum.</p>
+          <p>
+          In questa area puoi visualizzare e gestire le configurazioni del sistema.
+          È possibile creare, modificare ed eliminare i record presenti in elenco.
+        </p>
         </div>
       </section>
     </div>
@@ -30,12 +33,12 @@
     <!-- Tabella elenco -->
     <div class="col-md-9">
       <section class="card card-warning">
-        <header class="card-header">
+        <header class="card-header" style="background-color: #f39c12; border-color: #f39c12; border-radius: 15px 15px 0 0; padding: 15px 20px;">
           <div class="card-actions">
-            <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
+            <a href="#" class="card-action card-action-toggle" data-card-toggle style="color: #fff;"></a>
           </div>
-          <h2 class="card-title">Elenco configurazioni</h2>
-          <p class="card-subtitle">I dati possono essere creati, modificati e cancellati.</p>
+          <h2 class="card-title" style="color: #fff; font-weight: bold; margin: 0;">Elenco configurazioni</h2>
+          <p class="card-subtitle" style="color: rgba(255, 255, 255, 0.9); margin-top: 5px;">I dati possono essere creati, modificati e cancellati.</p>
         </header>
         <div class="card-body">
 
@@ -46,7 +49,7 @@
               <i class="fas fa-file-medical"></i> Crea nuovo
             </a>
             <a href="javascript:void(0);"
-               class="btn btn-primary" onclick="CancellaAnagraficaMultiplaAjax()">
+               class="btn btn-warning" onclick="CancellaAnagraficaMultiplaAjax()">
               <i class="fas fa-trash-alt"></i> Cancella selezionati
             </a>
           </div>
@@ -72,14 +75,20 @@
                        class="inpt_c2"/>
               </td>
               <td>
-                <a th:href="@{/admin/impostazioni/configurazioni/{id}/open(id=${sito.id})}">
-                  <!-- Sito attivo evidenziato in verde -->
-                  <span th:if="${config.sito != null and config.sito.id == sito.id}"
-                        class="badge badge-success"
-                        th:text="${sito.type}">Titolo</span>
+                <a th:href="@{/admin/impostazioni/configurazioni/{id}/open(id=${sito.id})}" style="text-decoration: none;">
+
+      <span th:if="${config.sito != null and config.sito.id == sito.id}"
+            class="badge"
+            style="background-color: #47a447; color: white; padding: 6px 12px; border-radius: 20px; font-weight: bold; display: inline-block;">
+        <i class="fas fa-check-circle"></i> [[${sito.type}]]
+      </span>
+
                   <span th:unless="${config.sito != null and config.sito.id == sito.id}"
-                        class="badge badge-info"
-                        th:text="${sito.type}">Titolo</span>
+                        class="badge"
+                        style="background-color: #5bc0de; color: white; padding: 6px 12px; border-radius: 20px; font-weight: bold; display: inline-block;">
+        [[${sito.type}]]
+      </span>
+
                 </a>
               </td>
               <td th:text="${sito.descrizione}"></td>

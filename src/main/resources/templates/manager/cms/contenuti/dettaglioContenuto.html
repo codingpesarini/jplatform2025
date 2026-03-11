@@ -1,8 +1,6 @@
 <!doctype html>
-<html lang="it"
-      xmlns:th="http://www.thymeleaf.org">
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
 <body>
-
 <th:block th:fragment="content">
 
     <form th:action="@{/admin/contenuti/save}"
@@ -10,41 +8,47 @@
           id="documento"
           class="form-bordered">
 
-        <header class="page-header">
-            <h2 th:text="${post.titolo}">Titolo</h2>
+        <header class="page-header mb-2">
+            <div class="title-container mb-3">
+                <h2 style="border-left: 5px solid #0088cc; padding-left: 15px;"
+                    th:text="${post.titolo != null and !#strings.isEmpty(post.titolo) ? post.titolo : 'Nuovo contenuto'}">
+                    Titolo
+                </h2>
+            </div>
 
-            <div class="right-wrapper text-right">
+            <div class="right-wrapper text-right" style="margin-left: auto; margin-right: 10%;">
 
                 <a th:href="@{/admin/contenuti/new/{idRoot}(idRoot=${post.idRoot})}"
-                   class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
-                    <i class="fas fa-file-medical"></i> Nuova
+                   class="mb-1 mt-1 mr-1 btn btn-sm btn-success">
+                    <i class="fas fa-plus-circle"></i> Nuova
                 </a>
 
                 <button type="submit"
-                        formmethod="post"
                         th:formaction="@{/admin/contenuti/{id}/duplicate(id=${post.id})}"
-                        class="mb-1 mt-1 mr-1 btn btn-sm btn-default"
-                        th:disabled="${post.id == null or post.id == '-1' or post.id == '0'}">
+                        formmethod="post"
+                        onclick="return ConfermaOperazione('','duplicare questo contenuto')"
+                        class="mb-1 mt-1 mr-1 btn btn-sm btn-info"
+                        th:disabled="${post.id == null or post.id == 0}">
                     <i class="fas fa-clone"></i> Duplica
                 </button>
 
                 <button type="button"
                         class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
                         onclick="InviaForm('documento');">
-                    <i class="ti ti-device-floppy me-1"></i> Salva
+                    <i class="fas fa-save"></i> Salva
                 </button>
 
                 <a th:href="@{/admin/sezioni/{id}/preview(id=${post.idRoot})}"
-                   class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+                   onclick="CloseHsReloadBase();"
+                   class="mb-1 mt-1 mr-1 btn btn-sm btn-danger">
                     <i class="fas fa-times-circle"></i> Esci
                 </a>
-
             </div>
         </header>
 
-        <div class="row">
+        <div class="row" style="margin-top: -25px">
             <div class="col-lg-12">
-                <div class="tabs" id="mytabs">
+                <div class="card shadow-sm border-0" style="border-radius: 15px; background: #fff; padding: 20px;">
 
                     <ul class="nav nav-tabs" role="tablist">
                         <li class="nav-item storeTab" role="presentation">

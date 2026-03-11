@@ -8,54 +8,54 @@
 <div layout:fragment="content">
 
 
-  <div class="msg_box msg_error" id="form_a_errors" style="display:none"></div>
-
-  <header class="page-header">
-    <h2>Dettaglio Numeratore</h2>
-
-    <div class="right-wrapper text-right">
-      <a th:href="@{/admin/impostazioni/numeratori/new}"
-         class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
-        <i class="fas fa-file-medical"></i> Nuovo
-      </a>
-
-      <a th:if="${numeratore.id != null}"
-         th:href="@{/admin/impostazioni/numeratori/{id}/duplica(id=${numeratore.id})}"
-         class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
-        <i class="fas fa-clone"></i> Duplica
-      </a>
-
-      <a href="javascript:void(0);" onclick="InviaForm('numeratore');"
-         class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
-        <i class="fas fa-file-upload"></i> Salva
-      </a>
-
-      <a th:href="@{/admin/impostazioni/numeratori}"
-         class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
-        <i class="fas fa-times-circle"></i> Esci
-      </a>
-    </div>
-  </header>
-
   <form th:action="@{/admin/impostazioni/numeratori/save}"
         method="post"
         id="numeratore"
         class="form-bordered needs-validation"
         novalidate>
 
-    <!-- Campi ID nascosti -->
     <input type="hidden" name="id" th:value="${numeratore.id}" />
 
-    <legend th:text="${numeratore.id != null ? 'Dettaglio ID ' + numeratore.id : 'Nuovo Numeratore'}">
-      Dettaglio
-    </legend>
+    <header class="page-header mb-2">
+      <div class="title-container mb-3">
+        <h2 style="border-left: 5px solid #0088cc; padding-left: 15px;"
+            th:text="${numeratore.id != null ? 'Dettaglio Numeratore ID ' + numeratore.id : 'Nuovo Numeratore'}">
+          Dettaglio Numeratore
+        </h2>
+      </div>
 
-    <div class="row">
+      <div class="right-wrapper text-right" style="margin-left: auto; margin-right: 10%;">
+        <a th:href="@{/admin/impostazioni/numeratori/new}"
+           class="mb-1 mt-1 mr-1 btn btn-sm btn-success">
+          <i class="fas fa-plus-circle"></i> Nuovo
+        </a>
+
+        <a th:if="${numeratore.id != null}"
+           th:href="@{/admin/impostazioni/numeratori/{id}/duplica(id=${numeratore.id})}"
+           class="mb-1 mt-1 mr-1 btn btn-sm btn-info">
+          <i class="fas fa-clone"></i> Duplica
+        </a>
+
+        <button type="button"
+                class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
+                onclick="InviaForm('numeratore');">
+          <i class="fas fa-save"></i> Salva
+        </button>
+
+        <a th:href="@{/admin/impostazioni/numeratori}"
+           class="mb-1 mt-1 mr-1 btn btn-sm btn-danger">
+          <i class="fas fa-times-circle"></i> Esci
+        </a>
+      </div>
+    </header>
+
+    <div class="row" style="margin-top: -25px">
       <div class="col-lg-12">
+        <div class="card shadow-sm border-0" style="border-radius: 15px; background: #fff; padding: 20px;">
 
-        <div class="tabs" id="mytabs">
-          <ul class="nav nav-tabs">
-            <li class="nav-item storeTab" id="1">
+          <div class="tabs" id="mytabs">
+            <ul class="nav nav-tabs border-0" role="tablist">
+              <li class="nav-item storeTab" role="presentation" id="1">
               <a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Definizione</a>
             </li>
             <li class="nav-item storeTab" id="2">

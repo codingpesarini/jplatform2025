@@ -10,32 +10,46 @@
     <input type="hidden" th:field="${gruppo.id}"/>
     <div class="msg_box msg_error" id="form_a_errors" style="display:none"></div>
 
-    <header class="page-header">
-      <h2>Dettaglio Gruppo <small th:if="${gruppo.id != null}" th:text="'ID: ' + ${gruppo.id}"></small></h2>
-      <div class="right-wrapper text-right">
-        <a th:href="@{/admin/impostazioni/gruppi/new}" class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
-          <i class="fas fa-file-medical"></i> Nuovo
+    <header class="page-header mb-2">
+      <div class="title-container mb-3">
+        <h2 style="border-left: 5px solid #0088cc; padding-left: 15px;">
+          Dettaglio Gruppo
+          <small th:if="${gruppo.id != null}" th:text="'ID: ' + ${gruppo.id}" style="font-size: 0.6em; vertical-align: middle; opacity: 0.8;"></small>
+        </h2>
+      </div>
+
+      <div class="right-wrapper text-right" style="margin-left: auto; margin-right: 10%;">
+        <a th:href="@{/admin/impostazioni/gruppi/new}" class="mb-1 mt-1 mr-1 btn btn-sm btn-success">
+          <i class="fas fa-plus-circle"></i> Nuovo
         </a>
+
         <a th:if="${gruppo.id != null}"
            th:href="@{/admin/impostazioni/gruppi/{id}/duplica(id=${gruppo.id})}"
-           class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+           class="mb-1 mt-1 mr-1 btn btn-sm btn-info">
           <i class="fas fa-clone"></i> Duplica
         </a>
-        <a href="javascript:void(0);" onclick="InviaForm('gruppo');" class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
-          <i class="fas fa-file-upload"></i> Salva
+
+        <a href="javascript:void(0);" onclick="InviaForm('gruppo');" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary">
+          <i class="fas fa-save"></i> Salva
         </a>
-        <a th:href="@{/admin/impostazioni/gruppi}" class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
+
+        <a th:href="@{/admin/impostazioni/gruppi}" class="mb-1 mt-1 mr-1 btn btn-sm btn-danger">
           <i class="fas fa-times-circle"></i> Esci
         </a>
       </div>
     </header>
 
-    <div class="row"><div class="col-lg-12">
-      <div class="tabs" id="mytabs">
-        <ul class="nav nav-tabs">
-          <li class="nav-item"><a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Definizione</a></li>
-          <li class="nav-item"><a class="nav-link" href="#tab_02" data-bs-toggle="tab">Altri dati</a></li>
-        </ul>
+    <div class="row" style="margin-top: -25px">
+      <div class="col-lg-12">
+        <div class="card shadow-sm border-0" style="border-radius: 15px; background: #fff; padding: 20px;">
+
+          <div class="tabs" id="mytabs">
+            <ul class="nav nav-tabs border-0" role="tablist">
+              <li class="nav-item"><a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Definizione</a></li>
+              <li class="nav-item"><a class="nav-link" href="#tab_02" data-bs-toggle="tab">Altri dati</a></li>
+            </ul>
+          </div>
+
         <div class="tab-content">
 
           <!-- ══════════════════════════════════ TAB 01: DEFINIZIONE -->
