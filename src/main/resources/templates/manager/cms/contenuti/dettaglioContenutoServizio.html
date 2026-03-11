@@ -23,14 +23,13 @@
                     <i class="fas fa-plus-circle"></i> Nuova
                 </a>
 
-                <button type="submit"
-                        th:formaction="@{/admin/contenuti/{id}/duplicate(id=${post.id})}"
-                        formmethod="post"
-                        onclick="return ConfermaOperazione('','duplicare questo contenuto')"
-                        class="mb-1 mt-1 mr-1 btn btn-sm btn-info"
-                        th:disabled="${post.id == null or post.id == 0}">
+                <a th:if="${post.id != null and post.id != 0}"
+                   th:href="@{/admin/contenuti/{id}/duplicate(id=${post.id})}"
+                   th:data-titolo="${post.titolo}"
+                   class="mb-1 mt-1 mr-1 btn btn-sm btn-info"
+                   onclick="confirmAction('Duplicare &quot;' + this.dataset.titolo + '&quot;?', function(){ window.location=this.href; }.bind(this)); return false;">
                     <i class="fas fa-clone"></i> Duplica
-                </button>
+                </a>
 
                 <button type="button"
                         class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"

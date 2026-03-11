@@ -15,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
@@ -23,13 +24,15 @@ import java.time.format.DateTimeFormatter;
  * Conversione da GestioneRegistroLead.java (Struts) a Spring MVC.
  *
  * Mapping URL:
- *   GET  /admin/crm/lead                 → elencoRegistroLead
- *   GET  /admin/crm/lead/{id}            → openRegistroLead (entrata)
- *   GET  /admin/crm/lead/{id}/uscita     → openRegistroLeadUscita
- *   POST /admin/crm/lead/save            → saveRegistroLead
- *   POST /admin/crm/lead/{id}/delete     → deleteRegistroLead (AJAX)
- *   POST /admin/crm/lead/{id}/inviaSms   → inviaSmsRegistroLead
- *   POST /admin/crm/lead/{id}/inviaEmail → inviaEmailRegistroLead
+ *   GET  /admin/crm/lead                        → elencoRegistroLead
+ *   GET  /admin/crm/lead/new/{store}            → nuovoLead (entrata diretta)
+ *   GET  /admin/crm/lead/new/uscita/{tipologia} → nuovoLeadUscita (uscita diretta)
+ *   GET  /admin/crm/lead/{id}                   → openRegistroLead (entrata esistente)
+ *   GET  /admin/crm/lead/{id}/uscita            → openRegistroLeadUscita (uscita esistente)
+ *   POST /admin/crm/lead/save                   → saveRegistroLead
+ *   POST /admin/crm/lead/{id}/delete            → deleteRegistroLead (AJAX)
+ *   POST /admin/crm/lead/{id}/inviaSms          → inviaSmsRegistroLead
+ *   POST /admin/crm/lead/{id}/inviaEmail        → inviaEmailRegistroLead
  */
 @Controller
 @RequestMapping("/admin/crm/lead")
@@ -51,12 +54,12 @@ public class RegistroLeadController {
 
     // =====================================================================
     // ELENCO
-    // Vecchio: elencoRegistroLeadUtente() → forward "successelencoRegistroLead"
+    // GET /admin/crm/lead
     // =====================================================================
 
     @GetMapping
     public String elencoRegistroLead(
-            @RequestParam(value = "stato", defaultValue = "4") String stato,
+            @RequestParam(value = "stato",     defaultValue = "4") String stato,
             @RequestParam(value = "direzione", defaultValue = "e") String direzione,
             HttpServletRequest request, Model model) {
 
@@ -67,10 +70,10 @@ public class RegistroLeadController {
         try {
             model.addAttribute("elencoRegistroLead",
                     registroLeadService.findAll(direzione, stato));
-            model.addAttribute("statoLead", STATO_LEAD);
-            model.addAttribute("statoSelezionato", stato);
+            model.addAttribute("statoLead",           STATO_LEAD);
+            model.addAttribute("statoSelezionato",    stato);
             model.addAttribute("direzioneSelezionata", direzione);
-            model.addAttribute("config", config);
+            model.addAttribute("config",              config);
         } catch (Exception e) {
             log.error("Errore elencoRegistroLead", e);
         }
@@ -78,18 +81,15 @@ public class RegistroLeadController {
         return ViewUtils.resolveProtectedTemplate("crm/sezioni/elencoRegistroLead");
     }
 
-
     // =====================================================================
-    // OPEN (entrata)
-    // Vecchio: openRegistroLead() → forward "successopenRegistroLead"
+    // NUOVO LEAD ENTRATA — URL pulito
+    // GET /admin/crm/lead/new/{store}
+    // Es: /admin/crm/lead/new/diretto
     // =====================================================================
 
-    @GetMapping("/{id}")
-    public String openRegistroLead(
-            @PathVariable Long id,
-            @RequestParam(value = "idleadstore", defaultValue = "0") Integer idLeadStore,
-            @RequestParam(value = "idutente", defaultValue = "0") Integer idUtente,
-            @RequestParam(value = "store", defaultValue = "") String store,
+    @GetMapping("/new/{store}")
+    public String nuovoLead(
+            @PathVariable String store,
             HttpServletRequest request, Model model) {
 
         HttpSession session = request.getSession();
@@ -97,34 +97,92 @@ public class RegistroLeadController {
         if (!config.isLogged()) return "redirect:/login";
 
         try {
-            RegistroLead registroLead;
+            RegistroLead registroLead = new RegistroLead();
+            registroLead.setId(-1L);
+            registroLead.setDirezione("e");
+            registroLead.setData(LocalDate.now().format(DTA));
+            registroLead.setOra(LocalTime.now().format(ORA));
+            registroLead.setIdamministratore(config.getAmministratore().getId());
+            registroLead.setAmministratore(config.getAmministratore());
+            registroLead.setIdleadstore(0);
+            registroLead.setIdutente(0);
+            registroLead.setStore(store);
 
-            if (id == -1) {
-                registroLead = new RegistroLead();
-                registroLead.setId(-1L);
-                registroLead.setDirezione("e");
-                registroLead.setData(LocalDate.now().format(DTA));
-                registroLead.setOra(LocalTime.now().format(ORA));
-                registroLead.setIdamministratore(config.getAmministratore().getId());
-                registroLead.setAmministratore(config.getAmministratore());
-                registroLead.setIdleadstore(idLeadStore);
-                registroLead.setIdutente(idUtente);
-                registroLead.setStore(store);
+            model.addAttribute("areeInteresse", registroLeadService.findAreeInteresse());
+            model.addAttribute("statoLead",     STATO_LEAD);
+            model.addAttribute("registroLead",  registroLead);
+            model.addAttribute("config",        config);
 
-                if (idUtente > 0) {
-                    registroLead.setUtente(registroLeadService.findUtenteBase(idUtente));
-                }
-            } else {
-                registroLead = registroLeadService.findById(id);
-            }
+        } catch (Exception e) {
+            log.error("Errore nuovoLead store={}", store, e);
+        }
 
-            // Arricchisce con commento o email in base allo store
+        return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioRegistroLead");
+    }
+
+    // =====================================================================
+    // NUOVO LEAD USCITA — URL pulito
+    // GET /admin/crm/lead/new/uscita/{tipologia}
+    // Es: /admin/crm/lead/new/uscita/Email
+    //     /admin/crm/lead/new/uscita/Sms
+    // =====================================================================
+
+    @GetMapping("/new/uscita/{tipologia}")
+    public String nuovoLeadUscita(
+            @PathVariable String tipologia,
+            HttpServletRequest request, Model model) {
+
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+        if (!config.isLogged()) return "redirect:/login";
+
+        try {
+            RegistroLead registroLead = new RegistroLead();
+            registroLead.setId(-1L);
+            registroLead.setDirezione("u");
+            registroLead.setData(LocalDate.now().format(DTA));
+            registroLead.setOra(LocalTime.now().format(ORA));
+            registroLead.setIdamministratore(config.getAmministratore().getId());
+            registroLead.setAmministratore(config.getAmministratore());
+            registroLead.setIdleadstore(-1);
+            registroLead.setIdutente(0);
+            registroLead.setStore("diretto");
+
+            model.addAttribute("tipologia",    tipologia);
+            model.addAttribute("statoLead",    STATO_LEAD);
+            model.addAttribute("registroLead", registroLead);
+            model.addAttribute("config",       config);
+
+        } catch (Exception e) {
+            log.error("Errore nuovoLeadUscita tipologia={}", tipologia, e);
+        }
+
+        return ViewUtils.resolveProtectedTemplate(
+                "crm/contenuti/dettaglioRegistroLeadUscita" + tipologia);
+    }
+
+    // =====================================================================
+    // OPEN LEAD ESISTENTE (entrata)
+    // GET /admin/crm/lead/{id}
+    // =====================================================================
+
+    @GetMapping("/{id}")
+    public String openRegistroLead(
+            @PathVariable Long id,
+            HttpServletRequest request, Model model) {
+
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+        if (!config.isLogged()) return "redirect:/login";
+
+        try {
+            RegistroLead registroLead = registroLeadService.findById(id);
             arricchisciConStore(registroLead);
 
             model.addAttribute("areeInteresse", registroLeadService.findAreeInteresse());
-            model.addAttribute("statoLead", STATO_LEAD);
-            model.addAttribute("registroLead", registroLead);
-            model.addAttribute("config", config);
+            model.addAttribute("statoLead",     STATO_LEAD);
+            model.addAttribute("registroLead",  registroLead);
+            model.addAttribute("config",        config);
 
         } catch (Exception e) {
             log.error("Errore openRegistroLead id={}", id, e);
@@ -134,17 +192,14 @@ public class RegistroLeadController {
     }
 
     // =====================================================================
-    // OPEN USCITA
-    // Vecchio: openRegistroLeadUscita() → forward "successopenRegistroLeadUscita{tipologia}"
+    // OPEN LEAD ESISTENTE USCITA
+    // GET /admin/crm/lead/{id}/uscita/{tipologia}
     // =====================================================================
 
-    @GetMapping("/{id}/uscita")
+    @GetMapping("/{id}/uscita/{tipologia}")
     public String openRegistroLeadUscita(
             @PathVariable Long id,
-            @RequestParam(value = "tipologia", defaultValue = "") String tipologia,
-            @RequestParam(value = "idleadstore", defaultValue = "0") Integer idLeadStore,
-            @RequestParam(value = "idutente", defaultValue = "0") Integer idUtente,
-            @RequestParam(value = "store", defaultValue = "") String store,
+            @PathVariable String tipologia,
             HttpServletRequest request, Model model) {
 
         HttpSession session = request.getSession();
@@ -152,41 +207,24 @@ public class RegistroLeadController {
         if (!config.isLogged()) return "redirect:/login";
 
         try {
-            RegistroLead registroLead;
+            RegistroLead registroLead = registroLeadService.findById(id);
 
-            if (id == -1) {
-                registroLead = new RegistroLead();
-                registroLead.setId(-1L);
-                registroLead.setDirezione("u");
-                registroLead.setData(LocalDate.now().format(DTA));
-                registroLead.setOra(LocalTime.now().format(ORA));
-                registroLead.setIdamministratore((config.getAmministratore().getId()));
-                registroLead.setIdleadstore(idLeadStore);
-                registroLead.setIdutente(idUtente);
-                registroLead.setStore(store);
-                registroLead.setUtente(registroLeadService.findUtenteBase(idUtente));
-            } else {
-                registroLead = registroLeadService.findById(id);
-            }
-
-            model.addAttribute("tipologia", tipologia);
-            model.addAttribute("statoLead", STATO_LEAD);
+            model.addAttribute("tipologia",    tipologia);
+            model.addAttribute("statoLead",    STATO_LEAD);
             model.addAttribute("registroLead", registroLead);
-            model.addAttribute("config", config);
+            model.addAttribute("config",       config);
 
         } catch (Exception e) {
-            log.error("Errore openRegistroLeadUscita id={}", id, e);
+            log.error("Errore openRegistroLeadUscita id={} tipologia={}", id, tipologia, e);
         }
 
-        // Template diverso per tipologia (Email, Sms, ecc.)
-        String templateSuffix = tipologia.isEmpty() ? "" : tipologia;
         return ViewUtils.resolveProtectedTemplate(
-                "crm/contenuti/dettaglioRegistroLeadUscita" + templateSuffix);
+                "crm/contenuti/dettaglioRegistroLeadUscita" + tipologia);
     }
 
     // =====================================================================
     // SAVE
-    // Vecchio: saveRegistroLead() → forward "successopenRegistroLead"
+    // POST /admin/crm/lead/save
     // =====================================================================
 
     @PostMapping("/save")
@@ -199,11 +237,10 @@ public class RegistroLeadController {
         if (!config.isLogged()) return "redirect:/login";
 
         try {
-            String now = java.time.LocalDateTime.now().format(DF);
+            String now      = LocalDateTime.now().format(DF);
             String operatore = config.getAmministratore().getNome()
                     + " " + config.getAmministratore().getCognome();
 
-            // Carica amministratore assegnatario
             registroLead.setAmministratore(
                     registroLeadService.findAmministratoreById(
                             String.valueOf(registroLead.getIdamministratore())));
@@ -219,7 +256,7 @@ public class RegistroLeadController {
                 registroLead.setUtente(
                         registroLeadService.findUtenteBase(registroLead.getIdutente()));
                 String statoText = STATO_LEAD[Integer.parseInt(registroLead.getStato())];
-                String logEntry = buildLog(now, operatore, registroLead,
+                String logEntry  = buildLog(now, operatore, registroLead,
                         statoText, "Modificato da");
                 registroLead.setLog(registroLead.getLog() + logEntry);
                 registroLead = registroLeadService.salva(registroLead);
@@ -228,15 +265,15 @@ public class RegistroLeadController {
             arricchisciConStore(registroLead);
 
             model.addAttribute("areeInteresse", registroLeadService.findAreeInteresse());
-            model.addAttribute("statoLead", STATO_LEAD);
-            model.addAttribute("registroLead", registroLead);
-            model.addAttribute("config", config);
+            model.addAttribute("statoLead",     STATO_LEAD);
+            model.addAttribute("registroLead",  registroLead);
+            model.addAttribute("config",        config);
 
         } catch (Exception e) {
             log.error("Errore saveRegistroLead", e);
-            model.addAttribute("error", "Errore nel salvataggio: " + e.getMessage());
+            model.addAttribute("error",        "Errore nel salvataggio: " + e.getMessage());
             model.addAttribute("registroLead", registroLead);
-            model.addAttribute("config", config);
+            model.addAttribute("config",       config);
         }
 
         return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioRegistroLead");
@@ -244,7 +281,7 @@ public class RegistroLeadController {
 
     // =====================================================================
     // DELETE (AJAX)
-    // Vecchio: deleteRegistroLead() → null
+    // POST /admin/crm/lead/{id}/delete
     // =====================================================================
 
     @PostMapping("/{id}/delete")
@@ -268,7 +305,7 @@ public class RegistroLeadController {
 
     // =====================================================================
     // INVIA SMS
-    // Vecchio: InviaSmsRegistroLead() → forward "successopenRegistroLeadUscitaSms"
+    // POST /admin/crm/lead/{id}/inviaSms
     // =====================================================================
 
     @PostMapping("/{id}/inviaSms")
@@ -286,7 +323,7 @@ public class RegistroLeadController {
                     registroLeadService.findUtenteBase(registroLead.getIdutente()));
             registroLeadService.inviaSms(registroLead, config);
 
-            String now = java.time.LocalDateTime.now().format(DF);
+            String now       = LocalDateTime.now().format(DF);
             String operatore = config.getAmministratore().getNome()
                     + " " + config.getAmministratore().getCognome();
             registroLead.setStore("Sms");
@@ -294,7 +331,7 @@ public class RegistroLeadController {
             registroLead = registroLeadService.crea(registroLead, config);
 
             model.addAttribute("registroLead", registroLead);
-            model.addAttribute("config", config);
+            model.addAttribute("config",       config);
 
         } catch (Exception e) {
             log.error("Errore inviaSmsRegistroLead id={}", id, e);
@@ -305,7 +342,7 @@ public class RegistroLeadController {
 
     // =====================================================================
     // INVIA EMAIL
-    // Vecchio: InviaEmailRegistroLead() → forward "successopenRegistroLeadUscitaEmail"
+    // POST /admin/crm/lead/{id}/inviaEmail
     // =====================================================================
 
     @PostMapping("/{id}/inviaEmail")
@@ -323,7 +360,7 @@ public class RegistroLeadController {
                     registroLeadService.findUtenteBase(registroLead.getIdutente()));
             registroLeadService.inviaEmail(registroLead, config);
 
-            String now = java.time.LocalDateTime.now().format(DF);
+            String now       = LocalDateTime.now().format(DF);
             String operatore = config.getAmministratore().getNome()
                     + " " + config.getAmministratore().getCognome();
             registroLead.setStore("Email");
@@ -331,7 +368,7 @@ public class RegistroLeadController {
             registroLead = registroLeadService.crea(registroLead, config);
 
             model.addAttribute("registroLead", registroLead);
-            model.addAttribute("config", config);
+            model.addAttribute("config",       config);
 
         } catch (Exception e) {
             log.error("Errore inviaEmailRegistroLead id={}", id, e);
@@ -350,10 +387,8 @@ public class RegistroLeadController {
                 var commento = registroLeadService.findCommentoById(
                         (long) registroLead.getIdleadstore());
                 registroLead.setCommento(commento);
-                if (commento != null) {
-                    // commento.getMessaggio() — adatta al tipo reale quando CommentoRepository è pronto
-                }
                 registroLead.setNotalead("Commento caricato");
+
             } else if ("emailstore".equals(registroLead.getStore())
                     && registroLead.getIdutente() > 0) {
                 var email = registroLeadService.findEmailStoreById(

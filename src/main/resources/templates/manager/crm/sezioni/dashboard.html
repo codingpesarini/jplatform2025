@@ -23,7 +23,7 @@
             <div class="card-body d-flex flex-wrap gap-2">
 
               <!-- Nuova attività (lead entrata diretto) -->
-              <a th:href="@{/admin/crm/lead/-1(store='diretto')}"
+              <a th:href="@{/admin/crm/lead/new/diretto}"
                  class="btn btn-primary">
                 <i class="ti ti-checkbox"></i> Nuova attività
               </a>
@@ -35,13 +35,13 @@
               </a>
 
               <!-- Invia Email (lead uscita email) -->
-              <a th:href="@{/admin/crm/lead/-1/uscita(idutente=0,idleadstore=-1,store='diretto',tipologia='Email')}"
+              <a th:href="@{/admin/crm/lead/new/uscita/Email}"
                  class="btn btn-primary">
                 <i class="ti ti-mail"></i> Invia email
               </a>
 
               <!-- Invia SMS (lead uscita sms) -->
-              <a th:href="@{/admin/crm/lead/-1/uscita(idutente=0,idleadstore=-1,store='diretto',tipologia='Sms')}"
+              <a th:href="@{/admin/crm/lead/new/uscita/Sms}"
                  class="btn btn-primary">
                 <i class="ti ti-message"></i> Invia SMS
               </a>
@@ -50,7 +50,6 @@
           </div>
         </div>
 
-        <!-- Card Attività da completare (todo lead) -->
         <div class="col-xl-12">
           <div class="card">
             <div class="card-header">
@@ -85,7 +84,7 @@
                     </td>
                     <td th:text="${lead.notalead}">Nota...</td>
                     <td>
-                      <!-- Vecchio: <bean:message key='jplatcrmleadstato_${stato}'/> -->
+
                       <span class="badge"
                             th:classappend="${lead.stato == '0'} ? 'bg-secondary' :
                                                                   (${lead.stato == '1'} ? 'bg-warning' :

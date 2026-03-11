@@ -379,9 +379,10 @@ public class ContenutoController {
     // =====================================================================
     // DUPLICATE
     // =====================================================================
-    @PostMapping("/{id}/duplicate")
-    public String duplicate(@PathVariable Integer id,
-                            HttpServletRequest request) {
+    @GetMapping("/{id}/duplicate")
+    public String duplicate(
+            @PathVariable Integer id,
+            HttpServletRequest request, Model model) {
 
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
@@ -399,7 +400,7 @@ public class ContenutoController {
             copia.setIdRoot(original.getIdRoot());
             copia.setIdParent(original.getIdParent());
             copia.setIdType(original.getIdType());
-            copia.setTitolo(original.getTitolo() + " (copia)");
+            copia.setTitolo("Copia di " + original.getTitolo());
             copia.setRiassunto(original.getRiassunto());
             copia.setTesto(original.getTesto());
             copia.setStato("0");
@@ -415,23 +416,25 @@ public class ContenutoController {
             copia.setCreato(now);
             copia.setCreatoDa(config.getAmministratore().getNomeCompleto());
 
-            DatiBase saved = contentService.saveContent(copia);
-            log.info("Contenuto duplicato: original={} → new={}", id, saved.getId());
+            Integer idRoot = parseIntSafe(original.getIdRoot());
+            Section sezione = (idRoot != null)
+                    ? contentService.findSectionById(idRoot, idSite).orElse(null)
+                    : null;
+            sezione = normalizzaSezione(sezione, idRoot);
+            copia.setSection(sezione);
 
-            return "redirect:/admin/contenuti/" + saved.getId();
+            model.addAttribute("content", copia);
+            model.addAttribute("post", copia);
+            model.addAttribute("sezione", sezione);
+            model.addAttribute("elencoSezioni", contentService.findRootSections(idSite));
+            model.addAttribute("config", config);
 
         } catch (Exception e) {
             log.error("Errore duplicate contenuto id={}", id, e);
-            // FIX: redirect alla sezione padre, non a /admin/contenuti che non esiste
-            String idSite2 = String.valueOf(config.getIdSito());
-            try {
-                DatiBase original = contentService.findContentById(id, idSite2).orElse(null);
-                if (original != null && original.getIdRoot() != null) {
-                    return "redirect:/admin/sezioni/" + original.getIdRoot() + "/preview";
-                }
-            } catch (Exception ignored) {}
             return "redirect:/admin/sezioni";
         }
+
+        return ViewUtils.resolveProtectedTemplate("cms/dettaglioContenutoTemplate");
     }
 
     // =====================================================================

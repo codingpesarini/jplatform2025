@@ -10,20 +10,20 @@
 
     <!-- ═══ SIDEBAR ═══ -->
     <div class="col-md-3">
-      <section class="card card-success">
-        <header class="card-header">
+      <section class="card card-success" style="border-radius: 15px; overflow: hidden; border: none;">
+        <header class="card-header" style="background-color: #2CA87F; border-bottom: none; padding: 15px 20px;">
           <div class="card-actions">
-            <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
+            <a href="#" class="card-action card-action-toggle" data-card-toggle="" style="color: #fff;"></a>
           </div>
-          <h2 class="card-title">Gestione Messaggi Web</h2>
-          <p class="card-subtitle">Informazioni e parametri</p>
+          <h2 class="card-title" style="color: #fff; font-weight: bold;">Gestione Messaggi Web</h2>
+          <p class="card-subtitle" style="color: rgba(255, 255, 255, 0.9);">Informazioni e parametri</p>
         </header>
-        <div class="card-body">
+        <div class="card-body" style="background: #fff; padding: 20px;">
           <p>In questa sezione sono visualizzati tutti i messaggi diretti utenti (LEAD) inviati tramite web-forms o altri canali diretti di comunicazione quali landing page. I messaggi email non sono riportati in questa sezione ma nella gestione web-mail del CRM.</p>
           <p>È possibile visualizzare i commenti/messaggi non ancora visualizzati o quelli già completati.</p>
-          <a th:href="@{/admin/numeratori}"
+          <a th:href="@{/admin/crm/lead}"
              class="mb-1 mt-1 mr-1 btn btn-xs btn-success btn-lg btn-block">Da iniziare</a>
-          <a th:href="@{/admin/numeratori}"
+          <a th:href="@{/admin/crm/lead}"
              class="mb-1 mt-1 mr-1 btn btn-xs btn-success btn-lg btn-block">Completati</a>
         </div>
       </section>
@@ -31,17 +31,20 @@
 
     <!-- ═══ TABELLA ═══ -->
     <div class="col-md-9">
-      <section class="card card-success">
-        <header class="card-header">
+      <section class="card card-success" style="border-radius: 15px; overflow: hidden; border: none;">
+        <header class="card-header" style="background-color: #2CA87F; border-bottom: none; padding: 15px 20px;">
           <div class="card-actions">
-            <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
+            <a href="#" class="card-action card-action-toggle" data-card-toggle style="color: #fff;"></a>
           </div>
-          <h2 class="card-title">Elenco</h2>
-          <p class="card-subtitle">I dati possono essere creati, modificati e cancellati.</p>
+          <h2 class="card-title" style="color: #fff; font-weight: bold;">Elenco</h2>
+          <p class="card-subtitle" style="color: rgba(255, 255, 255, 0.9);">I dati possono essere creati, modificati e cancellati.</p>
         </header>
         <div class="card-body">
           <div class="right-wrapper text-right">
-            <a href="javascript:void(0);" class="btn btn-primary" onclick="CancellaAnagraficaMultiplaAjax()">
+            <a href="javascript:void(0);"
+               class="btn btn-success rounded-pill px-3 shadow-sm"
+               style="background-color: #2CA87F; border: none; font-weight: bold;"
+               onclick="confirmAction('Sei sicuro di voler cancellare gli elementi selezionati?', function(){ CancellaAnagraficaMultiplaAjax(); }); return false;">
               <i class="fas fa-trash-alt"></i> Cancella selezionati
             </a>
           </div>

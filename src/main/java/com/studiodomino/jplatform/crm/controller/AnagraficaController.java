@@ -44,19 +44,12 @@ public class AnagraficaController {
 
     private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm");
 
-    // =====================================================================
-    // ELENCO ANAGRAFICO
-    // Vecchio: elencoAnagrafico() → forward "successelencoAnagrafico"
-    // =====================================================================
-
     @GetMapping
     public String elencoAnagrafico(HttpServletRequest request, Model model) {
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
-        // L'elenco parte vuoto, si popola con la ricerca
-        // Vecchio: elencoAnagrafico era vuoto finché non si faceva RicercaAnagrafica
         model.addAttribute("elencoAnagrafico", List.of());
         model.addAttribute("ricerca", new UtenteEsterno());
         model.addAttribute("config", config);
@@ -178,11 +171,6 @@ public class AnagraficaController {
         return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioAnagrafica");
     }
 
-    // =====================================================================
-    // RICERCA ANAGRAFICA
-    // Vecchio: RicercaAnagrafica() → forward "successelencoAnagrafico"
-    // =====================================================================
-
     @PostMapping("/cerca")
     public String ricercaAnagrafica(
             @ModelAttribute UtenteEsterno ricerca,
@@ -205,7 +193,7 @@ public class AnagraficaController {
             model.addAttribute("config", config);
         }
 
-        return ViewUtils.resolveProtectedTemplate("crm/contenuti/elencoAnagrafico");
+        return ViewUtils.resolveProtectedTemplate("crm/sezioni/elencoAnagrafica");
     }
 
     // =====================================================================

@@ -24,14 +24,13 @@
           <i class="fas fa-plus-circle"></i> Nuova
         </a>
 
-        <button type="submit"
-                formmethod="post"
-                th:formaction="@{/admin/sezioni/{id}/duplicate(id=${section.id})}"
-                class="mb-1 mt-1 mr-1 btn btn-sm btn-info"
-                th:disabled="${section.id == null}"
-                onclick="return confirm('Confermi di voler duplicare questa sezione?');">
+        <a th:if="${section.id != null}"
+           th:href="@{/admin/sezioni/{id}/duplicate(id=${section.id})}"
+           th:data-titolo="${section.titolo}"
+           class="mb-1 mt-1 mr-1 btn btn-sm btn-info"
+           onclick="confirmAction('Duplicare &quot;' + this.dataset.titolo + '&quot;?', function(){ window.location=this.href; }.bind(this)); return false;">
           <i class="fas fa-clone"></i> Duplica
-        </button>
+        </a>
 
         <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
                 onclick="InviaForm('sezione');">
