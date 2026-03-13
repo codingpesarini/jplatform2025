@@ -319,22 +319,39 @@ public class RegistroLeadController {
         if (!config.isLogged()) return "redirect:/login";
 
         try {
-            registroLead.setUtente(
-                    registroLeadService.findUtenteBase(registroLead.getIdutente()));
+            if (registroLead.getIdutente() != 0 && registroLead.getIdutente() > 0) {
+                registroLead.setUtente(
+                        registroLeadService.findUtenteBase(registroLead.getIdutente()));
+            } else if (registroLead.getUtente() != null) {
+                registroLead.setIdutente(
+                        registroLead.getUtente().getId() != null ? registroLead.getUtente().getId() : 0);
+            }
+
+            log.info("idutente ricevuto: {}", registroLead.getIdutente());
+            log.info("utente ricevuto: {}", registroLead.getUtente() != null ? registroLead.getUtente().toString() : "null");
+            log.info("telefono destinatario: {}", registroLead.getUtente() != null ? registroLead.getUtente().getTelefono() : "null");
+            log.info("telefono2 destinatario: {}", registroLead.getUtente() != null ? registroLead.getUtente().getTelefono2() : "null");
+
             registroLeadService.inviaSms(registroLead, config);
 
-            String now       = LocalDateTime.now().format(DF);
+            String now = LocalDateTime.now().format(DF);
             String operatore = config.getAmministratore().getNome()
                     + " " + config.getAmministratore().getCognome();
+
+            registroLead.setId(null); // FONDAMENTALE
+            registroLead.setDirezione("u");
             registroLead.setStore("Sms");
             registroLead.setLog(buildLogSemplice(now, operatore, "Creazione nuovo lead da"));
+
             registroLead = registroLeadService.crea(registroLead, config);
 
             model.addAttribute("registroLead", registroLead);
-            model.addAttribute("config",       config);
+            model.addAttribute("config", config);
 
         } catch (Exception e) {
             log.error("Errore inviaSmsRegistroLead id={}", id, e);
+            model.addAttribute("registroLead", registroLead);
+            model.addAttribute("config", config);
         }
 
         return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioRegistroLeadUscitaSms");
@@ -356,22 +373,38 @@ public class RegistroLeadController {
         if (!config.isLogged()) return "redirect:/login";
 
         try {
-            registroLead.setUtente(
-                    registroLeadService.findUtenteBase(registroLead.getIdutente()));
+            if ((registroLead.getIdutente() != 0) && (registroLead.getIdutente() > 0)) {
+                registroLead.setUtente(
+                        registroLeadService.findUtenteBase(registroLead.getIdutente()));
+            } else if (registroLead.getUtente() != null) {
+                registroLead.setIdutente(
+                        registroLead.getUtente().getId() != null ? registroLead.getUtente().getId() : 0);
+            }
+
+            log.info("idutente ricevuto: {}", registroLead.getIdutente());
+            log.info("utente ricevuto: {}", registroLead.getUtente() != null ? registroLead.getUtente().toString() : "null");
+            log.info("email destinatario: {}", registroLead.getUtente() != null ? registroLead.getUtente().getEmail() : "null");
+
             registroLeadService.inviaEmail(registroLead, config);
 
-            String now       = LocalDateTime.now().format(DF);
+            String now = LocalDateTime.now().format(DF);
             String operatore = config.getAmministratore().getNome()
                     + " " + config.getAmministratore().getCognome();
+
+            registroLead.setId(null); // FONDAMENTALE
+            registroLead.setDirezione("u");
             registroLead.setStore("Email");
             registroLead.setLog(buildLogSemplice(now, operatore, "Creazione nuovo lead da"));
+
             registroLead = registroLeadService.crea(registroLead, config);
 
             model.addAttribute("registroLead", registroLead);
-            model.addAttribute("config",       config);
+            model.addAttribute("config", config);
 
         } catch (Exception e) {
             log.error("Errore inviaEmailRegistroLead id={}", id, e);
+            model.addAttribute("registroLead", registroLead);
+            model.addAttribute("config", config);
         }
 
         return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioRegistroLeadUscitaEmail");

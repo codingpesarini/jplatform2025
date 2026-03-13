@@ -6,7 +6,7 @@
 <body>
 <div layout:fragment="content">
 
-    <form th:action="@{/admin/anagrafica/save}"
+    <form th:action="@{/admin/amministratori/save}"
           method="post"
           id="amministratoriUtente"
           class="form-bordered">
@@ -30,10 +30,11 @@
                         <i class="fas fa-clone"></i> Duplica
                     </a>
 
-                <button type="button" onclick="InviaForm();"
-                        class="mb-1 mt-1 mr-1 btn btn-sm btn-primary">
-                    <i class="fas fa-save"></i> Salva
-                </button>
+                    <button type="button"
+                            class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
+                            onclick="InviaForm('amministratoriUtente');">
+                        <i class="fas fa-save"></i> Salva
+                    </button>
                 <a th:href="@{/admin/amministratori}" onclick="CloseHsReloadBase();"
                    class="mb-1 mt-1 mr-1 btn btn-sm btn-danger">
                     <i class="fas fa-times-circle"></i> Esci
@@ -186,8 +187,8 @@
                                     <div class="col-lg-4">
                                         <label for="statoaccesso" class="col-form-label">Stato attivazione</label>
                                         <select name="statoaccesso" id="statoaccesso" class="form-control">
-                                            <option value=""  th:selected="${anagraficaUtente.statoaccesso == null}">Indefinito</option>
-                                            <option value="0" th:selected="${anagraficaUtente.statoaccesso == 0}">Disattivo</option>
+                                            <option value=""  th:selected="${amministratoriUtente.statoaccesso == null}">Indefinito</option>
+                                            <option value="0" th:selected="${amministratoriUtente.statoaccesso == 0}">Disattivo</option>
                                             <option value="1" th:selected="${amministratoriUtente.statoaccesso == 1}">Attivo</option>
                                         </select>
                                     </div>

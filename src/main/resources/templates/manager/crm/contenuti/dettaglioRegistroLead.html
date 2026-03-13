@@ -77,7 +77,7 @@
 
                                             <div class="col-lg-12 text-right mb-2"
                                                  th:if="${registroLead.idutente != null and registroLead.idutente != 0}">
-                                                <a th:href="@{/admin/crm/utenti/{id}(id=${registroLead.idutente})}"
+                                                <a th:if="${registroLead.utente != null and registroLead.utente.id != null and registroLead.utente.id > 0}"
                                                    class="mb-1 mt-1 mr-1 btn btn-primary">
                                                     <i class="fa fa-user"></i> Dettaglio anagrafica
                                                 </a>

@@ -19,20 +19,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Controller admin per la gestione dell'anagrafica utenti CRM.
- * Conversione da GestioneAnagraficaUtenti.java (Struts) a Spring MVC.
- *
- * Mapping URL:
- *   GET  /admin/crm/utenti                → elencoAnagrafico
- *   GET  /admin/crm/utenti/new            → newAnagrafica
- *   GET  /admin/crm/utenti/{id}           → openAnagrafica
- *   POST /admin/crm/utenti/save           → saveAnagrafica
- *   POST /admin/crm/utenti/cerca          → ricercaAnagrafica
- *   POST /admin/crm/utenti/{id}/delete    → deleteAnagrafica (AJAX)
- *   POST /admin/crm/utenti/{id}/duplicate → duplicaAnagrafica
- *   POST /admin/crm/utenti/{id}/password  → modificaPasswordAjax (AJAX)
- */
 @Controller
 @RequestMapping("/admin/crm/utenti")
 @RequiredArgsConstructor
@@ -44,13 +30,22 @@ public class AnagraficaController {
 
     private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm");
 
+    // =====================================================================
+    // ELENCO
+    // =====================================================================
+
     @GetMapping
     public String elencoAnagrafico(HttpServletRequest request, Model model) {
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
-        model.addAttribute("elencoAnagrafico", List.of());
+        try {
+            model.addAttribute("elencoAnagrafico", anagraficaService.findAll());
+        } catch (Exception e) {
+            log.error("Errore elencoAnagrafico", e);
+            model.addAttribute("elencoAnagrafico", List.of());
+        }
         model.addAttribute("ricerca", new UtenteEsterno());
         model.addAttribute("config", config);
 
@@ -58,8 +53,7 @@ public class AnagraficaController {
     }
 
     // =====================================================================
-    // NEW ANAGRAFICA
-    // Vecchio: newAnagrafica() → forward "successopenAnagrafica"
+    // NEW
     // =====================================================================
 
     @GetMapping("/new")
@@ -72,22 +66,33 @@ public class AnagraficaController {
         if (!config.isLogged()) return "redirect:/login";
 
         UtenteEsterno utente = new UtenteEsterno();
-        utente.setId(-1);
+        utente.setId(null);          // null = nuovo — NON mettere 0 o -1
         utente.setStatus("1");
-        utente.setNazione("1");
-        if (!email.isEmpty()) {
-            utente.setEmail(email); // newAnagraficaByEmail
-        }
+        utente.setNazione("");
+        utente.setDatanascita("");
+        // reset campi che potrebbero avere default "0" nell'entity
+        utente.setCodicefiscale("");
+        utente.setPartitaiva("");
+        utente.setSocieta("");
+        utente.setComune("");
+        utente.setCap("");
+        utente.setProvincia("");
+        utente.setIndirizzo("");
+        utente.setIndirizzospedizione("");
+        utente.setTelefono("");
+        utente.setTelefono2("");
+        utente.setPec("");
+        if (!email.isEmpty()) utente.setEmail(email);
 
         model.addAttribute("utente", utente);
+        model.addAttribute("elencoAnagrafico", List.of(utente));
         model.addAttribute("config", config);
 
         return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioAnagrafica");
     }
 
     // =====================================================================
-    // OPEN ANAGRAFICA
-    // Vecchio: openAnagrafica() → forward "successopenAnagrafica"
+    // OPEN
     // =====================================================================
 
     @GetMapping("/{id}")
@@ -97,28 +102,31 @@ public class AnagraficaController {
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
-        if (id == null || id == -1) {
-            return "redirect:/admin/crm/utenti/new";
-        }
 
         try {
             UtenteEsterno utente = anagraficaService.findById(id);
             model.addAttribute("utente", utente);
+            model.addAttribute("elencoAnagrafico", List.of(utente));
             model.addAttribute("config", config);
         } catch (Exception e) {
             log.error("Errore openAnagrafica id={}", id, e);
+            return "redirect:/admin/crm/utenti";
         }
 
         return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioAnagrafica");
     }
 
     // =====================================================================
-    // SAVE ANAGRAFICA
-    // Vecchio: saveAnagrafica() → forward "successopenAnagrafica"
+    // SAVE
+    // Il form manda id="" (stringa vuota) per nuovo utente → Spring converte
+    // a null → isNew = true → INSERT.
+    // Per utente esistente manda id numerico → isNew = false → UPDATE.
+    // MAI usare 0 o -1 come sentinella: JPA li interpreta come entità detached.
     // =====================================================================
 
     @PostMapping("/save")
     public String saveAnagrafica(
+            @RequestParam(value = "id", required = false) Integer id,
             @ModelAttribute UtenteEsterno utente,
             @RequestParam(value = "newpassword", defaultValue = "") String newPassword,
             @RequestParam(value = "newpasswordretype", defaultValue = "") String newPasswordRetype,
@@ -131,13 +139,15 @@ public class AnagraficaController {
         try {
             String now = LocalDateTime.now().format(DF);
 
-            boolean isNew = utente.getId() == null || utente.getId().equals("-1");
+            // isNew: id non presente o null (form ha mandato stringa vuota)
+            boolean isNew = (id == null || id <= 0);
 
             if (isNew) {
-                // CREA nuovo utente con username auto-generato
+                utente.setId(null); // forza INSERT
                 Random rnd = new Random(System.currentTimeMillis());
                 int rnn = Math.abs(rnd.nextInt() / 1000);
-                String username = utente.getNome() + "@" + rnn;
+                String username = (utente.getNome() != null && !utente.getNome().isEmpty()
+                        ? utente.getNome() : "user") + "@" + rnn;
                 utente.setUsername(username);
                 utente.setPassword(username);
                 utente.setDatacreazione(now);
@@ -147,29 +157,33 @@ public class AnagraficaController {
                 log.info("Utente creato: id={}", utente.getId());
 
             } else {
-                // AGGIORNA utente esistente
-                // Cambia password solo se entrambi i campi sono valorizzati e coincidono
+                utente.setId(id); // assicura id corretto
                 if (!newPassword.isEmpty() && newPassword.equals(newPasswordRetype)) {
-                    anagraficaService.cambiaPassword(utente.getId(), newPassword);
-                    log.info("Password cambiata per utente id={}", utente.getId());
+                    anagraficaService.cambiaPassword(id, newPassword);
+                    log.info("Password cambiata per utente id={}", id);
                 }
-
                 utente = anagraficaService.salva(utente);
                 log.info("Utente salvato: id={}", utente.getId());
             }
 
             model.addAttribute("utente", utente);
+            model.addAttribute("elencoAnagrafico", List.of(utente));
             model.addAttribute("config", config);
 
         } catch (Exception e) {
             log.error("Errore saveAnagrafica", e);
             model.addAttribute("error", "Errore nel salvataggio: " + e.getMessage());
             model.addAttribute("utente", utente);
+            model.addAttribute("elencoAnagrafico", List.of(utente));
             model.addAttribute("config", config);
         }
 
         return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioAnagrafica");
     }
+
+    // =====================================================================
+    // CERCA
+    // =====================================================================
 
     @PostMapping("/cerca")
     public String ricercaAnagrafica(
@@ -185,7 +199,6 @@ public class AnagraficaController {
             model.addAttribute("elencoAnagrafico", risultati);
             model.addAttribute("ricerca", ricerca);
             model.addAttribute("config", config);
-
         } catch (Exception e) {
             log.error("Errore ricercaAnagrafica", e);
             model.addAttribute("elencoAnagrafico", List.of());
@@ -197,8 +210,7 @@ public class AnagraficaController {
     }
 
     // =====================================================================
-    // DELETE ANAGRAFICA (AJAX)
-    // Vecchio: deleteAnagrafica() → null (risposta diretta)
+    // DELETE SINGOLO (AJAX)
     // =====================================================================
 
     @PostMapping("/{id}/delete")
@@ -222,13 +234,38 @@ public class AnagraficaController {
     }
 
     // =====================================================================
-    // DUPLICA ANAGRAFICA
-    // Vecchio: duplicaAnagrafica() → forward "successopenAnagrafica"
+    // DELETE MULTIPLO (AJAX)
     // =====================================================================
 
-    @PostMapping("/{id}/duplicate")
-    public String duplicaAnagrafica(@PathVariable Integer id,
-                                    HttpServletRequest request, Model model) {
+    @PostMapping("/delete-multiplo")
+    @ResponseBody
+    public String deleteMultiplo(
+            @RequestParam(value = "ids[]", required = false) Integer[] ids,
+            HttpServletRequest request) {
+
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+        if (!config.isLogged()) return "KO";
+        if (ids == null || ids.length == 0) return "KO";
+
+        try {
+            for (Integer id : ids) anagraficaService.elimina(id);
+            log.info("Delete multiplo utenti: {}", java.util.Arrays.toString(ids));
+            return "OK";
+        } catch (Exception e) {
+            log.error("Errore delete multiplo", e);
+            return "KO";
+        }
+    }
+
+    // =====================================================================
+    // DUPLICATE — GET: carica form con dati copiati e id=null
+    // =====================================================================
+
+    @GetMapping("/{id}/duplicate")
+    public String duplicaAnagrafica(
+            @PathVariable Integer id,
+            HttpServletRequest request, Model model) {
 
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
@@ -236,14 +273,18 @@ public class AnagraficaController {
 
         try {
             UtenteEsterno original = anagraficaService.findById(id);
-            original.setId(-1);
-            original.setCognome(original.getCognome() + " (2)");
+            original.setId(null); // null = nuovo — al salvataggio farà INSERT
+            original.setCognome(original.getCognome() + " (copia)");
+            original.setEmail("");    // email è unica, va reinserita
+            original.setUsername(""); // verrà rigenerato al save
 
             model.addAttribute("utente", original);
+            model.addAttribute("elencoAnagrafico", List.of(original));
             model.addAttribute("config", config);
 
         } catch (Exception e) {
             log.error("Errore duplicaAnagrafica id={}", id, e);
+            return "redirect:/admin/crm/utenti";
         }
 
         return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioAnagrafica");
@@ -251,7 +292,6 @@ public class AnagraficaController {
 
     // =====================================================================
     // MODIFICA PASSWORD (AJAX)
-    // Vecchio: modificaPasswordAjax() → forward "successmodificaPasswordAnagrafica"
     // =====================================================================
 
     @PostMapping("/{id}/password")
@@ -267,7 +307,7 @@ public class AnagraficaController {
 
         try {
             String nuovaPassword = anagraficaService.cambiaPassword(id, password);
-            log.info("Password modificata via AJAX per utente id={}", id);
+            log.info("Password modificata per utente id={}", id);
             return ResponseEntity.ok(nuovaPassword);
         } catch (Exception e) {
             log.error("Errore modificaPassword id={}", id, e);

@@ -167,7 +167,6 @@ public class AmministratoriController {
 
     // ─── SAVE ────────────────────────────────────────────────────────────────
     @PostMapping("/save")
-    @Transactional
     public String save(
             @ModelAttribute("anagraficaUtente") Utente utente,
             @RequestParam(value = "newpassword", required = false) String newPassword,
@@ -178,17 +177,29 @@ public class AmministratoriController {
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
-        if (utente.getId() != null) {
-            // Utente esistente: cambia password solo se compilata e coincidente
-            if (newPassword != null && !newPassword.isEmpty()
-                    && newPassword.equals(newPasswordRetype)) {
-                utente.setPassword(newPassword);
+        if (utente.getId() == null) {
+            String now = new SimpleDateFormat("dd/MM/yyyy - HH:mm").format(new Date());
+
+            utente.setDatacreazione(now);
+            utente.setDataultimoaccesso(now);
+
+            if (utente.getIpultimoaccesso() == null) utente.setIpultimoaccesso("");
+            if (utente.getNumeroaccessi() == null) utente.setNumeroaccessi("");
+            if (utente.getTelefono() == null) utente.setTelefono("");
+            if (utente.getTelefono2() == null) utente.setTelefono2("");
+            if (utente.getProfileImage() == null) utente.setProfileImage(0);
+            if (utente.getPassword() == null) utente.setPassword("");
+            if (utente.getEmail() == null) utente.setEmail("");
+            if (utente.getPec() == null) utente.setPec("");
+            if (utente.getIndirizzo() == null) utente.setIndirizzo("");
+            if (utente.getIncarico() == null) utente.setIncarico("");
+            if (utente.getUsername() == null) utente.setUsername("");
+            if (utente.getIdsite() == null || utente.getIdsite().isBlank()) {
+                utente.setIdsite(String.valueOf(config.getIdSito()));
             }
-        } else {
-            // Nuovo utente: imposta datacreazione
-            utente.setDatacreazione(
-                    new SimpleDateFormat("dd/MM/yyyy - HH:mm").format(new Date())
-            );
+            if (utente.getStatoaccesso() == null) {
+                utente.setStatoaccesso(1);
+            }
         }
 
         Utente salvato = utenteRepository.save(utente);
@@ -204,14 +215,19 @@ public class AmministratoriController {
     }
 
     // ─── DELETE SINGOLO (AJAX) ───────────────────────────────────────────────
+    // Aggiungi questo import
+
     @PostMapping("/{id}/delete")
     @ResponseBody
-    @Transactional
+    @Transactional // Garantisce che la cancellazione avvenga correttamente nel DB
     public String delete(@PathVariable Integer id) {
         try {
-            utenteRepository.deleteById(id);
-            log.info("=== AMMINISTRATORI DELETE === id: {}", id);
-            return "OK";
+            if (utenteRepository.existsById(id)) {
+                utenteRepository.deleteById(id);
+                log.info("=== AMMINISTRATORI DELETE === id: {}", id);
+                return "OK";
+            }
+            return "KO: Utente non trovato";
         } catch (Exception e) {
             log.error("Errore cancellazione amministratore id={}: {}", id, e.getMessage());
             return "KO";
@@ -222,8 +238,16 @@ public class AmministratoriController {
     @PostMapping("/delete-multiplo")
     @ResponseBody
     @Transactional
-    public String deleteMultiplo(@RequestParam(value = "ids") Integer[] ids) {
+    public String deleteMultiplo(@RequestParam(value = "ids[]", required = false) Integer[] ids) {
+        // NOTA: Ho aggiunto "ids[]" perché molti framework JS (come jQuery o URLSearchParams)
+        // quando inviano un array usano le parentesi quadre nel nome del parametro.
+
+        if (ids == null || ids.length == 0) {
+            return "KO: Nessun ID ricevuto";
+        }
+
         try {
+            // Usiamo Arrays.asList per convertire l'array in lista
             utenteRepository.deleteAllByIdInBatch(Arrays.asList(ids));
             log.info("=== AMMINISTRATORI DELETE MULTIPLO === ids: {}", Arrays.toString(ids));
             return "OK";

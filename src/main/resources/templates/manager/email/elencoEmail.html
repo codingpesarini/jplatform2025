@@ -1,131 +1,133 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="it"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{manager/layout/template}">
 <body>
 
 <div layout:fragment="content">
 
-  <section class="content-with-menu mailbox">
-    <div class="content-with-menu-container" data-mailbox data-mailbox-view="folder">
+  <div class="row">
+    <!-- Sidebar -->
+    <div class="col-12 col-xxl-3 mb-4">
+      <div class="card">
+        <div class="card-body">
 
-      <div class="inner-menu-toggle">
-        <a href="javascript:void(0)" class="inner-menu-expand" data-open="inner-menu">
-          Mostra <i class="fas fa-chevron-right"></i>
-        </a>
-      </div>
+          <div class="d-grid gap-2 mb-3">
+            <a th:href="@{/admin/email/inbox/{id}(id=${config.actualMailboxId})}"
+               class="btn btn-primary">
+              <i class="ti ti-refresh me-1"></i> Aggiorna
+            </a>
 
-      <menu id="content-menu" class="inner-menu" role="menu">
+            <a th:href="@{/admin/email/componi/{id}(id=${config.actualMailboxId})}"
+               class="btn btn-primary">
+              <i class="ti ti-mail me-1"></i> Scrivi
+            </a>
 
-            <div class="inner-menu-content">
-              <a th:href="@{/admin/email/inbox/{id}(id=${config.actualMailboxId})}"
-                 class="btn btn-block btn-primary btn-sd pt-1 pb-1 text-3">
-                <i class="fas fa-sync mr-1"></i> Aggiorna
-              </a>
-
-              <a th:href="@{/admin/email/componi/{id}(id=${config.actualMailboxId})}"
-                 class="btn btn-block btn-primary btn-sd pt-1 pb-1 text-3"
-                 rel="highslide-iframe">
-                <i class="fas fa-envelope mr-1"></i> Scrivi
-              </a>
-
-              <a href="javascript:CancellaEmailMultiplaAjax([[${config.actualMailboxId}]])"
-                 class="btn btn-block btn-primary btn-sd pt-1 pb-1 text-3">
-                <i class="fas fa-trash-alt mr-1"></i> Cancella
-              </a>
-
-              <hr class="separator"/>
-
-              <div class="sidebar-widget m-0">
-                <div class="widget-header">
-                  <h6 class="title">Le tue Mailbox</h6>
-                  <span class="widget-toggle">+</span>
-                </div>
-                <div class="widget-content">
-                  <ul class="list-unstyled mailbox-bullets">
-                    <li>
-                      <a th:href="@{/admin/email/inbox/{id}(id=${config.amministratore.idaccountemail})}"
-                         class="menu-item"
-                         th:text="${config.amministratore.email}">account@example.com</a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <hr class="separator"/>
-            </div>
-      </menu>
-
-      <div class="inner-body mailbox-folder p-3">
-
-        <header class="m-2">
-          <div class="row">
-            <div class="col-md-12">
-              <h3>Inbox</h3>
-            </div>
+            <a href="javascript:void(0)"
+               th:attr="onclick=|CancellaEmailMultiplaAjax('${config.actualMailboxId}')|"
+               class="btn btn-primary">
+              <i class="ti ti-trash me-1"></i> Cancella
+            </a>
           </div>
-        </header>
 
-        <div th:if="${erroreMailer != null}" class="alert alert-warning">
-          <i class="fas fa-exclamation-triangle mr-2"></i>
-          <span th:switch="${erroreMailer}">
-            <span th:case="'configurazione_assente'">Nessun account email configurato.</span>
-            <span th:case="'parametri_errati'">Parametri account email incompleti o errati.</span>
-            <span th:case="'autenticazione_fallita'">Autenticazione fallita. Verificare username e password.</span>
-            <span th:case="'errore_connessione'">Impossibile connettersi al server email.</span>
-            <span th:case="'provider_non_disponibile'">Provider email non disponibile. Verificare la configurazione del server.</span>
-            <span th:case="*">Errore generico nella lettura delle email.</span>
-          </span>
+          <hr>
+
+          <h5 class="mb-3">Le tue Mailbox</h5>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item px-0">
+              <a th:href="@{/admin/email/inbox/{id}(id=${config.amministratore.idaccountemail})}"
+                 class="text-decoration-none"
+                 th:text="${config.amministratore.email}">
+                account@example.com
+              </a>
+            </li>
+          </ul>
+
         </div>
-
-        <div class="table-responsive">
-          <table class="table table-bordered table-striped table-hover mb-3" id="tabellaEmail">
-            <thead>
-            <tr>
-              <th><input type="checkbox" class="chSel_all inpt_c2"/></th>
-              <th>Email</th>
-              <th>Data arrivo</th>
-              <th>Oggetto</th>
-              <th>Mittente</th>
-              <th>Dim. Kb</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:if="${#lists.isEmpty(listaEmailArrivo)}">
-              <td colspan="6" class="text-center text-muted">Nessun messaggio in arrivo.</td>
-            </tr>
-            <tr th:each="msg : ${listaEmailArrivo}"
-                th:classappend="${!msg.letto} ? 'fw-bold' : ''">
-              <td class="check">
-                <input type="checkbox" name="row_sel"
-                       th:id="${'AnagRow' + msg.id}"
-                       class="inpt_c2"
-                       th:value="${msg.id}"/>
-              </td>
-              <td>
-                <a title="Apri messaggio"
-                   th:href="@{/admin/email/open/{id}/{acc}(id=${msg.id},acc=${config.actualMailboxId})}"
-                   rel="highslide-iframe">
-                  <img th:src="@{'/manager/assets/img/icons/' + ${msg.letto ? 'trueEmail' : 'falseEmail'} + '.png'}"
-                       width="32" height="32" alt=""/>
-                </a>
-              </td>
-              <td th:text="${msg.data}">01/01/2025</td>
-              <td>
-                <a th:href="@{/admin/email/open/{id}/{acc}(id=${msg.id},acc=${config.actualMailboxId})}"
-                   rel="highslide-iframe"
-                   th:text="${msg.oggetto}">Oggetto</a>
-              </td>
-              <td th:text="${msg.mittente}">mittente@example.com</td>
-              <td th:text="${msg.size}">0</td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-
       </div>
     </div>
-  </section>
+
+    <!-- Content -->
+    <div class="col-12 col-xxl-9">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <h3 class="mb-0">Inbox</h3>
+        </div>
+
+        <div class="card-body">
+
+          <div th:if="${erroreMailer != null}" class="alert alert-warning">
+            <i class="ti ti-alert-triangle me-2"></i>
+            <span th:switch="${erroreMailer}">
+                            <span th:case="'configurazione_assente'">Nessun account email configurato.</span>
+                            <span th:case="'parametri_errati'">Parametri account email incompleti o errati.</span>
+                            <span th:case="'autenticazione_fallita'">Autenticazione fallita. Verificare username e password.</span>
+                            <span th:case="'errore_connessione'">Impossibile connettersi al server email.</span>
+                            <span th:case="'provider_non_disponibile'">Provider email non disponibile. Verificare la configurazione del server.</span>
+                            <span th:case="*">Errore generico nella lettura delle email.</span>
+                        </span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle" id="tabellaEmail">
+              <thead>
+              <tr>
+                <th style="width:40px;">
+                  <input type="checkbox" class="form-check-input chSel_all inpt_c2"/>
+                </th>
+                <th style="width:70px;">Email</th>
+                <th>Data arrivo</th>
+                <th>Oggetto</th>
+                <th>Mittente</th>
+                <th>Dim. Kb</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr th:if="${#lists.isEmpty(listaEmailArrivo)}">
+                <td colspan="6" class="text-center text-muted">Nessun messaggio in arrivo.</td>
+              </tr>
+
+              <tr th:each="msg : ${listaEmailArrivo}"
+                  th:classappend="${!msg.letto} ? 'fw-bold' : ''">
+                <td>
+                  <input type="checkbox"
+                         name="row_sel"
+                         th:id="${'AnagRow' + msg.id}"
+                         class="form-check-input inpt_c2"
+                         th:value="${msg.id}"/>
+                </td>
+
+                <td>
+                  <a th:href="@{/admin/email/open/{id}/{acc}(id=${msg.id},acc=${config.actualMailboxId})}"
+                     title="Apri messaggio">
+                    <img th:src="@{'/manager/assets/img/icons/' + ${msg.letto ? 'trueEmail' : 'falseEmail'} + '.png'}"
+                         width="28" height="28" alt="mail"/>
+                  </a>
+                </td>
+
+                <td th:text="${msg.data}">01/01/2025</td>
+
+                <td>
+                  <a th:href="@{/admin/email/open/{id}/{acc}(id=${msg.id},acc=${config.actualMailboxId})}"
+                     th:text="${msg.oggetto}"
+                     class="text-decoration-none">
+                    Oggetto
+                  </a>
+                </td>
+
+                <td th:text="${msg.mittente}">mittente@example.com</td>
+                <td th:text="${msg.size}">0</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
 
 </div>
 </body>

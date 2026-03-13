@@ -65,7 +65,7 @@
                 <div class="form-group">
                   <label class="col-form-label" for="codicefiscale">Codice fiscale</label>
                   <input type="text" class="form-control" id="codicefiscale" name="codicefiscale"
-                         th:value="${ricerca != null ? ricerca.codicefiscale : ''}">
+                         th:value="${ricerca != null and ricerca.codicefiscale != '0' ? ricerca.codicefiscale : ''}">
                 </div>
               </div>
             </div>
@@ -91,7 +91,7 @@
                 <div class="form-group">
                   <label class="col-form-label" for="comune">Comune</label>
                   <input type="text" class="form-control" id="comune" name="comune"
-                         th:value="${ricerca != null ? ricerca.comune : ''}">
+                         th:value="${ricerca != null and ricerca.comune != '0' ? ricerca.comune : ''}">
                 </div>
               </div>
 
@@ -107,7 +107,7 @@
           </div>
 
           <footer class="card-footer text-right">
-            <a th:href="@{/admin/crm/utenti}" class="btn btn-primary reset">Pulisci</a>
+            <a th:href="@{/admin/crm/utenti}" class="btn btn-primary">Pulisci</a>
             <button class="btn btn-primary" type="submit">Ricerca contatti</button>
           </footer>
 
@@ -128,25 +128,26 @@
 
         <div class="card-body">
 
-          <div class="right-wrapper text-right">
-            <a href="javascript:void(0);" class="btn btn-primary" onclick="CancellaAnagraficaMultiplaAjax()">
+          <div class="right-wrapper text-right mb-2">
+            <a href="javascript:void(0);"
+               class="btn btn-sm btn-primary"
+               onclick="cancellaSelezionati()">
               <i class="fas fa-trash-alt"></i> Cancella selezionati
             </a>
           </div>
 
-          <br>
           <div class="table-responsive">
             <table class="table table-responsive-lg table-bordered table-striped mb-0">
               <thead>
               <tr>
                 <th style="width:5%;">
                   <div class="th_wrapp">
-                    <input type="checkbox" class="chSel_all inpt_c2" onclick="toggleAllRows(this)">
+                    <input type="checkbox" class="chSel_all inpt_c2">
                   </div>
                 </th>
                 <th><div class="th_wrapp">Cognome</div></th>
                 <th><div class="th_wrapp">Contatti</div></th>
-                <th style="width:60px;">Edit</th>
+                <th style="width:90px;" class="text-center"><div class="th_wrapp">Azioni</div></th>
               </tr>
               </thead>
 
@@ -165,25 +166,37 @@
 
                 <td>
                   <a th:href="@{/admin/crm/utenti/{id}(id=${r.id})}">
-                    <img th:src="${r.avatar != null && r.avatar != '' ? r.avatar : '/manager/assets/img/avatar-default.png'}"
-                         class="rounded-circle miniAvatar float-left" alt="avatar">
                     <span th:text="${r.cognome}">Cognome</span>
                     <span th:text="${r.nome}">Nome</span>
-                    <span>(CF: <span th:text="${r.codicefiscale}">---</span>)</span>
                   </a>
+                  <small class="text-muted d-block"
+                         th:if="${r.codicefiscale != null and r.codicefiscale != '0'}"
+                         th:text="'CF: ' + ${r.codicefiscale}"></small>
                 </td>
 
                 <td>
-                  <span th:text="${r.email}">email</span>
-                  <span> - </span>
-                  <span th:text="${r.telefono}">tel</span>
-                  <span> - </span>
-                  <span th:text="${r.telefono2}">cell</span>
+                  <span th:text="${r.email}"></span>
+                  <span th:if="${r.telefono != null and r.telefono != ''}"
+                        th:text="' — ' + ${r.telefono}"></span>
+                  <span th:if="${r.telefono2 != null and r.telefono2 != ''}"
+                        th:text="' — ' + ${r.telefono2}"></span>
                 </td>
 
-                <td>
-                  <a th:href="@{/admin/crm/utenti/{id}(id=${r.id})}">
+                <td class="text-center">
+                  <!-- Modifica -->
+                  <a th:href="@{/admin/crm/utenti/{id}(id=${r.id})}"
+                     class="btn btn-sm btn-info mr-1"
+                     title="Modifica">
                     <i class="fas fa-pencil-alt"></i>
+                  </a>
+                  <!-- Cancella singolo -->
+                  <a href="javascript:void(0);"
+                     class="btn btn-sm btn-danger"
+                     th:data-id="${r.id}"
+                     th:data-nome="${r.cognome + ' ' + r.nome}"
+                     onclick="cancellaRiga(this)"
+                     title="Cancella">
+                    <i class="fas fa-trash-alt"></i>
                   </a>
                 </td>
               </tr>
@@ -198,16 +211,57 @@
   </div>
 
   <script>
-    function toggleAllRows(master) {
-      document.querySelectorAll(".row_sel").forEach(cb => cb.checked = master.checked);
+    // 1. CANCELLAZIONE SINGOLA
+    function cancellaRiga(btn) {
+      var id   = btn.getAttribute('data-id');
+      var nome = btn.getAttribute('data-nome');
+      confirmAction('Sei sicuro di voler eliminare il contatto "' + nome + '"?', function() {
+        eseguiCancellazioneAjax([id]);
+      });
     }
 
-    function CancellaAnagraficaMultiplaAjax() {
-      const ids = Array.from(document.querySelectorAll(".row_sel:checked")).map(cb => cb.value);
-      if (ids.length === 0) { alert("Seleziona almeno un contatto."); return; }
-      // TODO: chiamata AJAX tua
-      console.log("Da cancellare:", ids);
+    // 2. CANCELLAZIONE MULTIPLA
+    function cancellaSelezionati() {
+      const ids = Array.from(document.querySelectorAll('input[name="row_sel"]:checked')).map(cb => cb.value);
+      if (ids.length === 0) {
+        confirmAction('Nessun contatto selezionato. Seleziona almeno una riga per procedere.', function() {});
+        setTimeout(() => {
+          const buttons = document.querySelectorAll('.modal-footer button');
+          if (buttons.length > 1) buttons[0].style.display = 'none';
+        }, 100);
+        return;
+      }
+      confirmAction('Sei sicuro di voler eliminare i ' + ids.length + ' contatti selezionati?', function() {
+        eseguiCancellazioneAjax(ids);
+      });
     }
+
+    // 3. FUNZIONE AJAX
+    function eseguiCancellazioneAjax(ids) {
+      const formData = new URLSearchParams();
+      ids.forEach(id => formData.append('ids[]', id));
+      fetch('/admin/crm/utenti/delete-multiplo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData
+      })
+      .then(response => response.text())
+      .then(result => {
+        if (result === 'OK') {
+          window.location.reload();
+        } else {
+          alert('Errore durante la cancellazione.');
+        }
+      })
+      .catch(error => console.error('Errore:', error));
+    }
+
+    // 4. SELEZIONA TUTTI
+    document.addEventListener('change', function(e) {
+      if (e.target.classList.contains('chSel_all')) {
+        document.querySelectorAll('input[name="row_sel"]').forEach(cb => cb.checked = e.target.checked);
+      }
+    });
   </script>
 
 </div>

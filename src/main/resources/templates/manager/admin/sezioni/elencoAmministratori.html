@@ -93,8 +93,9 @@
         </header>
         <div class="card-body">
           <div class="right-wrapper text-right mb-2">
-            <a href="javascript:void(0);" class="btn btn-primary"
-               onclick="CancellaAmministratoriMultiplaAjax()">
+            <a href="javascript:void(0);"
+               class="btn btn-primary rounded-pill px-3 shadow-sm"
+               onclick="CancellaAmministratoriMultiplaAjax(); return false;">
               <i class="fas fa-trash-alt"></i> Cancella selezionati
             </a>
           </div>
@@ -156,6 +157,63 @@
     </div>
 
   </div>
+
+  <script>
+    // 1. CANCELLAZIONE SINGOLA (Icona cestino nella tabella)
+    function cancellaAmministratore(id) {
+        confirmAction('Sei sicuro di voler eliminare questo amministratore?', function() {
+            eseguiCancellazioneAjax([id]); // Passiamo l'id come array
+        });
+    }
+
+    // 2. CANCELLAZIONE MULTIPLA (Pulsante verde in alto)
+    function CancellaAmministratoriMultiplaAjax() {
+        const checkboxes = document.querySelectorAll('input[name="row_sel"]:checked');
+        const ids = Array.from(checkboxes).map(cb => cb.value);
+
+        if (ids.length === 0) {
+            confirmAction('Nessun contatto selezionato. Seleziona almeno una riga per procedere.', function() {});
+            setTimeout(() => {
+                const buttons = document.querySelectorAll('.modal-footer button');
+                if (buttons.length > 1) buttons[0].style.display = 'none';
+            }, 100);
+        } else {
+            confirmAction('Sei sicuro di voler eliminare i ' + ids.length + ' contatti selezionati?', function() {
+                eseguiCancellazioneAjax(ids);
+            });
+        }
+    }
+
+    // 3. LOGICA DI INVIO AL SERVER (Comune a entrambi)
+    function eseguiCancellazioneAjax(ids) {
+    const formData = new URLSearchParams();
+    // Aggiungiamo le parentesi quadre al nome così Spring capisce che è un array
+    ids.forEach(id => formData.append('ids[]', id));
+
+    fetch('/admin/amministratori/delete-multiplo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData
+    })
+    .then(response => response.text()) // Leggiamo il testo "OK" o "KO"
+    .then(result => {
+        if (result === "OK") {
+            window.location.reload();
+        } else {
+            alert("Errore: " + result);
+        }
+    })
+    .catch(error => console.error("Errore tecnico:", error));
+}
+
+    // 4. SELEZIONA TUTTI
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('chSel_all')) {
+            const checkboxes = document.querySelectorAll('input[name="row_sel"]');
+            checkboxes.forEach(cb => cb.checked = e.target.checked);
+        }
+    });
+  </script>
 
 </div>
 </body>

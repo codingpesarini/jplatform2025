@@ -44,7 +44,7 @@
             <a href="javascript:void(0);"
                class="btn btn-success rounded-pill px-3 shadow-sm"
                style="background-color: #2CA87F; border: none; font-weight: bold;"
-               onclick="confirmAction('Sei sicuro di voler cancellare gli elementi selezionati?', function(){ CancellaAnagraficaMultiplaAjax(); }); return false;">
+               onclick="CancellaAnagraficaMultiplaAjax(); return false;">
               <i class="fas fa-trash-alt"></i> Cancella selezionati
             </a>
           </div>
@@ -110,13 +110,63 @@
   </div>
 
   <script>
-
-    function CancellaAnagraficaMultiplaAjax() {
-      const ids = Array.from(document.querySelectorAll(".row_sel:checked")).map(cb => cb.value);
-      if (ids.length === 0) { alert("Seleziona almeno un contatto."); return; }
-      // TODO: chiamata AJAX tua
-      console.log("Da cancellare:", ids);
+    // 1. CANCELLAZIONE SINGOLA (Cestino nella tabella)
+    function CancellaCommentoUtente(id) {
+        confirmAction('Sei sicuro di voler eliminare questo messaggio?', function() {
+            eseguiCancellazioneMessaggiAjax([id]);
+        });
     }
+
+    // 2. CANCELLAZIONE MULTIPLA (Pulsante verde)
+    function CancellaAnagraficaMultiplaAjax() {
+        // Cerchiamo i checkbox selezionati con name="row_sel"
+        const checkboxes = document.querySelectorAll('input[name="row_sel"]:checked');
+        const ids = Array.from(checkboxes).map(cb => cb.value);
+
+        if (ids.length === 0) {
+            // CASO 1: Nessuno selezionato -> MOSTRA SOLO OK
+            confirmAction('Nessun messaggio selezionato. Seleziona almeno una riga per procedere.', function() {});
+
+            setTimeout(() => {
+                const buttons = document.querySelectorAll('.modal-footer button');
+                if (buttons.length > 1) buttons[0].style.display = 'none'; // Nasconde "Annulla"
+            }, 100);
+        } else {
+            // CASO 2: Selezionati -> MOSTRA ANNULLA E CONFERMA
+            confirmAction('Sei sicuro di voler eliminare i ' + ids.length + ' messaggi selezionati?', function() {
+                eseguiCancellazioneMessaggiAjax(ids);
+            });
+        }
+    }
+
+    // 3. FUNZIONE AJAX
+    function eseguiCancellazioneMessaggiAjax(ids) {
+        const formData = new URLSearchParams();
+        ids.forEach(id => formData.append('ids[]', id));
+
+        fetch('/admin/crm/utenti/delete-multiplo-messaggi', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData
+        })
+        .then(response => response.text())
+        .then(result => {
+            if (result === "OK") {
+                window.location.reload();
+            } else {
+                alert("Errore durante la cancellazione.");
+            }
+        })
+        .catch(error => console.error("Errore:", error));
+    }
+
+    // 4. GESTIONE SELEZIONA TUTTI
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('chSel_all')) {
+            const checkboxes = document.querySelectorAll('input[name="row_sel"]');
+            checkboxes.forEach(cb => cb.checked = e.target.checked);
+        }
+    });
   </script>
 
 </th:block>

@@ -1,5 +1,6 @@
 package com.studiodomino.jplatform.cms.admin.controller;
 
+import com.studiodomino.jplatform.cms.admin.service.EmailSenderService;
 import com.studiodomino.jplatform.shared.config.Configurazione;
 import com.studiodomino.jplatform.shared.entity.MessaggioUtente;
 import com.studiodomino.jplatform.shared.service.ConfigurazioneService;
@@ -25,10 +26,7 @@ import java.util.List;
 public class EmailController {
 
     private final ConfigurazioneService configurazioneService;
-
-    // ─────────────────────────────────────────────────────────────
-    // ELENCO INBOX
-    // ─────────────────────────────────────────────────────────────
+    private final EmailSenderService emailSenderService;
 
     @GetMapping({"", "/inbox", "/inbox/{idAccount}"})
     public String inbox(
@@ -54,10 +52,6 @@ public class EmailController {
         return ViewUtils.resolveProtectedTemplate("email/elencoEmail");
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // DETTAGLIO MESSAGGIO
-    // ─────────────────────────────────────────────────────────────
-
     @GetMapping({"/open/{id}", "/open/{id}/{idAccount}"})
     public String openEmail(
             @PathVariable("id") int id,
@@ -75,19 +69,7 @@ public class EmailController {
         try {
             MessaggioUtente messaggio = new MessaggioUtente();
 
-            if (rispondi != null) {
-                model.addAttribute("messaggioEmail", messaggio);
-                model.addAttribute("config", config);
-                return ViewUtils.resolveProtectedTemplate("email/componiEmail");
-            }
-
-            if (rispondiTutti != null) {
-                model.addAttribute("messaggioEmail", messaggio);
-                model.addAttribute("config", config);
-                return ViewUtils.resolveProtectedTemplate("email/componiEmail");
-            }
-
-            if (inoltra != null) {
+            if (rispondi != null || rispondiTutti != null || inoltra != null) {
                 model.addAttribute("messaggioEmail", messaggio);
                 model.addAttribute("config", config);
                 return ViewUtils.resolveProtectedTemplate("email/componiEmail");
@@ -103,10 +85,6 @@ public class EmailController {
         model.addAttribute("config", config);
         return ViewUtils.resolveProtectedTemplate("email/dettaglioEmail");
     }
-
-    // ─────────────────────────────────────────────────────────────
-    // COMPOSIZIONE
-    // ─────────────────────────────────────────────────────────────
 
     @GetMapping({"/componi", "/componi/{idAccount}"})
     public String componiEmail(
@@ -143,22 +121,35 @@ public class EmailController {
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
+        MessaggioUtente messaggio = new MessaggioUtente();
+        messaggio.setEmailMittente(to);
+        messaggio.setMessaggio(testo);
+        messaggio.setOggetto(oggetto);
+
         try {
-            log.info("Invio email a={} cc={} oggetto={}", to, cc, oggetto);
+            log.info("Invio email reale a={} cc={} oggetto={}", to, cc, oggetto);
+
+            emailSenderService.inviaEmail(to, cc, oggetto, testo);
+
             model.addAttribute("esito", "ok");
+            model.addAttribute("successMessage", "Messaggio email inviato correttamente.");
+
+            log.info("Email inviata con successo a={}", to);
+
+            model.addAttribute("messaggioEmail", new MessaggioUtente());
+
         } catch (Exception e) {
             log.error("Errore invio email a={}", to, e);
+
             model.addAttribute("esito", "errore");
+            model.addAttribute("errorMessage", "Errore durante l'invio dell'email: " + e.getMessage());
+
+            model.addAttribute("messaggioEmail", messaggio);
         }
 
-        model.addAttribute("messaggioEmail", new MessaggioUtente());
         model.addAttribute("config", config);
         return ViewUtils.resolveProtectedTemplate("email/componiEmail");
     }
-
-    // ─────────────────────────────────────────────────────────────
-    // ELIMINA
-    // ─────────────────────────────────────────────────────────────
 
     @PostMapping({"/elimina/{idAccount}", "/elimina"})
     public String eliminaEmail(
@@ -203,10 +194,6 @@ public class EmailController {
             return ResponseEntity.internalServerError().body("Errore durante la cancellazione");
         }
     }
-
-    // ─────────────────────────────────────────────────────────────
-    // DOWNLOAD ALLEGATO
-    // ─────────────────────────────────────────────────────────────
 
     @GetMapping({"/allegato/{id}/{filename}", "/allegato/{id}/{filename}/{idAccount}"})
     public void getAllegato(

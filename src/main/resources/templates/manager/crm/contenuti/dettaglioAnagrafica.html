@@ -30,14 +30,14 @@
 
       <!-- elencoAnagrafico è LISTA: controllo sul primo elemento -->
       <a th:if="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].id != null && elencoAnagrafico[0].id > 0}"
-         th:href="@{/admin/crm/utenti/duplica(id=${elencoAnagrafico[0].id})}"
+         th:href="@{/admin/crm/utenti/{id}/duplicate(id=${elencoAnagrafico[0].id})}"
          class="btn btn-outline-secondary btn-sm">
         <i class="ti ti-copy me-1"></i> Duplica
       </a>
 
       <button type="button"
               class="btn btn-primary btn-sm"
-              onclick="InviaForm('elencoAnagrafico');">
+              onclick="submitAnagraficaForm(event)">
         <i class="ti ti-device-floppy me-1"></i> Salva
       </button>
 
@@ -58,7 +58,7 @@
 
     <!-- Hidden base -->
     <input type="hidden" name="id" id="id"
-           th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].id != null) ? elencoAnagrafico[0].id : 0}">
+           th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].id != null) ? elencoAnagrafico[0].id : ''}">
 
     <input type="hidden" name="profileImage" id="profileImage"
            th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].profileImage != null) ? elencoAnagrafico[0].profileImage : ''}">
@@ -132,22 +132,15 @@
                        alt="avatar">
 
                   <div class="d-grid gap-2">
-                    <a th:if="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].id != null && elencoAnagrafico[0].id > 0}"
-                       th:href="@{/admin/crm/utenti/avatar(id=${elencoAnagrafico[0].id})}"
+                       <a th:href="@{/admin/crm/utenti/avatar(id=${elencoAnagrafico[0].id})}"
                        class="btn btn-outline-primary btn-sm">
                       <i class="ti ti-upload me-1"></i> Carica foto
                     </a>
 
-                    <a th:if="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].id != null && elencoAnagrafico[0].id > 0}"
-                       th:href="@{/admin/crm/utenti/avatar/delete(id=${elencoAnagrafico[0].id})}"
+                    <a th:href="@{/admin/crm/utenti/avatar/delete(id=${elencoAnagrafico[0].id})}"
                        class="btn btn-outline-danger btn-sm">
                       <i class="ti ti-trash me-1"></i> Cancella
                     </a>
-
-                    <small class="text-muted"
-                           th:if="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].id == null || elencoAnagrafico[0].id == 0}">
-                      Salva prima l’utente per gestire l’avatar.
-                    </small>
                   </div>
                 </div>
               </div>
@@ -332,18 +325,18 @@
               </div>
 
               <div class="col-lg-3">
-                <label class="form-label" for="stato">Stato attivazione</label>
-                <select id="stato" name="stato" class="form-select">
+                <label class="form-label" for="status">Stato attivazione</label>
+                <select id="status" name="status" class="form-select">
                   <option value=""
-                          th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].stato == null || elencoAnagrafico[0].stato == ''}">
+                          th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].status == null || elencoAnagrafico[0].status == ''}">
                     Indefinito
                   </option>
                   <option value="0"
-                          th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].stato == '0'}">Disattivo</option>
+                          th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].status == '0'}">Disattivo</option>
                   <option value="1"
-                          th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].stato == '1'}">Attivo</option>
+                          th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].status == '1'}">Attivo</option>
                   <option value="2"
-                          th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].stato == '2'}">Attivo ma non aggiornato</option>
+                          th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].status == '2'}">Attivo ma non aggiornato</option>
                 </select>
               </div>
 
@@ -611,24 +604,46 @@
       </div><!-- /card-body -->
     </div><!-- /card -->
   </form>
-    </div>
- </form>
 
   <script>
-    function InviaForm() {
+    function submitAnagraficaForm(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
       const form = document.getElementById("elencoAnagrafico");
-      if (!form) return;
+      if (!form) {
+        new PNotify({
+          title: 'Errore',
+          text: 'Form elencoAnagrafico non trovato.',
+          type: 'error'
+        });
+        return false;
+      }
 
       if (form.checkValidity() === false) {
         form.classList.add("was-validated");
+
         const firstInvalid = form.querySelector(":invalid");
-        if (firstInvalid) firstInvalid.scrollIntoView({behavior: "smooth", block: "center"});
-        return;
+        if (firstInvalid) {
+          firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+          firstInvalid.focus();
+        }
+
+        new PNotify({
+          title: 'Attenzione!',
+          text: 'Alcuni campi obbligatori richiedono un tuo intervento.',
+          type: 'error'
+        });
+        return false;
       }
+
+      form.classList.add("was-validated");
       form.submit();
+      return true;
     }
   </script>
-
 </div>
 </body>
 </html>

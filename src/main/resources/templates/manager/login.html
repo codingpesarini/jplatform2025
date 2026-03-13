@@ -45,12 +45,6 @@
       </div>
       <div class="card-body">
 
-        <!--
-            NOTA MIGRAZIONE:
-            Originale Struts: action="/LoginAmministratore.do?service=loginAmministratore"
-            Spring MVC: mappare @PostMapping("/admin/login") nel LoginController
-            Spring Security: configurare formLogin().loginProcessingUrl("/admin/login")
-        -->
         <form th:action="@{/admin/login}" method="post" class="notAutocomplete" id="form_login_administrator">
 
           <!-- CSRF Token (Spring Security lo gestisce automaticamente con Thymeleaf) -->

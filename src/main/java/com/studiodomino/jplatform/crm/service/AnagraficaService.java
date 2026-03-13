@@ -45,6 +45,10 @@ public class AnagraficaService {
                 .orElse(null);
     }
 
+    public List<UtenteEsterno> findAll() {
+        return utenteEsternoRepository.findUtentiAttivi();
+    }
+
     // Vecchio: verificaUtenteEmail
     public boolean esistePerEmail(String email) {
         return utenteEsternoRepository.existsByEmailIgnoreCase(email);

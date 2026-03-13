@@ -7,6 +7,7 @@ import com.studiodomino.jplatform.shared.entity.Utente;
 import com.studiodomino.jplatform.shared.entity.UtenteEsterno;
 import com.studiodomino.jplatform.shared.repository.UtenteEsternoRepository;
 import com.studiodomino.jplatform.shared.repository.UtenteRepository;
+import com.studiodomino.jplatform.cms.admin.service.EmailSenderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,6 @@ import java.util.Random;
 
 /**
  * Service per la gestione del Registro LEAD CRM.
- * Usa solo metodi già esistenti nei repository di Raffaele.
  */
 @Service
 @RequiredArgsConstructor
@@ -30,14 +30,14 @@ public class RegistroLeadService {
     private final UtenteRepository utenteRepository;
     private final AnagraficaService anagraficaService;
 
+    // Adatta questi due service ai nomi reali del tuo progetto
+    private final EmailSenderService emailSenderService;
+    private final SmsSenderService smsSenderService;
+
     // =====================================================================
     // FIND
     // =====================================================================
 
-    /**
-     * Vecchio: getRegistroLead(direzione, stato)
-     * stato "4" nel vecchio = mostra tutti
-     */
     public List<RegistroLead> findAll(String direzione, String stato) {
         if ("4".equals(stato)) {
             return registroLeadRepository.findByDirezioneOrderByIdDesc(direzione);
@@ -45,74 +45,68 @@ public class RegistroLeadService {
         return registroLeadRepository.findByDirezioneAndStatoOrderByIdDesc(direzione, stato);
     }
 
-    /** Vecchio: getRegistroLeadById(id) */
     public RegistroLead findById(Long id) {
         return registroLeadRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("RegistroLead non trovato: " + id));
     }
 
-    /** Vecchio: getUtenteEsternoBase(idUtente) */
     public UtenteEsterno findUtenteBase(Integer idUtente) {
         if (idUtente == null || idUtente <= 0) return new UtenteEsterno();
         return utenteEsternoRepository.findById(idUtente).orElse(new UtenteEsterno());
     }
 
-    /** Vecchio: getAmministratorebyId(id) */
     public Utente findAmministratoreById(String id) {
         if (id == null || id.isBlank()) return null;
         return utenteRepository.findById(Integer.parseInt(id)).orElse(null);
     }
 
-    /** Vecchio: DAOCrm.getElencoAreaInteressebySql("") */
     public List<?> findAreeInteresse() {
-        // TODO: implementare con CrmAreaInteresseRepository quando disponibile
         return List.of();
     }
 
-    /** Vecchio: DAOCommentiUtente.getCommentoUtenteById(id) */
     public Object findCommentoById(Long idLeadStore) {
-        // TODO: implementare con CommentoRepository quando disponibile
         log.warn("findCommentoById: CommentoRepository non ancora disponibile");
         return null;
     }
 
-    /** Vecchio: GestioneEmail.getMessageEmailStoreById(...) */
     public Object findEmailStoreById(Integer idLeadStore) {
-        // TODO: implementare con EmailService quando disponibile
         log.warn("findEmailStoreById: EmailService non ancora disponibile");
         return null;
     }
 
     // =====================================================================
     // CREA
-    // Vecchio: creaRegistroLead(registroLead)
     // =====================================================================
 
     @Transactional
     public RegistroLead crea(RegistroLead registroLead, Configurazione config) {
         log.debug("Creazione registro lead store={}", registroLead.getStore());
 
-        // Caso speciale: lead "diretto" con utente da creare/aggiornare
-        if ("diretto".equals(registroLead.getStore())
-                && registroLead.getIdutente() == -1
-                && registroLead.getUtente() != null) {
+        // Se arriva -1 o 0 come sentinella, forza nuova insert
+        if (registroLead.getId() == null || registroLead.getId() <= 0) {
+            registroLead.setId(null);
+        }
+
+        // Caso lead diretto con utente inserito a mano
+        if ("diretto".equalsIgnoreCase(registroLead.getStore())
+                && registroLead.getUtente() != null
+                && registroLead.getIdutente() != 0
+                && registroLead.getIdutente() <= 0) {
 
             UtenteEsterno utente = creaOAggiornaUtentePerLead(registroLead, config);
+            registroLead.setUtente(utente);
             registroLead.setIdutente(utente.getId());
         }
 
         RegistroLead saved = registroLeadRepository.save(registroLead);
         log.info("RegistroLead creato: id={}", saved.getId());
 
-        // Aggiorna stato sorgente (commenti → 2, emailstore → 2)
-        aggiornaStatoSorgente(registroLead);
-
+        aggiornaStatoSorgente(saved);
         return saved;
     }
 
     // =====================================================================
     // SALVA
-    // Vecchio: saveRegistroLead(registroLead)
     // =====================================================================
 
     @Transactional
@@ -123,7 +117,6 @@ public class RegistroLeadService {
 
     // =====================================================================
     // ELIMINA
-    // Vecchio: cancellaRegistroLead(id)
     // =====================================================================
 
     @Transactional
@@ -134,58 +127,146 @@ public class RegistroLeadService {
 
     // =====================================================================
     // INVIA SMS
-    // Vecchio: GestioneSms(testo, null, null, cellulare, null, l2, null, config).start()
     // =====================================================================
 
     public void inviaSms(RegistroLead registroLead, Configurazione config) {
-        log.info("Invio SMS a: {}",
-                registroLead.getUtente() != null ? registroLead.getUtente().getTelefono2() : "N/A");
-        // TODO: implementare con SmsService quando disponibile
+        String telefono = estraiTelefonoDestinatario(registroLead);
+
+        log.info("Invio SMS a: {}", telefono);
+
+        if (telefono == null || telefono.isBlank()) {
+            throw new RuntimeException("Numero destinatario assente");
+        }
+
+        String testo = registroLead.getNotalead() != null ? registroLead.getNotalead().trim() : "";
+        if (testo.isBlank()) {
+            throw new RuntimeException("Testo SMS assente");
+        }
+
+        String tipoMittente = registroLead.getL2() != null ? registroLead.getL2().trim() : "";
+
+        smsSenderService.inviaSms(telefono, testo, tipoMittente, config);
     }
 
     // =====================================================================
     // INVIA EMAIL
-    // Vecchio: GestioneEmail(account, messaggio, true, false, config).start()
     // =====================================================================
 
     public void inviaEmail(RegistroLead registroLead, Configurazione config) {
-        log.info("Invio Email a: {}",
-                registroLead.getUtente() != null ? registroLead.getUtente().getEmail() : "N/A");
+        String destinatario = estraiEmailDestinatario(registroLead);
 
-        // Gestione firma automatica (l2='1')
-        // Vecchio: if(L2.equals("1")) → inserisce extra1 dell'amministratore prima di </body>
-        if ("1".equals(registroLead.getL2()) && registroLead.getNotalead() != null
-                && config.getAmministratore().getExtra1() != null) {
-            String testo = registroLead.getNotalead();
+        log.info("Invio Email a: {}", destinatario);
+
+        if (destinatario == null || destinatario.isBlank()) {
+            throw new RuntimeException("Destinatario email assente");
+        }
+
+        String oggetto = registroLead.getL3() != null ? registroLead.getL3().trim() : "";
+        if (oggetto.isBlank()) {
+            throw new RuntimeException("Oggetto email assente");
+        }
+
+        String testo = registroLead.getNotalead() != null ? registroLead.getNotalead() : "";
+        if (testo.isBlank()) {
+            throw new RuntimeException("Corpo email assente");
+        }
+
+        // Firma automatica
+        if ("1".equals(registroLead.getL2())
+                && config != null
+                && config.getAmministratore() != null
+                && config.getAmministratore().getExtra1() != null
+                && !config.getAmministratore().getExtra1().isBlank()) {
+
             int pos = testo.indexOf("</body>");
             if (pos > 0) {
                 testo = testo.substring(0, pos)
                         + config.getAmministratore().getExtra1()
                         + testo.substring(pos);
-                registroLead.setNotalead(testo);
+            } else {
+                testo = testo + config.getAmministratore().getExtra1();
             }
         }
 
-        // TODO: implementare con EmailService quando disponibile
-        // account = config.getAmministratore().getAccountEMAILById(registroLead.getL1())
-        // oggetto = registroLead.getL3()
-        // testo   = registroLead.getNotalead()
+        /*
+         * Se il tuo EmailSenderService usa un metodo diverso,
+         * cambia solo questa riga.
+         *
+         * Esempi possibili:
+         * emailSenderService.inviaEmail(destinatario, oggetto, testo);
+         * emailSenderService.sendHtml(destinatario, oggetto, testo);
+         */
+        emailSenderService.inviaEmail(destinatario, null, oggetto, testo);
     }
 
     // =====================================================================
     // UTILITY PRIVATI
     // =====================================================================
 
+    private String estraiEmailDestinatario(RegistroLead registroLead) {
+        if (registroLead == null) return null;
+
+        if (registroLead.getUtente() != null
+                && registroLead.getUtente().getEmail() != null
+                && !registroLead.getUtente().getEmail().isBlank()) {
+            return registroLead.getUtente().getEmail().trim();
+        }
+
+        if (registroLead.getIdutente() != 0 && registroLead.getIdutente() > 0) {
+            UtenteEsterno utente = findUtenteBase(registroLead.getIdutente());
+            if (utente.getEmail() != null && !utente.getEmail().isBlank()) {
+                return utente.getEmail().trim();
+            }
+        }
+
+        return null;
+    }
+
+    private String estraiTelefonoDestinatario(RegistroLead registroLead) {
+        if (registroLead == null) return null;
+
+        if (registroLead.getUtente() != null) {
+            if (registroLead.getUtente().getTelefono2() != null
+                    && !registroLead.getUtente().getTelefono2().isBlank()) {
+                return registroLead.getUtente().getTelefono2().trim();
+            }
+
+            if (registroLead.getUtente().getTelefono() != null
+                    && !registroLead.getUtente().getTelefono().isBlank()) {
+                return registroLead.getUtente().getTelefono().trim();
+            }
+        }
+
+        if (registroLead.getIdutente() != 0 && registroLead.getIdutente() > 0) {
+            UtenteEsterno utente = findUtenteBase(registroLead.getIdutente());
+
+            if (utente.getTelefono2() != null && !utente.getTelefono2().isBlank()) {
+                return utente.getTelefono2().trim();
+            }
+
+            if (utente.getTelefono() != null && !utente.getTelefono().isBlank()) {
+                return utente.getTelefono().trim();
+            }
+        }
+
+        return null;
+    }
+
     /**
-     * Crea o aggiorna l'utente esterno per un lead "diretto" con idutente=-1.
-     * Vecchio: logica dentro saveRegistroLead, store='diretto' e idutente=-1
+     * Crea o aggiorna utente esterno per lead diretto.
      */
     private UtenteEsterno creaOAggiornaUtentePerLead(RegistroLead lead, Configurazione config) {
         UtenteEsterno datiUtente = lead.getUtente();
-        String email = datiUtente.getEmail();
+        if (datiUtente == null) {
+            throw new RuntimeException("Utente esterno assente");
+        }
 
-        // Cerca utente esistente per email
-        Integer idEsistente = anagraficaService.getIdByEmail(email);
+        String email = datiUtente.getEmail() != null ? datiUtente.getEmail().trim() : "";
+
+        Integer idEsistente = null;
+        if (!email.isBlank()) {
+            idEsistente = anagraficaService.getIdByEmail(email);
+        }
 
         UtenteEsterno utente = idEsistente != null
                 ? anagraficaService.findByIdSafe(idEsistente)
@@ -197,16 +278,25 @@ public class RegistroLeadService {
         utente.setNome(datiUtente.getNome());
         utente.setCognome(datiUtente.getCognome());
         utente.setEmail(email);
-        utente.setUsername(email);
+        utente.setUsername(!email.isBlank() ? email : "utente" + rnn);
         utente.setPassword(Integer.toString(rnn));
         utente.setTelefono(datiUtente.getTelefono());
         utente.setTelefono2(datiUtente.getTelefono2());
         utente.setL1("1");
         utente.setL2("1");
 
+        if (utente.getStatus() == null || utente.getStatus().isBlank()) {
+            utente.setStatus("1");
+        }
+
         if (config.getSito() != null && config.getSito().getLibero3() != null) {
-            try { utente.setNazione(config.getSito().getLibero3()); }
-            catch (NumberFormatException e) { utente.setNazione("1"); }
+            try {
+                utente.setNazione(config.getSito().getLibero3());
+            } catch (Exception e) {
+                utente.setNazione("1");
+            }
+        } else if (utente.getNazione() == null || utente.getNazione().isBlank()) {
+            utente.setNazione("1");
         }
 
         return idEsistente == null
@@ -214,13 +304,8 @@ public class RegistroLeadService {
                 : anagraficaService.salva(utente);
     }
 
-    /**
-     * Aggiorna lo stato della sorgente del lead dopo la creazione.
-     * Vecchio: DAO.aggiornaCampoDatabase("commenti"/"emailstore", "stato", "2", ...)
-     */
     @Transactional
     private void aggiornaStatoSorgente(RegistroLead lead) {
-        // TODO: implementare con CommentoRepository e EmailStoreRepository
         if ("commenti".equals(lead.getStore())) {
             log.debug("TODO: aggiorna commento id={} stato=2", lead.getIdleadstore());
         } else if ("emailstore".equals(lead.getStore())) {
