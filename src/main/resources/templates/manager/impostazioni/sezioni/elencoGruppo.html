@@ -92,26 +92,62 @@
     </div>
   </div>
 
-  <script>
+  <script th:inline="javascript">
+    // Seleziona/deseleziona tutti
     document.getElementById('selAll').addEventListener('change', function() {
       document.querySelectorAll('input[name="row_sel"]').forEach(cb => cb.checked = this.checked);
     });
 
+    // 1. CANCELLAZIONE SINGOLA
     function cancellaGruppo(id) {
-      if (!confirm('Confermi la cancellazione?')) return;
-      fetch('/admin/impostazioni/gruppi/' + id + '/delete', { method: 'POST' })
-              .then(r => r.text()).then(res => { if (res === 'OK') location.reload(); else alert('Errore.'); });
+      confirmAction('Sei sicuro di voler eliminare questo gruppo?', function() {
+          eseguiCancellazioneGruppiAjax([id]);
+      });
     }
 
+    // 2. CANCELLAZIONE MULTIPLA
     function cancellaMultiplo() {
-      const ids = [...document.querySelectorAll('input[name="row_sel"]:checked')].map(cb => cb.value);
-      if (ids.length === 0) { alert('Seleziona almeno un elemento.'); return; }
-      if (!confirm('Confermi la cancellazione di ' + ids.length + ' elementi?')) return;
+      const selezionati = [...document.querySelectorAll('input[name="row_sel"]:checked')]
+              .map(cb => cb.value);
+
+      if (selezionati.length === 0) {
+        // Avviso senza tasto Annulla
+        confirmAction('Nessun gruppo selezionato. Seleziona almeno una riga per procedere.', function() {});
+
+        setTimeout(() => {
+            const btnAnnulla = document.querySelector('.modal-footer button:not(.btn-danger):not(.btn-primary)');
+            if (btnAnnulla) btnAnnulla.style.display = 'none';
+        }, 100);
+      } else {
+        // Conferma per eliminazione multipla
+        confirmAction('Sei sicuro di voler eliminare i ' + selezionati.length + ' gruppi selezionati?', function() {
+            eseguiCancellazioneGruppiAjax(selezionati);
+        });
+      }
+    }
+
+    // 3. FUNZIONE FETCH (Unificata)
+    function eseguiCancellazioneGruppiAjax(ids) {
       const params = new URLSearchParams();
-      ids.forEach(id => params.append('ids', id));
+      // Usiamo ids[] come standard per i nostri controller
+      ids.forEach(id => params.append('ids[]', id));
+
       fetch('/admin/impostazioni/gruppi/delete-multiplo', {
-        method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString()
-      }).then(r => r.text()).then(res => { if (res === 'OK') location.reload(); else alert('Errore.'); });
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString()
+      })
+      .then(r => r.text())
+      .then(res => {
+        if (res === 'OK') {
+            location.reload();
+        } else {
+            // Se proprio serve un alert per errori tecnici, lo usiamo,
+            // ma il flusso principale è ora tutto grafico.
+            alert('Errore durante la cancellazione.');
+        }
+      })
+      .catch(err => console.error("Errore tecnico AJAX:", err));
     }
   </script>
 </div>

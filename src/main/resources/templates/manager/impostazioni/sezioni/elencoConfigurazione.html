@@ -129,45 +129,49 @@
 
     // Cancella singolo
     function cancellaConfigurazione(id) {
-      if (!confirm('Confermi la cancellazione di questa configurazione?')) return;
-      fetch('/admin/impostazioni/configurazioni/' + id + '/delete', { method: 'POST' })
-              .then(r => r.text())
-              .then(res => {
-                if (res === 'OK') location.reload();
-                else alert('Errore durante la cancellazione.');
-              });
+      confirmAction('Confermi la cancellazione di questa configurazione?', function() {
+          eseguiCancellazioneAjax([id]);
+      });
     }
 
     // Cancella multiplo
-    function cancellaMultiplo() {
+    function CancellaAnagraficaMultiplaAjax() {
       const selezionati = [...document.querySelectorAll('input[name="row_sel"]:checked')]
               .map(cb => cb.value);
-      if (selezionati.length === 0) {
-        alert('Seleziona almeno un elemento.');
-        return;
-      }
-      if (!confirm('Confermi la cancellazione di ' + selezionati.length + ' elementi?')) return;
 
+      if (selezionati.length === 0) {
+        // Mostra messaggio di avviso senza tasto Annulla
+        confirmAction('Nessun elemento selezionato. Seleziona almeno una riga per procedere.', function() {});
+
+        setTimeout(() => {
+            const btnAnnulla = document.querySelector('.modal-footer button:not(.btn-danger):not(.btn-primary)');
+            if (btnAnnulla) btnAnnulla.style.display = 'none';
+        }, 100);
+      } else {
+        // Conferma vera e propria
+        confirmAction('Confermi la cancellazione di ' + selezionati.length + ' elementi?', function() {
+            eseguiCancellazioneAjax(selezionati);
+        });
+      }
+    }
+
+    // Funzione centralizzata per la fetch
+    function eseguiCancellazioneAjax(ids) {
       const params = new URLSearchParams();
-      selezionati.forEach(id => params.append('ids', id));
+      // Usiamo 'ids[]' per coerenza con i controller precedenti, o 'ids' se preferisci
+      ids.forEach(id => params.append('ids[]', id));
 
       fetch('/admin/impostazioni/configurazioni/delete-multiplo', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: params.toString()
       })
-              .then(r => r.text())
-              .then(res => {
-                if (res === 'OK') location.reload();
-                else alert('Errore durante la cancellazione multipla.');
-              });
-    }
-
-    function CancellaAnagraficaMultiplaAjax() {
-      const ids = Array.from(document.querySelectorAll(".row_sel:checked")).map(cb => cb.value);
-      if (ids.length === 0) { alert("Seleziona almeno un contatto."); return; }
-      // TODO: chiamata AJAX tua
-      console.log("Da cancellare:", ids);
+      .then(r => r.text())
+      .then(res => {
+        if (res === 'OK') location.reload();
+        else alert('Errore durante la cancellazione: ' + res);
+      })
+      .catch(err => console.error("Errore AJAX:", err));
     }
   </script>
 

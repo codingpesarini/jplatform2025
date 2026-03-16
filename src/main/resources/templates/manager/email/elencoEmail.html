@@ -128,6 +128,57 @@
       </div>
     </div>
   </div>
+  <script th:inline="javascript">
+    // Gestione "Seleziona Tutti"
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('chSel_all')) {
+            const checkboxes = document.querySelectorAll('input[name="row_sel"]');
+            checkboxes.forEach(cb => cb.checked = e.target.checked);
+        }
+    });
+
+    function CancellaEmailMultiplaAjax(mailboxId) {
+        // Recuperiamo gli ID delle email selezionate
+        const selezionati = Array.from(document.querySelectorAll('input[name="row_sel"]:checked'))
+                                 .map(cb => cb.value);
+
+        if (selezionati.length === 0) {
+            // Avviso se non c'è selezione
+            confirmAction('Seleziona almeno un messaggio da cancellare.', function() {});
+            setTimeout(() => {
+                const btnAnnulla = document.querySelector('.modal-footer button:not(.btn-danger):not(.btn-primary)');
+                if (btnAnnulla) btnAnnulla.style.display = 'none';
+            }, 100);
+            return;
+        }
+
+        // Conferma grafica
+        confirmAction('Vuoi spostare nel cestino ' + selezionati.length + ' messaggi?', function() {
+            const formData = new URLSearchParams();
+            selezionati.forEach(id => formData.append('ids[]', id));
+
+            // Chiamata al controller (aggiungendo l'ID dell'account nel path come richiesto solitamente dai mailer)
+            fetch('/admin/email/eliminaMultipla/' + mailboxId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            })
+            .then(response => response.text())
+            .then(result => {
+                // Controllo flessibile sul messaggio di ritorno
+                if (result.trim() === "OK" || result.includes("completata") || result.includes("success")) {
+                    location.reload();
+                } else {
+                    alert("Errore durante la cancellazione: " + result);
+                }
+            })
+            .catch(error => {
+                console.error('Errore tecnico:', error);
+                alert("Si è verificato un errore di connessione.");
+            });
+        });
+    }
+  </script>
 
 </div>
 </body>

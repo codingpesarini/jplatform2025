@@ -50,7 +50,7 @@
 
           <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item storeTab" role="presentation">
-              <a class="nav-link" href="#tab_01" data-bs-toggle="tab">Definizione</a>
+              <a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Definizione</a>
             </li>
             <li class="nav-item storeTab" id="2">
               <a class="nav-link" href="#tab_02" data-bs-toggle="tab">Informazioni essenziali</a>
@@ -257,7 +257,7 @@
                   <div class="form-group">
                     <label class="col-form-label" for="riassunto">
                       <strong>Abstract</strong> - Sintetica descrizione della struttura, inferiore ai 160 caratteri -
-                      <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'riassunto');">Editor</a>
+                      <a href="javascript:void(0)" onclick="toggleEditor('riassunto');">Editor</a>
                     </label>
                     <textarea name="riassunto" id="riassunto"
                               class="tinymce5minimal form-control"
@@ -269,7 +269,7 @@
                   <div class="form-group">
                     <label class="col-form-label" for="text1">
                       <strong>Cosa fa</strong> - Elenco/descrizione dei compiti assegnati alla struttura -
-                      <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'text1');">Editor text1</a>
+                      <a href="javascript:void(0)" onclick="toggleEditor('text1');">Editor text1</a>
                     </label>
                     <textarea name="text1" id="text1"
                               class="tinymce5minimal form-control"
@@ -282,7 +282,7 @@
                     <label class="col-form-label" for="text2">
                       <strong>Sede principale</strong> Nome della sede principale della struttura. Link alla sede.
                       Indirizzo Orario per il pubblico -
-                      <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'text2');">Editor text2</a>
+                      <a href="javascript:void(0)" onclick="toggleEditor('text2');">Editor text2</a>
                     </label>
                     <textarea name="text2" id="text2"
                               class="tinymce5minimal form-control"
@@ -294,7 +294,7 @@
                   <div class="form-group">
                     <label class="col-form-label" for="text3">
                       <strong>Riferimento telefonico</strong> Telefono della sede Riferimento mail Indirizzo di posta elettronica Riferimento pec -
-                      <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'text3');">Editor text3</a>
+                      <a href="javascript:void(0)" onclick="toggleEditor('text3');">Editor text3</a>
                     </label>
                     <textarea name="text3" id="text3"
                               class="tinymce5minimal form-control"
@@ -306,7 +306,7 @@
                   <div class="form-group">
                     <label class="col-form-label" for="text4">
                       <strong>Posizione GPS</strong> Georeferenziazione della sede e link a posizione in mappa -
-                      <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'text4');">Editor text4</a>
+                      <a href="javascript:void(0)" onclick="toggleEditor('text4');">Editor text4</a>
                     </label>
                     <textarea name="text4" id="text4"
                               class="form-control"
@@ -318,7 +318,7 @@
                   <div class="form-group">
                     <label class="col-form-label" for="text5">
                       <strong>Ulteriori informazioni</strong> -
-                      <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'text5');">Editor text5</a>
+                      <a href="javascript:void(0)" onclick="toggleEditor('text5');">Editor text5</a>
                     </label>
                     <textarea name="text5" id="text5"
                               class="form-control"
@@ -334,7 +334,7 @@
                 <div class="col-lg-12">
                   <div class="form-group">
                     <label class="col-form-label" for="testo">Contenuto pagine</label>
-                    <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'testo');">Editor</a>
+                    <a href="javascript:void(0)" onclick="toggleEditor('testo');">Editor</a>
                     <textarea name="testo" id="testo"
                               class="tinymce5 form-control"
                               th:text="${section.testo}"></textarea>
@@ -675,37 +675,36 @@
             </div>
 
             <!-- TAB 08 -->
+            <!-- TAB 08 -->
             <div id="tab_08" class="tab-pane">
-              <p>
-              <fieldset>
-                <legend>Relazioni dirette</legend>
+
+              <fieldset class="border p-3 mb-4">
+                <legend class="float-none w-auto px-2">Relazioni dirette</legend>
                 <div class="row">
                   <div class="col-lg-6">
-                    <label for="l15" class="col-form-label">ID sezioni associate 1 </label>
-                    <input type="text" name="l15" id="l15"
-                           class="form-control"
+                    <label for="l15" class="col-form-label">ID sezioni associate 1</label>
+                    <input type="text" name="l15" id="l15" class="form-control"
                            th:value="${section.l15}"
-                           onblur="javascript:ControlloCampoTag(this);">
+                           onblur="ControlloCampoTag(this);">
                     <small class="form-text text-muted">ID sezioni da associare separate da virgola</small>
                   </div>
-
                   <div class="col-lg-6">
                     <label for="l11" class="col-form-label">ID sezioni associate 2</label>
-                    <input type="text" name="l11" id="l11"
-                           class="form-control"
+                    <input type="text" name="l11" id="l11" class="form-control"
                            th:value="${section.l11}"
-                           onblur="javascript:ControlloCampoTag(this);">
+                           onblur="ControlloCampoTag(this);">
                     <small class="form-text text-muted">ID sezioni da associare separate da virgola</small>
                   </div>
                 </div>
               </fieldset>
 
-              <fieldset>
-                <legend>Gestione ExtraTAG</legend>
-                <div class="row">
+              <fieldset class="border p-3 mb-4">
+                <legend class="float-none w-auto px-2">Gestione ExtraTAG</legend>
+                <div class="row mb-3">
                   <div class="col-lg-3">
                     <label for="regolaExtraTag1" class="col-form-label">Attivazione</label>
-                    <select name="regolaExtraTag1" id="regolaExtraTag1" onchange="AttivaExtraTag()">
+                    <select name="regolaExtraTag1" id="regolaExtraTag1"
+                            class="form-control" onchange="AttivaExtraTag()">
                       <option value="0" th:selected="${section.regolaExtraTag1 == '0'}">Disattivato</option>
                       <option value="1" th:selected="${section.regolaExtraTag1 == '1'}">Attivato</option>
                     </select>
@@ -713,69 +712,61 @@
                   </div>
                 </div>
 
-                <div class="row" id="ZonaExtraTagOrdine">
+                <div class="row" id="ZonaExtraTagOrdine" style="display:none">
                   <div class="col-lg-3">
                     <label for="maxExtraTag" class="col-form-label">Numero elementi</label>
-                    <input type="text" id="maxExtraTag" name="maxExtraTag"
+                    <input type="text" id="maxExtraTag" name="maxExtraTag" class="form-control"
                            th:value="${section.maxExtraTag}">
                     <small class="form-text text-muted">Numero massimo elementi visualizzati</small>
                   </div>
-
                   <div class="col-lg-3">
                     <label for="ordineExtraTag" class="col-form-label">Ordine visualizzazione</label>
-                    <select name="ordineExtraTag" id="ordineExtraTag">
-                      <option value="rand()" th:selected="${section.ordineExtraTag == 'rand()'}">Casuale</option>
-                      <option value="datasql-asc" th:selected="${section.ordineExtraTag == 'datasql-asc'}">Crescente data</option>
+                    <select name="ordineExtraTag" id="ordineExtraTag" class="form-control">
+                      <option value="rand()"       th:selected="${section.ordineExtraTag == 'rand()'}">Casuale</option>
+                      <option value="datasql-asc"  th:selected="${section.ordineExtraTag == 'datasql-asc'}">Crescente data</option>
                       <option value="datasql-desc" th:selected="${section.ordineExtraTag == 'datasql-desc'}">Decrescente data</option>
-                      <option value="titolo-asc" th:selected="${section.ordineExtraTag == 'titolo-asc'}">Crescente titolo</option>
-                      <option value="titolo-desc" th:selected="${section.ordineExtraTag == 'titolo-desc'}">Decrescente titolo</option>
+                      <option value="titolo-asc"   th:selected="${section.ordineExtraTag == 'titolo-asc'}">Crescente titolo</option>
+                      <option value="titolo-desc"  th:selected="${section.ordineExtraTag == 'titolo-desc'}">Decrescente titolo</option>
                       <option value="position-asc" th:selected="${section.ordineExtraTag == 'position-asc'}">Crescente posizione</option>
                     </select>
-                    <small class="form-text text-muted"></small>
                   </div>
-
-                  <div class="col-lg-6" align="center" id="SpazioEreditaExtraTag">
-                    <button id="EreditaExtraTag" class="mb-1 mt-1 mr-1 btn btn-primary btn-lg btn-block">
+                  <div class="col-lg-6 d-flex align-items-center" id="SpazioEreditaExtraTag">
+                    <button type="button" id="EreditaExtraTag"
+                            class="mb-1 mt-1 mr-1 btn btn-primary btn-lg btn-block">
                       Applica questi ExtraTag a tutti i contenuti della categoria
                     </button>
                   </div>
                 </div>
               </fieldset>
 
-              <fieldset id="ZonaExtraTag">
-                <legend>Campi aggiuntivi</legend>
+              <fieldset id="ZonaExtraTag" class="border p-3" style="display:none">
+                <legend class="float-none w-auto px-2">Campi aggiuntivi</legend>
                 <div class="row">
                   <th:block th:each="i : ${#numbers.sequence(1,10)}">
-                    <div class="col-lg-6">
-                      <label th:for="${'extraTagRef' + i}" class="col-form-label"
+                    <div class="col-lg-6 mb-3">
+                      <label th:for="|extraTagRef${i}|" class="col-form-label"
                              th:text="${'Sezione associata ' + i}">Sezione associata</label>
-                      <select th:name="${'extraTagRef' + i}"
-                              th:id="${'extraTagRef' + i}"
-                              class="form-control">
+                      <select th:name="|extraTagRef${i}|" th:id="|extraTagRef${i}|" class="form-control">
                         <option value="0">Nessuna relazione</option>
                         <option th:each="sez : ${elencoSezioniCompleto}"
-                                th:value="${sez.id}"
-                                th:text="${sez.titolo}"
+                                th:value="${sez.id}" th:text="${sez.titolo}"
                                 th:selected="${sez.id == section.getExtraTagRef(i)}">
                         </option>
                       </select>
                     </div>
-
-                    <div class="col-lg-6">
-                      <label th:for="${'extraTag' + i}" class="col-form-label"
+                    <div class="col-lg-6 mb-3">
+                      <label th:for="|extraTag${i}|" class="col-form-label"
                              th:text="${'TAG ' + i}">TAG</label>
-                      <textarea th:name="${'extraTag' + i}"
-                                th:id="${'extraTag' + i}"
+                      <textarea th:name="|extraTag${i}|" th:id="|extraTag${i}|"
                                 class="form-control"
                                 th:text="${section.getExtraTag(i)}"
-                                onblur="javascript:ControlloCampoTag(this);"></textarea>
+                                onblur="ControlloCampoTag(this);"></textarea>
                     </div>
                   </th:block>
                 </div>
               </fieldset>
-              </p>
-            </div>
 
+            </div>
           </div>
         </div>
       </div>

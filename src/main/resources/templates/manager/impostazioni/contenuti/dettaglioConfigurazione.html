@@ -8,7 +8,7 @@
 <body>
 <div layout:fragment="content">
 
-  <form id="sito" th:action="@{/admin/impostazioni/configurazioni/save}" th:object="${sito}" method="post" enctype="multipart/form-data">
+  <form id="sito" th:action="@{/admin/impostazioni/configurazioni/save}" th:object="${sito}" method="post">
     <input type="hidden" th:field="${sito.id}"/>
     <div class="msg_box msg_error" id="form_a_errors" style="display:none"></div>
 

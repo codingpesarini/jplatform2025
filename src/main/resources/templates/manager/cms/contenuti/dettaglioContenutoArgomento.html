@@ -203,7 +203,7 @@
                   <div class="form-group">
                     <label class="col-form-label" for="riassunto">
                       <strong>Abstract</strong> - Sintetica descrizione del servizio, inferiore ai 160 caratteri -
-                      <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'riassunto');">Editor</a>
+                      <a href="javascript:void(0)" onclick="toggleEditor('riassunto');">Editor</a>
                     </label>
                     <textarea name="riassunto" id="riassunto"
                               class="tinymce5minimal form-control"
@@ -215,7 +215,7 @@
                   <div class="form-group">
                     <label class="col-form-label" for="text1">
                       <strong>Dove</strong> - Nome del luogo dell'evento -
-                      <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'text1');">Editor text1</a>
+                      <a href="javascript:void(0)" onclick="toggleEditor('text1');">Editor text1</a>
                     </label>
                     <textarea name="text1" id="text1"
                               class="tinymce5minimal form-control"
@@ -227,7 +227,7 @@
                   <div class="form-group">
                     <label class="col-form-label" for="text2">
                       <strong>Quando</strong> - Data e ora dell'evento -
-                      <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'text2');">Editor text2</a>
+                      <a href="javascript:void(0)" onclick="toggleEditor('text2');">Editor text2</a>
                     </label>
                     <textarea name="text2" id="text2"
                               class="tinymce5minimal form-control"
@@ -239,7 +239,7 @@
                   <div class="form-group">
                     <label class="col-form-label" for="text3">
                       <strong>Organizzato da</strong> - Soggetto che organizza l'evento -
-                      <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'text3');">Editor text3</a>
+                      <a href="javascript:void(0)" onclick="toggleEditor('text3');">Editor text3</a>
                     </label>
                     <textarea name="text3" id="text3"
                               class="tinymce5minimal form-control"
@@ -251,7 +251,7 @@
                   <div class="form-group">
                     <label class="col-form-label" for="text4">
                       <strong>Ulteriori informazioni</strong> - FAQ ed eventuali riferimenti normativi -
-                      <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'text4');">Editor text4</a>
+                      <a href="javascript:void(0)" onclick="toggleEditor('text4');">Editor text4</a>
                     </label>
                     <textarea name="text4" id="text4"
                               class="form-control"
@@ -268,7 +268,7 @@
                 <div class="col-lg-12">
                   <div class="form-group">
                     <label class="col-form-label" for="testo">Contenuto pagine
-                      <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'testo');">Editor</a>
+                      <a href="javascript:void(0)" onclick="toggleEditor('testo');">Editor</a>
                     </label>
                     <textarea name="testo" id="testo"
                               class="tinymce5 form-control"
@@ -495,15 +495,16 @@
                 <th:block th:each="i : ${#numbers.sequence(1,10)}">
                   <div class="col-lg-6 mb-3">
                     <div class="form-group">
-                      <label class="col-form-label"
-                             th:for="${'text' + i}"
-                             th:text="${'text' + i}">textN</label>
-                      <a href="javascript:void(0)"
-                         th:onclick="|tinymce.execCommand('mceToggleEditor',false,'text${i}')|">Editor</a>
-                      <textarea th:name="${'text' + i}"
-                                th:id="${'text' + i}"
-                                class="form-control"
-                                th:text="${post['text' + i]}"></textarea>
+                      <label class="col-form-label" th:for="|text${i}|">
+                        <span th:text="|text${i}|">textN</span>
+                        <a href="javascript:void(0)"
+                           th:data-field="|text${i}|"
+                           onclick="toggleEditor(this.getAttribute('data-field'));">Editor</a>
+                      </label>
+                      <textarea th:name="|text${i}|"
+                                th:id="|text${i}|"
+                                class="tinymce5minimal form-control"
+                                th:text="${post.__${'text' + i}__}"></textarea>
                     </div>
                   </div>
                 </th:block>

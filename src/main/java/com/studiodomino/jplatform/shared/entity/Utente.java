@@ -162,6 +162,13 @@ public class Utente implements Serializable {
     @Transient
     private int nuoviMessaggi = 0;
 
+    // ========== NUOVI CAMPI PER GESTIONE ACCOUNT ==========
+    @Transient
+    private List<Account> accountEmail = new ArrayList<>();
+
+    @Transient
+    private List<Account> accountPec = new ArrayList<>();
+
     // ============================================
     // METODI HELPER
     // ============================================

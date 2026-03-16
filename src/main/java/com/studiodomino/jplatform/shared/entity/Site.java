@@ -31,7 +31,7 @@ public class Site implements Serializable {
     @Column(name = "accesso")
     private Integer accesso = 1;  // Campo chiave per routing
 
-    @Column(name = "check")
+    @Column(name = "`check`")
     private String check = "0";
 
     // ========== KEYWORDS E CSS ==========

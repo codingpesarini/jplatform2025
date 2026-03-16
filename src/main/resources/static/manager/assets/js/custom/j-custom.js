@@ -289,6 +289,19 @@ function cancellaContenutiSelezionati() {
     );
 }
 
+function AttivaExtraTag() {
+    const val = document.getElementById('regolaExtraTag1').value;
+    const show = val === '1';
+    ['ZonaExtraTagOrdine_maxEl','ZonaExtraTagOrdine','SpazioEreditaExtraTag','ZonaExtraTag']
+        .forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = show ? '' : 'none';
+        });
+}
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(AttivaExtraTag, 100);
+});
+
 
 // ============================================================
 // TINYMCE - configurazione globale
@@ -320,14 +333,14 @@ function initTinyMCE(selector) {
     });
 }
 
-function toggleEditor(targetId) {
-    if (typeof tinymce === 'undefined') return;
-    var editor = tinymce.get(targetId);
-    if (editor) {
-        tinymce.execCommand('mceToggleEditor', false, targetId);
+function toggleEditor(id) {
+
+    if (tinymce.get(id)) {
+        tinymce.get(id).remove(); // chiude editor
     } else {
-        initTinyMCE('#' + targetId);
+        initTinyMCE('#' + id); // riapre editor
     }
+
 }
 
 // ============================================================
@@ -401,7 +414,6 @@ function InviaForm(formId) {
 $(document).ready(function() {
 
     // TinyMCE - Tab 02 Abstract e Tab 03 Contenuto
-    if ($('#riassunto').length) initTinyMCE('#riassunto');
     if ($('#testo').length)     initTinyMCE('#testo');
 
    var localeIT = {

@@ -44,6 +44,7 @@ public class MailAccountController {
         }
 
         model.addAttribute("config", config);
+        model.addAttribute("account", new Account());
         return ViewUtils.resolveProtectedTemplate("impostazioni/sezioni/elencoMailAccount");
     }
 
@@ -65,6 +66,7 @@ public class MailAccountController {
         }
 
         model.addAttribute("config", config);
+        model.addAttribute("account", new Account());
         return ViewUtils.resolveProtectedTemplate("impostazioni/sezioni/elencoMailAccount");
     }
 
@@ -277,5 +279,20 @@ public class MailAccountController {
             log.error("Errore eliminazione multipla account", e);
             return ResponseEntity.internalServerError().body("Errore durante la cancellazione");
         }
+    }
+
+    @GetMapping("/popup")
+    @ResponseBody
+    public ResponseEntity<List<Account>> popupAccount(
+            @RequestParam(required = false) String tipo,
+            HttpServletRequest request) {
+
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+        if (!config.isLogged()) return ResponseEntity.status(401).build();
+        if (tipo == null || tipo.isEmpty()) return ResponseEntity.badRequest().build();
+
+        List<Account> lista = accountRepository.findByTipoAccountOrderByDescrizioneAsc(tipo);
+        return ResponseEntity.ok(lista);
     }
 }

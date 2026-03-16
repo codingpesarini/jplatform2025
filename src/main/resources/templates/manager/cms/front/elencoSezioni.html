@@ -219,27 +219,34 @@
                                     <td th:text="${sect.statoText}">ATTIVO</td>
 
                                     <td>
-                                        <div class="btn-group flex-wrap">
-                                            <span data-bs-toggle="dropdown"><i class="icons icon-options-vertical"></i></span>
+                                        <div class="dropdown">
+                                            <a href="javascript:void(0);"
+                                               class="text-muted"
+                                               data-bs-toggle="dropdown"
+                                               aria-expanded="false">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </a>
 
-                                            <div class="dropdown-menu" role="menu">
-                                                <a class="dropdown-item text-1"
-                                                   th:href="@{/admin/sezioni/{id}(id=${sect.id})}">
-                                                    <i class="icons icon-pencil"></i> Modifica
-                                                </a>
-
-                                                <a class="dropdown-item text-1"
-                                                   th:href="@{/admin/sezioni/{id}/preview(id=${sect.id})}">
-                                                    <i class="icons icon-layers"></i> Struttura
-                                                </a>
-
-                                                <form th:action="@{/admin/sezioni/{id}/delete(id=${sect.id})}"
-                                                      method="post" style="display:inline;">
-                                                    <button type="submit" class="dropdown-item text-1">
-                                                        <i class="icons icon-trash"></i> Cancella
-                                                    </button>
-                                                </form>
-                                            </div>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <a class="dropdown-item" th:href="@{/admin/sezioni/{id}(id=${sect.id})}">
+                                                        <i class="fas fa-pencil-alt me-2"></i> Modifica
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" th:href="@{/admin/sezioni/{id}/preview(id=${sect.id})}">
+                                                        <i class="fas fa-sitemap me-2"></i> Struttura
+                                                    </a>
+                                                </li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <a class="dropdown-item text-danger"
+                                                       href="javascript:void(0);"
+                                                       th:onclick="|confermaEliminaSezione(${sect.id})|">
+                                                        <i class="fas fa-trash me-2"></i> Cancella
+                                                    </a>
+                                                </li>
+                                            </ul>
                                         </div>
                                     </td>
                                 </tr>
@@ -255,6 +262,22 @@
         </div>
 
     </div>
-</div>
+
+<script th:inline="javascript">
+    function confermaEliminaSezione(id) {
+        confirmAction('Sei sicuro di voler eliminare questa sezione e tutte le sue sottosezioni?', function() {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/admin/sezioni/' + id + '/delete';
+            document.body.appendChild(form);
+            form.submit();
+        });
+    }
+
+    // Gestione selezione multipla (se vuoi implementarla anche qui)
+    document.querySelector('.chSel_all')?.addEventListener('change', function() {
+        document.querySelectorAll('input[name="row_sel"]').forEach(cb => cb.checked = this.checked);
+    });
+</script>
 </body>
 </html>

@@ -7,10 +7,8 @@
 
 <div layout:fragment="content">
 
-  <!-- start: page -->
   <div class="row">
 
-    <!-- colonna info -->
     <div class="col-md-3">
       <section class="card card-info" style="border-radius: 15px; overflow: hidden; border: none;">
         <header class="card-header" style="background-color: #3EC9D6; border-bottom: none; padding: 15px 20px;">
@@ -26,7 +24,6 @@
       </section>
     </div>
 
-    <!-- colonna tabella -->
     <div class="col-md-9">
       <section class="card card-info" style="border-radius: 15px; overflow: hidden; border: none;">
         <header class="card-header" style="background-color: #3EC9D6; border-bottom: none; padding: 15px 20px;">
@@ -87,12 +84,12 @@
                     <i class="fas fa-pencil-alt"></i>
                   </a>
                   &nbsp;&nbsp;
-                  <form th:action="@{/admin/account/{id}/delete(id=${account.id})}" method="post" style="display:inline;">
-                    <button type="submit" class="btn btn-link p-0 text-danger"
-                            onclick="return confirm('Sei sicuro di voler cancellare questo account?')">
-                      <i class="far fa-trash-alt"></i>
-                    </button>
-                  </form>
+                  <a href="javascript:void(0);"
+                     th:onclick="|CancellaAccountSingoloAjax(${account.id})|"
+                     class="text-danger"
+                     title="Cancella">
+                    <i class="far fa-trash-alt"></i>
+                  </a>
                 </td>
               </tr>
               </tbody>
@@ -104,48 +101,64 @@
     </div>
 
   </div>
-  <!-- end: page -->
-
   <script th:inline="javascript">
-    function CancellaAccountMultiplaAjax() {
-        // Recuperiamo tutti gli ID selezionati
-        let selezionati = [];
-        document.querySelectorAll('input[name="row_sel"]:checked').forEach((checkbox) => {
-            selezionati.push(checkbox.value);
+    // Gestione "Seleziona Tutti"
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('chSel_all')) {
+            const checkboxes = document.querySelectorAll('input[name="row_sel"]');
+            checkboxes.forEach(cb => cb.checked = e.target.checked);
+        }
+    });
+
+    // 1. CANCELLAZIONE SINGOLA
+    function CancellaAccountSingoloAjax(id) {
+        confirmAction('Sei sicuro di voler eliminare questo account email?', function() {
+            eseguiEliminazioneAccount([id]);
         });
+    }
+
+    // 2. CANCELLAZIONE MULTIPLA
+    function CancellaAccountMultiplaAjax() {
+        const selezionati = Array.from(document.querySelectorAll('input[name="row_sel"]:checked'))
+                                 .map(cb => cb.value);
 
         if (selezionati.length === 0) {
-            alert("Seleziona almeno un account da cancellare.");
-            return;
-        }
+            confirmAction('Nessun account selezionato. Seleziona almeno una riga per procedere.', function() {});
 
-        if (confirm("Vuoi cancellare " + selezionati.length + " account selezionati?")) {
-            // Chiamata AJAX verso il controller
-            fetch('/admin/account/eliminaMultiplo', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'ids=' + selezionati.join(',')
-            })
-            .then(response => {
-                if (response.ok) {
-                    location.reload(); // Ricarica la pagina per vedere le modifiche
-                } else {
-                    alert("Errore durante la cancellazione.");
-                }
-            })
-            .catch(error => console.error('Errore:', error));
+            setTimeout(() => {
+                const btnAnnulla = document.querySelector('.modal-footer button:not(.btn-danger):not(.btn-primary)');
+                if (btnAnnulla) btnAnnulla.style.display = 'none';
+            }, 100);
+        } else {
+            confirmAction('Sei sicuro di voler eliminare i ' + selezionati.length + ' account selezionati?', function() {
+                eseguiEliminazioneAccount(selezionati);
+            });
         }
     }
 
-    // Per la funzione singola se vuoi mantenere il tasto originale
-    function CancellaAccount(id) {
-        if (confirm("Sei sicuro di voler cancellare questo account?")) {
-            fetch('/admin/account/' + id + '/delete', {
-                method: 'POST'
-            }).then(() => location.reload());
-        }
+    // 3. FUNZIONE FETCH UNIFICATA
+    function eseguiEliminazioneAccount(ids) {
+        const formData = new URLSearchParams();
+        ids.forEach(id => formData.append('ids[]', id));
+
+        fetch('/admin/account/eliminaMultiplo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData.toString()
+        })
+        .then(response => response.text())
+        .then(result => {
+            // Controlliamo se la risposta contiene "Cancellazione completata" (quello che invia il tuo log)
+            if (result.trim() === "OK" || result.includes("Cancellazione completata")) {
+                location.reload();
+            } else {
+                alert("Errore durante la cancellazione: " + result);
+            }
+        })
+        .catch(error => {
+            console.error('Errore tecnico:', error);
+            alert("Errore di rete o del server.");
+        });
     }
   </script>
 

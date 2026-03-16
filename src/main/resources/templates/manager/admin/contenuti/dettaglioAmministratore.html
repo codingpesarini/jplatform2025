@@ -260,11 +260,14 @@
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
                                                 </div>
 
-                                                <div class="modal-body">
+                                                <div class="modal-body text-center">
                                                     <p>Scansiona il codice utilizzando Google Authenticator APP</p>
 
-                                                    <!-- QR: caricato solo all'apertura -->
-                                                    <p><img th:src="@{/admin/amministratori/qrcode(email=${amministratoriUtente.email},securkey=${amministratoriUtente.role20})}" class="w-100" alt="QR Code"></p>
+                                                    <div class="d-flex justify-content-center">
+                                                        <img th:src="@{/admin/amministratori/qrcode(email=${amministratoriUtente.email},securkey=${amministratoriUtente.role20})}"
+                                                             class="img-fluid w-50"
+                                                             alt="QR Code">
+                                                    </div>
                                                 </div>
 
                                                 <div class="modal-footer">
@@ -448,182 +451,188 @@
 
                         <!-- ═══ TAB 06 — EMAIL E PEC ═══ -->
                         <div id="tab_06" class="tab-pane" role="tabpanel">
-                            <div class="row form-group">
+                            <fieldset class="border p-3">
+                                <legend class="float-none w-auto px-2">Associazione Account Email e PEC</legend>
+                                <div class="row">
 
-                                <!-- Account EMAIL -->
-                                <div class="col-lg-6">
-                                    <fieldset class="border p-3">
-                                        <legend class="float-none w-auto px-2">Account EMAIL</legend>
-                                        <div class="right-wrapper text-right mb-2">
-                                            <a href="javascript:void(0);"
-                                               onclick="return hs.htmlExpand(this,{headingText:'Associa account EMAIL',align:'center',objectType:'iframe',width:600,height:600,src:'/admin/account/elenco?tipo=EMAIL&table=data_tableEmail'})"
-                                               class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
-                                                Associa account EMAIL
-                                            </a>
+                                    <div class="col-lg-6 mb-3">
+                                        <div class="card h-100 shadow-sm border">
+                                            <div class="card-body">
+                                                <h5>Email Ordinaria</h5>
+                                                <div class="text-end mb-2">
+                                                    <button type="button" class="btn btn-outline-info btn-sm"
+                                                            data-tipo="EMAIL"
+                                                            data-target="data_tableEmail"
+                                                            onclick="apriPopupAccount(this.dataset.tipo, this.dataset.target);">
+                                                        <i class="fas fa-plus"></i> Associa Email
+                                                    </button>
+                                                </div>
+                                                <input type="hidden" name="idaccountemail" id="idaccountemail"
+                                                       th:value="${amministratoriUtente.idaccountemail}">
+                                                <table id="data_tableEmail" class="table table-sm table-bordered table-striped mb-0">
+                                                    <thead><tr><th>Descrizione</th><th style="width:50px">Rimuovi</th></tr></thead>
+                                                    <tbody>
+                                                    <tr th:each="acc : ${amministratoriUtente.accountEmail}"
+                                                        th:id="'rowEMAIL_' + ${acc.id}">
+                                                        <td th:text="${acc.descrizione}"></td>
+                                                        <td class="text-center">
+                                                            <a href="javascript:void(0);"
+                                                               th:data-hidden-id="'idaccountemail'"
+                                                               th:data-acc-id="${acc.id}"
+                                                               th:data-row-id="'rowEMAIL_' + ${acc.id}"
+                                                               onclick="disassociaAccount(this.dataset.hiddenId, this.dataset.accId, this.dataset.rowId);">
+                                                                <i class="fas fa-trash-alt text-danger"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
-                                        <code>Il primo account inserito è il predefinito</code>
-                                        <input type="hidden" name="idaccountemail" id="idaccountemail"
-                                               th:value="${amministratoriUtente.idaccountemail}">
-                                        <table id="data_tableEmail"
-                                               class="table table-responsive-lg table-bordered table-striped mb-0">
-                                            <thead>
-                                            <tr><th>Descrizione</th><th>Tipologia</th><th>Rimuovi</th></tr>
-                                            </thead>
-                                            <tbody>
-                                            <tr th:if="${#lists.isEmpty(amministratoriUtente.idaccountemail)}">
-                                                <td colspan="3" class="text-center">Nessun account associato.</td>
-                                            </tr>
-                                            <tr th:if="${amministratoriUtente.idaccountemail != null and !#strings.isEmpty(amministratoriUtente.idaccountemail)}">
-                                                <td>
-                                                    <span th:text="${amministratoriUtente.idaccountemail}">-</span>
-                                                    <input type="hidden"
-                                                           th:id="${'rowEMAIL_' + #strings.replace(#strings.replace(amministratoriUtente.idaccountemail,'@','_'),'.','_')}"
-                                                           th:value="${amministratoriUtente.idaccountemail}">
-                                                </td>
+                                    </div>
 
-                                                <td>-</td>
-
-                                                <td>
-                                                    <a href="javascript:void(0);"
-                                                       th:data-id="${amministratoriUtente.idaccountemail}"
-                                                       onclick="disassociaAccount('idaccountemail',this.getAttribute('data-id'))"
-                                                       title="Cancella">
-                                                        <i class="fas fa-trash-alt"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
-                                    </fieldset>
-                                </div>
-
-                                <!-- Account PEC -->
-                                <div class="col-lg-6">
-                                    <fieldset class="border p-3">
-                                        <legend class="float-none w-auto px-2">Account PEC</legend>
-                                        <div class="right-wrapper text-right mb-2">
-                                            <a href="javascript:void(0);"
-                                               onclick="return hs.htmlExpand(this,{headingText:'Associa account PEC',align:'center',objectType:'iframe',width:600,height:600,src:'/admin/account/elenco?tipo=PEC&table=data_tablePec'})"
-                                               class="mb-1 mt-1 mr-1 btn btn-sm btn-default">
-                                                Associa account PEC
-                                            </a>
+                                    <div class="col-lg-6 mb-3">
+                                        <div class="card h-100 shadow-sm border">
+                                            <div class="card-body">
+                                                <h5>Account PEC</h5>
+                                                <div class="text-end mb-2">
+                                                    <button type="button" class="btn btn-outline-info btn-sm"
+                                                            data-tipo="PEC"
+                                                            data-target="data_tablePec"
+                                                            onclick="apriPopupAccount(this.dataset.tipo, this.dataset.target);">
+                                                        <i class="fas fa-plus"></i> Associa PEC
+                                                    </button>
+                                                </div>
+                                                <input type="hidden" name="idaccountpec" id="idaccountpec"
+                                                       th:value="${amministratoriUtente.idaccountpec}">
+                                                <table id="data_tablePec" class="table table-sm table-bordered table-striped mb-0">
+                                                    <thead><tr><th>Descrizione</th><th style="width:50px">Rimuovi</th></tr></thead>
+                                                    <tbody>
+                                                    <tr th:each="acc : ${amministratoriUtente.accountPec}"
+                                                        th:id="'rowPEC_' + ${acc.id}">
+                                                        <td th:text="${acc.descrizione}"></td>
+                                                        <td class="text-center">
+                                                            <a href="javascript:void(0);"
+                                                               th:data-hidden-id="'idaccountpec'"
+                                                               th:data-acc-id="${acc.id}"
+                                                               th:data-row-id="'rowPEC_' + ${acc.id}"
+                                                               onclick="disassociaAccount(this.dataset.hiddenId, this.dataset.accId, this.dataset.rowId);">
+                                                                <i class="fas fa-trash-alt text-danger"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
-                                        <code>Il primo account inserito è il predefinito</code>
-                                        <input type="hidden" name="idaccountpec" id="idaccountpec"
-                                               th:value="${amministratoriUtente.idaccountpec}">
-                                        <table id="data_tablePec"
-                                               class="table table-responsive-lg table-bordered table-striped mb-0">
-                                            <thead>
-                                            <tr><th>Descrizione</th><th>Tipologia</th><th>Rimuovi</th></tr>
-                                            </thead>
-                                            <tbody>
-                                            <tr th:if="${#lists.isEmpty(amministratoriUtente.idaccountpec)}">
-                                                <td colspan="3" class="text-center">Nessun account associato.</td>
-                                            </tr>
-                                            <tr th:if="${amministratoriUtente.idaccountpec != null and !#strings.isEmpty(amministratoriUtente.idaccountpec)}">
-                                                <td>
-                                                    <span th:text="${amministratoriUtente.idaccountpec}">-</span>
-                                                    <input type="hidden"
-                                                           th:id="${'rowPEC_' + #strings.replace(#strings.replace(amministratoriUtente.idaccountpec,'@','_'),'.','_')}"
-                                                           th:value="${amministratoriUtente.idaccountpec}">
-                                                </td>
+                                    </div>
 
-                                                <td>-</td>
-
-                                                <td>
-                                                    <a href="javascript:void(0);"
-                                                       th:data-id="${amministratoriUtente.idaccountpec}"
-                                                       onclick="disassociaAccount('idaccountpec',this.getAttribute('data-id'))"
-                                                       title="Cancella">
-                                                        <i class="fas fa-trash-alt"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
-                                    </fieldset>
                                 </div>
+                            </fieldset>
+                        </div>
 
+                        <!-- Modal -->
+                        <div class="modal fade" id="modalAccount" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="modalAccountTitle">Associa Account</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body" id="modalAccountBody">
+                                        <div class="text-center p-4">
+                                            <div class="spinner-border text-info"></div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <!-- fine TAB 06 -->
-
-                    </div><!-- fine tab-content -->
-                </div><!-- fine tabs -->
+                    </div>
+                </div>
             </div>
         </div>
-
-        <button type="submit" style="visibility:hidden"></button>
-
     </form>
 
     <script th:inline="javascript">
-        function InviaForm() {
-            var form = $('#amministratoriUtente');
-            var errore = '';
+        var _popupTargetTable = null;
+var _popupTipo = null;
 
-            // reset messaggi
-            $('#nuovaPasswordAccessoError').empty();
+function apriPopupAccount(tipo, targetTable) {
+    _popupTipo = tipo;
+    _popupTargetTable = targetTable;
 
-            // caso 1: utente nuovo -> password iniziale
-            if ($('#passwordNew').length && $('#passwordNew').is(':visible')) {
-                var p = document.getElementById('passwordNew');
-                var regexPwd = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!\s).{8,15}$/;
+    document.getElementById('modalAccountTitle').innerText = 'Associa account ' + tipo;
+    const body = document.getElementById('modalAccountBody');
+    body.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-info"></div></div>';
 
-                if (p.value && !regexPwd.test(p.value)) {
-                    errore = 'La password non corrisponde ai criteri indicati';
-                    p.setCustomValidity(errore);
-                } else {
-                    p.setCustomValidity('');
-                }
-            }
-
-            // caso 2: cambio password
-            if ($('#nuovaPasswordAccesso').is(':visible')) {
-                var p1 = document.getElementById('newpassword');
-                var p2 = document.getElementById('newpasswordretype');
-                var regexPwd2 = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!\s).{8,15}$/;
-
-                $('#newpassword').prop('required', true);
-                $('#newpasswordretype').prop('required', true);
-
-                if (p1.value && !regexPwd2.test(p1.value)) {
-                    errore = 'La password non corrisponde ai criteri indicati';
-                    p1.setCustomValidity(errore);
-                    p2.setCustomValidity('');
-                    $('#nuovaPasswordAccessoError').text(errore);
-                } else if (p1.value !== p2.value) {
-                    errore = 'Le password devono essere uguali';
-                    p1.setCustomValidity(errore);
-                    p2.setCustomValidity(errore);
-                    $('#nuovaPasswordAccessoError').text(errore);
-                } else {
-                    p1.setCustomValidity('');
-                    p2.setCustomValidity('');
-                }
+    fetch('/admin/account/popup?tipo=' + tipo)
+        .then(r => r.json())
+        .then(lista => {
+            let html = '<div class="p-3"><table class="table table-sm table-bordered table-striped">';
+            html += '<thead><tr><th>Descrizione</th><th style="width:80px" class="text-center">Associa</th></tr></thead><tbody>';
+            if (lista.length === 0) {
+                html += '<tr><td colspan="2" class="text-center text-muted">Nessun account disponibile</td></tr>';
             } else {
-                $('#newpassword').prop('required', false);
-                $('#newpasswordretype').prop('required', false);
-                $('#newpassword')[0]?.setCustomValidity('');
-                $('#newpasswordretype')[0]?.setCustomValidity('');
-            }
-
-            if (form[0].checkValidity() === false) {
-                new PNotify({
-                    title: 'Attenzione!',
-                    text: 'Alcuni campi obbligatori del modulo richiedono un tuo intervento!',
-                    type: 'error'
+                lista.forEach(acc => {
+                    html += `<tr>
+                        <td>${acc.descrizione}</td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-sm btn-primary"
+                                onclick="associaAccountDinamico('${acc.id}', '${acc.descrizione.replace(/'/g, "\\'")}')">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </td>
+                    </tr>`;
                 });
-
-                form.addClass('was-validated');
-                return false;
             }
+            html += '</tbody></table></div>';
+            body.innerHTML = html;
+        })
+        .catch(() => {
+            body.innerHTML = '<div class="alert alert-danger m-3">Errore nel caricamento.</div>';
+        });
 
-            form.addClass('was-validated');
-            form[0].submit();
-        }
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAccount')).show();
+}
+
+function associaAccountDinamico(id, descrizione) {
+    const tipo = _popupTipo;
+    const targetTableId = _popupTargetTable;
+    const hiddenId = (tipo === 'EMAIL') ? 'idaccountemail' : 'idaccountpec';
+    const prefix = (tipo === 'EMAIL') ? 'rowEMAIL_' : 'rowPEC_';
+    const rowId = prefix + id;
+
+    if (document.getElementById(rowId)) return;
+
+    const hidden = document.getElementById(hiddenId);
+    const ids = hidden.value ? hidden.value.split(',').filter(x => x.trim() !== '') : [];
+    ids.push(id);
+    hidden.value = ids.join(',');
+
+    const tbody = document.querySelector('#' + targetTableId + ' tbody');
+    tbody.insertAdjacentHTML('beforeend', `
+        <tr id="${rowId}">
+            <td>${descrizione}</td>
+            <td class="text-center">
+                <a href="javascript:void(0);"
+                   onclick="disassociaAccount('${hiddenId}','${id}','${rowId}')">
+                    <i class="fas fa-trash-alt text-danger"></i>
+                </a>
+            </td>
+        </tr>`);
+
+    bootstrap.Modal.getInstance(document.getElementById('modalAccount')).hide();
+}
+
+function disassociaAccount(hiddenId, idToRemove, rowId) {
+    const hidden = document.getElementById(hiddenId);
+    hidden.value = hidden.value.split(',')
+        .filter(id => id.trim() !== '' && id.toString() !== idToRemove.toString())
+        .join(',');
+    const row = document.getElementById(rowId);
+    if (row) row.remove();
+}
     </script>
-
 </div>
 </body>
 </html>

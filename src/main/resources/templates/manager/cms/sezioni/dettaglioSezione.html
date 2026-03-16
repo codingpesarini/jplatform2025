@@ -225,12 +225,14 @@
                         <!-- fine TAB 01 -->
 
                         <!-- ═══ TAB 02 — ABSTRACT ═══ -->
-                        <div id="tab_02" class="tab-pane" role="tabpanel">
+                        <div id="tab_02" class="tab-pane">
                             <div class="row form-group">
                                 <div class="col-lg-12">
-                                    <label class="col-form-label" for="riassunto">Abstract
-                                        <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'riassunto');">Editor</a>
+                                    <label class="col-form-label" for="riassunto">
+                                        Abstract
+                                        <a href="javascript:void(0)" onclick="toggleEditor('riassunto');">Editor</a>
                                     </label>
+
                                     <textarea name="riassunto" id="riassunto"
                                               class="tinymce5 form-control"
                                               th:text="${section.riassunto}"></textarea>
@@ -243,7 +245,7 @@
                             <div class="row form-group">
                                 <div class="col-lg-12">
                                     <label class="col-form-label" for="testo">Contenuto pagine
-                                        <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'testo');">Editor</a>
+                                        <a href="javascript:void(0)" onclick="toggleEditor('testo');">Editor</a>
                                     </label>
                                     <textarea name="testo" id="testo"
                                               class="tinymce5 form-control"
@@ -458,14 +460,16 @@
                                 <th:block th:each="i : ${#numbers.sequence(1, 10)}">
                                     <div class="col-lg-6 mb-3">
                                         <label class="col-form-label"
-                                               th:for="${'text' + i}"
-                                               th:text="${'text' + i}">textN</label>
-                                        <a href="javascript:void(0)"
-                                           th:onclick="|tinymce.execCommand('mceToggleEditor',false,'text${i}')|">Editor</a>
-                                        <textarea th:name="${'text' + i}"
-                                                  th:id="${'text' + i}"
-                                                  class="form-control"
-                                                  th:text="${section['text' + i]}"></textarea>
+                                               th:for="|text${i}|">
+                                            <span th:text="|text${i}|">textN</span>
+                                            <a href="javascript:void(0)"
+                                               th:data-field="|text${i}|"
+                                               onclick="toggleEditor(this.getAttribute('data-field'));">Editor</a>
+                                        </label>
+                                        <textarea th:name="|text${i}|"
+                                                  th:id="|text${i}|"
+                                                  class="tinymce5minimal form-control"
+                                                  th:text="${section.__${'text' + i}__}"></textarea>
                                     </div>
                                 </th:block>
                             </div>

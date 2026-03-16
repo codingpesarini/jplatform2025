@@ -1,0 +1,8 @@
+/* Stile Modal Account */
+#modalAccount .modal-content { border-radius: 10px; border: none; box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+#modalAccount .modal-header { background: #f8f9fa; border-bottom: 1px solid #eee; }
+#listaAccountPopup { max-height: 400px; overflow-y: auto; }
+.list-group-item-action { padding: 12px 20px; border-left: 3px solid transparent; transition: 0.2s; cursor: pointer; }
+.list-group-item-action:hover { background: #f0f7ff; border-left-color: #06b6d4; padding-left: 25px; }
+.list-group-item-action strong { display: block; color: #333; font-size: 14px; }
+.list-group-item-action small { color: #777; font-size: 12px; }

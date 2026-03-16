@@ -39,7 +39,7 @@
               <i class="fas fa-file-medical"></i> Crea nuovo
             </a>
             <a href="javascript:void(0);" onclick="cancellaMultiplo()" class="btn btn-primary">
-              <i class="fas fa-trash-alt"></i> Cancella selezionati
+              <i class="fas fa-trash-alt"></i> <span class="d-none d-md-inline">Cancella selezionati</span>
             </a>
           </div>
 
@@ -70,7 +70,7 @@
                   <i class="fas fa-pencil-alt"></i>
                 </a>
                 &nbsp;&nbsp;
-                <a href="javascript:void(0);" th:onclick="|cancellaRuolo(${ruolo.id})|" title="Cancella">
+                <a href="javascript:void(0);" th:onclick="|cancellaRuolo(${ruolo.id})|" class="text-danger" title="Cancella">
                   <i class="far fa-trash-alt"></i>
                 </a>
               </td>
@@ -87,32 +87,61 @@
   </div>
 
 
-  <script>
+  <script th:inline="javascript">
+    // Selezione massiva
     document.getElementById('selAll').addEventListener('change', function() {
       document.querySelectorAll('input[name="row_sel"]').forEach(cb => cb.checked = this.checked);
     });
 
-
+    // 1. CANCELLAZIONE SINGOLA
     function cancellaRuolo(id) {
-      if (!confirm('Confermi la cancellazione?')) return;
-
-      fetch('/admin/impostazioni/ruoli/' + id + '/delete', { method: 'POST' })
-              .then(async r => {
-                const txt = await r.text();
-                alert('STATUS: ' + r.status + '\nRESPONSE: ' + txt);
-              })
-              .catch(e => alert('ERRORE JS: ' + e));
+      confirmAction('Sei sicuro di voler eliminare questo ruolo?', function() {
+          eseguiCancellazioneRuoliAjax([id]);
+      });
     }
 
+    // 2. CANCELLAZIONE MULTIPLA
     function cancellaMultiplo() {
-      const ids = [...document.querySelectorAll('input[name="row_sel"]:checked')].map(cb => cb.value);
-      if (ids.length === 0) { alert('Seleziona almeno un elemento.'); return; }
-      if (!confirm('Confermi la cancellazione di ' + ids.length + ' elementi?')) return;
+      const selezionati = [...document.querySelectorAll('input[name="row_sel"]:checked')].map(cb => cb.value);
+
+      if (selezionati.length === 0) {
+        confirmAction('Nessun ruolo selezionato. Seleziona almeno una riga.', function() {});
+        setTimeout(() => {
+            const btnAnnulla = document.querySelector('.modal-footer button:not(.btn-danger):not(.btn-primary)');
+            if (btnAnnulla) btnAnnulla.style.display = 'none';
+        }, 100);
+        return;
+      }
+
+      confirmAction('Confermi la cancellazione di ' + selezionati.length + ' ruoli?', function() {
+          eseguiCancellazioneRuoliAjax(selezionati);
+      });
+    }
+
+    // 3. FUNZIONE FETCH UNIFICATA
+    function eseguiCancellazioneRuoliAjax(ids) {
       const params = new URLSearchParams();
-      ids.forEach(id => params.append('ids', id));
+      // Formato ids[] per coerenza con gli altri controller
+      ids.forEach(id => params.append('ids[]', id));
+
       fetch('/admin/impostazioni/ruoli/delete-multiplo', {
-        method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString()
-      }).then(r => r.text()).then(res => { if (res === 'OK') location.reload(); else alert('Errore.'); });
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString()
+      })
+      .then(r => r.text())
+      .then(res => {
+        // Controllo se il risultato è OK o contiene messaggi di successo
+        if (res.trim() === "OK" || res.includes("completata") || res.includes("success")) {
+            location.reload();
+        } else {
+            alert('Errore durante la cancellazione: ' + res);
+        }
+      })
+      .catch(e => {
+          console.error('Errore:', e);
+          alert('Errore tecnico durante la richiesta.');
+      });
     }
   </script>
 </div>

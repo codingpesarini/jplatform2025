@@ -68,6 +68,7 @@
               </li>
             </ul>
           </div>
+          <hr class="mt-0 mb-3">
           <div class="tab-content">
 
             <!-- TAB 01 — Generale -->
@@ -76,7 +77,7 @@
                 <legend th:text="${account.id != null ? 'Definizione ID ' + account.id : 'Nuovo Account'}">Definizione</legend>
                 <div class="row form-group">
 
-                  <div class="col-lg-12">
+                  <div class="col-lg-12 mb-3">
                     <label for="descrizione" class="lbl_a">Descrizione account</label>
                     <input type="text"
                            name="descrizione"
@@ -86,7 +87,7 @@
                            required/>
                   </div>
 
-                  <div class="col-lg-6">
+                  <div class="col-lg-6 mb-3">
                     <label for="tipoAccount" class="lbl_a">Tipologia account</label>
                     <select name="tipoAccount" id="tipoAccount"
                             class="form-control obbligatorio" required>
@@ -96,7 +97,7 @@
                     </select>
                   </div>
 
-                  <div class="col-lg-6">
+                  <div class="col-lg-6 mb-3">
                     <label for="lasciaCopiaServer" class="lbl_a">Lascia una copia del messaggio sul server</label>
                     <select name="lasciaCopiaServer" id="lasciaCopiaServer"
                             class="form-control obbligatorio" required>

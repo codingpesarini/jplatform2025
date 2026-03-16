@@ -195,7 +195,7 @@
                   <div class="form-group">
                     <label class="col-form-label" for="riassunto">
                       <strong>Abstract</strong> - Sintetica descrizione del servizio, inferiore ai 160 caratteri -
-                      <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'riassunto');">Editor</a>
+                      <a href="javascript:void(0)" onclick="toggleEditor('riassunto');">Editor</a>
                     </label>
                     <textarea id="riassunto" name="riassunto" class="tinymce5minimal form-control"
                               th:text="${post.riassunto}"></textarea>
@@ -206,7 +206,7 @@
                   <div class="form-group">
                     <label class="col-form-label" for="text1">
                       <strong>Dove</strong> -
-                      <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'text1');">Editor text1</a>
+                      <a href="javascript:void(0)" onclick="toggleEditor('text1');">Editor text1</a>
                     </label>
                     <textarea id="text1" name="text1" class="tinymce5minimal form-control"
                               th:text="${post.text1}"></textarea>
@@ -217,7 +217,7 @@
                   <div class="form-group">
                     <label class="col-form-label" for="text2">
                       <strong>Quando</strong> -
-                      <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'text2');">Editor text2</a>
+                      <a href="javascript:void(0)" onclick="toggleEditor('text2');">Editor text2</a>
                     </label>
                     <textarea id="text2" name="text2" class="tinymce5minimal form-control"
                               th:text="${post.text2}"></textarea>
@@ -228,7 +228,7 @@
                   <div class="form-group">
                     <label class="col-form-label" for="text3">
                       <strong>Organizzato da</strong> -
-                      <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'text3');">Editor text3</a>
+                      <a href="javascript:void(0)" onclick="toggleEditor('text3');">Editor text3</a>
                     </label>
                     <textarea id="text3" name="text3" class="tinymce5minimal form-control"
                               th:text="${post.text3}"></textarea>
@@ -239,7 +239,7 @@
                   <div class="form-group">
                     <label class="col-form-label" for="text4">
                       <strong>Ulteriori informazioni</strong> -
-                      <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'text4');">Editor text4</a>
+                      <a href="javascript:void(0)" onclick="toggleEditor('text4');">Editor text4</a>
                     </label>
                     <textarea id="text4" name="text4" class="form-control"
                               th:text="${post.text4}"></textarea>
@@ -255,7 +255,7 @@
                 <div class="col-lg-12">
                   <div class="form-group">
                     <label class="col-form-label" for="testo">Contenuto pagine</label>
-                    <a href="javascript:void(0)" onclick="tinymce.execCommand('mceToggleEditor',false,'testo');">Editor</a>
+                    <a href="javascript:void(0)" onclick="toggleEditor('testo');">Editor</a>
                     <textarea id="testo" name="testo" class="tinymce5 form-control"
                               th:text="${post.testo}"></textarea>
                   </div>
@@ -572,7 +572,6 @@
                              onblur="ControlloCampoTag(this);" th:value="${post.l15}">
                       <small class="text-muted">ID separati da virgola</small>
                     </div>
-
                     <div class="col-lg-6">
                       <label for="l11" class="form-label">ID sezioni associate 2</label>
                       <input type="text" id="l11" name="l11" class="form-control notAutocomplete"
@@ -598,13 +597,14 @@
                       <small class="text-muted">Attiva/disattiva ExtraTAG</small>
                     </div>
 
-                    <div class="col-lg-3" id="ZonaExtraTagOrdine_maxEl">
+                    <!-- nascosti di default, AttivaExtraTag() li mostra se attivato -->
+                    <div class="col-lg-3" id="ZonaExtraTagOrdine_maxEl" style="display:none">
                       <label for="maxExtraTag" class="form-label">Numero elementi</label>
                       <input type="text" id="maxExtraTag" name="maxExtraTag" class="form-control"
                              th:value="${post.maxExtraTag}">
                     </div>
 
-                    <div class="col-lg-3">
+                    <div class="col-lg-3" id="ZonaExtraTagOrdine" style="display:none">
                       <label for="ordineExtraTag" class="form-label">Ordine visualizzazione</label>
                       <select id="ordineExtraTag" name="ordineExtraTag" class="form-select">
                         <option value="rand()"       th:selected="${post.ordineExtraTag == 'rand()'}">Casuale</option>
@@ -616,7 +616,7 @@
                       </select>
                     </div>
 
-                    <div class="col-lg-3 d-flex align-items-end" id="SpazioEreditaExtraTag">
+                    <div class="col-lg-3 d-flex align-items-end" id="SpazioEreditaExtraTag" style="display:none">
                       <button type="button" id="EreditaExtraTag" class="btn btn-primary w-100">
                         <i class="ti ti-copy me-1"></i> Applica ExtraTag a tutti i contenuti
                       </button>
@@ -625,7 +625,7 @@
                 </div>
               </div>
 
-              <div class="card" id="ZonaExtraTag">
+              <div class="card" id="ZonaExtraTag" style="display:none">
                 <div class="card-header">
                   <h6 class="card-title mb-0"><i class="ti ti-database me-1"></i> Campi aggiuntivi</h6>
                 </div>
@@ -633,26 +633,25 @@
                   <div class="row g-3">
                     <th:block th:each="i : ${#numbers.sequence(1,10)}">
                       <div class="col-lg-6">
-                        <label th:for="${'extraTagRef' + i}" class="form-label"
+                        <label th:for="|extraTagRef${i}|" class="form-label"
                                th:text="${'Sezione associata ' + i}">Sezione</label>
-                        <select th:id="${'extraTagRef' + i}" th:name="${'extraTagRef' + i}" class="form-select">
+                        <select th:id="|extraTagRef${i}|" th:name="|extraTagRef${i}|" class="form-select">
                           <option value="0">Nessuna relazione</option>
                           <option th:each="s : ${elencoSezioniCompleto}"
                                   th:value="${s.id}"
                                   th:text="${s.titolo}"
-                                  th:selected="${post['extraTagRef' + i] != null and s.id == post['extraTagRef' + i]}">
+                                  th:selected="${post.__${'extraTagRef' + i}__ != null and s.id == post.__${'extraTagRef' + i}__}">
                           </option>
                         </select>
                       </div>
-
                       <div class="col-lg-6">
-                        <label th:for="${'extraTag' + i}" class="form-label"
+                        <label th:for="|extraTag${i}|" class="form-label"
                                th:text="${'TAG ' + i}">TAG</label>
-                        <textarea th:id="${'extraTag' + i}" th:name="${'extraTag' + i}"
+                        <textarea th:id="|extraTag${i}|" th:name="|extraTag${i}|"
                                   class="form-control notAutocomplete"
                                   rows="2"
                                   onblur="ControlloCampoTag(this);"
-                                  th:text="${post['extraTag' + i]}"></textarea>
+                                  th:text="${post.__${'extraTag' + i}__}"></textarea>
                       </div>
                     </th:block>
                   </div>
@@ -660,7 +659,6 @@
               </div>
 
             </div>
-
           </div><!-- /tab-content -->
 
         </div>
