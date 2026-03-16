@@ -138,28 +138,20 @@
 
     // 3. FUNZIONE FETCH UNIFICATA
     function eseguiEliminazioneAccount(ids) {
-        const formData = new URLSearchParams();
-        ids.forEach(id => formData.append('ids[]', id));
-
-        fetch('/admin/account/eliminaMultiplo', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: formData.toString()
-        })
-        .then(response => response.text())
-        .then(result => {
-            // Controlliamo se la risposta contiene "Cancellazione completata" (quello che invia il tuo log)
-            if (result.trim() === "OK" || result.includes("Cancellazione completata")) {
-                location.reload();
-            } else {
-                alert("Errore durante la cancellazione: " + result);
-            }
-        })
-        .catch(error => {
-            console.error('Errore tecnico:', error);
-            alert("Errore di rete o del server.");
-        });
-    }
+    const formData = new URLSearchParams();
+    ids.forEach(id => formData.append('ids[]', id));
+    fetch('/admin/account/delete-multiplo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString()
+    })
+    .then(r => r.text())
+    .then(result => {
+        if (result === 'OK') location.reload();
+        else alert('Errore durante la cancellazione.');
+    })
+    .catch(err => console.error('Errore:', err));
+}
   </script>
 
 </div>

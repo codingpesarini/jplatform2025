@@ -29,7 +29,7 @@
         </a>
 
         <a th:if="${account.id != null}"
-           th:href="@{/admin/account/duplica(id=${account.id})}"
+           th:href="@{/admin/account/{id}/duplica(id=${account.id})}"
            onclick="return ConfermaOperazione(this.href, 'duplicare questo Account')"
            class="mb-1 mt-1 mr-1 btn btn-sm btn-info">
           <i class="fas fa-clone"></i> Duplica
