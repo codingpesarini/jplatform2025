@@ -124,13 +124,13 @@
                                     <label for="dataVisualizzata" class="col-form-label">Data visualizzata</label>
                                     <input type="text" name="dataVisualizzata" id="dataVisualizzata"
                                            th:value="${section.dataVisualizzata}"
-                                           class="form-control datepickerEstesa obbligatorio" required>
+                                           class="form-control dataVisualizzata obbligatorio" required>
                                 </div>
                                 <div class="col-lg-3">
                                     <label for="data" class="col-form-label">Data riferimento</label>
                                     <input type="text" name="data" id="data"
                                            th:value="${section.data}"
-                                           class="form-control datepicker obbligatorio" required>
+                                           class="form-control dataBase obbligatorio" required>
                                 </div>
                                 <div class="col-lg-6">
                                     <label for="tag" class="col-form-label">TAG</label>
@@ -181,16 +181,16 @@
                                 </div>
                             </div>
 
-                            <div id="datePubblicazione" class="row form-group">
+                            <div id="datePubblicazione" class="row form-group" style="display:none">
                                 <div class="col-lg-2">
                                     <label for="s1" class="col-form-label">Data inizio pubblicazione</label>
                                     <input type="text" name="s1" id="s1"
-                                           th:value="${section.s1}" class="form-control datepicker">
+                                           th:value="${section.s1}" class="form-control dataBase">
                                 </div>
                                 <div class="col-lg-2">
                                     <label for="s2" class="col-form-label">Data fine pubblicazione</label>
                                     <input type="text" name="s2" id="s2"
-                                           th:value="${section.s2}" class="form-control datepicker">
+                                           th:value="${section.s2}" class="form-control dataBase">
                                 </div>
                             </div>
 
@@ -207,7 +207,7 @@
                                 </div>
                             </div>
 
-                            <div class="row form-group" id="linkEsterno">
+                            <div class="row form-group" id="linkEsterno" style="display:none">
                                 <div class="col-lg-3">
                                     <label for="menu3" class="col-form-label">URL link esterno</label>
                                     <input type="text" name="menu3" id="menu3"
@@ -414,11 +414,10 @@
                         </div>
 
                         <div id="tab_06" class="tab-pane" role="tabpanel">
-                            <div class="row form-group">
+                            <div class="row mb-4">
                                 <div class="col-lg-6">
-                                    <label for="privato" class="col-form-label">Sezione privata</label>
-                                    <select name="privato" id="privato"
-                                            onchange="AttivaAutorizzazioniUtente()" class="form-control obbligatorio">
+                                    <label for="privato" class="form-label fw-bold">Sezione privata</label>
+                                    <select name="privato" id="privato" onchange="AttivaAutorizzazioniUtente()" class="form-select border-primary obbligatorio">
                                         <option value="">----- Seleziona tipo accesso -----</option>
                                         <option value="0" th:selected="${section.privato == '0'}">Sezione pubblica e visibile a tutti</option>
                                         <option value="1" th:selected="${section.privato == '1'}">Sezione privata e visibile al gruppo autorizzato</option>
@@ -426,43 +425,56 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="row form-group" id="GruppiAbilitati">
-                                <div class="col-lg-3">
-                                    <label class="col-form-label">Gruppi associati</label>
-                                    <select name="idgruppi" id="idgruppi" multiple size="5" class="form-control">
+
+                            <div class="row mb-4 animate__animated animate__fadeIn" id="GruppiAbilitati" th:style="${section.privato == '1' ? 'display:flex' : 'display:none'}">
+                                <div class="col-lg-4">
+                                    <label for="idgruppi" class="form-label fw-bold text-primary">Gruppi associati</label>
+                                    <select name="idgruppi" id="idgruppi" multiple size="5" class="form-select shadow-sm obbligatorio">
                                         <option value="0">Standard</option>
                                         <option th:each="gruppo : ${config.gruppi}"
-                                                th:value="${gruppo.id}" th:text="${gruppo.nome}"
-                                                th:selected="${section.idgruppi != null and #lists.contains(section.idgruppi, gruppo.id)}"></option>
+                                                th:value="${gruppo.id}"
+                                                th:text="${gruppo.nome}"
+                                                th:selected="${section.idGruppo != null and #strings.contains(section.idGruppo, '(' + gruppo.id + ')')}">
+                                        </option>
                                     </select>
+                                    <small class="text-muted">Selezione multipla con CTRL (Windows) o CMD (Mac)</small>
                                 </div>
-                                <div class="col-lg-6">
-                                    <p>Selezionare i gruppi che avranno il permesso di accedere alla sezione ed ai documenti associati. Seleziona multipla utilizzando il tasto Maiusc.</p>
+                                <div class="col-lg-8">
+                                    <div class="alert alert-light border-start border-primary border-4 h-100 d-flex align-items-center">
+                                        <p class="mb-0 small text-muted">
+                                            Selezionare i gruppi che avranno il permesso di accedere alla sezione ed ai documenti associati.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="row form-group" id="PermessiPersonalizzati">
-                                <div class="col-lg-3">
-                                    <label class="col-form-label">Cerca utente da inserire nelle autorizzazioni</label>
-                                    <input name="cognomePermessoPrivato" id="cognomePermessoPrivato" type="text" class="form-control">
-                                    <input type="hidden" name="utentiAssociatiString" id="utentiAssociatiString"
-                                           th:value="${section.utentiAssociatiString}">
-                                </div>
-                                <div class="col-lg-6">
-                                    <div id="utenti" style="overflow:auto;height:100px;">
-                                        <div th:each="u : ${section.utentiAssociati}" th:attr="id=${u.id}">
-                                            <img th:src="@{/manager/assets/img/icons/trashcan_gray.png}"
-                                                 width="15" style="cursor:pointer;"
-                                                 th:data-id="${u.id}"
-                                                 onclick="RimuoviUtenteAssociato(this.getAttribute('data-id'))">
-                                            <span th:text="${u.nome + ' ' + u.cognome}"></span>
+
+                            <div class="row mb-4 animate__animated animate__fadeIn" id="PermessiPersonalizzati"
+                                 th:style="${section.privato == '2' ? 'display:flex' : 'display:none'}">
+                                <div class="col-lg-12">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <label for="cognomePermessoPrivato" class="form-label fw-bold">Cerca utente da inserire nelle autorizzazioni</label>
+                                            <div class="input-group mb-3">
+                                                <input name="cognomePermessoPrivato" id="cognomePermessoPrivato" type="text" class="form-control" placeholder="Inizia a digitare il cognome...">
+                                                <input type="hidden" name="utentiAssociatiString" id="utentiAssociatiString" th:value="${section.utentiAssociatiString}">
+                                            </div>
+
+                                            <div id="utenti" class="border rounded bg-white p-2" style="overflow:auto; height:120px;">
+                                                <div th:each="u : ${section.utentiAssociati}" th:id="'user-badge-' + ${u.id}" class="badge bg-secondary m-1 p-2 d-inline-flex align-items-center">
+                                                    <span th:text="${u.nome + ' ' + u.cognome}">Nome Cognome</span>
+                                                    <i class="fas fa-times ms-2 cursor-pointer" th:onclick="'RimuoviUtenteAssociato(' + ${u.id} + ')'" title="Rimuovi"></i>
+                                                </div>
+                                            </div>
+                                            <div class="form-text mt-2">Ricercare gli utenti che saranno autorizzati singolarmente ad accedere alla sezione.</div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-lg-3">
-                                    <p>Ricercare gli utenti che saranno autorizzati singolarmente ad accedere alla sezione ed ai documenti associati.</p>
-                                </div>
                             </div>
-                            <div class="row form-group">
+
+                            <hr class="my-4">
+
+                            <div class="row g-3">
+
                                 <div class="col-lg-3">
                                     <label for="info2" class="col-form-label">Form contatti</label>
                                     <select name="info2" id="info2" class="form-control">
@@ -485,7 +497,7 @@
                                     </select>
                                 </div>
                                 <div class="col-lg-3">
-                                    <label for="info4" class="col-form-label">Filtro categoria su pagina elenco</label>
+                                    <label for="info4" class="col-form-label">Filtro categoria</label>
                                     <select name="info4" id="info4" class="form-control">
                                         <option value="0" th:selected="${section.info4 == '0'}">Non filtrare</option>
                                         <option value="1" th:selected="${section.info4 == '1'}">Filtra</option>
@@ -658,20 +670,144 @@
     </form>
 
     <script th:inline="javascript">
+
+        // ── Invio manuale del form ──────────────────────────────────────────────
+        function InviaForm(formId) {
+            var $form = $('#' + formId);
+            if ($form[0].checkValidity() === false) {
+                $form.addClass('was-validated');
+                new PNotify({
+                    title: 'Attenzione!',
+                    text: 'Alcuni campi obbligatori del modulo richiedono un tuo intervento!',
+                    type: 'error'
+                });
+                return false;
+            }
+            $form.addClass('was-validated');
+            $form[0].submit();
+        }
+
+        // ── Periodo di pubblicazione ────────────────────────────────────────────
+        function AttivaDataPubblicazione() {
+            if ($('#s3').val() === '1') {
+                $('#datePubblicazione').slideDown();
+            } else {
+                $('#datePubblicazione').slideUp();
+            }
+        }
+
+        // ── Link esterno ────────────────────────────────────────────────────────
+        function AttivaLinkEsterno() {
+            if ($('#menu2').val() === '2') {
+                $('#linkEsterno').slideDown();
+            } else {
+                $('#linkEsterno').slideUp();
+            }
+        }
+
+        // ── ExtraTag ────────────────────────────────────────────────────────────
+        function AttivaExtraTag() {
+            if ($('#regolaExtraTag1').val() === '1') {
+                $('#ZonaExtraTag').slideDown();
+                $('#ZonaExtraTagOrdine').slideDown();
+            } else {
+                $('#ZonaExtraTag').slideUp();
+                $('#ZonaExtraTagOrdine').slideUp();
+            }
+        }
+
+        // ── Autorizzazioni ──────────────────────────────────────────────────────
+        function AttivaAutorizzazioniUtente() {
+            const val = $('#privato').val();
+            if (val === '1') {
+                $('#GruppiAbilitati').slideDown();
+                $('#PermessiPersonalizzati').hide();
+            } else if (val === '2') {
+                $('#GruppiAbilitati').hide();
+                $('#PermessiPersonalizzati').slideDown();
+            } else {
+                $('#GruppiAbilitati').hide();
+                $('#PermessiPersonalizzati').hide();
+            }
+        }
+
+        // ── Rimozione utente autorizzato ────────────────────────────────────────
+        function RimuoviUtenteAssociato(id) {
+            var $hidden = $('#utentiAssociatiString');
+            $hidden.val($hidden.val().replace('(' + id + ');', ''));
+            $('#' + id + ', #user-badge-' + id).fadeOut(300, function () {
+                $(this).remove();
+            });
+        }
+
+        // ── DOM Ready ───────────────────────────────────────────────────────────
         $(document).ready(function () {
+
+            // Stato iniziale di tutti i pannelli
             AttivaDataPubblicazione();
             AttivaLinkEsterno();
             AttivaAutorizzazioniUtente();
             AttivaExtraTag();
-            $('#EreditaExtraTag').on('click', function () { ApplicaExtraTagContenuti(); return false; });
+
+            // Binding eventi select → funzioni visibilità
+            $('#s3').on('change', AttivaDataPubblicazione);
+            $('#menu2').on('change', AttivaLinkEsterno);
+            $('#privato').on('change', AttivaAutorizzazioniUtente);
+            $('#regolaExtraTag1').on('change', AttivaExtraTag);
+
+            // ExtraTag a cascata
+            $('#EreditaExtraTag').on('click', function (e) {
+                e.preventDefault();
+                if (typeof ApplicaExtraTagContenuti === 'function') ApplicaExtraTagContenuti();
+            });
+
+            // Autocomplete ricerca utenti
+            if (typeof $.widget === 'function' && $('#cognomePermessoPrivato').length > 0) {
+                $('#cognomePermessoPrivato').autocomplete({
+                    source: '/admin/utenti/ricerca',
+                    minLength: 2,
+                    select: function (event, ui) {
+                        var id = ui.item.id;
+                        var nome = ui.item.value;
+                        var $hidden = $('#utentiAssociatiString');
+                        if (!$hidden.val().includes('(' + id + ');')) {
+                            $hidden.val($hidden.val() + '(' + id + ');');
+                            $('#utenti').append(
+                                '<div id="user-badge-' + id + '" class="mb-1">' +
+                                '<a href="javascript:void(0)" onclick="RimuoviUtenteAssociato(' + id + ')" class="text-danger me-2">' +
+                                '<i class="fas fa-trash-alt"></i></a> ' +
+                                '<span>' + nome + '</span>' +
+                                '</div>'
+                            );
+                        }
+                        $(this).val('');
+                        return false;
+                    }
+                });
+            }
+
+            // AutoSave
+            const $form = $('#sezione');
+            const $status = $('.notifyZone');
+
+            if (typeof $form.autoSaveForm === 'function') {
+                $form.autoSaveForm();
+
+                $form.on('beforeSave.autoSaveForm', function () {
+                    if ($('#autosave').prop('checked') === false) return false;
+                    $status.html('<small class="text-primary"><i class="fas fa-sync fa-spin"></i> Salvataggio...</small>');
+                });
+
+                $form.on('saveError.autoSaveForm', function () {
+                    $status.html('<small class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i> Errore salvataggio</small>');
+                });
+
+                $form.on('saveSuccess.autoSaveForm', function () {
+                    $status.html('<small class="text-success"><i class="fas fa-check me-1"></i> Sincronizzato alle ' + new Date().toLocaleTimeString() + '</small>');
+                });
+            }
         });
 
-        function RimuoviUtenteAssociato(id) {
-            var stringa = $('#utentiAssociatiString').val();
-            stringa = stringa.replace('(' + id + ');', '');
-            $('#utentiAssociatiString').val(stringa);
-            $('#' + id).remove();
-        }
     </script>
 
 </th:block>

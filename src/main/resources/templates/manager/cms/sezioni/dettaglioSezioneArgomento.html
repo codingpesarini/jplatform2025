@@ -131,14 +131,14 @@
                 <div class="col-lg-3">
                   <label for="dataVisualizzata" class="col-form-label">Data visualizzata</label>
                   <input type="text" name="dataVisualizzata" id="dataVisualizzata"
-                         class="form-control datepickerEstesa obbligatorio"
+                         class="form-control dataVisualizzata obbligatorio"
                          th:value="${section.dataVisualizzata}">
                 </div>
 
                 <div class="col-lg-3">
                   <label for="data" class="col-form-label">Data riferimento</label>
                   <input type="text" name="data" id="data"
-                         class="form-control datepicker obbligatorio"
+                         class="form-control dataBase obbligatorio"
                          th:value="${section.data}">
                 </div>
 
@@ -194,18 +194,18 @@
                 </div>
               </div>
 
-              <div id="datePubblicazione" class="row form-group">
+              <div id="datePubblicazione" class="row form-group" style="display:none">
                 <div class="col-lg-2">
                   <label for="s1" class="col-form-label">Data inizio pubblicazione</label>
                   <input type="text" name="s1" id="s1"
-                         class="form-control datepicker"
+                         class="form-control dataBase"
                          th:value="${section.s1}">
                 </div>
 
                 <div class="col-lg-2">
                   <label for="s2" class="col-form-label">Data fine pubblicazione</label>
                   <input type="text" name="s2" id="s2"
-                         class="form-control datepicker"
+                         class="form-control dataBase"
                          th:value="${section.s2}">
                 </div>
               </div>
@@ -223,7 +223,7 @@
                 </div>
               </div>
 
-              <div class="row form-group" id="linkEsterno">
+              <div class="row form-group" id="linkEsterno" style="display:none">
                 <div class="col-lg-3">
                   <label for="menu3" class="col-form-label">URL link esterno</label>
                   <input type="text" name="menu3" id="menu3"
@@ -789,83 +789,132 @@
 
   </form>
 
-  <script>
-    function InviaForm()
-    {
-        var form = $("#sezione")
-        if (form[0].checkValidity() === false) {
-            event.preventDefault()
-            event.stopPropagation()
-            new PNotify({
-                title: 'Attenzione!',
-                text: 'Alcuni campi obbligatori del modulo richiedono un tuo intervento!',
-                type: 'error'
-            });
+  <script th:inline="javascript">
+
+    // ── AGGIUNTE ────────────────────────────────────────────────────────────
+
+    function AttivaDataPubblicazione() {
+        if ($('#s3').val() === '1') {
+            $('#datePubblicazione').slideDown();
+        } else {
+            $('#datePubblicazione').slideUp();
         }
-        else
-        {
-            form.addClass('was-validated');
-            document.sezione.submit();
-        }
-        form.addClass('was-validated');
     }
 
-    $(document).ready(function()
-    {
+    function AttivaLinkEsterno() {
+        if ($('#menu2').val() === '2') {
+            $('#linkEsterno').slideDown();
+        } else {
+            $('#linkEsterno').slideUp();
+        }
+    }
+
+    function AttivaExtraTag() {
+        if ($('#regolaExtraTag1').val() === '1') {
+            $('#ZonaExtraTag').slideDown();
+            $('#ZonaExtraTagOrdine').slideDown();
+        } else {
+            $('#ZonaExtraTag').slideUp();
+            $('#ZonaExtraTagOrdine').slideUp();
+        }
+    }
+
+    // ── INVARIATO ───────────────────────────────────────────────────────────
+
+    function InviaForm() {
+        var $form = $("#sezione");
+
+        if ($form[0].checkValidity() === false) {
+            if (typeof PNotify !== 'undefined') {
+                new PNotify({
+                    title: 'Attenzione!',
+                    text: 'Alcuni campi obbligatori richiedono un tuo intervento!',
+                    type: 'error',
+                    styling: 'bootstrap3'
+                });
+            }
+        } else {
+            $form.addClass('was-validated');
+            document.sezione.submit();
+        }
+        $form.addClass('was-validated');
+    }
+
+    function AttivaAutorizzazioniUtente() {
+        var tipo = $('#privato').val();
+        var $divGruppi = $('#GruppiAbilitati');
+        var $divPersonalizzati = $('#PermessiPersonalizzati');
+
+        if (tipo === "1") {
+            $divGruppi.fadeIn().css('display', 'flex');
+            $divPersonalizzati.hide();
+        } else if (tipo === "2") {
+            $divGruppi.hide();
+            $divPersonalizzati.fadeIn().css('display', 'flex');
+        } else {
+            $divGruppi.hide();
+            $divPersonalizzati.hide();
+        }
+    }
+
+    function RimuoviUtenteAssociato(id) {
+        var $input = $("#utentiAssociatiString");
+        var stringa = $input.val();
+        var pattern = "(" + id + ");";
+
+        $input.val(stringa.replace(pattern, ""));
+
+        $("#" + id + ", #user-badge-" + id).fadeOut(300, function() {
+            $(this).remove();
+        });
+    }
+
+    $(document).ready(function() {
+        AttivaAutorizzazioniUtente();
+
+        // AGGIUNTA: chiamate dirette ora che le funzioni sono definite sopra
         AttivaDataPubblicazione();
         AttivaLinkEsterno();
-        AttivaAutorizzazioniUtente();
         AttivaExtraTag();
 
-        $("#EreditaExtraTag").button().click(function() {
-            ApplicaExtraTagContenuti();
+        // AGGIUNTA: binding on change
+        $('#privato').on('change', AttivaAutorizzazioniUtente);
+        $('#s3').on('change', AttivaDataPubblicazione);
+        $('#menu2').on('change', AttivaLinkEsterno);
+        $('#regolaExtraTag1').on('change', AttivaExtraTag);
+
+        $("#EreditaExtraTag").on('click', function(e) {
+            e.preventDefault();
+            if (typeof ApplicaExtraTagContenuti === "function") ApplicaExtraTagContenuti();
             return false;
         });
 
-        $(function() {
-            var $form = $('form');
-            var $formStatusHolder = $('.notifyZone');
+        var $form = $('#sezione');
+        var $status = $('.notifyZone');
 
+        if (typeof $form.autoSaveForm === "function") {
             $form.autoSaveForm();
 
-            $form.on('beforeSave.autoSaveForm', function (ev, $form, xhr) {
-                if($("#autosave").prop("checked") == false){return false}
+            $form.on('beforeSave.autoSaveForm', function() {
+                if ($("#autosave").prop("checked") === false) return false;
 
-                var formx = $("#sezione")
-                if (formx[0].checkValidity() === false) {
-                    new PNotify({
-                        title: 'Attenzione!',
-                        text: 'Alcuni campi obbligatori del modulo richiedono un tuo intervento!',
-                        type: 'error'
-                    });
+                if ($form[0].checkValidity() === false) {
+                    $status.html('<small class="text-danger">Salvataggio bloccato: campi mancanti</small>');
                     return false;
                 }
 
-                $formStatusHolder.html('Salvataggio automatico in corso...');
+                $status.html('<span class="text-primary small"><i class="fas fa-sync fa-spin me-1"></i> Salvataggio automatico...</span>');
             });
 
-            $form.on('saveError.autoSaveForm', function (ev, $form, jqXHR, textStatus, errorThrown) {
-                $formStatusHolder.html('Errore nel salvataggio automatico.');
+            $form.on('saveError.autoSaveForm', function() {
+                $status.html('<span class="text-danger small"><i class="fas fa-exclamation-circle me-1"></i> Errore salvataggio</span>');
             });
 
-            $form.on('saveSuccess.autoSaveForm', function (ev, $form, data, textStatus, jqXHR) {
-                var d = new Date();
-                $formStatusHolder.html('Ultimo salvataggio: ' + d.toLocaleTimeString());
+            $form.on('saveSuccess.autoSaveForm', function() {
+                var ora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                $status.html('<span class="text-success small"><i class="fas fa-check me-1"></i> Sincronizzato alle ' + ora + '</span>');
             });
-        });
-    });
-
-    function RimuoviUtenteAssociato(id)
-    {
-        var stringa=$("#utentiAssociatiString").val();
-        var ids="("+id+");";
-        stringa=stringa.replace(ids,"");
-        $("#utentiAssociatiString").val(stringa);
-        var oggetto="#"+id;
-        $(oggetto).remove();
-    }
-
-    jQuery(function($) {
+        }
     });
   </script>
 

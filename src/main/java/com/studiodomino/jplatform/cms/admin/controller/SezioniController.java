@@ -328,10 +328,6 @@ public class SezioniController {
         }
     }
 
-    // =====================================================================
-    // CANCELLAZIONE SEZIONE
-    // =====================================================================
-
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Integer id, HttpServletRequest request) {
         HttpSession session = request.getSession();
@@ -339,9 +335,7 @@ public class SezioniController {
         if (!config.isLogged()) return "redirect:/login";
 
         try {
-            // Passiamo solo l'ID come richiesto dal service attuale
             contentService.deleteSection(id);
-
             return "redirect:/admin/sezioni?success=deleted";
         } catch (Exception e) {
             log.error("Errore durante la cancellazione della sezione id={}", id, e);
@@ -361,7 +355,6 @@ public class SezioniController {
 
         try {
             for (Integer id : ids) {
-                // Anche qui, passiamo solo l'ID
                 contentService.deleteSection(id);
             }
             return ResponseEntity.ok("Cancellazione completata");
@@ -371,14 +364,14 @@ public class SezioniController {
         }
     }
 
-    // =====================================================================
-    // UTILITY PRIVATE (Mantenute e usate per pulizia)
-    // =====================================================================
-
     private void populateDetailModel(Model model, Configurazione config, String idSite) {
         try {
             List<Section> elencoSezioni = contentService.findRootSections(idSite);
             List<SectionType> sectionTypes = contentService.findAllSectionTypes();
+
+            // L'UNICA RIGA AGGIUNTA: Carichiamo i gruppi dal service
+            config.setGruppi(configurazioneService.getAllGruppi(idSite));
+
             model.addAttribute("elencoSezioni", elencoSezioni);
             model.addAttribute("elencoSezioniCompleto", elencoSezioni);
             model.addAttribute("sectionTypes", sectionTypes);
@@ -387,8 +380,6 @@ public class SezioniController {
             log.error("Errore populateDetailModel", e);
         }
     }
-
-    // ... (restanti metodi helper privati uguali a prima)
 
     private String getSelettoreGruppo(Configurazione config) {
         String role1 = config.getAmministratore().getRole1();

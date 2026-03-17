@@ -30,10 +30,6 @@ public class AnagraficaController {
 
     private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm");
 
-    // =====================================================================
-    // ELENCO
-    // =====================================================================
-
     @GetMapping
     public String elencoAnagrafico(HttpServletRequest request, Model model) {
         HttpSession session = request.getSession();
@@ -52,10 +48,6 @@ public class AnagraficaController {
         return ViewUtils.resolveProtectedTemplate("crm/sezioni/elencoAnagrafica");
     }
 
-    // =====================================================================
-    // NEW
-    // =====================================================================
-
     @GetMapping("/new")
     public String newAnagrafica(
             @RequestParam(value = "email", defaultValue = "") String email,
@@ -65,12 +57,13 @@ public class AnagraficaController {
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
+        config.setGruppi(configurazioneService.getAllGruppi(String.valueOf(config.getIdSito())));
+
         UtenteEsterno utente = new UtenteEsterno();
-        utente.setId(null);          // null = nuovo — NON mettere 0 o -1
+        utente.setId(null);
         utente.setStatus("1");
         utente.setNazione("");
         utente.setDatanascita("");
-        // reset campi che potrebbero avere default "0" nell'entity
         utente.setCodicefiscale("");
         utente.setPartitaiva("");
         utente.setSocieta("");
@@ -91,10 +84,6 @@ public class AnagraficaController {
         return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioAnagrafica");
     }
 
-    // =====================================================================
-    // OPEN
-    // =====================================================================
-
     @GetMapping("/{id}")
     public String openAnagrafica(@PathVariable Integer id,
                                  HttpServletRequest request, Model model) {
@@ -102,6 +91,8 @@ public class AnagraficaController {
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
+
+        config.setGruppi(configurazioneService.getAllGruppi(String.valueOf(config.getIdSito())));
 
         try {
             UtenteEsterno utente = anagraficaService.findById(id);
@@ -116,14 +107,6 @@ public class AnagraficaController {
         return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioAnagrafica");
     }
 
-    // =====================================================================
-    // SAVE
-    // Il form manda id="" (stringa vuota) per nuovo utente → Spring converte
-    // a null → isNew = true → INSERT.
-    // Per utente esistente manda id numerico → isNew = false → UPDATE.
-    // MAI usare 0 o -1 come sentinella: JPA li interpreta come entità detached.
-    // =====================================================================
-
     @PostMapping("/save")
     public String saveAnagrafica(
             @RequestParam(value = "id", required = false) Integer id,
@@ -136,14 +119,14 @@ public class AnagraficaController {
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
+        config.setGruppi(configurazioneService.getAllGruppi(String.valueOf(config.getIdSito())));
+
         try {
             String now = LocalDateTime.now().format(DF);
-
-            // isNew: id non presente o null (form ha mandato stringa vuota)
             boolean isNew = (id == null || id <= 0);
 
             if (isNew) {
-                utente.setId(null); // forza INSERT
+                utente.setId(null);
                 Random rnd = new Random(System.currentTimeMillis());
                 int rnn = Math.abs(rnd.nextInt() / 1000);
                 String username = (utente.getNome() != null && !utente.getNome().isEmpty()
@@ -157,7 +140,7 @@ public class AnagraficaController {
                 log.info("Utente creato: id={}", utente.getId());
 
             } else {
-                utente.setId(id); // assicura id corretto
+                utente.setId(id);
                 if (!newPassword.isEmpty() && newPassword.equals(newPasswordRetype)) {
                     anagraficaService.cambiaPassword(id, newPassword);
                     log.info("Password cambiata per utente id={}", id);
@@ -180,10 +163,6 @@ public class AnagraficaController {
 
         return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioAnagrafica");
     }
-
-    // =====================================================================
-    // CERCA
-    // =====================================================================
 
     @PostMapping("/cerca")
     public String ricercaAnagrafica(
@@ -209,10 +188,6 @@ public class AnagraficaController {
         return ViewUtils.resolveProtectedTemplate("crm/sezioni/elencoAnagrafica");
     }
 
-    // =====================================================================
-    // DELETE SINGOLO (AJAX)
-    // =====================================================================
-
     @PostMapping("/{id}/delete")
     @ResponseBody
     public ResponseEntity<String> deleteAnagrafica(
@@ -232,10 +207,6 @@ public class AnagraficaController {
             return ResponseEntity.ok("KO");
         }
     }
-
-    // =====================================================================
-    // DELETE MULTIPLO (AJAX)
-    // =====================================================================
 
     @PostMapping("/delete-multiplo")
     @ResponseBody
@@ -258,10 +229,6 @@ public class AnagraficaController {
         }
     }
 
-    // =====================================================================
-    // DUPLICATE — GET: carica form con dati copiati e id=null
-    // =====================================================================
-
     @GetMapping("/{id}/duplicate")
     public String duplicaAnagrafica(
             @PathVariable Integer id,
@@ -271,12 +238,14 @@ public class AnagraficaController {
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
+        config.setGruppi(configurazioneService.getAllGruppi(String.valueOf(config.getIdSito())));
+
         try {
             UtenteEsterno original = anagraficaService.findById(id);
-            original.setId(null); // null = nuovo — al salvataggio farà INSERT
+            original.setId(null);
             original.setCognome(original.getCognome() + " (copia)");
-            original.setEmail("");    // email è unica, va reinserita
-            original.setUsername(""); // verrà rigenerato al save
+            original.setEmail("");
+            original.setUsername("");
 
             model.addAttribute("utente", original);
             model.addAttribute("elencoAnagrafico", List.of(original));
@@ -289,10 +258,6 @@ public class AnagraficaController {
 
         return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioAnagrafica");
     }
-
-    // =====================================================================
-    // MODIFICA PASSWORD (AJAX)
-    // =====================================================================
 
     @PostMapping("/{id}/password")
     @ResponseBody

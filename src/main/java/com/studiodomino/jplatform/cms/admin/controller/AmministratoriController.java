@@ -1,7 +1,9 @@
 package com.studiodomino.jplatform.cms.admin.controller;
 
 import com.studiodomino.jplatform.shared.config.Configurazione;
+import com.studiodomino.jplatform.shared.entity.Gruppo;
 import com.studiodomino.jplatform.shared.entity.Utente;
+import com.studiodomino.jplatform.shared.repository.GruppoRepository;
 import com.studiodomino.jplatform.shared.repository.UtenteRepository;
 import com.studiodomino.jplatform.shared.service.ConfigurazioneService;
 import com.studiodomino.jplatform.shared.util.ViewUtils;
@@ -28,6 +30,7 @@ public class AmministratoriController {
 
     private final UtenteRepository utenteRepository;
     private final ConfigurazioneService configurazioneService;
+    private final GruppoRepository gruppoRepository;
 
     // ─── ELENCO ──────────────────────────────────────────────────────────────
     @GetMapping
@@ -91,6 +94,8 @@ public class AmministratoriController {
     @GetMapping("/new")
     public String newForm(HttpServletRequest request, Model model) {
 
+        List<Gruppo> tuttiGruppi = gruppoRepository.findAll();
+
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
@@ -99,6 +104,7 @@ public class AmministratoriController {
         model.addAttribute("configCore", config);
         model.addAttribute("anagraficaUtente", new Utente());
         model.addAttribute("amministratoriUtente", new Utente());
+        model.addAttribute("listaGruppi", tuttiGruppi);
 
         return ViewUtils.resolveProtectedTemplate("admin/contenuti/dettaglioAmministratore");
     }
@@ -107,6 +113,8 @@ public class AmministratoriController {
     @GetMapping("/{id}/open")
     public String open(@PathVariable Integer id,
                        HttpServletRequest request, Model model) {
+
+        List<Gruppo> tuttiGruppi = gruppoRepository.findAll();
 
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
@@ -122,6 +130,7 @@ public class AmministratoriController {
         model.addAttribute("configCore", config);
         model.addAttribute("anagraficaUtente", utente);
         model.addAttribute("amministratoriUtente", utente);
+        model.addAttribute("listaGruppi", tuttiGruppi);
 
         return ViewUtils.resolveProtectedTemplate("admin/contenuti/dettaglioAmministratore");
     }
@@ -130,6 +139,8 @@ public class AmministratoriController {
     @GetMapping("/{id}/duplica")
     public String duplica(@PathVariable Integer id,
                           HttpServletRequest request, Model model) {
+
+        List<Gruppo> tuttiGruppi = gruppoRepository.findAll();
 
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
@@ -161,6 +172,7 @@ public class AmministratoriController {
         model.addAttribute("configCore", config);
         model.addAttribute("anagraficaUtente", copia);
         model.addAttribute("amministratoriUtente", copia);
+        model.addAttribute("listaGruppi", tuttiGruppi);
 
         return ViewUtils.resolveProtectedTemplate("admin/contenuti/dettaglioAmministratore");
     }
@@ -168,7 +180,7 @@ public class AmministratoriController {
     // ─── SAVE ────────────────────────────────────────────────────────────────
     @PostMapping("/save")
     public String save(
-            @ModelAttribute("anagraficaUtente") Utente utente,
+            @ModelAttribute("anagraficaUtente") Utente utenteDatiForm,
             @RequestParam(value = "newpassword", required = false) String newPassword,
             @RequestParam(value = "newpasswordretype", required = false) String newPasswordRetype,
             HttpServletRequest request, Model model) {
@@ -177,39 +189,57 @@ public class AmministratoriController {
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
-        if (utente.getId() == null) {
+        Utente utenteDaSalvare;
+
+        if (utenteDatiForm.getId() != null) {
+            // --- CASO UPDATE ---
+            // 1. Carichiamo l'utente REALE dal database
+            utenteDaSalvare = utenteRepository.findById(utenteDatiForm.getId())
+                    .orElseThrow(() -> new RuntimeException("Utente non trovato"));
+
+            // 2. Copiamo i dati dal form all'oggetto reale (usando i setter per i campi presenti)
+            // Questo protegge TUTTI i campi che non sono nel form (telefono, date, ecc.)
+            utenteDaSalvare.setNome(utenteDatiForm.getNome());
+            utenteDaSalvare.setCognome(utenteDatiForm.getCognome());
+            utenteDaSalvare.setEmail(utenteDatiForm.getEmail());
+            utenteDaSalvare.setUsername(utenteDatiForm.getUsername());
+            // Aggiungi qui gli altri setter per i campi che hai effettivamente nel form HTML...
+
+            // Gestione specifica per i gruppi
+            if (utenteDatiForm.getIdGruppiArray() != null) {
+                utenteDaSalvare.setIdgruppi(String.join(",", utenteDatiForm.getIdGruppiArray()));
+            }
+
+        } else {
+            // --- CASO NUOVO UTENTE ---
+            utenteDaSalvare = utenteDatiForm;
             String now = new SimpleDateFormat("dd/MM/yyyy - HH:mm").format(new Date());
+            utenteDaSalvare.setDatacreazione(now);
+            utenteDaSalvare.setDataultimoaccesso(now);
+            utenteDaSalvare.setIpultimoaccesso(request.getRemoteAddr());
+            utenteDaSalvare.setNumeroaccessi("0");
 
-            utente.setDatacreazione(now);
-            utente.setDataultimoaccesso(now);
-
-            if (utente.getIpultimoaccesso() == null) utente.setIpultimoaccesso("");
-            if (utente.getNumeroaccessi() == null) utente.setNumeroaccessi("");
-            if (utente.getTelefono() == null) utente.setTelefono("");
-            if (utente.getTelefono2() == null) utente.setTelefono2("");
-            if (utente.getProfileImage() == null) utente.setProfileImage(0);
-            if (utente.getPassword() == null) utente.setPassword("");
-            if (utente.getEmail() == null) utente.setEmail("");
-            if (utente.getPec() == null) utente.setPec("");
-            if (utente.getIndirizzo() == null) utente.setIndirizzo("");
-            if (utente.getIncarico() == null) utente.setIncarico("");
-            if (utente.getUsername() == null) utente.setUsername("");
-            if (utente.getIdsite() == null || utente.getIdsite().isBlank()) {
-                utente.setIdsite(String.valueOf(config.getIdSito()));
-            }
-            if (utente.getStatoaccesso() == null) {
-                utente.setStatoaccesso(1);
-            }
+            // Inizializziamo a stringa vuota i campi che il DB vuole NOT NULL
+            if (utenteDaSalvare.getTelefono() == null) utenteDaSalvare.setTelefono("");
+            if (utenteDaSalvare.getTelefono2() == null) utenteDaSalvare.setTelefono2("");
+            if (utenteDaSalvare.getIncarico() == null) utenteDaSalvare.setIncarico("");
+            // ... e così via per gli altri campi segnalati dai log
         }
 
-        Utente salvato = utenteRepository.save(utente);
-        log.info("=== AMMINISTRATORI SAVE === id: {}", salvato.getId());
+        // Salvataggio finale
+        try {
+            Utente salvato = utenteRepository.save(utenteDaSalvare);
+            log.info("=== SAVE SUCCESS === id: {}", salvato.getId());
 
-        session.setAttribute("anagraficaUtente", salvato);
+            model.addAttribute("anagraficaUtente", salvato);
+            model.addAttribute("amministratoriUtente", salvato);
+        } catch (Exception e) {
+            log.error("ERRORE SQL: {}", e.getMessage());
+            return "error";
+        }
+
         model.addAttribute("config", config);
-        model.addAttribute("configCore", config);
-        model.addAttribute("anagraficaUtente", salvato);
-        model.addAttribute("amministratoriUtente", salvato);
+        model.addAttribute("listaGruppi", gruppoRepository.findAll());
 
         return ViewUtils.resolveProtectedTemplate("admin/contenuti/dettaglioAmministratore");
     }

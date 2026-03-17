@@ -51,7 +51,6 @@
   <!-- Form -->
   <form th:action="@{/admin/crm/utenti/save}"
         method="post"
-        enctype="multipart/form-data"
         id="elencoAnagrafico"
         class="needs-validation"
         novalidate>
@@ -174,10 +173,10 @@
                   <div class="col-lg-4">
                     <label class="form-label" for="datanascita">Data di nascita</label>
                     <input type="text"
-                           class="form-control datepicker"
+                           class="form-control dataBase"
                            id="datanascita"
                            name="datanascita"
-                           th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].datanascita : ''}">
+                           th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0]?.datanascita : ''}">
                   </div>
 
                   <div class="col-lg-4">
@@ -351,15 +350,15 @@
               </div>
 
               <div class="col-lg-6">
-                <label class="form-label">Gruppi associati</label>
-                <select id="id_gruppi" name="id_gruppi" multiple size="8" class="form-select">
+                <label for="id_gruppi" class="form-label fw-bold">Gruppi associati</label>
+                <select id="id_gruppi" name="id_gruppi" multiple size="8" class="form-select shadow-sm">
                   <option th:each="g : ${config.gruppi}"
                           th:value="${g.id}"
                           th:text="${g.nome}"
-                          th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].id_gruppi != null && #lists.contains(elencoAnagrafico[0].id_gruppi, g.id)}">
+                          th:selected="${utente.idGruppi != null && #lists.contains(utente.idGruppi, g.id.toString())}">
                   </option>
                 </select>
-                <small class="text-muted">Selezione multipla con CTRL</small>
+                <div class="form-text">Tenere premuto <kbd>Ctrl</kbd> per selezioni multiple.</div>
               </div>
 
               <div class="col-lg-6">

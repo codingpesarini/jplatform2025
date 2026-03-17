@@ -307,27 +307,34 @@
                                 </div>
 
                                 <!-- Gruppi + dati accesso -->
-                                <div class="row form-group">
+                                <div class="row g-3">
                                     <div class="col-lg-6">
-                                        <label class="col-form-label">Gruppi associati</label>
-                                        <select name="id_gruppi" multiple size="10" class="form-control">
-                                            <option value="0">Seleziona tipologia</option>
-                                            <option th:each="g : ${configCore.gruppi}"
-                                                    th:value="${g.id}" th:text="${g.nome}"
-                                                    th:selected="${amministratoriUtente.idGruppi != null and #lists.contains(amministratoriUtente.idGruppi, g.id)}"></option>
+                                        <label class="form-label fw-bold">Gruppi associati</label>
+                                        <select name="idGruppiArray" id="id_gruppi" multiple size="10" class="form-select shadow-sm">
+                                            <option th:each="g : ${listaGruppi}"
+                                                    th:value="${g.id}"
+                                                    th:text="${g.nome}"
+                                                    th:selected="${amministratoriUtente.idGruppiArray != null and #arrays.contains(amministratoriUtente.idGruppiArray, g.id.toString())}">
+                                            </option>
                                         </select>
                                     </div>
-                                    <div class="col-lg-2">
-                                        <label class="col-form-label">Data di registrazione</label>
-                                        <p th:text="${amministratoriUtente.datacreazione}">-</p>
-                                    </div>
-                                    <div class="col-lg-4">
-                                        <label class="col-form-label">Data ultimo accesso | IP | Accessi totali</label>
-                                        <p>
-                                            <span th:text="${amministratoriUtente.dataultimoaccesso}">-</span> |
-                                            <span th:text="${amministratoriUtente.ipultimoaccesso}">-</span> |
-                                            <span th:text="${amministratoriUtente.numeroaccessi}">-</span>
-                                        </p>
+
+                                    <div class="col-lg-6">
+                                        <div class="row g-2">
+                                            <div class="col-12 col-md-5">
+                                                <label class="form-label fw-bold">Data di registrazione</label>
+                                                <div class="form-control-plaintext border-bottom" th:text="${amministratoriUtente.datacreazione}">-</div>
+                                            </div>
+
+                                            <div class="col-12 col-md-7">
+                                                <label class="form-label fw-bold">Ultimo accesso | IP | Totale</label>
+                                                <div class="form-control-plaintext border-bottom">
+                                                    <span th:text="${amministratoriUtente.dataultimoaccesso}">-</span> |
+                                                    <span th:text="${amministratoriUtente.ipultimoaccesso}">-</span> |
+                                                    <span class="badge bg-secondary" th:text="${amministratoriUtente.numeroaccessi}">-</span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </fieldset>
@@ -346,7 +353,7 @@
                                             <select th:name="${'ruoliA' + i}" th:id="${'ruoliA' + i}"
                                                     multiple size="5" class="form-control">
                                                 <option value="0">Nessuno</option>
-                                                <option th:each="r : ${configCore.ruoli}"
+                                                <option th:each="r : ${config.ruoli}"
                                                         th:value="${r.id}" th:text="${r.nome}"
                                                         th:selected="${__${'amministratoriUtente.ruoliA' + i}__ != null and #lists.contains(__${'amministratoriUtente.ruoliA' + i}__, r.id)}"></option>
                                             </select>

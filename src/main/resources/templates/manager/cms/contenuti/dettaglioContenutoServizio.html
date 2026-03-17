@@ -141,13 +141,13 @@
                                 <div class="col-lg-2">
                                     <label for="s1" class="col-form-label">Data inizio pubblicazione</label>
                                     <input type="text" name="s1" id="s1"
-                                           th:value="${post.s1}" class="form-control datepicker">
+                                           th:value="${post.s1}" class="form-control dataBase">
                                 </div>
 
                                 <div class="col-lg-2">
                                     <label for="s2" class="col-form-label">Data fine pubblicazione</label>
                                     <input type="text" name="s2" id="s2"
-                                           th:value="${post.s2}" class="form-control datepicker">
+                                           th:value="${post.s2}" class="form-control dataBase">
                                 </div>
                             </div>
                         </div>
@@ -381,44 +381,6 @@
 
                         <!-- TAB 06 — AUTORIZZAZIONI -->
                         <div id="tab_06" class="tab-pane" role="tabpanel">
-                            <div class="row form-group">
-                                <div class="col-lg-6">
-                                    <label for="privato" class="col-form-label">Documento privato</label>
-                                    <select name="privato" id="privato"
-                                            onchange="AttivaAutorizzazioniUtente()" class="form-control obbligatorio">
-                                        <option value="">----- Seleziona tipo accesso -----</option>
-                                        <option value="0" th:selected="${post.privato == '0'}">Documento pubblico e visibile a tutti</option>
-                                        <option value="1" th:selected="${post.privato == '1'}">Documento privato e visibile al gruppo autorizzato</option>
-                                        <option value="2" th:selected="${post.privato == '2'}">Autorizzazione personalizzata</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="row form-group" id="GruppiAbilitati">
-                                <div class="col-lg-3">
-                                    <label class="col-form-label">Gruppi associati</label>
-                                    <select name="idgruppi" id="idgruppi" multiple size="5" class="form-control">
-                                        <option value="0">Standard</option>
-                                        <option th:each="gruppo : ${config.gruppi}"
-                                                th:value="${gruppo.id}"
-                                                th:text="${gruppo.nome}"
-                                                th:selected="${post.idgruppi != null and #lists.contains(post.idgruppi, gruppo.id)}"></option>
-                                    </select>
-                                </div>
-
-                                <div class="col-lg-6">
-                                    <p>Selezionare i gruppi che avranno il permesso di accedere al documento. Seleziona multipla utilizzando il tasto Maiusc.</p>
-                                </div>
-                            </div>
-
-                            <div class="row form-group" id="PermessiPersonalizzati">
-                                <div class="col-lg-12">
-                                    <div class="alert alert-light border mb-0">
-                                        Le autorizzazioni personalizzate per utente non sono ancora gestite in DatiBase.
-                                    </div>
-                                </div>
-                            </div>
-
                             <div class="row form-group">
                                 <div class="col-lg-3">
                                     <label for="info2" class="col-form-label">Form contatti</label>

@@ -138,13 +138,13 @@
                   <label for="dataVisualizzata" class="col-form-label">Data visualizzata</label>
                   <input type="text" name="dataVisualizzata" id="dataVisualizzata"
                          th:value="${section.dataVisualizzata}"
-                         class="form-control datepickerEstesa obbligatorio" required>
+                         class="form-control dataVisualizzata obbligatorio" required>
                 </div>
                 <div class="col-lg-3">
                   <label for="data" class="col-form-label">Data riferimento</label>
                   <input type="text" name="data" id="data"
                          th:value="${section.data}"
-                         class="form-control datepicker obbligatorio" required>
+                         class="form-control dataBase obbligatorio" required>
                 </div>
                 <div class="col-lg-6">
                   <label for="tag" class="col-form-label">TAG</label>
@@ -194,16 +194,16 @@
                 </div>
               </div>
 
-              <div id="datePubblicazione" class="row form-group">
+              <div id="datePubblicazione" class="row form-group" style="display:none">
                 <div class="col-lg-2">
                   <label for="s1" class="col-form-label">Data inizio pubblicazione</label>
                   <input type="text" name="s1" id="s1"
-                         th:value="${section.s1}" class="form-control datepicker">
+                         th:value="${section.s1}" class="form-control dataBase">
                 </div>
                 <div class="col-lg-2">
                   <label for="s2" class="col-form-label">Data fine pubblicazione</label>
                   <input type="text" name="s2" id="s2"
-                         th:value="${section.s2}" class="form-control datepicker">
+                         th:value="${section.s2}" class="form-control dataBase">
                 </div>
               </div>
 
@@ -220,7 +220,7 @@
                 </div>
               </div>
 
-              <div class="row form-group" id="linkEsterno">
+              <div class="row form-group" id="linkEsterno" style="display:none">
                 <div class="col-lg-3">
                   <label for="menu3" class="col-form-label">URL link esterno</label>
                   <input type="text" name="menu3" id="menu3"
@@ -451,11 +451,10 @@
 
             <!-- ═══ TAB 06 — AUTORIZZAZIONI ═══ -->
             <div id="tab_06" class="tab-pane" role="tabpanel">
-              <div class="row form-group">
+              <div class="row mb-4">
                 <div class="col-lg-6">
-                  <label for="privato" class="col-form-label">Sezione privata</label>
-                  <select name="privato" id="privato"
-                          onchange="AttivaAutorizzazioniUtente()" class="form-control">
+                  <label for="privato" class="form-label fw-bold">Sezione privata</label>
+                  <select name="privato" id="privato" onchange="AttivaAutorizzazioniUtente()" class="form-select border-primary obbligatorio">
                     <option value="">----- Seleziona tipo accesso -----</option>
                     <option value="0" th:selected="${section.privato == '0'}">Sezione pubblica e visibile a tutti</option>
                     <option value="1" th:selected="${section.privato == '1'}">Sezione privata e visibile al gruppo autorizzato</option>
@@ -463,45 +462,56 @@
                   </select>
                 </div>
               </div>
-              <div class="row form-group" id="GruppiAbilitati">
-                <div class="col-lg-3">
-                  <label class="col-form-label">Gruppi associati</label>
-                  <select name="idgruppi" id="idgruppi" multiple size="5" class="form-control">
+
+              <div class="row mb-4 animate__animated animate__fadeIn" id="GruppiAbilitati" th:style="${section.privato == '1' ? 'display:flex' : 'display:none'}">
+                <div class="col-lg-4">
+                  <label for="idgruppi" class="form-label fw-bold text-primary">Gruppi associati</label>
+                  <select name="idgruppi" id="idgruppi" multiple size="5" class="form-select shadow-sm obbligatorio">
                     <option value="0">Standard</option>
                     <option th:each="gruppo : ${config.gruppi}"
                             th:value="${gruppo.id}"
-                            th:text="${gruppo.nome}"></option>
+                            th:text="${gruppo.nome}"
+                            th:selected="${section.idGruppo != null and #strings.contains(section.idGruppo, '(' + gruppo.id + ')')}">
+                    </option>
                   </select>
-                  <small class="text-muted">Selezione multipla con Maiusc</small>
+                  <small class="text-muted">Selezione multipla con CTRL (Windows) o CMD (Mac)</small>
                 </div>
-                <div class="col-lg-6 d-flex align-items-center">
-                  <p class="text-muted mb-0">Selezionare i gruppi che avranno il permesso di accedere alla sezione ed ai documenti associati.</p>
+                <div class="col-lg-8">
+                  <div class="alert alert-light border-start border-primary border-4 h-100 d-flex align-items-center">
+                    <p class="mb-0 small text-muted">
+                      Selezionare i gruppi che avranno il permesso di accedere alla sezione ed ai documenti associati.
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div class="row form-group" id="PermessiPersonalizzati">
-                <div class="col-lg-3">
-                  <label for="cognomePermessoPrivato" class="col-form-label">Cerca utente da inserire nelle autorizzazioni</label>
-                  <input type="text" name="cognomePermessoPrivato" id="cognomePermessoPrivato" class="form-control">
-                  <input type="hidden" name="utentiAssociatiString" id="utentiAssociatiString"
-                         th:value="${section.utentiAssociatiString}">
-                </div>
-                <div class="col-lg-6">
-                  <div id="utenti" style="overflow:auto;height:100px;">
-                    <div th:each="u : ${section.utentiAssociati}"
-                         th:attr="id=${u.id}">
-                      <img th:src="@{/manager/assets/img/icons/trashcan_gray.png}"
-                           width="15" height="15" style="vertical-align:middle"
-                           th:data-id="${u.id}"
-                           onclick="RimuoviUtenteAssociato(this.getAttribute('data-id'))">
-                      <span th:text="${u.nome + ' ' + u.cognome}"></span>
+
+              <div class="row mb-4 animate__animated animate__fadeIn" id="PermessiPersonalizzati"
+                   th:style="${section.privato == '2' ? 'display:flex' : 'display:none'}">
+                <div class="col-lg-12">
+                  <div class="card bg-light">
+                    <div class="card-body">
+                      <label for="cognomePermessoPrivato" class="form-label fw-bold">Cerca utente da inserire nelle autorizzazioni</label>
+                      <div class="input-group mb-3">
+                        <input name="cognomePermessoPrivato" id="cognomePermessoPrivato" type="text" class="form-control" placeholder="Inizia a digitare il cognome...">
+                        <input type="hidden" name="utentiAssociatiString" id="utentiAssociatiString" th:value="${section.utentiAssociatiString}">
+                      </div>
+
+                      <div id="utenti" class="border rounded bg-white p-2" style="overflow:auto; height:120px;">
+                        <div th:each="u : ${section.utentiAssociati}" th:id="'user-badge-' + ${u.id}" class="badge bg-secondary m-1 p-2 d-inline-flex align-items-center">
+                          <span th:text="${u.nome + ' ' + u.cognome}">Nome Cognome</span>
+                          <i class="fas fa-times ms-2 cursor-pointer" th:onclick="'RimuoviUtenteAssociato(' + ${u.id} + ')'" title="Rimuovi"></i>
+                        </div>
+                      </div>
+                      <div class="form-text mt-2">Ricercare gli utenti che saranno autorizzati singolarmente ad accedere alla sezione.</div>
                     </div>
                   </div>
                 </div>
-                <div class="col-lg-3">
-                  <p class="text-muted">Ricercare gli utenti che saranno autorizzati singolarmente ad accedere alla sezione.</p>
-                </div>
               </div>
-              <div class="row form-group">
+
+              <hr class="my-4">
+
+              <div class="row g-3">
+
                 <div class="col-lg-3">
                   <label for="info2" class="col-form-label">Form contatti</label>
                   <select name="info2" id="info2" class="form-control">
@@ -524,7 +534,7 @@
                   </select>
                 </div>
                 <div class="col-lg-3">
-                  <label for="info4" class="col-form-label">Filtro categoria su elenco</label>
+                  <label for="info4" class="col-form-label">Filtro categoria</label>
                   <select name="info4" id="info4" class="form-control">
                     <option value="0" th:selected="${section.info4 == '0'}">Non filtrare</option>
                     <option value="1" th:selected="${section.info4 == '1'}">Filtra</option>
@@ -694,48 +704,140 @@
   </form>
 
   <script>
-    $(document).ready(function () {
-        if (typeof AttivaDataPubblicazione === "function") AttivaDataPubblicazione();
-        if (typeof AttivaLinkEsterno === "function") AttivaLinkEsterno();
-        if (typeof AttivaAutorizzazioniUtente === "function") AttivaAutorizzazioniUtente();
-        if (typeof AttivaExtraTag === "function") AttivaExtraTag();
+    /**
+ * Mostra/nasconde i campi data pubblicazione programmata
+ */
+function AttivaDataPubblicazione() {
+    const val = $('#s3').val();
+    if (val === '1') {
+        $('#datePubblicazione').slideDown();
+    } else {
+        $('#datePubblicazione').slideUp();
+    }
+}
 
-        $('#EreditaExtraTag').on('click', function () {
-            if (typeof ApplicaExtraTagContenuti === "function") ApplicaExtraTagContenuti();
-            return false;
+/**
+ * Mostra/nasconde i campi URL e titolo link esterno
+ */
+function AttivaLinkEsterno() {
+    const val = $('#menu2').val();
+    if (val === '2') {
+        $('#linkEsterno').slideDown();
+    } else {
+        $('#linkEsterno').slideUp();
+    }
+}
+
+/**
+ * Gestione visibilità pannelli Autorizzazioni (Gruppi / Utenti)
+ */
+function gestisciVisibilitaGruppi() {
+    const tipoVisibilita = $('#privato').val();
+    const $divGruppi = $('#GruppiAbilitati');
+    const $divPersonalizzati = $('#PermessiPersonalizzati');
+
+    if (tipoVisibilita === "1") {
+        $divGruppi.fadeIn().css('display', 'flex');
+        $divPersonalizzati.hide();
+    } else if (tipoVisibilita === "2") {
+        $divGruppi.hide();
+        $divPersonalizzati.fadeIn().css('display', 'flex');
+    } else {
+        $divGruppi.hide();
+        $divPersonalizzati.hide();
+    }
+}
+
+/**
+ * Rimuove un utente dalle autorizzazioni personalizzate
+ */
+function rimuoviUtente(id) {
+    let $inputHidden = $("#utentiAssociatiString");
+    let valoreAttuale = $inputHidden.val();
+    valoreAttuale = valoreAttuale.replace("(" + id + ");", "");
+    $inputHidden.val(valoreAttuale);
+    $("#user-badge-" + id).fadeOut(300, function () {
+        $(this).remove();
+    });
+}
+
+// compatibilità col vecchio nome usato nel template
+function RimuoviUtenteAssociato(id) {
+    rimuoviUtente(id);
+}
+
+/**
+ * Invio manuale del form con validazione
+ */
+function InviaForm(formId) {
+    const $form = $('#' + formId);
+    if ($form[0].checkValidity() === false) {
+        $form.addClass('was-validated');
+        if (typeof PNotify !== 'undefined') {
+            new PNotify({
+                title: 'Attenzione!',
+                text: 'Alcuni campi obbligatori del modulo richiedono un tuo intervento!',
+                type: 'error'
+            });
+        }
+        return false;
+    }
+    $form.addClass('was-validated');
+    $form[0].submit();
+}
+
+$(document).ready(function () {
+
+    // --- Inizializzazioni stato pagina ---
+    AttivaDataPubblicazione();
+    AttivaLinkEsterno();
+    gestisciVisibilitaGruppi();
+    if (typeof AttivaExtraTag === "function") AttivaExtraTag();
+
+    // --- Binding eventi select ---
+    $('#s3').on('change', AttivaDataPubblicazione);
+    $('#menu2').on('change', AttivaLinkEsterno);
+    $('#privato').on('change', gestisciVisibilitaGruppi);
+
+    // --- ExtraTag ---
+    $('#EreditaExtraTag').on('click', function (e) {
+        e.preventDefault();
+        if (typeof ApplicaExtraTagContenuti === "function") ApplicaExtraTagContenuti();
+    });
+
+    // --- AutoSave ---
+    const $form = $('#sezione');
+    const $formStatusHolder = $('.notifyZone');
+
+    if (typeof $form.autoSaveForm === "function") {
+        $form.autoSaveForm();
+
+        $form.on('beforeSave.autoSaveForm', function (ev, $form, xhr) {
+            if ($("#autosave").prop("checked") === false) return false;
+            if ($form[0].checkValidity() === false) {
+                if (typeof PNotify !== 'undefined') {
+                    new PNotify({
+                        title: 'Attenzione!',
+                        text: 'Alcuni campi obbligatori richiedono un tuo intervento!',
+                        type: 'error'
+                    });
+                }
+                return false;
+            }
+            $formStatusHolder.html('<span class="text-primary"><i class="fas fa-sync fa-spin me-1"></i> Salvataggio automatico...</span>');
         });
 
-        var $form = $('#sezione');
-        var $formStatusHolder = $('.notifyZone');
+        $form.on('saveError.autoSaveForm', function () {
+            $formStatusHolder.html('<span class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i> Errore nel salvataggio</span>');
+        });
 
-        if (typeof $form.autoSaveForm === "function") {
-            $form.autoSaveForm();
-            $form.on('beforeSave.autoSaveForm', function (ev, $form, xhr) {
-                if ($("#autosave").prop("checked") == false) { return false; }
-                if ($form[0].checkValidity() === false) {
-                    new PNotify({ title: 'Attenzione!', text: 'Alcuni campi obbligatori richiedono un tuo intervento!', type: 'error' });
-                    return false;
-                }
-                $formStatusHolder.html('Salvataggio automatico in corso...');
-            });
-            $form.on('saveError.autoSaveForm', function () {
-                $formStatusHolder.html('Errore nel salvataggio automatico.');
-            });
-            $form.on('saveSuccess.autoSaveForm', function () {
-                var d = new Date();
-                $formStatusHolder.html('Ultimo salvataggio: ' + d.toLocaleTimeString());
-            });
-        }
-
-        function RimuoviUtenteAssociato(id) {
-            var stringa = $("#utentiAssociatiString").val();
-            stringa = stringa.replace("(" + id + ");", "");
-            $("#utentiAssociatiString").val(stringa);
-            $("#" + id).remove();
-        }
-    });
+        $form.on('saveSuccess.autoSaveForm', function () {
+            const ora = new Date().toLocaleTimeString();
+            $formStatusHolder.html('<span class="text-success"><i class="fas fa-check me-1"></i> Sincronizzato alle ' + ora + '</span>');
+        });
+    }
+});
   </script>
-
 </th:block>
 </body>
 </html>

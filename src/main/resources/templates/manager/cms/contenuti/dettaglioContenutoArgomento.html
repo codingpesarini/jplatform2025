@@ -115,14 +115,14 @@
                   <label for="dataVisualizzata" class="col-form-label">Data visualizzata</label>
                   <input type="text" name="dataVisualizzata" id="dataVisualizzata"
                          th:value="${post.dataVisualizzata}"
-                         class="form-control datepickerEstesa obbligatorio">
+                         class="form-control dataVisualizzata obbligatorio">
                 </div>
 
                 <div class="col-lg-3">
                   <label for="data" class="col-form-label">Data riferimento</label>
                   <input type="text" name="data" id="data"
                          th:value="${post.data}"
-                         class="form-control datepicker obbligatorio">
+                         class="form-control dataBase obbligatorio">
                 </div>
 
                 <div class="col-lg-6">
@@ -157,13 +157,13 @@
                 <div class="col-lg-2">
                   <label for="s1" class="col-form-label">Data inizio pubblicazione</label>
                   <input type="text" name="s1" id="s1"
-                         th:value="${post.s1}" class="form-control datepicker">
+                         th:value="${post.s1}" class="form-control dataBase">
                 </div>
 
                 <div class="col-lg-2">
                   <label for="s2" class="col-form-label">Data fine pubblicazione</label>
                   <input type="text" name="s2" id="s2"
-                         th:value="${post.s2}" class="form-control datepicker">
+                         th:value="${post.s2}" class="form-control dataBase">
                 </div>
               </div>
 
@@ -419,31 +419,6 @@
 
             <!-- TAB 06 -->
             <div id="tab_06" class="tab-pane" role="tabpanel">
-
-              <div class="row form-group">
-                <div class="col-lg-6">
-                  ...
-                </div>
-              </div>
-
-              <div class="row form-group" id="GruppiAbilitati">
-                <div class="col-lg-3">
-                  ...
-                </div>
-
-                <div class="col-lg-6">
-                  <p>Selezionare i gruppi che avranno il permesso di accedere alla sezione ed ai documenti associati. Seleziona multipla utilizzando il tasto Maiusc</p>
-                </div>
-              </div>
-
-              <div class="row form-group" id="PermessiPersonalizzati">
-                <div class="col-lg-12">
-                  <div class="alert alert-light border mb-0">
-                    Le autorizzazioni personalizzate per utente non sono ancora gestite in DatiBase.
-                  </div>
-                </div>
-              </div>
-
               <div class="row form-group">
                 <div class="col-lg-3">
                   <label for="info2" class="col-form-label">Form contatti</label>

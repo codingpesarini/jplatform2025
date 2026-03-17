@@ -128,13 +128,13 @@
                   <label for="dataVisualizzata" class="col-form-label">Data visualizzata</label>
                   <input type="text" name="dataVisualizzata" id="dataVisualizzata"
                          th:value="${section.dataVisualizzata}"
-                         class="form-control datepickerEstesa obbligatorio" required>
+                         class="form-control dataVisualizzata obbligatorio" required>
                 </div>
                 <div class="col-lg-3">
                   <label for="data" class="col-form-label">Data riferimento</label>
                   <input type="text" name="data" id="data"
                          th:value="${section.data}"
-                         class="form-control datepicker obbligatorio" required>
+                         class="form-control dataBase obbligatorio" required>
                 </div>
                 <div class="col-lg-6">
                   <label for="tag" class="col-form-label">TAG</label>
@@ -171,16 +171,16 @@
                 </div>
               </div>
 
-              <div id="datePubblicazione" class="row form-group">
+              <div id="datePubblicazione" class="row form-group" style="display:none">
                 <div class="col-lg-2">
                   <label for="s1" class="col-form-label">Data inizio pubblicazione</label>
                   <input type="text" name="s1" id="s1"
-                         th:value="${section.s1}" class="form-control datepicker">
+                         th:value="${section.s1}" class="form-control dataBase">
                 </div>
                 <div class="col-lg-2">
                   <label for="s2" class="col-form-label">Data fine pubblicazione</label>
                   <input type="text" name="s2" id="s2"
-                         th:value="${section.s2}" class="form-control datepicker">
+                         th:value="${section.s2}" class="form-control dataBase">
                 </div>
               </div>
 
@@ -197,7 +197,7 @@
                 </div>
               </div>
 
-              <div class="row form-group" id="linkEsterno">
+              <div class="row form-group" id="linkEsterno" style="display:none">
                 <div class="col-lg-3">
                   <label for="menu3" class="col-form-label">URL link esterno</label>
                   <input type="text" name="menu3" id="menu3"
@@ -639,20 +639,127 @@
   </form>
 
   <script th:inline="javascript">
-    $(document).ready(function() {
-      AttivaDataPubblicazione();
-      AttivaLinkEsterno();
-      AttivaAutorizzazioniUtente();
-      AttivaExtraTag();
-      $('#EreditaExtraTag').on('click', function() { ApplicaExtraTagContenuti(); return false; });
-    });
+
+    // ── AGGIUNTE ────────────────────────────────────────────────────────────
+
+    function InviaForm() {
+        const $form = $("#sezione");
+        if ($form[0].checkValidity() === false) {
+            if (typeof PNotify !== 'undefined') {
+                new PNotify({
+                    title: 'Attenzione!',
+                    text: 'Alcuni campi obbligatori richiedono un tuo intervento!',
+                    type: 'error',
+                    styling: 'bootstrap3'
+                });
+            }
+            $form.addClass('was-validated');
+            return false;
+        }
+        $form.addClass('was-validated');
+        document.sezione.submit();
+    }
+
+    function AttivaDataPubblicazione() {
+        if ($('#s3').val() === '1') {
+            $('#datePubblicazione').slideDown();
+        } else {
+            $('#datePubblicazione').slideUp();
+        }
+    }
+
+    function AttivaLinkEsterno() {
+        if ($('#menu2').val() === '2') {
+            $('#linkEsterno').slideDown();
+        } else {
+            $('#linkEsterno').slideUp();
+        }
+    }
+
+    function AttivaExtraTag() {
+        if ($('#regolaExtraTag1').val() === '1') {
+            $('#ZonaExtraTag').slideDown();
+            $('#ZonaExtraTagOrdine').slideDown();
+        } else {
+            $('#ZonaExtraTag').slideUp();
+            $('#ZonaExtraTagOrdine').slideUp();
+        }
+    }
+
+    // ── INVARIATO ───────────────────────────────────────────────────────────
+
+    function AttivaAutorizzazioniUtente() {
+        const tipoVisibilita = $('#privato').val();
+        const $divGruppi = $('#GruppiAbilitati');
+        const $divPersonalizzati = $('#PermessiPersonalizzati');
+
+        if (tipoVisibilita === "1") {
+            $divGruppi.fadeIn().css('display', 'flex');
+            $divPersonalizzati.hide();
+        } else if (tipoVisibilita === "2") {
+            $divGruppi.hide();
+            $divPersonalizzati.fadeIn().css('display', 'flex');
+        } else {
+            $divGruppi.hide();
+            $divPersonalizzati.hide();
+        }
+    }
 
     function RimuoviUtenteAssociato(id) {
-      var stringa = $('#utentiAssociatiString').val();
-      stringa = stringa.replace('(' + id + ');', '');
-      $('#utentiAssociatiString').val(stringa);
-      $('#' + id).remove();
+        let $inputHidden = $('#utentiAssociatiString');
+        let valoreAttuale = $inputHidden.val();
+
+        valoreAttuale = valoreAttuale.replace('(' + id + ');', '');
+        $inputHidden.val(valoreAttuale);
+
+        $('#' + id + ', #user-badge-' + id + ', #user-badge-parent-' + id).fadeOut(300, function() {
+            $(this).remove();
+        });
     }
+
+    $(document).ready(function () {
+        AttivaAutorizzazioniUtente();
+
+        // AGGIUNTA: chiamate dirette ora che le funzioni sono definite sopra
+        AttivaDataPubblicazione();
+        AttivaLinkEsterno();
+        AttivaExtraTag();
+
+        // AGGIUNTA: binding on change
+        $('#privato').on('change', AttivaAutorizzazioniUtente);
+        $('#s3').on('change', AttivaDataPubblicazione);
+        $('#menu2').on('change', AttivaLinkEsterno);
+        $('#regolaExtraTag1').on('change', AttivaExtraTag);
+
+        $('#EreditaExtraTag').on('click', function (e) {
+            e.preventDefault();
+            if (typeof ApplicaExtraTagContenuti === "function") {
+                ApplicaExtraTagContenuti();
+            }
+            return false;
+        });
+
+        const $form = $('#sezione');
+        const $statusHolder = $('.notifyZone');
+
+        if (typeof $form.autoSaveForm === "function") {
+            $form.autoSaveForm();
+
+            $form.on('beforeSave.autoSaveForm', function () {
+                if ($("#autosave").prop("checked") === false) return false;
+                $statusHolder.html('<span class="text-primary small"><i class="fas fa-sync fa-spin me-1"></i> Salvataggio...</span>');
+            });
+
+            $form.on('saveError.autoSaveForm', function () {
+                $statusHolder.html('<span class="text-danger small"><i class="fas fa-exclamation-circle me-1"></i> Errore sincronizzazione</span>');
+            });
+
+            $form.on('saveSuccess.autoSaveForm', function () {
+                const ora = new Date().toLocaleTimeString();
+                $statusHolder.html('<span class="text-success small"><i class="fas fa-check me-1"></i> Sincronizzato: ' + ora + '</span>');
+            });
+        }
+    });
   </script>
 
 </th:block>

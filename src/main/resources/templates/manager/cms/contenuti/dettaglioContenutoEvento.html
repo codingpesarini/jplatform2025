@@ -158,11 +158,11 @@
               <div id="datePubblicazione" class="row form-group">
                 <div class="col-lg-2">
                   <label for="s1" class="col-form-label">Data inizio pubblicazione</label>
-                  <input id="s1" name="s1" class="form-control datepicker" th:value="${post.s1}">
+                  <input id="s1" name="s1" class="form-control dataBase" th:value="${post.s1}">
                 </div>
                 <div class="col-lg-2">
                   <label for="s2" class="col-form-label">Data fine pubblicazione</label>
-                  <input id="s2" name="s2" class="form-control datepicker" th:value="${post.s2}">
+                  <input id="s2" name="s2" class="form-control dataBase" th:value="${post.s2}">
                 </div>
               </div>
 
@@ -430,44 +430,6 @@
             <div id="tab_06" class="tab-pane fade" role="tabpanel">
 
               <div class="row g-3 mb-3">
-                <div class="col-lg-6">
-                  <label for="privato" class="form-label">Contenuto privato</label>
-                  <select id="privato" name="privato" class="form-select" onchange="AttivaAutorizzazioniUtente()">
-                    <option value="">----- Seleziona tipo -----</option>
-                    <option value="0" th:selected="${post.privato == '0'}">Pubblico (visibile a tutti)</option>
-                    <option value="1" th:selected="${post.privato == '1'}">Privato (gruppo autorizzato)</option>
-                    <option value="2" th:selected="${post.privato == '2'}">Autorizzazione personalizzata</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="row g-3 mb-3" id="GruppiAbilitati">
-                <div class="col-lg-4">
-                  <label for="idgruppi" class="form-label">Gruppi associati</label>
-                  <select id="idgruppi" name="idgruppi" multiple size="6" class="form-select">
-                    <option value="0">Standard</option>
-                    <option th:each="g : ${config.gruppi}"
-                            th:value="${g.id}"
-                            th:text="${g.nome}">
-                    </option>
-                  </select>
-                  <small class="text-muted">Selezione multipla con Maiusc</small>
-                </div>
-
-                <div class="col-lg-8 d-flex align-items-center">
-                  <p class="text-muted mb-0">Seleziona i gruppi che avranno il permesso di accedere al contenuto.</p>
-                </div>
-              </div>
-
-              <div class="row g-3 mb-3" id="PermessiPesonalizzati">
-                <div class="col-lg-12">
-                  <div class="alert alert-light border mb-0">
-                    Le autorizzazioni personalizzate per utente non sono ancora gestite in DatiBase.
-                  </div>
-                </div>
-              </div>
-
-              <div class="row g-3 mb-3">
                 <div class="col-lg-3">
                   <label for="info2" class="form-label">Form contatti</label>
                   <select id="info2" name="info2" class="form-select">
@@ -489,14 +451,6 @@
                   <select id="info3" name="info3" class="form-select">
                     <option value="0" th:selected="${post.info3 == '0'}">Non visualizzare</option>
                     <option value="1" th:selected="${post.info3 == '1'}">Visualizza</option>
-                  </select>
-                </div>
-
-                <div class="col-lg-3">
-                  <label for="info4" class="form-label">Filtro categoria su elenco</label>
-                  <select id="info4" name="info4" class="form-select">
-                    <option value="0" th:selected="${post.info4 == '0'}">Non filtrare</option>
-                    <option value="1" th:selected="${post.info4 == '1'}">Filtra</option>
                   </select>
                 </div>
               </div>

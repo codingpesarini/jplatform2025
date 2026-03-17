@@ -124,13 +124,13 @@
                   <label for="dataVisualizzata" class="col-form-label">Data visualizzata *</label>
                   <input type="text" name="dataVisualizzata" id="dataVisualizzata"
                          th:value="${section.dataVisualizzata}"
-                         class="form-control datepickerEstesa obbligatorio" required>
+                         class="form-control dataVisualizzata obbligatorio" required>
                 </div>
                 <div class="col-lg-3">
                   <label for="data" class="col-form-label">Data riferimento *</label>
                   <input type="text" name="data" id="data"
                          th:value="${section.data}"
-                         class="form-control datepicker obbligatorio" required>
+                         class="form-control dataBase obbligatorio" required>
                 </div>
                 <div class="col-lg-6">
                   <label for="tag" class="col-form-label">TAG</label>
@@ -181,16 +181,16 @@
                 </div>
               </div>
 
-              <div id="datePubblicazione" class="row form-group">
+              <div id="datePubblicazione" class="row form-group" style="display:none">
                 <div class="col-lg-2">
                   <label for="s1" class="col-form-label">Data inizio pubblicazione</label>
                   <input type="text" name="s1" id="s1"
-                         th:value="${section.s1}" class="form-control datepicker">
+                         th:value="${section.s1}" class="form-control dataBase">
                 </div>
                 <div class="col-lg-2">
                   <label for="s2" class="col-form-label">Data fine pubblicazione</label>
                   <input type="text" name="s2" id="s2"
-                         th:value="${section.s2}" class="form-control datepicker">
+                         th:value="${section.s2}" class="form-control dataBase">
                 </div>
               </div>
 
@@ -207,7 +207,7 @@
                 </div>
               </div>
 
-              <div class="row form-group" id="linkEsterno">
+              <div class="row form-group" id="linkEsterno" style="display:none">
                 <div class="col-lg-3">
                   <label for="menu3" class="col-form-label">URL link esterno</label>
                   <input type="text" name="menu3" id="menu3"
@@ -431,7 +431,7 @@
                   <label class="col-form-label">Gruppi associati</label>
                   <select name="idgruppi" id="idgruppi" multiple size="5" class="form-control">
                     <option value="0">Standard</option>
-                    <option th:each="gruppo : ${configCore.gruppi}"
+                    <option th:each="gruppo : ${config.gruppi}"
                             th:value="${gruppo.id}" th:text="${gruppo.nome}"
                             th:selected="${section.idgruppi != null and #lists.contains(section.idgruppi, gruppo.id)}"></option>
                   </select>
@@ -654,22 +654,91 @@
   </form>
 
   <script th:inline="javascript">
+
+    // ── AGGIUNTE ────────────────────────────────────────────────────────────
+
+    function InviaForm() {
+        const $form = $("#sezione");
+        if ($form[0].checkValidity() === false) {
+            if (typeof PNotify !== 'undefined') {
+                new PNotify({
+                    title: 'Attenzione!',
+                    text: 'Alcuni campi obbligatori richiedono un tuo intervento!',
+                    type: 'error',
+                    styling: 'bootstrap3'
+                });
+            }
+            $form.addClass('was-validated');
+            return false;
+        }
+        $form.addClass('was-validated');
+        document.sezione.submit();
+    }
+
+    function AttivaDataPubblicazione() {
+        if ($('#s3').val() === '1') {
+            $('#datePubblicazione').slideDown();
+        } else {
+            $('#datePubblicazione').slideUp();
+        }
+    }
+
+    function AttivaLinkEsterno() {
+        if ($('#menu2').val() === '2') {
+            $('#linkEsterno').slideDown();
+        } else {
+            $('#linkEsterno').slideUp();
+        }
+    }
+
+    function AttivaAutorizzazioniUtente() {
+        const valore = $('#privato').val();
+        if (valore === '1') {
+            $('#GruppiAbilitati').slideDown();
+            $('#PermessiPersonalizzati').hide();
+        } else if (valore === '2') {
+            $('#GruppiAbilitati').hide();
+            $('#PermessiPersonalizzati').slideDown();
+        } else {
+            $('#GruppiAbilitati').hide();
+            $('#PermessiPersonalizzati').hide();
+        }
+    }
+
+    function AttivaExtraTag() {
+        if ($('#regolaExtraTag1').val() === '1') {
+            $('#ZonaExtraTag').slideDown();
+            $('#ZonaExtraTagOrdine').slideDown();
+        } else {
+            $('#ZonaExtraTag').slideUp();
+            $('#ZonaExtraTagOrdine').slideUp();
+        }
+    }
+
+    // ── INVARIATO ───────────────────────────────────────────────────────────
+
     $(document).ready(function () {
-      AttivaDataPubblicazione();
-      AttivaLinkEsterno();
-      AttivaAutorizzazioniUtente();
-      AttivaExtraTag();
-      $('#EreditaExtraTag').on('click', function () { ApplicaExtraTagContenuti(); return false; });
+        AttivaDataPubblicazione();
+        AttivaLinkEsterno();
+        AttivaAutorizzazioniUtente();
+        AttivaExtraTag();
+
+        // AGGIUNTA: binding on change
+        $('#s3').on('change', AttivaDataPubblicazione);
+        $('#menu2').on('change', AttivaLinkEsterno);
+        $('#privato').on('change', AttivaAutorizzazioniUtente);
+        $('#regolaExtraTag1').on('change', AttivaExtraTag);
+
+        $('#EreditaExtraTag').on('click', function () { ApplicaExtraTagContenuti(); return false; });
     });
 
     function RimuoviUtenteAssociato(id) {
-      var stringa = $('#utentiAssociatiString').val();
-      stringa = stringa.replace('(' + id + ');', '');
-      $('#utentiAssociatiString').val(stringa);
-      $('#' + id).remove();
+        var stringa = $('#utentiAssociatiString').val();
+        stringa = stringa.replace('(' + id + ');', '');
+        $('#utentiAssociatiString').val(stringa);
+        $('#' + id).remove();
     }
   </script>
-
 </th:block>
 </body>
 </html>

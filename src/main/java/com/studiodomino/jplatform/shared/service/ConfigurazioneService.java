@@ -1,14 +1,18 @@
 package com.studiodomino.jplatform.shared.service;
 
 import com.studiodomino.jplatform.shared.config.Configurazione;
+import com.studiodomino.jplatform.shared.entity.Gruppo;
 import com.studiodomino.jplatform.shared.entity.Site;
 import com.studiodomino.jplatform.shared.entity.Utente;
 import com.studiodomino.jplatform.shared.entity.UtenteEsterno;
+import com.studiodomino.jplatform.shared.repository.GruppoRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Service per gestione Configurazione in sessione.
@@ -23,6 +27,7 @@ public class ConfigurazioneService {
     private static final String REQUESTED_SITE_KEY = "requestedSiteId";
 
     private final SiteService siteService;
+    private final GruppoRepository gruppoRepository;
 
     // ========================================
     // CONFIGURAZIONE CORE
@@ -205,5 +210,15 @@ public class ConfigurazioneService {
         config.setRequestedSiteId(null);
         saveConfig(session, config);
         return siteId;
+    }
+
+    public List<Gruppo> getAllGruppi(String idSite) {
+        try {
+            // Usiamo findAll() come nell'AmministratoriController
+            return gruppoRepository.findAll();
+        } catch (Exception e) {
+            log.error("Errore recupero gruppi: {}", e.getMessage());
+            return java.util.Collections.emptyList();
+        }
     }
 }
