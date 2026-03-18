@@ -760,7 +760,7 @@
                 <div class="row">
                   <div class="col-lg-3">
                     <label for="regolaExtraTag1" class="col-form-label">Attivazione</label>
-                    <select name="regolaExtraTag1" id="regolaExtraTag1" onchange="AttivaExtraTag()">
+                    <select name="regolaExtraTag1" id="regolaExtraTag1" class="form-select" onchange="AttivaExtraTag()">
                       <option value="0" th:selected="${section.regolaExtraTag1 == '0'}">Disattivato</option>
                       <option value="1" th:selected="${section.regolaExtraTag1 == '1'}">Attivato</option>
                     </select>
@@ -768,16 +768,16 @@
                   </div>
                 </div>
 
-                <div class="row" id="ZonaExtraTagOrdine">
+                <div class="row g-3" id="ZonaExtraTagOrdine">
                   <div class="col-lg-3">
                     <label for="maxExtraTag" class="col-form-label">Numero elementi</label>
-                    <input type="text" id="maxExtraTag" name="maxExtraTag" th:value="${section.maxExtraTag}">
+                    <input type="text" id="maxExtraTag" name="maxExtraTag" class="form-control" th:value="${section.maxExtraTag}">
                     <small class="form-text text-muted">Numero massimo elementi visualizzati</small>
                   </div>
 
                   <div class="col-lg-3">
                     <label for="ordineExtraTag" class="col-form-label">Ordine visualizzazione</label>
-                    <select name="ordineExtraTag" id="ordineExtraTag">
+                    <select name="ordineExtraTag" id="ordineExtraTag" class="form-select">
                       <option value="rand()" th:selected="${section.ordineExtraTag == 'rand()'}">Casuale</option>
                       <option value="datasql-asc" th:selected="${section.ordineExtraTag == 'datasql-asc'}">Crescente data</option>
                       <option value="datasql-desc" th:selected="${section.ordineExtraTag == 'datasql-desc'}">Decrescente data</option>

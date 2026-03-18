@@ -14,26 +14,28 @@
           id="registrolead"
           class="form-bordered">
 
-        <header class="page-header mb-2">
-            <div class="title-container mb-3">
-                <h2 style="border-left: 5px solid #0088cc; padding-left: 15px;">
-                    Dettaglio LEAD
-                    <small th:if="${registroLead.id != null and registroLead.id != -1}"
-                           th:text="'ID: ' + ${registroLead.id}"
-                           style="font-size: 0.6em; vertical-align: middle; opacity: 0.8;"></small>
-                </h2>
-            </div>
+        <header class="page-header mb-4">
+            <div class="d-flex align-items-center w-100">
 
-            <div class="right-wrapper text-right" style="margin-left: auto; margin-right: 10%;">
-                <button type="button" onclick="inviaForm(event)"
-                        class="mb-1 mt-1 mr-1 btn btn-sm btn-primary">
-                    <i class="fas fa-file-upload"></i> Salva
-                </button>
+                <div class="title-container">
+                    <h2 style="border-left: 5px solid #0088cc; padding-left: 15px; margin: 0; white-space: nowrap;">
+                        Dettaglio LEAD
+                    </h2>
+                </div>
 
-                <a th:href="@{/admin/crm/dashboard}"
-                   class="btn btn-outline-secondary btn-sm">
-                    <i class="fas fa-arrow-left"></i> Torna all'elenco
-                </a>
+                <div class="right-wrapper text-right" style="margin-left: auto; margin-right: 10%; margin-bottom: 20px;">
+                    <button type="button"
+                            onclick="inviaForm(event)"
+                            class="mb-1 mt-1 mr-1 btn btn-sm btn-primary">
+                        <i class="fas fa-save"></i> Salva
+                    </button>
+
+                    <a th:href="@{/admin/crm/dashboard}"
+                       class="mb-1 mt-1 mr-1 btn btn-sm btn-danger">
+                        <i class="fas fa-times-circle"></i> Esci
+                    </a>
+                </div>
+
             </div>
         </header>
 
@@ -47,7 +49,7 @@
                             <a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Definizione</a>
                         </li>
                         <li class="nav-item storeTab" role="presentation">
-                            <a class="nav-link" href="#tab_02" data-bs-toggle="tab">Altri dati</a>
+                            <!--a class="nav-link" href="#tab_02" data-bs-toggle="tab">Altri dati</a-->
                         </li>
                     </ul>
                     </div>
@@ -63,16 +65,6 @@
                                     <fieldset class="border p-3">
                                         <legend class="float-none w-auto px-2">Anagrafica</legend>
 
-                                        <!-- Nuovo lead: nessun utente ancora agganciato -->
-                                        <div th:if="${registroLead.idutente == null or registroLead.idutente == 0}"
-                                             class="row form-group">
-                                            <div class="col-lg-12">
-                                                <h3 class="mb-0">L'Anagrafica sarà aggiornata dopo il salvataggio!</h3>
-                                            </div>
-                                        </div>
-
-                                        <!-- Utente agganciato -->
-                                        <!-- Anagrafica: campi sempre visibili -->
                                         <div class="row form-group">
 
                                             <div class="col-lg-12 text-right mb-2"
@@ -88,49 +80,34 @@
                                             </div>
 
                                             <div class="col-lg-12 mb-2">
-                                                <label for="ricercaUtenteNuovoLead" class="col-form-label">Ricerca anagrafica</label>
-                                                <input type="text" class="form-control"
-                                                       name="ricercaUtenteNuovoLead" id="ricercaUtenteNuovoLead"
-                                                       placeholder="Ricerca utente..." value="">
+                                                <label for="ricercaUtenteNuovoLead" class="col-form-label">Ricerca anagrafica rapida</label>
+                                                <input type="text"
+                                                       id="ricercaUtenteNuovoLead"
+                                                       class="form-control js-autocomplete"
+                                                       data-url="/admin/crm/utenti/search"
+                                                       placeholder="Scrivi Cognome o Nome...">
                                             </div>
+
+                                            <input type="hidden" id="idUtenteLead" name="idutente" th:value="${registroLead.idutente}">
+
+                                            <input type="hidden" id="utenteid" name="utente.id" th:value="${registroLead.utente?.id}">
 
                                             <div class="col-lg-6">
-                                                <label for="utentenome" class="col-form-label">Nome</label>
-                                                <input type="text" class="form-control obbligatorio"
-                                                       id="utentenome" name="utente.nome"
-                                                       th:value="${registroLead.utente?.nome}">
-                                                <input type="hidden" id="utenteid" name="utente.id"
-                                                       th:value="${registroLead.utente?.id}">
+                                                <label for="utentenome">Nome</label>
+                                                <input type="text" class="form-control" id="utentenome" name="utente.nome" th:value="${registroLead.utente?.nome}">
                                             </div>
-
                                             <div class="col-lg-6">
-                                                <label for="utentecognome" class="col-form-label">Cognome</label>
-                                                <input type="text" class="form-control obbligatorio"
-                                                       id="utentecognome" name="utente.cognome"
-                                                       th:value="${registroLead.utente?.cognome}">
+                                                <label for="utentecognome">Cognome</label>
+                                                <input type="text" class="form-control" id="utentecognome" name="utente.cognome" th:value="${registroLead.utente?.cognome}">
                                             </div>
-
                                             <div class="col-lg-4">
-                                                <label for="utenteemail" class="col-form-label">Email</label>
-                                                <input type="email" class="form-control obbligatorio"
-                                                       id="utenteemail" name="utente.email"
-                                                       th:value="${registroLead.utente?.email}">
+                                                <label for="utenteemail">Email</label>
+                                                <input type="email" class="form-control" id="utenteemail" name="utente.email" th:value="${registroLead.utente?.email}">
                                             </div>
-
                                             <div class="col-lg-4">
-                                                <label for="utentetelefono" class="col-form-label">Telefono</label>
-                                                <input type="text" class="form-control"
-                                                       id="utentetelefono" name="utente.telefono"
-                                                       th:value="${registroLead.utente?.telefono}">
+                                                <label for="utentetelefono">Telefono</label>
+                                                <input type="text" class="form-control" id="utentetelefono" name="utente.telefono" th:value="${registroLead.utente?.telefono}">
                                             </div>
-
-                                            <div class="col-lg-4">
-                                                <label for="utentetelefono2" class="col-form-label">Telefono 2</label>
-                                                <input type="text" class="form-control"
-                                                       id="utentetelefono2" name="utente.telefono2"
-                                                       th:value="${registroLead.utente?.telefono2}">
-                                            </div>
-
                                         </div>
                                     </fieldset>
                                 </div>
@@ -359,6 +336,7 @@
                 if (el) el.value = '';
             });
         }
+
     </script>
 
 </div>

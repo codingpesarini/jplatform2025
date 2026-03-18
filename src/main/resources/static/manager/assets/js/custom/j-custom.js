@@ -290,13 +290,16 @@ function cancellaContenutiSelezionati() {
 }
 
 function AttivaExtraTag() {
-    const val = document.getElementById('regolaExtraTag1').value;
-    const show = val === '1';
-    ['ZonaExtraTagOrdine_maxEl','ZonaExtraTagOrdine','SpazioEreditaExtraTag','ZonaExtraTag']
-        .forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.style.display = show ? '' : 'none';
-        });
+    var el = document.getElementById('regolaExtraTag1');
+    if (el) { // <--- Questo controllo salva tutto
+        const val = el.value;
+        const show = val === '1';
+        ['ZonaExtraTagOrdine_maxEl','ZonaExtraTagOrdine','SpazioEreditaExtraTag','ZonaExtraTag']
+            .forEach(id => {
+                const target = document.getElementById(id);
+                if (target) target.style.display = show ? '' : 'none';
+            });
+    }
 }
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(AttivaExtraTag, 100);
@@ -499,5 +502,69 @@ $(document).ready(function() {
             qr.style.display = "";
         }
     };
+
+    // -------------------------------------------------------
+    // Autocomplete Universale (CRM, Anagrafiche, ecc.)
+    // -------------------------------------------------------
+    // -------------------------------------------------------
+        // Autocomplete Universale (CRM, Anagrafiche, ecc.)
+        // -------------------------------------------------------
+       // -------------------------------------------------------
+       // Autocomplete Lead - Versione Definitiva
+       // -------------------------------------------------------
+       $(document).ready(function() {
+           var $ricerca = $('#ricercaUtenteNuovoLead');
+
+           if ($ricerca.length > 0) {
+               $ricerca.autocomplete({
+                   source: function(request, response) {
+                       $.ajax({
+                           url: "/admin/crm/utenti/search",
+                           type: 'GET',
+                           dataType: 'json',
+                           data: { term: request.term },
+                           success: function(data) {
+                               if (!data || data.length === 0) { response([]); return; }
+                               var suggerimenti = $.map(data, function(item) {
+                                   if (!item) return null;
+                                   return {
+                                       label: [item.nome, item.cognome, item.email].filter(Boolean).join(" "),
+                                       value: [item.nome, item.cognome].filter(Boolean).join(" "),
+                                       obj: item
+                                   };
+                               });
+                               response(suggerimenti.filter(Boolean));
+                           },
+                           error: function(xhr) {
+                               console.error("Errore:", xhr.status, xhr.responseText);
+                               response([]);
+                           }
+                       });
+                   },
+                   minLength: 2,
+                   select: function(event, ui) {
+                       if (!ui || !ui.item || !ui.item.obj) return false;
+                       var d = ui.item.obj;
+
+                       $("#idUtenteLead").val(d.id || '');
+                       $("#utenteid").val(d.id || '');
+                       $("#utentenome").val(d.nome || '');
+                       $("#utentecognome").val(d.cognome || '');
+                       $("#utenteemail").val(d.email || '');
+                       // telefono: prova prima telefono, poi telefono2
+                       $("#utentetelefono").val(d.telefono && d.telefono.trim() !== '' ? d.telefono : (d.telefono2 || ''));
+
+                       showToast('Caricato', 'Anagrafica di ' + (d.cognome || 'utente') + ' inserita.');
+                       return false;
+                   }
+               });
+
+               $ricerca.data("ui-autocomplete")._renderItem = function(ul, item) {
+                   return $("<li>")
+                       .append("<div style='color:#333!important;padding:10px;background:#fff;border-bottom:1px solid #ddd;cursor:pointer;'>" + item.label + "</div>")
+                       .appendTo(ul);
+               };
+           }
+       });
 
 });

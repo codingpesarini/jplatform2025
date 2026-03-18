@@ -58,6 +58,7 @@
             <li class="nav-item"><a class="nav-link" href="#tab_06" data-bs-toggle="tab">Proxy</a></li>
             <li class="nav-item"><a class="nav-link" href="#tab_07" data-bs-toggle="tab">Altro</a></li>
             <li class="nav-item"><a class="nav-link" href="#tab_08" data-bs-toggle="tab">PEC</a></li>
+            <li class="nav-item"><a class="nav-link" href="#tab_09" data-bs-toggle="tab">Account PEC/Email</a> </li>
             </ul>
           </div>
 
@@ -540,12 +541,69 @@
                 </div>
               </fieldset>
             </div>
+            <div id="tab_09" class="tab-pane">
+              <div class="row form-group">
+                <div class="col-lg-6">
+                  <fieldset>
+                    <legend>Account EMAIL</legend>
 
-          </div><!-- /tab-content -->
-        </div><!-- /tabs -->
+                    <div class="right-wrapper text-right">
+                      <button type="button"
+                              class="mb-1 mt-1 mr-1 btn btn-sm btn-default"
+                              onclick="apriPopupAccount('EMAIL', 'data_tableEmail');">
+                        Associa account EMAIL
+                      </button>
+                    </div>
+
+                    <code>Il primo account inserito è il predefinito</code>
+
+                    <input type="hidden" name="idAccountEmail" id="idAccountEmail" th:value="${sito?.idAccountEmail}">
+
+                    <table id="data_tableEmail" class="table table-responsive-lg table-bordered table-striped mb-0">
+                      <thead>
+                      <tr>
+                        <th class="text-uppercase">Descrizione</th>
+                        <th class="text-uppercase">Tipologia</th>
+                        <th class="text-uppercase">Rimuovi</th>
+                      </tr>
+                      </thead>
+                    </table>
+                  </fieldset>
+                </div>
+
+                <div class="col-lg-6">
+                  <fieldset>
+                    <legend>Account PEC</legend>
+
+                    <div class="right-wrapper text-right">
+                      <button type="button"
+                              class="mb-1 mt-1 mr-1 btn btn-sm btn-default"
+                              onclick="apriPopupAccount('PEC', 'data_tablePec');">
+                        Associa account PEC
+                      </button>
+                    </div>
+
+                    <code>Il primo account inserito è il predefinito</code>
+
+                    <input type="hidden" name="idAccountPec" id="idAccountPec" th:value="${sito?.idAccountPec}">
+
+                    <table id="data_tablePec" class="table table-responsive-lg table-bordered table-striped mb-0">
+                      <thead>
+                      <tr>
+                        <th class="text-uppercase">Descrizione</th>
+                        <th class="text-uppercase">Tipologia</th>
+                        <th class="text-uppercase">Azione</th>
+                      </tr>
+                      </thead>
+                    </table>
+                  </fieldset>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-
   </form>
 
 
@@ -559,6 +617,82 @@
       }
       form.submit();
     }
+
+    function apriPopupAccount(tipo, targetTable) {
+    _popupTipo = tipo;
+    _popupTargetTable = targetTable;
+
+    document.getElementById('modalAccountTitle').innerText = 'Associa account ' + tipo;
+    const body = document.getElementById('modalAccountBody');
+    body.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-info"></div></div>';
+
+    fetch('/admin/account/popup?tipo=' + tipo)
+        .then(r => r.json())
+        .then(lista => {
+            let html = '<div class="p-3"><table class="table table-sm table-bordered table-striped">';
+            html += '<thead><tr><th>Descrizione</th><th style="width:80px" class="text-center">Associa</th></tr></thead><tbody>';
+            if (lista.length === 0) {
+                html += '<tr><td colspan="2" class="text-center text-muted">Nessun account disponibile</td></tr>';
+            } else {
+                lista.forEach(acc => {
+                    html += `<tr>
+                        <td>${acc.descrizione}</td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-sm btn-primary"
+                                onclick="associaAccountDinamico('${acc.id}', '${acc.descrizione.replace(/'/g, "\\'")}')">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+                });
+            }
+            html += '</tbody></table></div>';
+            body.innerHTML = html;
+        })
+        .catch(() => {
+            body.innerHTML = '<div class="alert alert-danger m-3">Errore nel caricamento.</div>';
+        });
+
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAccount')).show();
+}
+
+    function associaAccountDinamico(id, descrizione) {
+    const tipo = _popupTipo;
+    const targetTableId = _popupTargetTable;
+    const hiddenId = (tipo === 'EMAIL') ? 'idaccountemail' : 'idaccountpec';
+    const prefix = (tipo === 'EMAIL') ? 'rowEMAIL_' : 'rowPEC_';
+    const rowId = prefix + id;
+
+    if (document.getElementById(rowId)) return;
+
+    const hidden = document.getElementById(hiddenId);
+    const ids = hidden.value ? hidden.value.split(',').filter(x => x.trim() !== '') : [];
+    ids.push(id);
+    hidden.value = ids.join(',');
+
+    const tbody = document.querySelector('#' + targetTableId + ' tbody');
+    tbody.insertAdjacentHTML('beforeend', `
+        <tr id="${rowId}">
+            <td>${descrizione}</td>
+            <td class="text-center">
+                <a href="javascript:void(0);"
+                   onclick="disassociaAccount('${hiddenId}','${id}','${rowId}')">
+                    <i class="fas fa-trash-alt text-danger"></i>
+                </a>
+            </td>
+        </tr>`);
+
+    bootstrap.Modal.getInstance(document.getElementById('modalAccount')).hide();
+}
+
+function disassociaAccount(hiddenId, idToRemove, rowId) {
+    const hidden = document.getElementById(hiddenId);
+    hidden.value = hidden.value.split(',')
+        .filter(id => id.trim() !== '' && id.toString() !== idToRemove.toString())
+        .join(',');
+    const row = document.getElementById(rowId);
+    if (row) row.remove();
+}
   </script>
 </div>
 
