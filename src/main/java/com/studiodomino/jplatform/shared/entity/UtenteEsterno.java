@@ -1,5 +1,6 @@
 package com.studiodomino.jplatform.shared.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.studiodomino.jplatform.cms.entity.DatiBase;
 import com.studiodomino.jplatform.cms.entity.Section;
 import jakarta.persistence.*;
@@ -331,6 +332,8 @@ public class UtenteEsterno implements Serializable {
     /**
      * Sezioni private accessibili da questo utente
      */
+
+    @JsonIgnore
     @Transient
     private List<Section> sezioniFrontPrivate;
 
@@ -343,18 +346,24 @@ public class UtenteEsterno implements Serializable {
     /**
      * Messaggi utente (runtime)
      */
+
+    @JsonIgnore
     @Transient
     private List<MessaggioUtente> messaggi;
 
     /**
      * Activity log (runtime)
      */
+
+    @JsonIgnore
     @Transient
     private List<Activity> activity;
 
     /**
      * Bacheca contenuti (runtime)
      */
+
+    @JsonIgnore
     @Transient
     private List<DatiBase> bacheca;
 

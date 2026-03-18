@@ -154,7 +154,7 @@
                 </div>
 
                 <div class="col-lg-4">
-                  <label for="privato" class="col-form-label">Visibilità</label>
+                  <label for="privatoTop" class="col-form-label">Visibilità</label>
                   <select id="privatoTop" name="privatoTopFake" class="form-control" disabled>
                     <option th:selected="${post.privato == '0'}">Pubblico</option>
                     <option th:selected="${post.privato == '1'}">Privato</option>
@@ -581,8 +581,8 @@
                         <option value="position-asc" th:selected="${post.ordineExtraTag == 'position-asc'}">Crescente posizione</option>
                       </select>
                     </div>
-                    <div class="col-lg-3 d-flex align-items-end" id="SpazioEreditaExtraTag" style="display:none">
-                      <button type="button" id="EreditaExtraTag" class="btn btn-primary w-100">
+                    <div class="col-lg-6" id="SpazioEreditaExtraTag" style="display:none">
+                      <button id="EreditaExtraTag" class="mb-1 mt-1 mr-1 btn btn-primary btn-lg btn-block">
                         <i class="ti ti-copy me-1"></i> Applica ExtraTag a tutti i contenuti
                       </button>
                     </div>

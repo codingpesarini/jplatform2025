@@ -12,9 +12,15 @@
         <div class="col-md-4">
 
             <section class="card bg-light mb-4">
-                <div class="card-header">
-                    <h2 class="card-title">Titolario di classificazione</h2>
-                    <p class="card-subtitle">Elenco dei contenuti del CMS</p>
+                <div class="card" style="border-top: 3px solid #d9534f;">
+                    <div class="card-header bg-white">
+                        <h2 class="card-title" style="color: #d9534f; font-size: 1.5rem; margin-bottom: 0;">
+                            Titolario di classificazione
+                        </h2>
+                        <p class="card-subtitle text-muted" style="font-size: 0.9rem;">
+                            Elenco dei contenuti del CMS
+                        </p>
+                    </div>
                 </div>
 
                 <div class="card-body">
@@ -76,30 +82,35 @@
 
         <!-- RIGHT: TABS -->
         <div class="col-lg-8">
-            <ul class="nav nav-tabs mb-3" id="elencoSezioni" role="tablist">
+            <ul class="nav nav-tabs mb-0" id="elencoSezioni" role="tablist" style="border-bottom: 1px solid #0088cc;">
                 <li class="nav-item">
-                    <a class="nav-link active text-uppercase" id="welcomeCMS" data-bs-toggle="tab" href="#IDwelcomeCMS" role="tab" aria-controls="welcomeCMS" aria-selected="true"><i class="fas fa-star"></i>Portale CMS</a>
+                    <a class="nav-link active text-uppercase" id="welcomeCMS" data-bs-toggle="tab" href="#IDwelcomeCMS" role="tab" aria-controls="welcomeCMS" aria-selected="true">
+                        <i class="fas fa-star text-primary me-1"></i> Portale CMS
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-uppercase" id="sezioni-principali" data-bs-toggle="tab" href="#IDsezioni-principali" role="tab" aria-controls="sezioni-principali" aria-selected="false">Sezioni principali</a>
+                    <a class="nav-link text-uppercase" id="sezioni-principali" data-bs-toggle="tab" href="#IDsezioni-principali" role="tab" aria-controls="sezioni-principali" aria-selected="false">
+                        Sezioni principali
+                    </a>
                 </li>
             </ul>
-            <div class="tab-content" id="myTabelencoSezioni">
-                    <!-- TAB 1 -->
-                        <div class="tab-pane fade show active" id="IDwelcomeCMS" role="tabpanel" aria-labelledby="welcomeCMS" style="min-height:300px">
-                        <section class="card card-primary mb-4">
-                            <header class="card-header">
-                                <div class="card-actions">
-                                    <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
-                                    <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
-                                </div>
-                                <h2 class="card-title">J-Platform Portal 2.0 | Content Management System</h2>
-                                <p class="card-subtitle">Gestione contenuti</p>
-                            </header>
 
-                            <div class="card-body">
+            <div class="tab-content border border-top-0 p-3" id="myTabelencoSezioni">
+                <div class="tab-pane fade show active" id="IDwelcomeCMS" role="tabpanel" aria-labelledby="welcomeCMS" style="min-height:300px">
+                    <section class="card mb-4" style="border:none;">
+                        <header class="card-header bg-primary" style="padding: 15px; border-radius: 5px 5px 0 0;">
+                            <div class="card-actions float-end">
+                                <a href="javascript:void(0);" class="card-action card-action-toggle text-white" data-bs-toggle="collapse" data-bs-target="#cardBodyCMS">
+                                    <i class="fas fa-minus"></i>
+                                </a>
+                            </div>
+                            <h2 class="card-title text-white" style="font-size: 1.4rem; font-weight: normal; margin: 0;">J-Platform Portal 4.0 | Content Management System</h2>
+                            <p class="card-subtitle text-white-50" style="font-size: 0.85rem; margin-top: 5px;">Gestione contenuti</p>
+                        </header>
+
+                        <div id="cardBodyCMS" class="collapse show">
+                            <div class="card-body border">
                                 <h3>Benvenuti in J-Platform Portal 4.0</h3>
-
                                 <p>
                                     <img th:src="@{/manager/assets/img/logos/logo.png}"
                                          width="200" height="63"
@@ -161,13 +172,14 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
                         </section>
                     </div>
 
                     <!-- TAB 2 -->
                 <div class="tab-pane fade" id="IDsezioni-principali" role="tabpanel" aria-labelledby="sezioni-principali" style="min-height:300px">
 
-                        <div class="right-wrapper text-right">
+                        <div class="d-flex justify-content-end mb-3">
                             <a th:href="@{/admin/sezioni/new}"
                                href="/admin/sezioni/new"
                                class="mb-1 mt-1 mr-1 btn btn-sm btn-warning">

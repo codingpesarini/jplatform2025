@@ -198,4 +198,11 @@ public class AnagraficaService {
         if (valore == null) return false;
         return valore.toLowerCase().contains(filtro.toLowerCase());
     }
+
+    // Aggiungi questo metodo nel tuo AnagraficaService
+    public List<UtenteEsterno> ricercaRapida(String term) {
+        log.debug("Ricerca rapida CRM per: {}", term);
+        // Utilizza direttamente la query ottimizzata che cerca in Nome O Cognome
+        return utenteEsternoRepository.searchByNomeCognome(term);
+    }
 }

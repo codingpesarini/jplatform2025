@@ -125,23 +125,29 @@
                 <!-- CRM - autorizzazione 4 -->
                 <li class="pc-item pc-hasmenu" id="sb05"
                     th:if="${config?.amministratore?.hasRole(4)}">
+
                     <a href="javascript:void(0)" class="pc-link">
-                        <span class="pc-micon">
-                            <svg class="pc-icon"><use xlink:href="#custom-user"></use></svg>
-                        </span>
+        <span class="pc-micon">
+            <svg class="pc-icon"><use xlink:href="#custom-user"></use></svg>
+        </span>
                         <span class="pc-mtext">CRM</span>
                         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                     </a>
+
                     <ul class="pc-submenu">
+
                         <li class="pc-item" id="sb051">
                             <a th:href="@{/admin/crm/dashboard}" class="pc-link">Dashboard CRM</a>
                         </li>
+
                         <li class="pc-item" id="sb052">
                             <a th:href="@{/admin/crm/utenti}" class="pc-link">Gestione Utenti</a>
                         </li>
+
                         <li class="pc-item" id="sb053">
                             <a th:href="@{/admin/crm/lead}" class="pc-link">Gestione LEAD</a>
                         </li>
+
                     </ul>
                 </li>
 

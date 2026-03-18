@@ -20,33 +20,23 @@
                 Utilizzare le opzioni rapide per accedere alle funzioni descritte.
               </p>
             </div>
-            <div class="card-body d-flex flex-wrap gap-2">
+              <div class="card-body d-flex flex-wrap gap-2">
+                <a th:href="@{/admin/crm/lead/new/diretto}" class="btn btn-primary shadow-sm">
+                  <i class="ti ti-checkbox me-2"></i> Nuova attività
+                </a>
 
-              <!-- Nuova attività (lead entrata diretto) -->
-              <a th:href="@{/admin/crm/lead/new/diretto}"
-                 class="btn btn-primary">
-                <i class="ti ti-checkbox"></i> Nuova attività
-              </a>
+                <a th:href="@{/admin/crm/utenti/new}" class="btn btn-success shadow-sm">
+                  <i class="ti ti-user-plus me-2"></i> Nuovo Contatto
+                </a>
 
-              <!-- Nuovo Contatto -->
-              <a th:href="@{/admin/crm/utenti/new}"
-                 class="btn btn-primary">
-                <i class="ti ti-user-plus"></i> Nuovo Contatto
-              </a>
+                <a th:href="@{/admin/crm/lead/new/uscita/Email}" class="btn btn-info text-white shadow-sm">
+                  <i class="ti ti-mail me-2"></i> Invia email
+                </a>
 
-              <!-- Invia Email (lead uscita email) -->
-              <a th:href="@{/admin/crm/lead/new/uscita/Email}"
-                 class="btn btn-primary">
-                <i class="ti ti-mail"></i> Invia email
-              </a>
-
-              <!-- Invia SMS (lead uscita sms) -->
-              <a th:href="@{/admin/crm/lead/new/uscita/Sms}"
-                 class="btn btn-primary">
-                <i class="ti ti-message"></i> Invia SMS
-              </a>
-
-            </div>
+                <a th:href="@{/admin/crm/lead/new/uscita/Sms}" class="btn btn-info text-white shadow-sm">
+                  <i class="ti ti-message me-2"></i> Invia SMS
+                </a>
+              </div>
           </div>
         </div>
 

@@ -182,21 +182,20 @@
                         th:text="' — ' + ${r.telefono2}"></span>
                 </td>
 
-                <td class="text-center">
-                  <!-- Modifica -->
+                <td>
                   <a th:href="@{/admin/crm/utenti/{id}(id=${r.id})}"
-                     class="btn btn-sm btn-info mr-1"
+                     class="me-2"
                      title="Modifica">
                     <i class="fas fa-pencil-alt"></i>
                   </a>
-                  <!-- Cancella singolo -->
+
                   <a href="javascript:void(0);"
-                     class="btn btn-sm btn-danger"
+                     class="text-danger"
                      th:data-id="${r.id}"
                      th:data-nome="${r.cognome + ' ' + r.nome}"
                      onclick="cancellaRiga(this)"
                      title="Cancella">
-                    <i class="fas fa-trash-alt"></i>
+                    <i class="far fa-trash-alt"></i>
                   </a>
                 </td>
               </tr>

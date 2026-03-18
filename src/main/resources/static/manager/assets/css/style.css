@@ -30746,6 +30746,35 @@ div.dataTables_wrapper div.dt-row {
   display: none;
 }
 
+/* Forza il menu a comparire sopra le modali e i tab */
+.ui-autocomplete {
+    z-index: 2147483647 !important;
+    background: #ffffff !important;
+    border: 1px solid #ccc !important;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* Forza lo stile degli elementi della lista */
+.ui-menu-item {
+    background: #ffffff !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.ui-menu-item div {
+    color: #333333 !important;
+    font-size: 14px !important;
+}
+
+/* Effetto al passaggio del mouse */
+.ui-state-active, .ui-menu-item:hover {
+    background-color: #007bff !important;
+    color: #ffffff !important;
+}
+
 /**  =====================
   36. Customizer css end
 ==========================  **/

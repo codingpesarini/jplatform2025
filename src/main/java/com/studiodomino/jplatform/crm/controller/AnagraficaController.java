@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 @Controller
@@ -110,7 +111,7 @@ public class AnagraficaController {
     @PostMapping("/save")
     public String saveAnagrafica(
             @RequestParam(value = "id", required = false) Integer id,
-            @ModelAttribute UtenteEsterno utente,
+            @ModelAttribute UtenteEsterno form,
             @RequestParam(value = "newpassword", defaultValue = "") String newPassword,
             @RequestParam(value = "newpasswordretype", defaultValue = "") String newPasswordRetype,
             HttpServletRequest request, Model model) {
@@ -120,6 +121,8 @@ public class AnagraficaController {
         if (!config.isLogged()) return "redirect:/login";
 
         config.setGruppi(configurazioneService.getAllGruppi(String.valueOf(config.getIdSito())));
+
+        UtenteEsterno utente = form;
 
         try {
             String now = LocalDateTime.now().format(DF);
@@ -140,12 +143,48 @@ public class AnagraficaController {
                 log.info("Utente creato: id={}", utente.getId());
 
             } else {
-                utente.setId(id);
+                // Carica dal DB per preservare i campi non presenti nel form
+                UtenteEsterno db = anagraficaService.findById(id);
+
+                // Merge solo i campi modificabili dal form
+                db.setNome(form.getNome());
+                db.setCognome(form.getCognome());
+                db.setEmail(form.getEmail());
+                db.setPec(form.getPec());
+                db.setGenere(form.getGenere());
+                db.setTelefono(form.getTelefono());
+                db.setTelefono2(form.getTelefono2());
+                db.setDatanascita(form.getDatanascita());
+                db.setIndirizzo(form.getIndirizzo());
+                db.setCap(form.getCap());
+                db.setProvincia(form.getProvincia());
+                db.setComune(form.getComune());
+                db.setNazione(form.getNazione());
+                db.setIndirizzospedizione(form.getIndirizzospedizione());
+                db.setCodicefiscale(form.getCodicefiscale());
+                db.setPartitaiva(form.getPartitaiva());
+                db.setSocieta(form.getSocieta());
+                db.setPersonagiuridica(form.getPersonagiuridica());
+                db.setStatus(form.getStatus());
+                db.setIdGruppo(form.getIdGruppo());
+                db.setExtra1(form.getExtra1());
+                db.setExtra2(form.getExtra2());
+                db.setExtra3(form.getExtra3());
+                db.setExtra4(form.getExtra4());
+                db.setExtra5(form.getExtra5());
+                db.setSottoscrizioni(form.getSottoscrizioni());
+                db.setS1(form.getS1()); db.setS2(form.getS2()); db.setS3(form.getS3());
+                db.setS4(form.getS4()); db.setS5(form.getS5()); db.setS6(form.getS6());
+                db.setS7(form.getS7()); db.setS8(form.getS8()); db.setS9(form.getS9());
+                db.setS10(form.getS10());
+                // datacreazione, username, password, socialId ecc. restano dal DB
+
                 if (!newPassword.isEmpty() && newPassword.equals(newPasswordRetype)) {
                     anagraficaService.cambiaPassword(id, newPassword);
                     log.info("Password cambiata per utente id={}", id);
                 }
-                utente = anagraficaService.salva(utente);
+
+                utente = anagraficaService.salva(db);
                 log.info("Utente salvato: id={}", utente.getId());
             }
 
@@ -277,6 +316,39 @@ public class AnagraficaController {
         } catch (Exception e) {
             log.error("Errore modificaPassword id={}", id, e);
             return ResponseEntity.ok("KO");
+        }
+    }
+
+    // In AnagraficaController, sostituisci il metodo searchJson
+
+    @GetMapping("/search")
+    @ResponseBody
+    public List<Map<String, Object>> searchJson(@RequestParam(value="term", required=false) String term) {
+        if (term == null || term.trim().length() < 2) return List.of();
+
+        try {
+            List<UtenteEsterno> utenti = anagraficaService.ricercaRapida(term);
+            log.info("Ricerca rapida CRM per: {}", term);
+
+            return utenti.stream().map(u -> {
+                Map<String, Object> map = new java.util.LinkedHashMap<>();
+                map.put("id",       u.getId());
+                map.put("nome",     u.getNome());
+                map.put("cognome",  u.getCognome());
+                map.put("email",    u.getEmail());
+                map.put("telefono", u.getTelefono());
+                map.put("telefono2", u.getTelefono2());
+                map.put("societa",  u.getSocieta());
+                map.put("indirizzo", u.getIndirizzo());
+                map.put("cap",      u.getCap());
+                map.put("comune",   u.getComune());
+                map.put("provincia", u.getProvincia());
+                return map;
+            }).toList();
+
+        } catch (Exception e) {
+            log.error("Errore searchJson per term: {}", term, e);
+            return List.of();
         }
     }
 }
