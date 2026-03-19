@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestione Allegato</title>
+</head>
+<body>
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link active" href="#tab_allegato" data-bs-toggle="tab">Allegato</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#tab_info" data-bs-toggle="tab">Info</a>
+  </li>
+  <li class="nav-item" th:if="${allegato?.id != null}">
+    <a class="nav-link" href="#tab_versioni" data-bs-toggle="tab">Versioni</a>
+  </li>
+</ul>
+
+<div class="tab-content">
+
+  <div id="tab_allegato" class="tab-pane active">
+    <form th:action="@{/admin/filemanager/files/save}" method="post" id="allegatoForm">
+
+      <input type="hidden" name="idfolder" th:value="${currentFolder}">
+      <input type="hidden" name="docid"    th:value="${allegato?.idDocAllegati}">
+      <input type="hidden" name="sorgente" th:value="${sorgente}">
+
+      <div class="d-flex gap-2 mb-3">
+        <a th:href="@{'/admin/filemanager/files/new/' + ${currentFolder}}"
+           class="btn btn-sm btn-secondary">
+          <i class="fas fa-plus"></i> Nuovo allegato
+        </a>
+        <button type="submit" class="btn btn-sm btn-primary">
+          <i class="fas fa-save"></i> Salva
+        </button>
+        <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal">
+          <i class="fas fa-times"></i> Esci
+        </button>
+      </div>
+
+      <div id="singola">
+        <fieldset class="border p-3 mb-3">
+          <legend class="float-none w-auto px-2">Allegato singolo</legend>
+          <div class="row">
+            <div class="col-lg-3 text-center mb-3">
+              <a th:if="${allegato?.id != null}"
+                 th:href="@{/admin/filemanager/files/{id}/download(id=${allegato.id})}"
+                 target="_blank">
+                <i class="fas fa-file fa-3x text-primary"></i>
+                <br><small class="text-muted" th:text="${allegato?.type}">tipo</small>
+              </a>
+              <div th:if="${allegato?.id == null}" class="text-muted p-3 border rounded">
+                <i class="fas fa-file fa-3x"></i>
+              </div>
+            </div>
+            <div class="col-lg-9">
+              <div class="mb-2">
+                <label class="form-label">Nome allegato</label>
+                <input type="text" name="nome" th:value="${allegato?.l1}"
+                       class="form-control" required>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Annotazioni</label>
+                <input type="text" name="annotazioni"
+                       th:value="${allegato?.annotazioni}" class="form-control">
+              </div>
+              <div class="row">
+                <div class="col-6 mb-2">
+                  <label class="form-label">Contenuto</label>
+                  <select name="l3" class="form-control">
+                    <option value="0" th:selected="${allegato?.l3 == '0'}">Non specificato</option>
+                    <option value="1" th:selected="${allegato?.l3 == '1'}">Curriculum</option>
+                    <option value="2" th:selected="${allegato?.l3 == '2'}">Retribuzione</option>
+                    <option value="3" th:selected="${allegato?.l3 == '3'}">Modulistica</option>
+                    <option value="4" th:selected="${allegato?.l3 == '4'}">Altro</option>
+                  </select>
+                </div>
+                <div class="col-6 mb-2">
+                  <label class="form-label">Cartella</label>
+                  <select name="idfolder" class="form-control">
+                    <option value="1">Principale</option>
+                    <option th:each="f : ${folders}"
+                            th:value="${f.id}" th:text="${f.nome}"
+                            th:selected="${f.id == allegato?.idFolder}">
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="mb-2" th:if="${allegato?.id == null}">
+                <label class="form-label">File *</label>
+                <input type="file" name="file" class="form-control" required>
+              </div>
+              <div class="row" th:if="${allegato?.id != null}">
+                <div class="col-6 mb-2">
+                  <label class="form-label">Aggiornamento</label>
+                  <select name="tipoVersione" class="form-control">
+                    <option value="0">Non modificare</option>
+                    <option value="1">Sostituisci</option>
+                    <option value="2">Nuova versione</option>
+                  </select>
+                </div>
+                <div class="col-6 mb-2">
+                  <label class="form-label">Nuovo file</label>
+                  <input type="file" name="file" class="form-control">
+                </div>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      <div id="multiplo" style="display:none">
+        <fieldset class="border p-3 mb-3">
+          <legend class="float-none w-auto px-2">Caricamento multiplo</legend>
+          <div class="row">
+            <div class="col-6 mb-2">
+              <label class="form-label">Nome</label>
+              <input type="text" id="nomeMultiplo" class="form-control">
+            </div>
+            <div class="col-6 mb-2">
+              <label class="form-label">Annotazioni</label>
+              <input type="text" id="annotazioniMultiplo" class="form-control">
+            </div>
+            <div class="col-6 mb-2">
+              <label class="form-label">Cartella</label>
+              <select id="idfolderMultiplo" class="form-control">
+                <option value="1">Principale</option>
+                <option th:each="f : ${folders}"
+                        th:value="${f.id}" th:text="${f.nome}"
+                        th:selected="${f.id.toString() == currentFolder}">
+                </option>
+              </select>
+            </div>
+            <div class="col-6 mb-2">
+              <label class="form-label">File (multipli)</label>
+              <input type="file" id="fileMultiplo" class="form-control" multiple>
+            </div>
+          </div>
+          <div id="progressoUpload" style="display:none" class="mt-2">
+            <div class="progress">
+              <div id="progressBarAll" class="progress-bar bg-success" style="width:0%"></div>
+            </div>
+            <small id="progressLabelAll" class="text-muted">Caricamento...</small>
+          </div>
+        </fieldset>
+      </div>
+
+    </form>
+  </div>
+
+  <div id="tab_info" class="tab-pane">
+    <div class="row mt-3" th:if="${allegato?.id != null}">
+      <div class="col-6 col-lg-3 mb-3">
+        <strong class="d-block text-muted small">Nome</strong>
+        <span th:text="${allegato?.l1}">-</span>
+      </div>
+      <div class="col-6 col-lg-3 mb-3">
+        <strong class="d-block text-muted small">File</strong>
+        <span th:text="${allegato?.path}">-</span>
+      </div>
+      <div class="col-6 col-lg-3 mb-3">
+        <strong class="d-block text-muted small">Dimensioni</strong>
+        <span th:text="${allegato?.sizeKB + ' Kb'}">-</span>
+      </div>
+      <div class="col-6 col-lg-3 mb-3">
+        <strong class="d-block text-muted small">Tipo</strong>
+        <span th:text="${allegato?.type}">-</span>
+      </div>
+      <div class="col-6 col-lg-3 mb-3">
+        <strong class="d-block text-muted small">Data</strong>
+        <span th:text="${allegato?.dataInserimento}">-</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab_versioni" class="tab-pane">
+    <table class="table table-sm table-bordered mt-3">
+      <thead>
+      <tr><th>Nome</th><th>Ver.</th><th>Tipo</th><th>Data</th><th>Dim</th><th></th></tr>
+      </thead>
+      <tbody>
+      <tr th:each="ver : ${allegato?.versioni}">
+        <td th:text="${ver.l1}">-</td>
+        <td th:text="${ver.version}">-</td>
+        <td th:text="${ver.type}">-</td>
+        <td th:text="${ver.dataInserimento}">-</td>
+        <td th:text="${ver.sizeKB + ' Kb'}">-</td>
+        <td>
+          <a th:href="@{/admin/filemanager/files/{id}/download(id=${ver.id})}"
+             target="_blank"><i class="fas fa-download"></i></a>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script th:inline="javascript">
+  var allegatoId    = /*[[${allegato?.id}]]*/ null;
+  var currentFolder = /*[[${currentFolder}]]*/ '1';
+  var docId         = /*[[${allegato?.idDocAllegati}]]*/ '0';
+
+  (function() {
+    if (allegatoId && allegatoId > 0) {
+      document.getElementById('singola').style.display = '';
+      document.getElementById('multiplo').style.display = 'none';
+    } else {
+      document.getElementById('singola').style.display = 'none';
+      document.getElementById('multiplo').style.display = '';
+    }
+
+    var fileMultiplo = document.getElementById('fileMultiplo');
+    if (fileMultiplo) {
+      fileMultiplo.addEventListener('change', function() {
+        var files  = this.files;
+        var folder = document.getElementById('idfolderMultiplo').value;
+        var nome   = document.getElementById('nomeMultiplo').value;
+        var annot  = document.getElementById('annotazioniMultiplo').value;
+        var tot    = files.length;
+        var done   = 0;
+        if (!tot) return;
+        document.getElementById('progressoUpload').style.display = '';
+        Array.from(files).forEach(function(file, i) {
+          var fd = new FormData();
+          fd.append('file',        file);
+          fd.append('idfolder',    folder);
+          fd.append('docid',       docId);
+          fd.append('nome',        nome ? nome + '_' + (i + 1) : '');
+          fd.append('annotazioni', annot);
+          fetch('/admin/filemanager/files/upload', { method: 'POST', body: fd })
+            .then(function() {
+              done++;
+              var pct = Math.round(done / tot * 100);
+              document.getElementById('progressBarAll').style.width = pct + '%';
+              document.getElementById('progressLabelAll').textContent = done + ' / ' + tot + ' caricati';
+              if (done === tot) {
+                document.getElementById('progressLabelAll').textContent = 'Completato!';
+                setTimeout(function() {
+                  if (window.FileManager) window.FileManager.refresh(folder);
+                }, 800);
+              }
+            });
+        });
+      });
+    }
+  })();
+</script>
+</body>
+</html>

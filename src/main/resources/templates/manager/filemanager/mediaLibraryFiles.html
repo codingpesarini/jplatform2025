@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>J-Platform - Gestione Allegati</title>
+    <link rel="stylesheet" th:href="@{/manager/assets/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/manager/assets/css/all.min.css}">
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; background: #f0f2f5; }
+        #headerM { height: 48px; background: #1a1f2e; display: flex; align-items: center;
+                   padding: 0 12px; justify-content: space-between;
+                   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+                   box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+        #headerM img { height: 32px; }
+        #sidebarM { position: fixed; top: 48px; left: 0; width: 220px; bottom: 32px;
+                    background: #fff; border-right: 1px solid #dee2e6; overflow-y: auto; z-index: 50; }
+        #dragbar { position: absolute; right: 0; top: 0; bottom: 0; width: 4px;
+                   cursor: col-resize; background: #dee2e6; z-index: 10; }
+        #mainM { position: fixed; top: 48px; left: 220px; right: 0; bottom: 32px;
+                 overflow-y: auto; padding: 12px; }
+        #footerM { position: fixed; bottom: 0; left: 0; right: 0; height: 32px;
+                   background: #1a1f2e; color: #adb5bd; font-size: 12px;
+                   display: flex; align-items: center; padding: 0 12px;
+                   justify-content: space-between; z-index: 100; }
+        .tree-item { padding: 6px 12px; font-size: 13px; cursor: pointer;
+                     border-left: 3px solid transparent; }
+        .tree-item:hover { background: #f8f9fa; border-left-color: #0d6efd; }
+        .tree-item a { color: #333; text-decoration: none; display: block; }
+        .tree-item.active { background: #e7f1ff; border-left-color: #0d6efd; font-weight: 600; }
+        .tree-children { padding-left: 16px; border-left: 1px dashed #dee2e6; margin-left: 16px; }
+        .thumb-item { display: inline-flex; flex-direction: column; align-items: center;
+                      width: 130px; margin: 6px; vertical-align: top; position: relative; cursor: pointer; }
+        .thumb-box { width: 120px; height: 110px; overflow: hidden; border: 2px solid #dee2e6;
+                     border-radius: 8px; display: flex; align-items: center; justify-content: center;
+                     background: #f8f9fa; position: relative; transition: border-color .2s; }
+        .thumb-box:hover { border-color: #0d6efd; }
+        .thumb-item.selected .thumb-box { border-color: #0d6efd; opacity: 0.7; }
+        .thumb-name { font-size: 11px; text-align: center; width: 120px; overflow: hidden;
+                      text-overflow: ellipsis; white-space: nowrap; margin-top: 4px; color: #555; }
+        .thumb-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6);
+                         padding: 4px; display: none; justify-content: center; gap: 6px;
+                         border-radius: 0 0 6px 6px; }
+        .thumb-box:hover .thumb-overlay { display: flex; }
+        .thumb-overlay a { color: #fff; font-size: 13px; }
+        .thumb-overlay a:hover { color: #ffc107; }
+        .toolbar-btn { color: #adb5bd; background: transparent; border: 1px solid #444;
+                       border-radius: 4px; padding: 4px 8px; font-size: 13px; cursor: pointer; }
+        .toolbar-btn:hover { color: #fff; border-color: #fff; }
+    </style>
+</head>
+<body>
+
+<div id="headerM">
+    <img th:src="@{/manager/assets/img/logo-white.png}" alt="J-Platform">
+    <div class="d-flex align-items-center gap-2">
+        <a th:href="@{/admin/filemanager/files(idfolder=1,sorgente=${sorgente},docid=${docId})}"
+           class="toolbar-btn" title="Home"><i class="fas fa-home"></i></a>
+        <a th:href="@{/admin/filemanager/files(idfolder=${currentFolder},sorgente=${sorgente},docid=${docId})}"
+           class="toolbar-btn" title="Aggiorna"><i class="fas fa-sync"></i></a>
+        <button class="toolbar-btn"
+                onclick="apriForm('/admin/filemanager/folder/new/'+currentFolder, 600, 350)">
+            <i class="fas fa-folder-plus"></i>
+        </button>
+        <button class="toolbar-btn"
+                onclick="apriForm('/admin/filemanager/files/new/'+currentFolder+'&docid='+docId+'&sorgente='+sorgente, 700, 550)">
+            <i class="fas fa-file-upload"></i> Nuovo allegato
+        </button>
+        <button class="toolbar-btn" onclick="selezionaTutto()">
+            <i class="fas fa-check-square"></i>
+        </button>
+        <button class="toolbar-btn" id="btnCancella" style="display:none; color:#ff6b6b"
+                onclick="cancellaSelezionati()">
+            <i class="fas fa-trash"></i> Cancella selezionati
+        </button>
+        <input type="text" id="searchInput" class="form-control form-control-sm"
+               placeholder="Cerca..." style="width:140px; font-size:12px">
+    </div>
+</div>
+
+<div id="sidebarM">
+    <div id="dragbar"></div>
+    <div class="py-2">
+        <div class="tree-item" th:classappend="${currentFolder == '1'} ? 'active'">
+            <a th:href="@{/admin/filemanager/files(idfolder=1,sorgente=${sorgente},docid=${docId})}">
+                <i class="fas fa-home me-1 text-primary"></i> Home
+            </a>
+        </div>
+        <div class="tree-children">
+            <div th:each="f : ${allFolders}" class="tree-item"
+                 th:classappend="${currentFolder == f.id.toString()} ? 'active'">
+                <a th:href="@{/admin/filemanager/files(idfolder=${f.id},sorgente=${sorgente},docid=${docId})}">
+                    <i class="fas fa-folder me-1 text-warning"></i>
+                    <span th:text="${f.nome}">Cartella</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="mainM">
+    <nav class="mb-3">
+        <ol class="breadcrumb" style="font-size:13px">
+            <li class="breadcrumb-item">
+                <a th:href="@{/admin/filemanager/files(idfolder=1)}"><i class="fas fa-home"></i></a>
+            </li>
+            <li th:each="fp : ${folderPath}" class="breadcrumb-item">
+                <a th:href="@{/admin/filemanager/files(idfolder=${fp.id},sorgente=${sorgente},docid=${docId})}"
+                   th:text="${fp.nome}">Cartella</a>
+            </li>
+        </ol>
+    </nav>
+
+    <div id="griglia">
+
+        <!-- SOTTOCARTELLE -->
+        <div th:each="sf : ${subfolders}" class="thumb-item"
+             th:id="'fold' + ${sf.id}"
+             th:attr="data-tipo='folder', data-id=${sf.id}, data-nome=${sf.nome}">
+            <div class="thumb-box">
+                <i class="fas fa-folder fa-3x text-warning"></i>
+                <div class="thumb-overlay">
+                    <a th:href="@{/admin/filemanager/files(idfolder=${sf.id},sorgente=${sorgente},docid=${docId})}"
+                       title="Apri"><i class="fas fa-folder-open"></i></a>
+                    <a href="javascript:void(0)"
+                       th:onclick="|apriForm('/admin/filemanager/folder/${sf.id}/edit', 600, 350)|"
+                       title="Modifica"><i class="fas fa-edit"></i></a>
+                    <a href="javascript:void(0)"
+                       th:onclick="|cancellaFolder(${sf.id})|"
+                       title="Elimina"><i class="fas fa-times text-danger"></i></a>
+                </div>
+            </div>
+            <div class="thumb-name" th:text="${sf.nome}">Cartella</div>
+        </div>
+
+        <!-- ALLEGATI -->
+        <div th:each="all : ${allegati}" class="thumb-item"
+             th:id="'all' + ${all.id}"
+             th:attr="data-tipo='allegato', data-id=${all.id}, data-nome=${all.l1}">
+            <div class="thumb-box">
+                <img th:src="@{'/manager/assets/img/filetypes/32/' + ${all.type} + '.png'}"
+                     th:alt="${all.type}"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                     style="max-width:64px; max-height:64px">
+
+                <i class="fas fa-file-alt fa-3x text-muted" style="display:none"></i>
+
+                <div class="thumb-overlay">
+                    <a th:href="@{/admin/filemanager/files/{id}/download(id=${all.id})}"
+                       target="_blank" title="Scarica"><i class="fas fa-download"></i></a>
+                    <a href="javascript:void(0)"
+                       th:onclick="|apriForm('/admin/filemanager/files/${all.id}/edit?idfolder='+currentFolder+'&sorgente='+sorgente, 700, 550)|"
+                       title="Modifica"><i class="fas fa-edit"></i></a>
+                    <a href="javascript:void(0)"
+                       th:onclick="|cancellaAllegato(${all.id})|"
+                       title="Elimina"><i class="fas fa-times text-danger"></i></a>
+                    <a href="javascript:void(0)"
+                       th:onclick="|inserisciAllegato(${all.id}, '${all.l2}', '${all.l1}', '${all.type}')|"
+                       title="Inserisci"><i class="fas fa-share-square"></i></a>
+                </div>
+            </div>
+            <div class="thumb-name" th:text="${all.l1 + ' · ' + all.sizeKB + 'Kb'}">nome</div>
+        </div>
+
+    </div>
+</div>
+
+<div id="footerM">
+    <span>
+        » <strong th:text="${currentFolderObj?.nome}">Home</strong>
+        &nbsp;|&nbsp; Cartelle: <span th:text="${currentFolderObj?.numeroFolder}">0</span>
+        &nbsp;|&nbsp; Documenti: <span th:text="${currentFolderObj?.numeroAllegati}">0</span>
+    </span>
+    <span>Studiodomino srl &copy; <script>document.write(new Date().getFullYear())</script></span>
+</div>
+
+<script th:src="@{/manager/assets/js/jquery.min.js}"></script>
+<script th:src="@{/manager/assets/js/bootstrap.bundle.min.js}"></script>
+<script th:inline="javascript">
+    var currentFolder = /*[[${currentFolder}]]*/ '1';
+    var sorgente      = /*[[${sorgente}]]*/ '';
+    var docId         = /*[[${docId}]]*/ '0';
+    var listaFolder   = [], listaAllegati = [];
+
+    $(document).on('click', '.thumb-item', function (e) {
+        if ($(e.target).closest('a').length) return;
+        var $item = $(this);
+        var tipo  = $item.data('tipo');
+        var id    = String($item.data('id'));
+        $item.toggleClass('selected');
+        if ($item.hasClass('selected')) {
+            if (tipo === 'folder')   listaFolder.push(id);
+            if (tipo === 'allegato') listaAllegati.push(id);
+        } else {
+            listaFolder   = listaFolder.filter(x => x !== id);
+            listaAllegati = listaAllegati.filter(x => x !== id);
+        }
+        $('#btnCancella').toggle(listaFolder.length + listaAllegati.length > 0);
+    });
+
+    function selezionaTutto() {
+        $('.thumb-item').each(function () {
+            var tipo = $(this).data('tipo');
+            var id   = String($(this).data('id'));
+            $(this).addClass('selected');
+            if (tipo === 'folder'   && !listaFolder.includes(id))   listaFolder.push(id);
+            if (tipo === 'allegato' && !listaAllegati.includes(id)) listaAllegati.push(id);
+        });
+        $('#btnCancella').show();
+    }
+
+    function cancellaFolder(id) {
+        if (!confirm('Eliminare la cartella?')) return;
+        $.post('/admin/filemanager/folder/' + id + '/delete')
+         .done(() => $('#fold' + id).remove());
+    }
+
+    function cancellaAllegato(id) {
+        if (!confirm('Eliminare il documento?')) return;
+        $.post('/admin/filemanager/files/' + id + '/delete')
+         .done(() => $('#all' + id).remove());
+    }
+
+    function cancellaSelezionati() {
+        if (!confirm('Eliminare gli elementi selezionati?')) return;
+        var calls = [];
+        listaAllegati.forEach(id => calls.push($.post('/admin/filemanager/files/'  + id + '/delete')));
+        listaFolder.forEach(id   => calls.push($.post('/admin/filemanager/folder/' + id + '/delete')));
+        $.when.apply($, calls).always(() => location.reload());
+    }
+
+    function inserisciAllegato(id, l2, l1, type) {
+        var target = window.opener || window.parent;
+        if (target && target.InserisciAllegatoLibreria) {
+            target.InserisciAllegatoLibreria(id, l2, l1, type, sorgente);
+        }
+        if (window.opener) window.close();
+    }
+
+    $('#searchInput').on('input', function () {
+        var q = $(this).val().toLowerCase();
+        $('.thumb-item').each(function () {
+            $(this).toggle(!q || String($(this).data('nome')).toLowerCase().includes(q));
+        });
+    });
+
+    $('#dragbar').mousedown(function (e) {
+        e.preventDefault();
+        $(document).on('mousemove.drag', function (e) {
+            var w = Math.max(120, Math.min(400, e.pageX));
+            $('#sidebarM').css('width', w);
+            $('#mainM').css('left', w + 2);
+        });
+    });
+    $(document).mouseup(() => $(document).off('mousemove.drag'));
+</script>
+</body>
+</html>

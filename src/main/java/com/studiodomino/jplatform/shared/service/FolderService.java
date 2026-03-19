@@ -193,22 +193,33 @@ public class FolderService {
      */
     public List<Folder> getFolderPath(Integer id) {
         List<Folder> path = new ArrayList<>();
+
+        if (id == null || id <= 0) return path;
+
         Optional<Folder> current = folderRepository.findById(id);
+        int maxDepth = 10; // sicurezza anti-loop
+        int depth = 0;
 
-        while (current.isPresent()) {
+        while (current.isPresent() && depth < maxDepth) {
             Folder folder = current.get();
-            path.add(0, folder); // Aggiungi all'inizio
+            path.add(0, folder);
 
-            if (folder.isRoot()) {
+            String parentId = folder.getIdfolder();
+
+            // stop se siamo alla root
+            if (parentId == null || parentId.isBlank()
+                    || parentId.equals("0") || parentId.equals("-1")) {
                 break;
             }
 
             try {
-                Integer parentId = Integer.parseInt(folder.getIdfolder());
-                current = folderRepository.findById(parentId);
+                Integer parentIdInt = Integer.parseInt(parentId);
+                if (parentIdInt.equals(id)) break; // loop su se stesso
+                current = folderRepository.findById(parentIdInt);
             } catch (NumberFormatException e) {
                 break;
             }
+            depth++;
         }
 
         return path;
@@ -241,5 +252,12 @@ public class FolderService {
      */
     public boolean existsById(Integer id) {
         return folderRepository.existsById(id);
+    }
+
+    /**
+     * Ottieni tutti i folder (per select nei form)
+     */
+    public List<Folder> getAllFolders() {
+        return folderRepository.findAllByOrderByNomeAsc();
     }
 }

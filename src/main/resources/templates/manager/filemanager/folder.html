@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestione Cartella</title>
+</head>
+<body>
+<div th:fragment="content">
+
+    <form th:action="@{/admin/filemanager/folder/save}" method="post" id="folderForm">
+        <input type="hidden" name="id"       th:value="${folder?.id}">
+        <input type="hidden" name="idfolder" th:value="${folder?.idfolder}">
+
+        <div class="d-flex gap-2 mb-3">
+            <button type="submit" class="btn btn-sm btn-primary">
+                <i class="fas fa-save"></i> Salva
+            </button>
+            <button type="button" class="btn btn-sm btn-danger"
+                    data-bs-dismiss="modal">
+                <i class="fas fa-times"></i> Esci
+            </button>
+        </div>
+
+        <fieldset class="border p-3">
+            <legend class="float-none w-auto px-2">Dati Cartella</legend>
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome cartella *</label>
+                <input type="text" name="nome" id="nome"
+                       th:value="${folder?.nome}"
+                       class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="idgruppo" class="form-label">Permessi gruppo</label>
+                <select name="idgruppo" id="idgruppo" class="form-control">
+                    <option value="0">Tutti</option>
+                    <option th:each="gruppo : ${config.gruppi}"
+                            th:value="${gruppo.id}"
+                            th:text="${gruppo.nome}"
+                            th:selected="${folder?.idgruppo == gruppo.id.toString()}">
+                    </option>
+                </select>
+            </div>
+        </fieldset>
+    </form>
+
+</div>
+</body>
+</html>

@@ -16,6 +16,8 @@ import java.util.Optional;
 @Repository
 public interface FolderRepository extends JpaRepository<Folder, Integer> {
 
+    List<Folder> findAllByOrderByNomeAsc();
+
     /**
      * Trova folder per nome
      */

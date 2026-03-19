@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="it" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestione Immagine</title>
+</head>
+<body>
+
+<form th:action="@{/admin/filemanager/images/save}" method="post" id="imageForm">
+
+  <input type="hidden" name="id"            th:value="${image?.id}">
+  <input type="hidden" name="sorgente"      th:value="${sorgente}">
+  <input type="hidden" name="idfolder"      th:value="${currentFolder}">
+
+  <div class="d-flex gap-2 mb-3">
+    <button type="button" class="btn btn-sm btn-secondary"
+            id="btnNuovaImmagineForm"
+            th:data-url="'/admin/filemanager/images/new/' + ${currentFolder}">
+      <i class="fas fa-plus"></i> Nuova immagine
+    </button>
+    <button type="submit" class="btn btn-sm btn-primary">
+      <i class="fas fa-save"></i> Salva
+    </button>
+    <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal">
+      <i class="fas fa-times"></i> Esci
+    </button>
+  </div>
+
+  <div id="singola">
+    <fieldset class="border p-3 mb-3">
+      <legend class="float-none w-auto px-2">Immagine singola</legend>
+      <div class="row">
+        <div class="col-lg-4 text-center mb-3">
+          <img th:if="${image?.id != null}"
+               th:src="${config.imagesRepositoryWeb + image?.fullpath}"
+               class="img-fluid rounded border" style="max-height:150px"
+               onerror="this.style.display='none'">
+          <div th:if="${image?.id == null}" class="text-muted p-4 border rounded">
+            <i class="fas fa-image fa-3x"></i>
+            <p class="mt-2 small">Anteprima</p>
+          </div>
+        </div>
+        <div class="col-lg-8">
+          <div class="mb-2">
+            <label class="form-label">Nome immagine</label>
+            <input type="text" name="name" th:value="${image?.name}" class="form-control">
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Didascalia</label>
+            <textarea name="didascalia" class="form-control" rows="2"
+                      th:text="${image?.didascalia}"></textarea>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Cartella</label>
+            <select name="idfolder" class="form-control">
+              <option th:value="${currentFolder}">Cartella corrente</option>
+              <option value="1">Principale</option>
+              <option th:each="f : ${folders}"
+                      th:value="${f.id}"
+                      th:text="${f.nome}"
+                      th:selected="${f.id.toString() == currentFolder}">
+              </option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">File immagine</label>
+            <input type="file" name="filer" class="form-control"
+                   accept="image/*" id="fileInput">
+            <small class="text-muted">Lascia vuoto per mantenere l'immagine attuale</small>
+          </div>
+          <img id="previewNuova" src="#" style="display:none; max-height:100px"
+               class="mt-2 rounded border">
+        </div>
+      </div>
+    </fieldset>
+  </div>
+
+  <div id="multipla" style="display:none">
+    <fieldset class="border p-3 mb-3">
+      <legend class="float-none w-auto px-2">Caricamento multiplo</legend>
+      <div class="row">
+        <div class="col-lg-6 mb-2">
+          <label class="form-label">Nome (verrà numerato)</label>
+          <input type="text" id="nomeMultiplo" class="form-control">
+        </div>
+        <div class="col-lg-6 mb-2">
+          <label class="form-label">Cartella</label>
+          <select id="idfolderMultiplo" class="form-control">
+            <option value="1">Principale</option>
+            <option th:each="f : ${folders}"
+                    th:value="${f.id}" th:text="${f.nome}"
+                    th:selected="${f.id.toString() == currentFolder}">
+            </option>
+          </select>
+        </div>
+        <div class="col-12 mb-2">
+          <label class="form-label">Seleziona file (anche più di uno)</label>
+          <input type="file" id="fileMultiplo" class="form-control"
+                 accept="image/*" multiple>
+          <div id="progressoUpload" class="mt-2" style="display:none">
+            <div class="progress">
+              <div id="progressBar" class="progress-bar bg-success" style="width:0%"></div>
+            </div>
+            <small id="progressLabel" class="text-muted">Caricamento...</small>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+
+</form>
+
+<script th:inline="javascript">
+  var imageId       = /*[[${image?.id}]]*/ null;
+  var currentFolder = /*[[${currentFolder}]]*/ '1';
+  var imagesWeb     = /*[[${config.imagesRepositoryWeb}]]*/ '';
+  var fullpath      = /*[[${image?.fullpath}]]*/ '';
+
+  (function() {
+    if (imageId && imageId > 0) {
+      document.getElementById('singola').style.display = '';
+      document.getElementById('multipla').style.display = 'none';
+    } else {
+      document.getElementById('singola').style.display = 'none';
+      document.getElementById('multipla').style.display = '';
+    }
+
+    var fileInput = document.getElementById('fileInput');
+    if (fileInput) {
+      fileInput.addEventListener('change', function() {
+        var file = this.files[0];
+        if (file) {
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            var prev = document.getElementById('previewNuova');
+            prev.src = e.target.result;
+            prev.style.display = '';
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    var fileMultiplo = document.getElementById('fileMultiplo');
+    if (fileMultiplo) {
+      fileMultiplo.addEventListener('change', function() {
+        var files  = this.files;
+        var folder = document.getElementById('idfolderMultiplo').value;
+        var nome   = document.getElementById('nomeMultiplo').value;
+        var tot    = files.length;
+        var done   = 0;
+        if (!tot) return;
+        document.getElementById('progressoUpload').style.display = '';
+        Array.from(files).forEach(function(file, i) {
+          var fd = new FormData();
+          fd.append('files', file);
+          fd.append('idfolder', folder);
+          if (nome) fd.append('nome', nome + '_' + (i + 1));
+          fetch('/admin/filemanager/images/upload-multiple', { method: 'POST', body: fd })
+            .then(function() {
+              done++;
+              var pct = Math.round(done / tot * 100);
+              document.getElementById('progressBar').style.width = pct + '%';
+              document.getElementById('progressLabel').textContent = done + ' / ' + tot + ' caricate';
+              if (done === tot) {
+                document.getElementById('progressLabel').textContent = 'Completato!';
+                setTimeout(function() {
+                  if (window.FileManager) window.FileManager.refresh(folder);
+                }, 800);
+              }
+            });
+        });
+      });
+    }
+  })();
+</script>
+</body>
+</html>

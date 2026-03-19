@@ -512,59 +512,204 @@ $(document).ready(function() {
        // -------------------------------------------------------
        // Autocomplete Lead - Versione Definitiva
        // -------------------------------------------------------
-       $(document).ready(function() {
-           var $ricerca = $('#ricercaUtenteNuovoLead');
+   $(document).ready(function() {
+       var $ricerca = $('#ricercaUtenteNuovoLead');
 
-           if ($ricerca.length > 0) {
-               $ricerca.autocomplete({
-                   source: function(request, response) {
-                       $.ajax({
-                           url: "/admin/crm/utenti/search",
-                           type: 'GET',
-                           dataType: 'json',
-                           data: { term: request.term },
-                           success: function(data) {
-                               if (!data || data.length === 0) { response([]); return; }
-                               var suggerimenti = $.map(data, function(item) {
-                                   if (!item) return null;
-                                   return {
-                                       label: [item.nome, item.cognome, item.email].filter(Boolean).join(" "),
-                                       value: [item.nome, item.cognome].filter(Boolean).join(" "),
-                                       obj: item
-                                   };
-                               });
-                               response(suggerimenti.filter(Boolean));
-                           },
-                           error: function(xhr) {
-                               console.error("Errore:", xhr.status, xhr.responseText);
-                               response([]);
-                           }
-                       });
-                   },
-                   minLength: 2,
-                   select: function(event, ui) {
-                       if (!ui || !ui.item || !ui.item.obj) return false;
-                       var d = ui.item.obj;
+       if ($ricerca.length > 0) {
+           $ricerca.autocomplete({
+               source: function(request, response) {
+                   $.ajax({
+                       url: "/admin/crm/utenti/search",
+                       type: 'GET',
+                       dataType: 'json',
+                       data: { term: request.term },
+                       success: function(data) {
+                           if (!data || data.length === 0) { response([]); return; }
+                           var suggerimenti = $.map(data, function(item) {
+                               if (!item) return null;
+                               return {
+                                   label: [item.nome, item.cognome, item.email].filter(Boolean).join(" "),
+                                   value: [item.nome, item.cognome].filter(Boolean).join(" "),
+                                   obj: item
+                               };
+                           });
+                           response(suggerimenti.filter(Boolean));
+                       },
+                       error: function(xhr) {
+                           console.error("Errore:", xhr.status, xhr.responseText);
+                           response([]);
+                       }
+                   });
+               },
+               minLength: 2,
+               select: function(event, ui) {
+                   if (!ui || !ui.item || !ui.item.obj) return false;
+                   var d = ui.item.obj;
 
-                       $("#idUtenteLead").val(d.id || '');
-                       $("#utenteid").val(d.id || '');
-                       $("#utentenome").val(d.nome || '');
-                       $("#utentecognome").val(d.cognome || '');
-                       $("#utenteemail").val(d.email || '');
-                       // telefono: prova prima telefono, poi telefono2
-                       $("#utentetelefono").val(d.telefono && d.telefono.trim() !== '' ? d.telefono : (d.telefono2 || ''));
+                   $("#idUtenteLead").val(d.id || '');
+                   $("#utenteid").val(d.id || '');
+                   $("#utentenome").val(d.nome || '');
+                   $("#utentecognome").val(d.cognome || '');
+                   $("#utenteemail").val(d.email || '');
+                   // telefono: prova prima telefono, poi telefono2
+                   $("#utentetelefono").val(d.telefono && d.telefono.trim() !== '' ? d.telefono : (d.telefono2 || ''));
 
-                       showToast('Caricato', 'Anagrafica di ' + (d.cognome || 'utente') + ' inserita.');
-                       return false;
-                   }
-               });
+                   showToast('Caricato', 'Anagrafica di ' + (d.cognome || 'utente') + ' inserita.');
+                   return false;
+               }
+           });
 
-               $ricerca.data("ui-autocomplete")._renderItem = function(ul, item) {
-                   return $("<li>")
-                       .append("<div style='color:#333!important;padding:10px;background:#fff;border-bottom:1px solid #ddd;cursor:pointer;'>" + item.label + "</div>")
-                       .appendTo(ul);
-               };
-           }
-       });
+           $ricerca.data("ui-autocomplete")._renderItem = function(ul, item) {
+               return $("<li>")
+                   .append("<div style='color:#333!important;padding:10px;background:#fff;border-bottom:1px solid #ddd;cursor:pointer;'>" + item.label + "</div>")
+                   .appendTo(ul);
+           };
+       }
+   });
+    // ============================================================
+    // FILE MANAGER - Gestione centralizzata Modal
+    // ============================================================
+    // ============================================================
+    // FILE MANAGER - Gestione globale
+    // ============================================================
+});
 
+window.FileManager = {
+    apriForm: function(url, titolo) {
+        const modalEl = document.getElementById('modalAccount');
+        const titleEl = document.getElementById('modalAccountTitle');
+        const bodyEl  = document.getElementById('modalAccountBody');
+        if (!modalEl) { alert("Modal 'modalAccount' non trovata!"); return; }
+        titleEl.innerText = titolo;
+        bodyEl.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-info"></div><p class="mt-2">Caricamento...</p></div>';
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        fetch(url)
+            .then(function(r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
+            .then(function(html) {
+                $(bodyEl).html(html);
+                if (typeof initTinyMCE === 'function') {
+                    $(bodyEl).find('textarea.tinymce').each(function() { initTinyMCE('#' + this.id); });
+                }
+            })
+            .catch(function(err) {
+                bodyEl.innerHTML = '<div class="alert alert-danger m-3">Errore: ' + err.message + '</div>';
+            });
+    },
+    refresh: function(idFolder) {
+        var modalEl = document.getElementById('modalAccount');
+        var modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) modalInstance.hide();
+        showToast('Completato', 'Operazione eseguita.');
+        setTimeout(function() {
+            if (typeof window.ricaricaLibreria === 'function') {
+                window.ricaricaLibreria(idFolder);
+            } else {
+                location.reload();
+            }
+        }, 800);
+    }
+};
+
+$(document).on('submit', '#folderForm, #imageForm, #allegatoForm', function(e) {
+    e.preventDefault();
+    var $form = $(this);
+    var idFolder = $form.find('input[name="idfolder"]').val() || '1';
+    if (typeof tinymce !== 'undefined') tinymce.triggerSave();
+    $.ajax({
+        url: $form.attr('action'),
+        type: 'POST',
+        data: new FormData(this),
+        processData: false,
+        contentType: false,
+        success: function() { FileManager.refresh(idFolder); },
+        error: function() { showToast('Errore', 'Salvataggio fallito', 'danger'); }
+    });
+});
+
+// ============================================================
+// FILE MANAGER - Funzioni globali Media Library
+// ============================================================
+
+function selezionaTutto() {
+    var checkboxes = document.querySelectorAll('.inpt_c1');
+    var tuttiChecked = Array.from(checkboxes).every(function(cb) { return cb.checked; });
+    checkboxes.forEach(function(cb) {
+        cb.checked = !tuttiChecked;
+        cb.dispatchEvent(new Event('change'));
+    });
+}
+
+function cancellaSelezionati() {
+    var checked = document.querySelectorAll('.inpt_c1:checked');
+    if (checked.length === 0) return;
+    confirmAction('Eliminare i ' + checked.length + ' elementi selezionati?', function() {
+        var promises = [];
+        checked.forEach(function(cb) {
+            var container = cb.closest('[data-id]');
+            var tipo = container.getAttribute('data-tipo');
+            var id   = container.getAttribute('data-id');
+            var url  = '';
+            if (tipo === 'folder')   url = '/admin/filemanager/folder/' + id + '/delete';
+            if (tipo === 'immagine') url = '/admin/filemanager/images/' + id + '/delete';
+            if (tipo === 'allegato') url = '/admin/filemanager/files/'  + id + '/delete';
+            promises.push(fetch(url, { method: 'POST' }));
+        });
+        Promise.all(promises).then(function() { location.reload(); });
+    });
+}
+
+function cancellaFolder(id) {
+    confirmAction('Eliminare la cartella?', function() {
+        fetch('/admin/filemanager/folder/' + id + '/delete', { method: 'POST' })
+            .then(function() {
+                var el = document.querySelector('[data-tipo="folder"][data-id="' + id + '"]');
+                if (el) el.remove();
+            });
+    });
+}
+
+function cancellaImmagine(id) {
+    confirmAction("Eliminare l'immagine?", function() {
+        fetch('/admin/filemanager/images/' + id + '/delete', { method: 'POST' })
+            .then(function() {
+                var el = document.querySelector('[data-tipo="immagine"][data-id="' + id + '"]');
+                if (el) el.remove();
+            });
+    });
+}
+
+function cancellaAllegato(id) {
+    confirmAction('Eliminare il documento?', function() {
+        fetch('/admin/filemanager/files/' + id + '/delete', { method: 'POST' })
+            .then(function() {
+                var el = document.querySelector('[data-tipo="allegato"][data-id="' + id + '"]');
+                if (el) el.remove();
+            });
+    });
+}
+
+window.ricaricaLibreria = function(idfolder) {
+    var folder = idfolder || (typeof currentFolder !== 'undefined' ? currentFolder : '1');
+    window.location.href = '/admin/filemanager/images/' + folder;
+};
+
+document.addEventListener('change', function(e) {
+    if (!e.target.classList.contains('inpt_c1')) return;
+    var count = document.querySelectorAll('.inpt_c1:checked').length;
+    var btn = document.getElementById('btnCancella');
+    if (btn) btn.style.display = count > 0 ? '' : 'none';
+});
+
+// FILE MANAGER - Ricerca
+document.addEventListener('DOMContentLoaded', function() {
+    var searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            var q = this.value.toLowerCase();
+            document.querySelectorAll('[data-nome]').forEach(function(el) {
+                var nome = (el.getAttribute('data-nome') || '').toLowerCase();
+                el.style.display = nome.includes(q) ? '' : 'none';
+            });
+        });
+    }
 });
