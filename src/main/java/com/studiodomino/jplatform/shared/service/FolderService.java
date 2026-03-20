@@ -193,35 +193,34 @@ public class FolderService {
      */
     public List<Folder> getFolderPath(Integer id) {
         List<Folder> path = new ArrayList<>();
-
-        if (id == null || id <= 0) return path;
+        if (id == null || id <= 1) return path; // Root non appare nel breadcrumb
 
         Optional<Folder> current = folderRepository.findById(id);
-        int maxDepth = 10; // sicurezza anti-loop
+        int maxDepth = 10;
         int depth = 0;
+        java.util.Set<Integer> visited = new java.util.HashSet<>();
 
         while (current.isPresent() && depth < maxDepth) {
             Folder folder = current.get();
+
+            if (visited.contains(folder.getId())) break; // anti-loop
+            visited.add(folder.getId());
+
             path.add(0, folder);
 
             String parentId = folder.getIdfolder();
-
-            // stop se siamo alla root
             if (parentId == null || parentId.isBlank()
-                    || parentId.equals("0") || parentId.equals("-1")) {
-                break;
-            }
+                    || parentId.equals("0") || parentId.equals("1")
+                    || parentId.equals("-1")) break;
 
             try {
                 Integer parentIdInt = Integer.parseInt(parentId);
-                if (parentIdInt.equals(id)) break; // loop su se stesso
                 current = folderRepository.findById(parentIdInt);
             } catch (NumberFormatException e) {
                 break;
             }
             depth++;
         }
-
         return path;
     }
 

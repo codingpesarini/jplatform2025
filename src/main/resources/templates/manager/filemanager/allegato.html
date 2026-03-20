@@ -10,7 +10,7 @@
   <li class="nav-item">
     <a class="nav-link active" href="#tab_allegato" data-bs-toggle="tab">Allegato</a>
   </li>
-  <li class="nav-item">
+  <li class="nav-item" th:if="${allegato?.id != null}">
     <a class="nav-link" href="#tab_info" data-bs-toggle="tab">Info</a>
   </li>
   <li class="nav-item" th:if="${allegato?.id != null}">

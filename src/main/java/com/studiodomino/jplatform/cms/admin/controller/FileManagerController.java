@@ -32,7 +32,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/admin/filemanager")
@@ -55,31 +54,17 @@ public class FileManagerController {
             DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm");
 
     // =====================================================================
-    // MEDIA LIBRARY — IMMAGINI (pagina principale)
+    // HELPER PRIVATO — carica dati comuni in model
     // =====================================================================
 
-    // =====================================================================
-// MEDIA LIBRARY — IMMAGINI
-// =====================================================================
-
-    @GetMapping("/images")
-    public String mediaLibraryImages(
-            @RequestParam(value = "idfolder", defaultValue = "1") String idFolder,
-            @RequestParam(value = "sorgente", defaultValue = "") String sorgente,
-            @RequestParam(value = "metodo", defaultValue = "tutti") String metodo,
-            HttpServletRequest request, Model model) {
-
-        HttpSession session = request.getSession();
-        Configurazione config = configurazioneService.getConfig(session);
-        if (!config.isLogged()) return "redirect:/login";
-
+    private void caricaModelBase(String idFolder, Model model, Configurazione config) {
         try {
             int idFolderInt = Integer.parseInt(idFolder);
-            List<Folder> subfolders   = folderService.getSubfolders(idFolder);
-            List<Images> images       = imagesService.findByFolder(idFolder);
-            List<Allegato> allegati   = allegatoService.findByFolder(idFolderInt);
-            List<Folder> folderPath   = folderService.getFolderPath(idFolderInt);
-            List<Folder> allFolders   = folderService.getRootFolders();
+            List<Folder> subfolders = folderService.getSubfolders(idFolder);
+            List<Images> images     = imagesService.findByFolder(idFolder);
+            List<Allegato> allegati = allegatoService.findByFolder(idFolderInt);
+            List<Folder> folderPath = folderService.getFolderPath(idFolderInt);
+            List<Folder> allFolders = folderService.getAllFolders();
 
             Folder currentFolderObj = folderService.findById(idFolderInt).orElse(new Folder());
             currentFolderObj.setSubfolder(subfolders);
@@ -88,42 +73,87 @@ public class FileManagerController {
             currentFolderObj.setNumeroAllegati(String.valueOf(allegati.size()));
 
             model.addAttribute("currentFolderObj", currentFolderObj);
-            model.addAttribute("subfolders",   subfolders);
-            model.addAttribute("images",       images);
-            model.addAttribute("allegati",     allegati);
-            model.addAttribute("folderPath",   folderPath);
-            model.addAttribute("allFolders",   allFolders);
+            model.addAttribute("subfolders",    subfolders);
+            model.addAttribute("images",        images);
+            model.addAttribute("allegati",      allegati);
+            model.addAttribute("folderPath",    folderPath);
+            model.addAttribute("allFolders",    allFolders);
             model.addAttribute("currentFolder", idFolder);
-            model.addAttribute("sorgente",     sorgente);
-            model.addAttribute("metodo",       metodo);
-            model.addAttribute("config",       config);
-
+            model.addAttribute("config",        config);
         } catch (Exception e) {
-            log.error("Errore mediaLibraryImages folder={}", idFolder, e);
+            log.error("Errore caricaModelBase folder={}", idFolder, e);
+        }
+    }
+
+    // =====================================================================
+    // MEDIA LIBRARY — PAGINA PRINCIPALE (layout completo)
+    // =====================================================================
+
+    @GetMapping({"", "/"})
+    public String mediaLibrary(HttpServletRequest request, Model model) {
+        return mediaLibraryByPath("1", request, model);
+    }
+
+    @GetMapping("/{idfolder}")
+    public String mediaLibraryByPath(
+            @PathVariable String idfolder,
+            HttpServletRequest request, Model model) {
+
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+        if (!config.isLogged()) return "redirect:/login";
+
+        caricaModelBase(idfolder, model, config);
+        model.addAttribute("sorgente", "");
+        model.addAttribute("metodo", "tutti");
+        return ViewUtils.resolveProtectedTemplate("filemanager/mediaLibrary");
+    }
+
+    // =====================================================================
+    // MEDIA LIBRARY — SOLO IMMAGINI (layout completo)
+    // =====================================================================
+
+    @GetMapping("/images/{idfolder}")
+    public String mediaLibraryImages(
+            @PathVariable String idfolder,
+            HttpServletRequest request, Model model) {
+
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+        if (!config.isLogged()) return "redirect:/login";
+
+        try {
+            int idFolderInt = Integer.parseInt(idfolder);
+            List<Images> images     = imagesService.findByFolder(idfolder);
+            List<Folder> subfolders = folderService.getSubfolders(idfolder);
+            List<Folder> folderPath = folderService.getFolderPath(idFolderInt);
+            List<Folder> allFolders = folderService.getAllFolders();
+
+            Folder currentFolderObj = folderService.findById(idFolderInt).orElse(new Folder());
+            currentFolderObj.setNumeroImmagini(String.valueOf(images.size()));
+
+            model.addAttribute("currentFolderObj", currentFolderObj);
+            model.addAttribute("subfolders",    subfolders);
+            model.addAttribute("images",        images);
+            model.addAttribute("folderPath",    folderPath);
+            model.addAttribute("allFolders",    allFolders);
+            model.addAttribute("currentFolder", idfolder);
+            model.addAttribute("config",        config);
+        } catch (Exception e) {
+            log.error("Errore mediaLibraryImages folder={}", idfolder, e);
         }
 
         return ViewUtils.resolveProtectedTemplate("filemanager/mediaLibraryImages");
     }
 
-    // URL pulito: /admin/filemanager/images/1
-    @GetMapping("/images/{idfolder}")
-    public String mediaLibraryImagesByPath(
+    // =====================================================================
+    // MEDIA LIBRARY — SOLO ALLEGATI (layout completo)
+    // =====================================================================
+
+    @GetMapping("/files/{idfolder}")
+    public String mediaLibraryFiles(
             @PathVariable String idfolder,
             @RequestParam(value = "sorgente", defaultValue = "") String sorgente,
-            @RequestParam(value = "metodo", defaultValue = "tutti") String metodo,
-            HttpServletRequest request, Model model) {
-        return mediaLibraryImages(idfolder, sorgente, metodo, request, model);
-    }
-
-// =====================================================================
-// MEDIA LIBRARY — ALLEGATI
-// =====================================================================
-
-    @GetMapping("/files")
-    public String mediaLibraryFiles(
-            @RequestParam(value = "idfolder", defaultValue = "1") String idFolder,
-            @RequestParam(value = "sorgente", defaultValue = "") String sorgente,
-            @RequestParam(value = "metodo", defaultValue = "tutti") String metodo,
             @RequestParam(value = "docid", defaultValue = "0") String docId,
             HttpServletRequest request, Model model) {
 
@@ -132,11 +162,11 @@ public class FileManagerController {
         if (!config.isLogged()) return "redirect:/login";
 
         try {
-            int idFolderInt = Integer.parseInt(idFolder);
-            List<Folder> subfolders = folderService.getSubfolders(idFolder);
+            int idFolderInt = Integer.parseInt(idfolder);
+            List<Folder> subfolders = folderService.getSubfolders(idfolder);
             List<Allegato> allegati = allegatoService.findByFolder(idFolderInt);
             List<Folder> folderPath = folderService.getFolderPath(idFolderInt);
-            List<Folder> allFolders = folderService.getRootFolders();
+            List<Folder> allFolders = folderService.getAllFolders();
 
             Folder currentFolderObj = folderService.findById(idFolderInt).orElse(new Folder());
             currentFolderObj.setSubfolder(subfolders);
@@ -144,84 +174,75 @@ public class FileManagerController {
             currentFolderObj.setNumeroAllegati(String.valueOf(allegati.size()));
 
             model.addAttribute("currentFolderObj", currentFolderObj);
-            model.addAttribute("subfolders",  subfolders);
-            model.addAttribute("allegati",    allegati);
-            model.addAttribute("folderPath",  folderPath);
-            model.addAttribute("allFolders",  allFolders);
-            model.addAttribute("currentFolder", idFolder);
-            model.addAttribute("sorgente",    sorgente);
-            model.addAttribute("metodo",      metodo);
-            model.addAttribute("docId",       docId);
-            model.addAttribute("config",      config);
-
+            model.addAttribute("subfolders",    subfolders);
+            model.addAttribute("allegati",      allegati);
+            model.addAttribute("folderPath",    folderPath);
+            model.addAttribute("allFolders",    allFolders);
+            model.addAttribute("currentFolder", idfolder);
+            model.addAttribute("sorgente",      sorgente);
+            model.addAttribute("docId",         docId);
+            model.addAttribute("config",        config);
         } catch (Exception e) {
-            log.error("Errore mediaLibraryFiles folder={}", idFolder, e);
+            log.error("Errore mediaLibraryFiles folder={}", idfolder, e);
         }
 
         return ViewUtils.resolveProtectedTemplate("filemanager/mediaLibraryFiles");
     }
 
-    // URL pulito: /admin/filemanager/files/1
-    @GetMapping("/files/{idfolder}")
-    public String mediaLibraryFilesByPath(
+    // =====================================================================
+    // POPUP — senza layout, caricato via fetch nella modal
+    // /admin/filemanager/popup/1         → tutto
+    // /admin/filemanager/popup/1/immagini → solo immagini + cartelle
+    // /admin/filemanager/popup/1/allegati → solo allegati + cartelle
+    // =====================================================================
+
+    @GetMapping("/popup/{idfolder}")
+    public String popupTutti(
             @PathVariable String idfolder,
-            @RequestParam(value = "sorgente", defaultValue = "") String sorgente,
-            @RequestParam(value = "metodo", defaultValue = "tutti") String metodo,
-            @RequestParam(value = "docid", defaultValue = "0") String docId,
             HttpServletRequest request, Model model) {
-        return mediaLibraryFiles(idfolder, sorgente, metodo, docId, request, model);
+        return popupConTipo(idfolder, "tutti", request, model);
     }
 
-    // =====================================================================
-    // FORM IMMAGINE — aperto in popup
-    // =====================================================================
-
-    @GetMapping("/images/new")
-    public String newImage(
-            @RequestParam(value = "idfolder", defaultValue = "1") String idFolder,
-            @RequestParam(value = "sorgente", defaultValue = "") String sorgente,
+    @GetMapping("/popup/{idfolder}/{tipo}")
+    public String popupConTipo(
+            @PathVariable String idfolder,
+            @PathVariable String tipo,
             HttpServletRequest request, Model model) {
 
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
-        List<Folder> folders = folderService.getAllFolders();
-        model.addAttribute("image", new Images());
-        model.addAttribute("folders", folders);
-        model.addAttribute("currentFolder", idFolder);
-        model.addAttribute("sorgente", sorgente);
-        model.addAttribute("config", config);
-
-        return ViewUtils.resolveProtectedTemplate("filemanager/images");
+        caricaModelBase(idfolder, model, config);
+        model.addAttribute("tipo", tipo);
+        return ViewUtils.resolveProtectedTemplate("filemanager/mediaLibraryPopup");
     }
+
+    // =====================================================================
+    // FORM IMMAGINE — aperto nella modal
+    // =====================================================================
 
     @GetMapping("/images/new/{idfolder}")
-    public String newImageByPath(
+    public String newImage(
             @PathVariable String idfolder,
-            @RequestParam(value = "sorgente", defaultValue = "") String sorgente,
             HttpServletRequest request, Model model) {
 
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
-        List<Folder> folders = folderService.getAllFolders(); // usa getAllFolders invece di getRootFolders
         model.addAttribute("image", new Images());
-        model.addAttribute("folders", folders);
+        model.addAttribute("folders", folderService.getAllFolders());
         model.addAttribute("currentFolder", idfolder);
-        model.addAttribute("sorgente", sorgente);
+        model.addAttribute("sorgente", "");
         model.addAttribute("config", config);
-
         return ViewUtils.resolveProtectedTemplate("filemanager/images");
     }
 
-
-    @GetMapping("/images/{id}/edit")
+    @GetMapping("/images/{id}/edit/{idfolder}")
     public String editImage(
             @PathVariable Integer id,
-            @RequestParam(value = "idfolder", defaultValue = "1") String idFolder,
-            @RequestParam(value = "sorgente", defaultValue = "") String sorgente,
+            @PathVariable String idfolder,
             HttpServletRequest request, Model model) {
 
         HttpSession session = request.getSession();
@@ -230,21 +251,19 @@ public class FileManagerController {
 
         try {
             Images image = imagesService.findById(id).orElseThrow();
-            List<Folder> folders = folderService.getAllFolders();
             model.addAttribute("image", image);
-            model.addAttribute("folders", folders);
-            model.addAttribute("currentFolder", idFolder);
-            model.addAttribute("sorgente", sorgente);
+            model.addAttribute("folders", folderService.getAllFolders());
+            model.addAttribute("currentFolder", idfolder);
+            model.addAttribute("sorgente", "");
             model.addAttribute("config", config);
         } catch (Exception e) {
             log.error("Errore editImage id={}", id, e);
         }
-
         return ViewUtils.resolveProtectedTemplate("filemanager/images");
     }
 
     // =====================================================================
-    // SAVE IMMAGINE (da form popup)
+    // SAVE IMMAGINE
     // =====================================================================
 
     @PostMapping("/images/save")
@@ -253,9 +272,8 @@ public class FileManagerController {
             @RequestParam(value = "name", defaultValue = "") String name,
             @RequestParam(value = "didascalia", defaultValue = "") String didascalia,
             @RequestParam(value = "idfolder", defaultValue = "1") String idFolder,
-            @RequestParam(value = "sorgente", defaultValue = "") String sorgente,
             @RequestParam(value = "filer", required = false) MultipartFile filer,
-            HttpServletRequest request, Model model) {
+            HttpServletRequest request) {
 
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
@@ -264,10 +282,8 @@ public class FileManagerController {
         try {
             Images image;
             if (id == null || id <= 0) {
-                // Nuova immagine
                 image = imagesService.uploadImage(filer, idFolder, imagesRepositoryPath);
             } else {
-                // Aggiorna esistente
                 image = imagesService.findById(id).orElseThrow();
                 if (filer != null && !filer.isEmpty()) {
                     imagesService.delete(id);
@@ -279,13 +295,10 @@ public class FileManagerController {
             image.setL4(config.getAmministratore().getNomeCompleto());
             image.setL5(LocalDateTime.now().format(DF));
             imagesService.save(image);
-
         } catch (Exception e) {
             log.error("Errore saveImage", e);
         }
-
-        // Ricarica il popup sulla cartella corrente
-        return "redirect:/admin/filemanager/images/new/" + idFolder;
+        return "redirect:/admin/filemanager/" + idFolder;
     }
 
     // =====================================================================
@@ -318,7 +331,6 @@ public class FileManagerController {
             image.setL4(config.getAmministratore().getNomeCompleto());
             image.setL5(LocalDateTime.now().format(DF));
             imagesService.save(image);
-
             result.put("success", true);
             result.put("id", image.getId());
             result.put("path", image.getFullpath());
@@ -328,7 +340,6 @@ public class FileManagerController {
             result.put("success", false);
             result.put("error", e.getMessage());
         }
-
         return result;
     }
 
@@ -365,7 +376,6 @@ public class FileManagerController {
                 ko++;
             }
         }
-
         result.put("success", true);
         result.put("uploaded", ok);
         result.put("errors", ko);
@@ -396,14 +406,12 @@ public class FileManagerController {
     }
 
     // =====================================================================
-    // FORM ALLEGATO — aperto in popup
+    // FORM ALLEGATO — aperto nella modal
     // =====================================================================
 
-    @GetMapping("/files/new")
+    @GetMapping("/files/new/{idfolder}")
     public String newAllegato(
-            @RequestParam(value = "idfolder", defaultValue = "1") String idFolder,
-            @RequestParam(value = "docid", defaultValue = "0") String docId,
-            @RequestParam(value = "sorgente", defaultValue = "") String sorgente,
+            @PathVariable String idfolder,
             HttpServletRequest request, Model model) {
 
         HttpSession session = request.getSession();
@@ -411,24 +419,21 @@ public class FileManagerController {
         if (!config.isLogged()) return "redirect:/login";
 
         Allegato allegato = new Allegato();
-        allegato.setIdDocAllegati(docId);
-        allegato.setIdFolder(Integer.parseInt(idFolder));
+        allegato.setIdDocAllegati("0");
+        allegato.setIdFolder(Integer.parseInt(idfolder));
 
-        List<Folder> folders = folderService.getAllFolders();
         model.addAttribute("allegato", allegato);
-        model.addAttribute("folders", folders);
-        model.addAttribute("currentFolder", idFolder);
-        model.addAttribute("sorgente", sorgente);
+        model.addAttribute("folders", folderService.getAllFolders());
+        model.addAttribute("currentFolder", idfolder);
+        model.addAttribute("sorgente", "");
         model.addAttribute("config", config);
-
         return ViewUtils.resolveProtectedTemplate("filemanager/allegato");
     }
 
-    @GetMapping("/files/{id}/edit")
+    @GetMapping("/files/{id}/edit/{idfolder}")
     public String editAllegato(
             @PathVariable Integer id,
-            @RequestParam(value = "idfolder", defaultValue = "1") String idFolder,
-            @RequestParam(value = "sorgente", defaultValue = "") String sorgente,
+            @PathVariable String idfolder,
             HttpServletRequest request, Model model) {
 
         HttpSession session = request.getSession();
@@ -437,16 +442,14 @@ public class FileManagerController {
 
         try {
             Allegato allegato = allegatoService.findById(id).orElseThrow();
-            List<Folder> folders = folderService.getAllFolders();
             model.addAttribute("allegato", allegato);
-            model.addAttribute("folders", folders);
-            model.addAttribute("currentFolder", idFolder);
-            model.addAttribute("sorgente", sorgente);
+            model.addAttribute("folders", folderService.getAllFolders());
+            model.addAttribute("currentFolder", idfolder);
+            model.addAttribute("sorgente", "");
             model.addAttribute("config", config);
         } catch (Exception e) {
             log.error("Errore editAllegato id={}", id, e);
         }
-
         return ViewUtils.resolveProtectedTemplate("filemanager/allegato");
     }
 
@@ -513,7 +516,6 @@ public class FileManagerController {
             result.put("success", false);
             result.put("error", e.getMessage());
         }
-
         return result;
     }
 
@@ -585,7 +587,7 @@ public class FileManagerController {
             allegatoService.scollegaAllegato(idDocAllegati);
             return ResponseEntity.ok("OK");
         } catch (Exception e) {
-            log.error("Errore scollega allegato idDocAllegati={}", idDocAllegati, e);
+            log.error("Errore scollega allegato id={}", idDocAllegati, e);
             return ResponseEntity.internalServerError().body("KO");
         }
     }
@@ -594,9 +596,9 @@ public class FileManagerController {
     // GESTIONE FOLDER
     // =====================================================================
 
-    @GetMapping("/folder/new")
+    @GetMapping("/folder/new/{idfolder}")
     public String newFolderForm(
-            @RequestParam(value = "idfolder", defaultValue = "1") String idFolder,
+            @PathVariable String idfolder,
             HttpServletRequest request, Model model) {
 
         HttpSession session = request.getSession();
@@ -604,28 +606,10 @@ public class FileManagerController {
         if (!config.isLogged()) return "redirect:/login";
 
         Folder folder = new Folder();
-        folder.setIdfolder(idFolder);
+        folder.setIdfolder(idfolder);
         model.addAttribute("folder", folder);
         model.addAttribute("config", config);
         return ViewUtils.resolveProtectedTemplate("filemanager/folder");
-    }
-
-    // Nuova cartella con path variable
-    @GetMapping("/folder/new/{idfolder}")
-    public String newFolderFormByPath(
-            @PathVariable String idfolder,
-            HttpServletRequest request, Model model) {
-        return newFolderForm(idfolder, request, model);
-    }
-
-    // Nuovo allegato con path variable
-    @GetMapping("/files/new/{idfolder}")
-    public String newAllegatoByPath(
-            @PathVariable String idfolder,
-            @RequestParam(value = "docid", defaultValue = "0") String docId,
-            @RequestParam(value = "sorgente", defaultValue = "") String sorgente,
-            HttpServletRequest request, Model model) {
-        return newAllegato(idfolder, docId, sorgente, request, model);
     }
 
     @GetMapping("/folder/{id}/edit")
@@ -671,38 +655,26 @@ public class FileManagerController {
         } catch (Exception e) {
             log.error("Errore saveFolder", e);
         }
-
-        return "redirect:/admin/filemanager/images/" + idFolder;
+        return "redirect:/admin/filemanager/" + idFolder;
     }
 
-    @PostMapping("/folder/new")
+    @PostMapping("/folder/{id}/delete")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> newFolderAjax(
-            @RequestParam("nome") String nome,
-            @RequestParam(value = "idfolder", defaultValue = "1") String idFolder,
+    public ResponseEntity<String> deleteFolder(
+            @PathVariable Integer id,
             HttpServletRequest request) {
 
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
-        Map<String, Object> result = new HashMap<>();
-
-        if (!config.isLogged()) {
-            result.put("success", false);
-            return ResponseEntity.status(401).body(result);
-        }
+        if (!config.isLogged()) return ResponseEntity.status(401).body("KO");
 
         try {
-            Folder folder = folderService.createFolder(nome, idFolder, "");
-            result.put("success", true);
-            result.put("id", folder.getId());
-            result.put("nome", folder.getNome());
+            folderService.deleteFolder(id);
+            return ResponseEntity.ok("OK");
         } catch (Exception e) {
-            log.error("Errore creazione folder", e);
-            result.put("success", false);
-            result.put("error", e.getMessage());
+            log.error("Errore eliminazione folder id={}", id, e);
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
-
-        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/folder/{id}/rename")
@@ -722,25 +694,6 @@ public class FileManagerController {
         } catch (Exception e) {
             log.error("Errore rinomina folder id={}", id, e);
             return ResponseEntity.internalServerError().body("KO");
-        }
-    }
-
-    @PostMapping("/folder/{id}/delete")
-    @ResponseBody
-    public ResponseEntity<String> deleteFolder(
-            @PathVariable Integer id,
-            HttpServletRequest request) {
-
-        HttpSession session = request.getSession();
-        Configurazione config = configurazioneService.getConfig(session);
-        if (!config.isLogged()) return ResponseEntity.status(401).body("KO");
-
-        try {
-            folderService.deleteFolder(id);
-            return ResponseEntity.ok("OK");
-        } catch (Exception e) {
-            log.error("Errore eliminazione folder id={}", id, e);
-            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
@@ -792,11 +745,10 @@ public class FileManagerController {
             result.put("success", true);
             result.put("path", "imageProfile/pfImage" + idUtente + ".jpg");
         } catch (Exception e) {
-            log.error("Errore upload avatar utente id={}", idUtente, e);
+            log.error("Errore upload avatar id={}", idUtente, e);
             result.put("success", false);
             result.put("error", e.getMessage());
         }
-
         return ResponseEntity.ok(result);
     }
 

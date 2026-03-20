@@ -641,7 +641,10 @@ function selezionaTutto() {
 
 function cancellaSelezionati() {
     var checked = document.querySelectorAll('.inpt_c1:checked');
-    if (checked.length === 0) return;
+    if (checked.length === 0) {
+        showToast('Attenzione', 'Selezionare almeno un elemento', 'danger');
+        return;
+    }
     confirmAction('Eliminare i ' + checked.length + ' elementi selezionati?', function() {
         var promises = [];
         checked.forEach(function(cb) {
@@ -690,7 +693,7 @@ function cancellaAllegato(id) {
 
 window.ricaricaLibreria = function(idfolder) {
     var folder = idfolder || (typeof currentFolder !== 'undefined' ? currentFolder : '1');
-    window.location.href = '/admin/filemanager/images/' + folder;
+    window.location.href = '/admin/filemanager/' + folder;
 };
 
 document.addEventListener('change', function(e) {
@@ -713,3 +716,50 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+function filtraGriglia(tipo) {
+    // Toggle: se già attivo, mostra tutto
+    var card = document.getElementById('filterCard-' + tipo);
+    var isActive = card && card.classList.contains('filter-active');
+
+    // Reset tutte le card
+    ['allegato', 'immagine', 'folder'].forEach(function(t) {
+        var c = document.getElementById('filterCard-' + t);
+        if (c) c.classList.remove('filter-active');
+    });
+
+    if (isActive) {
+        // Deseleziona — mostra tutto
+        document.querySelectorAll('[data-tipo]').forEach(function(el) {
+            el.style.display = '';
+        });
+        return;
+    }
+
+    // Attiva filtro
+    if (card) card.classList.add('filter-active');
+
+    document.querySelectorAll('[data-tipo]').forEach(function(el) {
+        el.style.display = el.getAttribute('data-tipo') === tipo ? '' : 'none';
+    });
+
+}
+
+function RimuoviTutteImmagine() {
+    confirmAction("Sei sicuro di voler rimuovere tutte le immagini associate?", function() {
+        // 1. Svuota il contenitore visivo (il div con le anteprime)
+        const divGallery = document.getElementById('divgallery');
+        if (divGallery) {
+            divGallery.innerHTML = '';
+        }
+
+        // 2. Svuota il campo nascosto che salva i dati nel DB
+        const inputGallery = document.getElementById('galleryString');
+        if (inputGallery) {
+            inputGallery.value = '';
+        }
+
+        // 3. Notifica opzionale per l'utente
+        console.log("Galleria svuotata. Ricordati di cliccare su Salva per confermare.");
+    });
+}

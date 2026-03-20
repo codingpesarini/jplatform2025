@@ -239,6 +239,9 @@
 
                         <!-- TAB 03 — CONTENUTO -->
                         <div id="tab_03" class="tab-pane" role="tabpanel">
+                            <style>
+                                #tab_03 .tox-tinymce { height: calc(100vh - 280px) !important; min-height: 500px; }
+                            </style>
                             <div class="row form-group">
                                 <div class="col-lg-12">
                                     <label class="col-form-label" for="testo">Contenuto pagine
@@ -263,18 +266,19 @@
                                 </div>
 
                                 <div class="col-lg-6 text-right">
-                                    <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
-                                            onclick="return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:900,height:700,src:'/admin/medialibrary/images'})">
+                                    <br>
+                                    <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
+                                            onclick="FileManager.apriForm('/admin/filemanager/popup/1/immagini','Media Library Immagini')">
                                         <i class="fas fa-images"></i> Media Library
                                     </button>
-
-                                    <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
-                                            onclick="return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:600,height:500,src:'/admin/immagini/new?metodo=tutti&sorgente=galleryDiretto&idfolder=1'})">
+                                    <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
+                                            onclick="FileManager.apriForm('/admin/filemanager/images/new/1','Carica immagine')">
                                         <i class="fas fa-upload"></i> Carica immagine
                                     </button>
 
-                                    <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
-                                            onclick="RimuoviTutteImmagine()">
+                                    <button type="button"
+                                            class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
+                                            onclick="RimuoviTutteImmagine();">
                                         <i class="fas fa-trash-alt"></i> Cancella tutte
                                     </button>
                                 </div>
@@ -310,21 +314,15 @@
                                 </div>
 
                                 <div class="col-lg-6 text-right">
-                                    <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
-                                            onclick="return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:900,height:700,src:'/admin/medialibrary/files'})">
+                                    <br>
+                                    <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
+                                            onclick="FileManager.apriForm('/admin/filemanager/popup/1/allegati','Media Library Documenti')">
                                         <i class="fas fa-images"></i> Media Library
                                     </button>
-
-                                    <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
+                                    <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
                                             th:data-docid="${post.id}"
-                                            onclick="var id=this.getAttribute('data-docid'); return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:600,height:500,src:'/admin/allegati/new?metodo=all&sorgente=galleryDiretto&idfolder=1&docid='+id})">
+                                            onclick="FileManager.apriForm('/admin/filemanager/files/new/1','Carica allegato')">
                                         <i class="fas fa-file-upload"></i> Carica allegato
-                                    </button>
-
-                                    <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
-                                            th:data-docid="${post.id}"
-                                            onclick="var id=this.getAttribute('data-docid'); return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:480,height:360,src:'/filemanager/UploadScanner/upload?docid='+id+'&table=allegati&sorgente=galleryDiretto'})">
-                                        <i class="fas fa-file-import"></i> Scansiona
                                     </button>
                                 </div>
                             </div>
@@ -423,7 +421,9 @@
                         <!-- TAB 07 — ALTRO -->
                         <div id="tab_07" class="tab-pane" role="tabpanel">
                             <div class="row form-group">
-                                <th:block th:each="i : ${#numbers.sequence(1, 10)}">
+
+                                <!-- Usa text6..text10 che non collidono con text1..text5 del tab_02 -->
+                                <th:block th:each="i : ${#numbers.sequence(7, 10)}">
                                     <div class="col-lg-6 mb-3">
                                         <div class="form-group">
                                             <label class="col-form-label" th:for="|text${i}|">
@@ -434,11 +434,30 @@
                                             </label>
                                             <textarea th:name="|text${i}|"
                                                       th:id="|text${i}|"
-                                                      class="tinymce5minimal form-control"
+                                                      class="form-control"
                                                       th:text="${post.__${'text' + i}__}"></textarea>
                                         </div>
                                     </div>
                                 </th:block>
+
+                                <!-- Poi varchar2..varchar10 -->
+                                <th:block th:each="i : ${#numbers.sequence(2, 7)}">
+                                    <div class="col-lg-6 mb-3">
+                                        <div class="form-group">
+                                            <label class="col-form-label" th:for="|varchar${i}|">
+                                                <span th:text="|varchar${i}|">varcharN</span>
+                                                <a href="javascript:void(0)"
+                                                   th:data-field="|varchar${i}|"
+                                                   onclick="toggleEditor(this.getAttribute('data-field'));">Editor</a>
+                                            </label>
+                                            <textarea th:name="|varchar${i}|"
+                                                      th:id="|varchar${i}|"
+                                                      class="form-control"
+                                                      th:text="${post.__${'varchar' + i}__}"></textarea>
+                                        </div>
+                                    </div>
+                                </th:block>
+
                             </div>
                         </div>
 

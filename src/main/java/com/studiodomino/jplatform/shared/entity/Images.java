@@ -28,7 +28,7 @@ public class Images implements Serializable {
      * ID temporaneo per upload in corso
      */
     @Column(name = "tmpid")
-    private String tmpid;
+    private String tmpid = "";
 
     /**
      * ID della cartella contenitore

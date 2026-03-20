@@ -118,8 +118,8 @@
                   </select>
                 </div>
                 <div class="col-lg-3">
-                  <label for="id_type" class="col-form-label">Categoria documento</label>
-                  <select name="id_type" id="id_type" class="form-control obbligatorio">
+                  <label for="idType" class="col-form-label">Categoria documento</label>
+                  <select name="idType" id="idType" class="form-control obbligatorio">
                     <option value="">----- Seleziona tipologia sezione -----</option>
                     <option th:each="type : ${sectionTypes}"
                             th:value="${type.id}"
@@ -314,15 +314,15 @@
                   <small class="form-text text-muted">Le immagini possono essere spostate e riordinate.</small>
                 </div>
                 <div class="col-lg-6 text-right">
-                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
-                          onclick="return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:900,height:700,src:'/admin/medialibrary/images'})">
+                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
+                          onclick="FileManager.apriForm('/admin/filemanager/popup/1/immagini','Media Library Immagini')">
                     <i class="fas fa-images"></i> Media Library
                   </button>
-                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
-                          onclick="return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:600,height:500,src:'/admin/immagini/new?metodo=tutti&sorgente=galleryDiretto&idfolder=1'})">
+                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
+                          onclick="FileManager.apriForm('/admin/filemanager/images/new/1','Carica immagine')">
                     <i class="fas fa-upload"></i> Carica immagine
                   </button>
-                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
+                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
                           onclick="RimuoviTutteImmagine()">
                     <i class="fas fa-trash-alt"></i> Cancella tutte
                   </button>
@@ -353,19 +353,15 @@
                   <small class="form-text text-muted">Gli allegati possono essere spostati e riordinati.</small>
                 </div>
                 <div class="col-lg-6 text-right">
-                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
-                          onclick="return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:900,height:700,src:'/admin/medialibrary/files'})">
+                  <br>
+                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
+                          onclick="FileManager.apriForm('/admin/filemanager/popup/1/allegati','Media Library Documenti')">
                     <i class="fas fa-images"></i> Media Library
                   </button>
-                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
+                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
                           th:data-docid="${section.id}"
-                          onclick="var id=this.getAttribute('data-docid'); return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:600,height:500,src:'/admin/allegati/new?metodo=all&sorgente=galleryDiretto&idfolder=1&docid='+id})">
+                          onclick="FileManager.apriForm('/admin/filemanager/files/new/1','Carica allegato')">
                     <i class="fas fa-file-upload"></i> Carica allegato
-                  </button>
-                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
-                          th:data-docid="${section.id}"
-                          onclick="var id=this.getAttribute('data-docid'); return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:480,height:360,src:'/filemanager/UploadScanner/upload?docid='+id+'&table=allegati&sorgente=galleryDiretto'})">
-                    <i class="fas fa-file-import"></i> Scansiona
                   </button>
                 </div>
               </div>
@@ -633,26 +629,39 @@
     <input type="hidden" name="numeratore4" th:value="${section.numeratore4}">
     <input type="hidden" name="numeratore5" th:value="${section.numeratore5}">
 
+    <input type="hidden" name="creato" th:value="${section.creato}">
+    <input type="hidden" name="creatoDa" th:value="${section.creatoDa}">
+    <input type="hidden" name="modificatoDa" th:value="${section.modificatoDa}">
+    <input type="hidden" name="modificato" th:value="${section.modificato}">
+
   </form>
+
+  <div class="mt-2">
+    <a class="text-muted"
+       data-bs-toggle="collapse"
+       href="#infoTecniche"
+       role="button"
+       aria-expanded="false"
+       style="text-decoration: none; font-size: 0.75rem; cursor: pointer;">
+      Mostra dettagli tecnici
+    </a>
+
+    <div class="collapse" id="infoTecniche">
+      <div class="mt-2 p-2" style="font-size: 0.8rem; background-color: #fcfcfc;">
+        <div class="text-muted">
+          <span class="mr-2"><strong>ID:</strong> [[${section.id}]]</span>
+          <span class="mr-2">| <strong>Num:</strong> [[${section.numeratore1}]]</span>
+          <span class="mr-2">| <strong>URL:</strong> [[${section.url}]]</span>
+          <span class="mr-2">| <strong>Creato:</strong> [[${section.creatoDa}]] ([[${section.creato}]])</span>
+          <span>| <strong>Modifica:</strong> [[${section.modificatoDa}]] ([[${section.modificato}]])</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script th:inline="javascript">
 
-    // ── AGGIUNTE: funzioni chiamate ma non definite qui ─────────────────────
-
-    function InviaForm(formId) {
-        var $form = $('#' + formId);
-        if ($form[0].checkValidity() === false) {
-            $form.addClass('was-validated');
-            new PNotify({
-                title: 'Attenzione!',
-                text: 'Alcuni campi obbligatori del modulo richiedono un tuo intervento!',
-                type: 'error'
-            });
-            return false;
-        }
-        $form.addClass('was-validated');
-        $form[0].submit();
-    }
+    // ── AGGIUNTE ────────────────────────────────────────────────────────────
 
     function AttivaDataPubblicazione() {
         if ($('#s3').val() === '1') {
@@ -680,17 +689,37 @@
         }
     }
 
-    // ── INVARIATO: tutto il tuo codice originale ────────────────────────────
+    // ── INVARIATO ───────────────────────────────────────────────────────────
+
+    function InviaForm() {
+        const $form = $("#sezione");
+
+        if ($form[0].checkValidity() === false) {
+            if (typeof PNotify !== 'undefined') {
+                new PNotify({
+                    title: 'Attenzione!',
+                    text: 'Alcuni campi obbligatori richiedono un tuo intervento!',
+                    type: 'error',
+                    styling: 'bootstrap3'
+                });
+            }
+            $form.addClass('was-validated');
+            return false;
+        }
+
+        $form.addClass('was-validated');
+        document.sezione.submit();
+    }
 
     function AttivaAutorizzazioniUtente() {
-        const tipoVisibilita = $('#privato').val();
+        const valore = $('#privato').val();
         const $divGruppi = $('#GruppiAbilitati');
         const $divPersonalizzati = $('#PermessiPersonalizzati');
 
-        if (tipoVisibilita === "1") {
+        if (valore === "1") {
             $divGruppi.fadeIn().css('display', 'flex');
             $divPersonalizzati.hide();
-        } else if (tipoVisibilita === "2") {
+        } else if (valore === "2") {
             $divGruppi.hide();
             $divPersonalizzati.fadeIn().css('display', 'flex');
         } else {
@@ -700,16 +729,18 @@
     }
 
     function RimuoviUtenteAssociato(id) {
-        let $inputHidden = $('#utentiAssociatiString');
-        let valoreAttuale = $inputHidden.val();
-        valoreAttuale = valoreAttuale.replace('(' + id + ');', '');
-        $inputHidden.val(valoreAttuale);
-        $('#' + id + ', #user-badge-' + id).fadeOut(300, function() {
+        const $input = $("#utentiAssociatiString");
+        let stringa = $input.val();
+        const ids = "(" + id + ");";
+
+        $input.val(stringa.replace(ids, ""));
+
+        $("#" + id + ", #user-badge-" + id).fadeOut(300, function() {
             $(this).remove();
         });
     }
 
-    $(document).ready(function () {
+    $(document).ready(function() {
         AttivaAutorizzazioniUtente();
 
         // AGGIUNTA: chiamate dirette ora che le funzioni sono definite sopra
@@ -717,17 +748,15 @@
         AttivaLinkEsterno();
         AttivaExtraTag();
 
-        // AGGIUNTA: binding on change (prima reagivano solo all'avvio)
+        // AGGIUNTA: binding on change
         $('#privato').on('change', AttivaAutorizzazioniUtente);
         $('#s3').on('change', AttivaDataPubblicazione);
         $('#menu2').on('change', AttivaLinkEsterno);
         $('#regolaExtraTag1').on('change', AttivaExtraTag);
 
-        $('#EreditaExtraTag').on('click', function (e) {
+        $("#EreditaExtraTag").on('click', function(e) {
             e.preventDefault();
-            if (typeof ApplicaExtraTagContenuti === "function") {
-                ApplicaExtraTagContenuti();
-            }
+            if (typeof ApplicaExtraTagContenuti === "function") ApplicaExtraTagContenuti();
             return false;
         });
 
@@ -739,21 +768,27 @@
 
             $form.on('beforeSave.autoSaveForm', function () {
                 if ($("#autosave").prop("checked") === false) return false;
-                $statusHolder.html('<small class="text-primary"><i class="fas fa-sync fa-spin"></i> Salvataggio automatico...</small>');
+
+                if ($form[0].checkValidity() === false) {
+                    $statusHolder.html('<small class="text-danger">Salvataggio bloccato: campi obbligatori mancanti</small>');
+                    return false;
+                }
+
+                $statusHolder.html('<span class="text-primary small"><i class="fas fa-sync fa-spin me-1"></i> Salvataggio automatico in corso...</span>');
             });
 
             $form.on('saveError.autoSaveForm', function () {
-                $statusHolder.html('<small class="text-danger"><i class="fas fa-exclamation-circle"></i> Errore salvataggio</small>');
+                $statusHolder.html('<span class="text-danger small"><i class="fas fa-exclamation-triangle me-1"></i> Errore nel salvataggio.</span>');
             });
 
             $form.on('saveSuccess.autoSaveForm', function () {
-                const ora = new Date().toLocaleTimeString();
-                $statusHolder.html('<small class="text-success"><i class="fas fa-check"></i> Sincronizzato alle ' + ora + '</small>');
+                const d = new Date();
+                const ora = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                $statusHolder.html('<span class="text-success small"><i class="fas fa-check-circle me-1"></i> Sincronizzato alle ' + ora + '</span>');
             });
         }
     });
   </script>
-
 </th:block>
 </body>
 </html>

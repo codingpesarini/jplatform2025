@@ -344,16 +344,19 @@
                   <small class="form-text text-muted">Le immagini possono essere spostate e riordinate.</small>
                 </div>
                 <div class="col-lg-6 text-right">
-                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
-                          onclick="return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:900,height:700,src:'/admin/medialibrary/images'})">
+                  <br>
+                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
+                          onclick="FileManager.apriForm('/admin/filemanager/popup/1/immagini','Media Library Immagini')">
                     <i class="fas fa-images"></i> Media Library
                   </button>
-                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
-                          onclick="return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:600,height:500,src:'/admin/immagini/new?metodo=tutti&sorgente=galleryDiretto&idfolder=1'})">
+                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
+                          onclick="FileManager.apriForm('/admin/filemanager/images/new/1','Carica immagine')">
                     <i class="fas fa-upload"></i> Carica immagine
                   </button>
-                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
-                          onclick="RimuoviTutteImmagine()">
+
+                  <button type="button"
+                          class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
+                          onclick="RimuoviTutteImmagine();">
                     <i class="fas fa-trash-alt"></i> Cancella tutte
                   </button>
                 </div>
@@ -390,19 +393,15 @@
                   <small class="form-text text-muted">Gli allegati possono essere spostati e riordinati.</small>
                 </div>
                 <div class="col-lg-6 text-right">
-                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
-                          onclick="return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:900,height:700,src:'/admin/medialibrary/files'})">
+                  <br>
+                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
+                          onclick="FileManager.apriForm('/admin/filemanager/popup/1/allegati','Media Library Documenti')">
                     <i class="fas fa-images"></i> Media Library
                   </button>
-                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
+                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
                           th:data-docid="${section.id}"
-                          onclick="var id=this.getAttribute('data-docid'); return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:700,height:500,src:'/admin/allegati/gestione?docid='+id});">
-                    <i class="fas fa-file-upload"></i> Gestisci Allegati
-                  </button>
-                  <button type="button" class="mb-1 mt-1 mr-1 btn btn-xs btn-primary"
-                          th:data-docid="${section.id}"
-                          onclick="var id=this.getAttribute('data-docid'); return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:480,height:360,src:'/filemanager/UploadScanner/upload?docid='+id+'&table=allegati&sorgente=galleryDiretto'});">
-                    <i class="fas fa-file-import"></i> Scansiona
+                          onclick="FileManager.apriForm('/admin/filemanager/files/new/1','Carica allegato')">
+                    <i class="fas fa-file-upload"></i> Carica allegato
                   </button>
                 </div>
               </div>
@@ -701,7 +700,35 @@
     <input type="hidden" name="numeratore4" th:value="${section.numeratore4}">
     <input type="hidden" name="numeratore5" th:value="${section.numeratore5}">
 
+    <input type="hidden" name="creato" th:value="${section.creato}">
+    <input type="hidden" name="creatoDa" th:value="${section.creatoDa}">
+    <input type="hidden" name="modificatoDa" th:value="${section.modificatoDa}">
+    <input type="hidden" name="modificato" th:value="${section.modificato}">
+
   </form>
+
+  <div class="mt-2">
+    <a class="text-muted"
+       data-bs-toggle="collapse"
+       href="#infoTecniche"
+       role="button"
+       aria-expanded="false"
+       style="text-decoration: none; font-size: 0.75rem; cursor: pointer;">
+      Mostra dettagli tecnici
+    </a>
+
+    <div class="collapse" id="infoTecniche">
+      <div class="mt-2 p-2" style="font-size: 0.8rem; background-color: #fcfcfc;">
+        <div class="text-muted">
+          <span class="mr-2"><strong>ID:</strong> [[${section.id}]]</span>
+          <span class="mr-2">| <strong>Num:</strong> [[${section.numeratore1}]]</span>
+          <span class="mr-2">| <strong>URL:</strong> [[${section.url}]]</span>
+          <span class="mr-2">| <strong>Creato:</strong> [[${section.creatoDa}]] ([[${section.creato}]])</span>
+          <span>| <strong>Modifica:</strong> [[${section.modificatoDa}]] ([[${section.modificato}]])</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
     /**

@@ -114,7 +114,7 @@
                 <!-- CMS Media Library - autorizzazione 3 -->
                 <li class="pc-item" id="sb04"
                     th:if="${config?.amministratore?.hasRole(3)}">
-                    <a th:href="@{/admin/filemanager/images}" class="pc-link">
+                    <a th:href="@{/admin/filemanager}" class="pc-link">
                         <span class="pc-micon">
                             <svg class="pc-icon"><use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-camera|}"></use></svg>
                         </span>
