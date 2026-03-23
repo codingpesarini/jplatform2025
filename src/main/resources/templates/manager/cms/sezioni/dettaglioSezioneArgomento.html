@@ -79,20 +79,6 @@
 
             <!-- TAB 01 -->
             <div id="tab_01" class="tab-pane active">
-              <p>
-                ID:<span th:text="${section.id}">0</span>
-                | Numero associato: <span th:text="${section.numeratore1}">0</span>
-                | URL: <span th:text="${section.url}">/</span><br />
-                Creato da:<span th:text="${section.creatoDa}">-</span>
-                (<span th:text="${section.creato}">-</span>)
-                | Ultima modifica: <span th:text="${section.modificatoDa}">-</span>
-                (<span th:text="${section.modificato}">-</span>)
-              </p>
-
-              <input type="hidden" name="creato" th:value="${section.creato}">
-              <input type="hidden" name="creatoDa" th:value="${section.creatoDa}">
-              <input type="hidden" name="modificatoDa" th:value="${section.modificatoDa}">
-              <input type="hidden" name="modificato" th:value="${section.modificato}">
 
               <div class="row form-group">
                 <div class="col-lg-6">
@@ -478,7 +464,7 @@
             </div>
 
             <!-- TAB 06 -->
-            <div id="tab_06" class="tab-pane">
+            <div id="tab_06" class="tab-pane" role="tabpanel">
               <div class="row form-group">
                 <div class="col-lg-6">
                   <label for="privato" class="col-form-label">Sezione privata</label>
@@ -492,11 +478,10 @@
                 </div>
               </div>
 
-              <div class="row form-group" id="GruppiAbilitati">
-                <div class="col-lg-3">
+              <div class="row mb-4 animate__animated animate__fadeIn" id="GruppiAbilitati" th:style="${section.privato == '1' ? 'display:flex' : 'display:none'}">
+                <div class="col-lg-4">
                   <label for="idgruppi" class="col-form-label">Gruppi associati</label>
-                  <select name="idgruppi" id="idgruppi" multiple="multiple" size="5"
-                          class="form-control obbligatorio">
+                  <select name="idgruppi" id="idgruppi" multiple size="5" class="form-select shadow-sm obbligatorio">
                     <option value="0">Standard</option>
                     <option th:each="gruppo : ${config.gruppi}"
                             th:value="${gruppo.id}"
@@ -504,42 +489,42 @@
                             th:selected="${section.idgruppi != null and #strings.contains(section.idgruppi, gruppo.id)}">
                     </option>
                   </select>
+                  <small class="text-muted">Selezione multipla con CTRL (Windows) o CMD (Mac)</small>
                 </div>
 
-                <div class="col-lg-6">
-                  <p>Selezionare i gruppi che avranno il permesso di accedere alla sezione ed ai documenti associati. Seleziona multipla utilizzando il tasto Maiusc</p>
+                <div class="col-lg-8">
+                  <div class="alert alert-light border-start border-primary border-4 h-100 d-flex align-items-center">
+                    <p class="mb-0 small text-muted">
+                      Selezionare i gruppi che avranno il permesso di accedere alla sezione ed ai documenti associati.
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              <div class="row form-group" id="PermessiPesonalizzati">
-                <div class="col-lg-3">
-                  <label for="cognomePermessoPrivato" class="col-form-label">Cerca utente da inserire nelle autorizzazioni</label>
-                  <input name="cognomePermessoPrivato" id="cognomePermessoPrivato" type="text" class="form-control">
-                  <input type="hidden" name="utentiAssociatiString" id="utentiAssociatiString"
-                         th:value="${section.utentiAssociatiString}">
-                </div>
-
-                <div class="col-lg-6">
-                  <div id="utenti" style="overflow:auto; height:100px;">
-                    <div th:each="utenteAssociato : ${section.utentiAssociati}"
-                         th:attr="id=${utenteAssociato.id}">
-                      <img src="/manager/assets/img/icons/trashcan_gray.png"
-                           alt="Rimuovi utente"
-                           title="Rimuovi utente"
-                           width="15" height="15" align="absmiddle"
-                           th:onclick="|javascript:RimuoviUtenteAssociato('${utenteAssociato.id}');|">
-                      <span th:text="${utenteAssociato.nome}">Nome</span>
-                      <span th:text="${utenteAssociato.cognome}">Cognome</span>
+              <div class="row mb-4 animate__animated animate__fadeIn" id="PermessiPersonalizzati" th:style="${section.privato == '2' ? 'display:flex' : 'display:none'}">
+                <div class="col-lg-12">
+                  <div class="card bg-light">
+                    <div class="card-body">
+                      <label for="cognomePermessoPrivato" class="form-label fw-bold">Cerca utente da inserire nelle autorizzazioni</label>
+                      <div class="input-group mb-3">
+                        <input name="cognomePermessoPrivato" id="cognomePermessoPrivato" type="text" class="form-control js-autocomplete" data-url="/admin/crm/utenti/search" placeholder="Inizia a digitare il cognome...">
+                        <input type="hidden" name="utentiAssociatiString" id="utentiAssociatiString"
+                               th:value="${section.utentiAssociatiString}">
+                      </div>
+                      <div id="utenti" class="border rounded bg-white p-2" style="overflow:auto;height:100px;">
+                        <div th:each="u : ${section.utentiAssociati}" th:id="'user-badge-' + ${u.id}" class="badge bg-secondary m-1 p-2 d-inline-flex align-items-center">
+                          <span th:text="${u.nome + ' ' + u.cognome}">Nome Cognome</span>
+                          <i class="fas fa-times ms-2 cursor-pointer" th:onclick="'RimuoviUtenteAssociato(' + ${u.id} + ')'" title="Rimuovi"></i>
+                        </div>
+                      </div>
+                      <div class="form-text mt-2">Ricercare gli utenti che saranno autorizzati singolarmente ad accedere alla sezione.</div>
                     </div>
                   </div>
                 </div>
-
-                <div class="col-lg-3">
-                  <p>Ricercare gli utenti che saranno autorizzati singolarmente ad accedere alla sezione ed ai documenti associati.</p>
-                </div>
               </div>
+              <hr class="my-4">
 
-              <div class="row form-group">
+              <div class="row g-3">
                 <div class="col-lg-3">
                   <label for="info2" class="col-form-label">Form contatti</label>
                   <select name="info2" id="info2" class="form-control">

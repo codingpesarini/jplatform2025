@@ -502,76 +502,82 @@ $(document).ready(function() {
             qr.style.display = "";
         }
     };
+});
 
-    // -------------------------------------------------------
-    // Autocomplete Universale (CRM, Anagrafiche, ecc.)
-    // -------------------------------------------------------
-    // -------------------------------------------------------
-        // Autocomplete Universale (CRM, Anagrafiche, ecc.)
-        // -------------------------------------------------------
-       // -------------------------------------------------------
-       // Autocomplete Lead - Versione Definitiva
-       // -------------------------------------------------------
-   $(document).ready(function() {
-       var $ricerca = $('#ricercaUtenteNuovoLead');
+// -------------------------------------------------------
+// Autocomplete generico per .js-autocomplete
+// -------------------------------------------------------
+$('.js-autocomplete').each(function() {
+    var $input = $(this);
+    var url = $input.data('url');
+    if (!url) return;
 
-       if ($ricerca.length > 0) {
-           $ricerca.autocomplete({
-               source: function(request, response) {
-                   $.ajax({
-                       url: "/admin/crm/utenti/search",
-                       type: 'GET',
-                       dataType: 'json',
-                       data: { term: request.term },
-                       success: function(data) {
-                           if (!data || data.length === 0) { response([]); return; }
-                           var suggerimenti = $.map(data, function(item) {
-                               if (!item) return null;
-                               return {
-                                   label: [item.nome, item.cognome, item.email].filter(Boolean).join(" "),
-                                   value: [item.nome, item.cognome].filter(Boolean).join(" "),
-                                   obj: item
-                               };
-                           });
-                           response(suggerimenti.filter(Boolean));
-                       },
-                       error: function(xhr) {
-                           console.error("Errore:", xhr.status, xhr.responseText);
-                           response([]);
-                       }
-                   });
-               },
-               minLength: 2,
-               select: function(event, ui) {
-                   if (!ui || !ui.item || !ui.item.obj) return false;
-                   var d = ui.item.obj;
+    $input.autocomplete({
+        source: function(request, response) {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json',
+                data: { term: request.term },
+                success: function(data) {
+                    if (!data || data.length === 0) { response([]); return; }
+                    response($.map(data, function(item) {
+                        if (!item) return null;
+                        return {
+                            label: [item.nome, item.cognome, item.email].filter(Boolean).join(' '),
+                            value: [item.nome, item.cognome].filter(Boolean).join(' '),
+                            obj: item
+                        };
+                    }).filter(Boolean));
+                },
+                error: function() { response([]); }
+            });
+        },
+        minLength: 2,
+        select: function(event, ui) {
+            if (!ui || !ui.item || !ui.item.obj) return false;
+            var d = ui.item.obj;
 
-                   $("#idUtenteLead").val(d.id || '');
-                   $("#utenteid").val(d.id || '');
-                   $("#utentenome").val(d.nome || '');
-                   $("#utentecognome").val(d.cognome || '');
-                   $("#utenteemail").val(d.email || '');
-                   // telefono: prova prima telefono, poi telefono2
-                   $("#utentetelefono").val(d.telefono && d.telefono.trim() !== '' ? d.telefono : (d.telefono2 || ''));
+            // Caso CRM Lead
+            if ($('#idUtenteLead').length) {
+                $('#idUtenteLead').val(d.id || '');
+                $('#utenteid').val(d.id || '');
+                $('#utentenome').val(d.nome || '');
+                $('#utentecognome').val(d.cognome || '');
+                $('#utenteemail').val(d.email || '');
+                $('#utentetelefono').val(d.telefono && d.telefono.trim() !== '' ? d.telefono : (d.telefono2 || ''));
+                showToast('Caricato', 'Anagrafica di ' + (d.cognome || 'utente') + ' inserita.');
+                return false;
+            }
 
-                   showToast('Caricato', 'Anagrafica di ' + (d.cognome || 'utente') + ' inserita.');
-                   return false;
-               }
-           });
+            // Caso Sezione — aggiunge a utentiAssociatiString
+            var $hidden = $('#utentiAssociatiString');
+            if ($hidden.length) {
+                var id = d.id;
+                var nomeCompleto = [d.nome, d.cognome].filter(Boolean).join(' ');
+                if ($hidden.val().indexOf('(' + id + ');') === -1) {
+                    $hidden.val($hidden.val() + '(' + id + ');');
+                    $('#utenti').append(
+                        '<div id="user-badge-' + id + '" class="badge bg-secondary m-1 p-2 d-inline-flex align-items-center">' +
+                        '<span>' + nomeCompleto + '</span>' +
+                        '<i class="fas fa-times ms-2" style="cursor:pointer" onclick="RimuoviUtenteAssociato(' + id + ')" title="Rimuovi"></i>' +
+                        '</div>'
+                    );
+                    showToast('Aggiunto', nomeCompleto + ' aggiunto.');
+                }
+                $(this).val('');
+                return false;
+            }
 
-           $ricerca.data("ui-autocomplete")._renderItem = function(ul, item) {
-               return $("<li>")
-                   .append("<div style='color:#333!important;padding:10px;background:#fff;border-bottom:1px solid #ddd;cursor:pointer;'>" + item.label + "</div>")
-                   .appendTo(ul);
-           };
-       }
-   });
-    // ============================================================
-    // FILE MANAGER - Gestione centralizzata Modal
-    // ============================================================
-    // ============================================================
-    // FILE MANAGER - Gestione globale
-    // ============================================================
+            return false;
+        }
+    });
+
+    $input.data('ui-autocomplete')._renderItem = function(ul, item) {
+        return $('<li>').append(
+            "<div style='color:#333!important;padding:10px;background:#fff;border-bottom:1px solid #ddd;cursor:pointer;'>" + item.label + "</div>"
+        ).appendTo(ul);
+    };
 });
 
 window.FileManager = {

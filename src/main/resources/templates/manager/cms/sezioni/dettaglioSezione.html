@@ -77,19 +77,6 @@
 
                         <!-- ═══ TAB 01 — DEFINIZIONE ═══ -->
                         <div id="tab_01" class="tab-pane active" role="tabpanel">
-                            <p>
-                                ID: <span th:text="${section.id}">0</span>
-                                | Numero associato: <span th:text="${section.numeratore1}">0</span>
-                                | URL: <span th:text="${section.url}">/</span><br/>
-                                Creato da: <span th:text="${section.creatoDa}">-</span>
-                                (<span th:text="${section.creato}">-</span>)
-                                | Ultima modifica: <span th:text="${section.modificatoDa}">-</span>
-                                (<span th:text="${section.modificato}">-</span>)
-                            </p>
-                            <input type="hidden" name="creato"       th:value="${section.creato}">
-                            <input type="hidden" name="creatoDa"     th:value="${section.creatoDa}">
-                            <input type="hidden" name="modificatoDa" th:value="${section.modificatoDa}">
-                            <input type="hidden" name="modificato"   th:value="${section.modificato}">
 
                             <div class="row form-group">
                                 <div class="col-lg-6">
@@ -411,7 +398,7 @@
                                         <div class="card-body">
                                             <label class="form-label fw-bold">Cerca utenti</label>
                                             <div class="input-group mb-3">
-                                                <input type="text" id="cognomePermessoPrivato" class="form-control" placeholder="Cerca per cognome...">
+                                                <input type="text" id="cognomePermessoPrivato" class="form-control js-autocomplete" data-url="/admin/crm/utenti/search" placeholder="Inizia a digitare il cognome...">
                                                 <button class="btn btn-outline-secondary" type="button">Cerca</button>
                                             </div>
                                             <div id="utenti_selezionati" class="border rounded p-2 bg-white" style="min-height: 80px;">

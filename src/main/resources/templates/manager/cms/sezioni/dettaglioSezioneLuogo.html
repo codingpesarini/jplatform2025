@@ -568,7 +568,7 @@
                     <div class="card-body">
                       <label for="cognomePermessoPrivato" class="form-label fw-bold">Cerca utente da inserire nelle autorizzazioni</label>
                       <div class="input-group mb-3">
-                        <input name="cognomePermessoPrivato" id="cognomePermessoPrivato" type="text" class="form-control" placeholder="Inizia a digitare il cognome...">
+                        <input name="cognomePermessoPrivato" id="cognomePermessoPrivato" type="text" class="form-control js-autocomplete" data-url="/admin/crm/utenti/search" placeholder="Inizia a digitare il cognome...">
                         <input type="hidden" name="utentiAssociatiString" id="utentiAssociatiString" th:value="${section.utentiAssociatiString}">
                       </div>
 

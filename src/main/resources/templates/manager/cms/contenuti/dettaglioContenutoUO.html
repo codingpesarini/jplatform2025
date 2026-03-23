@@ -65,20 +65,6 @@
 
             <!-- TAB 01 — DEFINIZIONE -->
             <div id="tab_01" class="tab-pane active" role="tabpanel">
-              <p>
-                ID: <span th:text="${post.id}">0</span>
-                | Numero associato: <span th:text="${post.numeratore1}">0</span>
-                | URL: <span th:text="${post.url}">/</span><br/>
-                Creato da: <span th:text="${post.creatoDa}">-</span>
-                (<span th:text="${post.creato}">-</span>)
-                | Ultima modifica: <span th:text="${post.modificatoDa}">-</span>
-                (<span th:text="${post.modificato}">-</span>)
-              </p>
-
-              <input type="hidden" name="creato"       th:value="${post.creato}">
-              <input type="hidden" name="creatoDa"     th:value="${post.creatoDa}">
-              <input type="hidden" name="modificatoDa" th:value="${post.modificatoDa}">
-              <input type="hidden" name="modificato"   th:value="${post.modificato}">
 
               <div class="row form-group">
                 <div class="col-lg-6">
@@ -138,7 +124,7 @@
                 </div>
               </div>
 
-              <div id="datePubblicazione" class="row form-group">
+              <div id="datePubblicazione" class="row form-group" style="display:none">
                 <div class="col-lg-2">
                   <label for="s1" class="col-form-label">Data inizio pubblicazione</label>
                   <input type="text" id="s1" name="s1"
@@ -553,16 +539,146 @@
     <input type="hidden" name="numeratore3" th:value="${post.numeratore3Long}">
     <input type="hidden" name="numeratore4" th:value="${post.numeratore4Long}">
     <input type="hidden" name="numeratore5" th:value="${post.numeratore5Long}">
+    <input type="hidden" name="creato"       th:value="${post.creato}">
+    <input type="hidden" name="creatoDa"     th:value="${post.creatoDa}">
+    <input type="hidden" name="modificatoDa" th:value="${post.modificatoDa}">
+    <input type="hidden" name="modificato"   th:value="${post.modificato}">
+
+    <div class="mt-2">
+      <a class="text-muted"
+         data-bs-toggle="collapse"
+         href="#infoTecniche"
+         role="button"
+         aria-expanded="false"
+         style="text-decoration: none; font-size: 0.75rem; cursor: pointer;">
+        Mostra dettagli tecnici
+      </a>
+
+      <div class="collapse" id="infoTecniche">
+        <div class="mt-2 p-2" style="font-size: 0.8rem; background-color: #fcfcfc;">
+          <div class="text-muted">
+            <span class="mr-2"><strong>ID:</strong> [[${post.id}]]</span>
+            <span class="mr-2">| <strong>Num:</strong> [[${post.numeratore1}]]</span>
+            <span class="mr-2">| <strong>URL:</strong> [[${post.url}]]</span>
+            <span class="mr-2">| <strong>Creato:</strong> [[${post.creatoDa}]] ([[${post.creato}]])</span>
+            <span>| <strong>Modifica:</strong> [[${post.modificatoDa}]] ([[${post.modificato}]])</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
   </form>
 
   <script th:inline="javascript">
-    $(document).ready(function () {
-      AttivaDataPubblicazione();
-      AttivaLinkEsterno();
-      AttivaAutorizzazioniUtente();
-      AttivaExtraTag();
-      $('#EreditaExtraTag').on('click', function () { ApplicaExtraTagContenuti(); return false; });
+
+    // ── AGGIUNTE ────────────────────────────────────────────────────────────
+
+    function AttivaDataPubblicazione() {
+        if ($('#s3').val() === '1') {
+            $('#datePubblicazione').slideDown();
+        } else {
+            $('#datePubblicazione').slideUp();
+        }
+    }
+
+    // ── INVARIATO ───────────────────────────────────────────────────────────
+
+    function InviaForm() {
+        const $form = $("#documento");
+
+        if ($form[0].checkValidity() === false) {
+            if (typeof PNotify !== 'undefined') {
+                new PNotify({
+                    title: 'Attenzione!',
+                    text: 'Alcuni campi obbligatori richiedono un tuo intervento!',
+                    type: 'error',
+                    styling: 'bootstrap3'
+                });
+            }
+            $form.addClass('was-validated');
+            return false;
+        }
+
+        $form.addClass('was-validated');
+        document.documento.submit();
+    }
+
+    function AttivaAutorizzazioniUtente() {
+        const valore = $('#privato').val();
+        const $divGruppi = $('#GruppiAbilitati');
+        const $divPersonalizzati = $('#PermessiPersonalizzati');
+
+        if (valore === "1") {
+            $divGruppi.fadeIn().css('display', 'flex');
+            $divPersonalizzati.hide();
+        } else if (valore === "2") {
+            $divGruppi.hide();
+            $divPersonalizzati.fadeIn().css('display', 'flex');
+        } else {
+            $divGruppi.hide();
+            $divPersonalizzati.hide();
+        }
+    }
+
+    function RimuoviUtenteAssociato(id) {
+        const $input = $("#utentiAssociatiString");
+        let stringa = $input.val();
+        const ids = "(" + id + ");";
+
+        $input.val(stringa.replace(ids, ""));
+
+        $("#" + id + ", #user-badge-" + id).fadeOut(300, function() {
+            $(this).remove();
+        });
+    }
+
+    $(document).ready(function() {
+        AttivaAutorizzazioniUtente();
+
+        // AGGIUNTA: chiamate dirette ora che le funzioni sono definite sopra
+        AttivaDataPubblicazione();
+        AttivaLinkEsterno();
+        AttivaExtraTag();
+
+        // AGGIUNTA: binding on change
+        $('#privato').on('change', AttivaAutorizzazioniUtente);
+        $('#s3').on('change', AttivaDataPubblicazione);
+        $('#menu2').on('change', AttivaLinkEsterno);
+        $('#regolaExtraTag1').on('change', AttivaExtraTag);
+
+        $("#EreditaExtraTag").on('click', function(e) {
+            e.preventDefault();
+            if (typeof ApplicaExtraTagContenuti === "function") ApplicaExtraTagContenuti();
+            return false;
+        });
+
+        const $form = $('#documento');
+        const $statusHolder = $('.notifyZone');
+
+        if (typeof $form.autoSaveForm === "function") {
+            $form.autoSaveForm();
+
+            $form.on('beforeSave.autoSaveForm', function () {
+                if ($("#autosave").prop("checked") === false) return false;
+
+                if ($form[0].checkValidity() === false) {
+                    $statusHolder.html('<small class="text-danger">Salvataggio bloccato: campi obbligatori mancanti</small>');
+                    return false;
+                }
+
+                $statusHolder.html('<span class="text-primary small"><i class="fas fa-sync fa-spin me-1"></i> Salvataggio automatico in corso...</span>');
+            });
+
+            $form.on('saveError.autoSaveForm', function () {
+                $statusHolder.html('<span class="text-danger small"><i class="fas fa-exclamation-triangle me-1"></i> Errore nel salvataggio.</span>');
+            });
+
+            $form.on('saveSuccess.autoSaveForm', function () {
+                const d = new Date();
+                const ora = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                $statusHolder.html('<span class="text-success small"><i class="fas fa-check-circle me-1"></i> Sincronizzato alle ' + ora + '</span>');
+            });
+        }
     });
   </script>
 
