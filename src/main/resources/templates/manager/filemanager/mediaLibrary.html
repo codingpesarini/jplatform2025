@@ -238,7 +238,11 @@
                       </div>
                     </div>
                   </div>
-                  <div class="file-thumb mb-2">
+                  <div class="file-thumb mb-2"
+                       th:data-src="${config.imagesRepositoryWeb + imm.fullpath}"
+                       th:data-nome="${imm.name}"
+                       onclick="apriLightbox(this.dataset.src, this.dataset.nome)"
+                       style="cursor:pointer">
                     <img th:src="${config.imagesRepositoryWeb + imm.fullpath}"
                          th:alt="${imm.name}"
                          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
@@ -324,6 +328,20 @@
         </div>
         <div class="modal-body" id="modalAccountBody">
           <div class="text-center p-4"><div class="spinner-border text-info"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalLightbox" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content bg-dark border-0">
+        <div class="modal-header border-0 pb-0">
+          <h6 class="modal-title text-white" id="lightboxNome"></h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center p-4">
+          <img id="lightboxImg" src="" class="img-fluid rounded shadow" style="max-height: 80vh;">
         </div>
       </div>
     </div>

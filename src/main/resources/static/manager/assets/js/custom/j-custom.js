@@ -769,3 +769,11 @@ function RimuoviTutteImmagine() {
         console.log("Galleria svuotata. Ricordati di cliccare su Salva per confermare.");
     });
 }
+
+function apriLightbox(src, nome) {
+    var modalEl = document.getElementById('modalLightbox');
+    if (!modalEl) return;
+    document.getElementById('lightboxImg').src = src;
+    document.getElementById('lightboxNome').textContent = nome || '';
+    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+}

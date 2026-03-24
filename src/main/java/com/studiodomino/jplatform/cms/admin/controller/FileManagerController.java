@@ -27,6 +27,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -44,10 +45,7 @@ public class FileManagerController {
     private final ImagesService imagesService;
     private final AllegatoService allegatoService;
 
-    @Value("${allegati.repository.path:/var/jplatform/repository/}")
-    private String repositoryPath;
-
-    @Value("${images.repository.path:/var/jplatform/images/}")
+    @Value("${upload.path}")
     private String imagesRepositoryPath;
 
     private static final DateTimeFormatter DF =

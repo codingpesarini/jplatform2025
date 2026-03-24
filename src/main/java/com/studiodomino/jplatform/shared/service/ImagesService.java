@@ -131,7 +131,7 @@ public class ImagesService {
         image.setType(file.getContentType());
         image.setSize(String.valueOf(file.getSize()));
         image.setIdfolder(idfolder);
-        image.setPathname(filePath.toString());
+        image.setPathname(uniqueName);
         image.setFullpath(idfolder + "/" + uniqueName);
         image.setPrivato("0");
 

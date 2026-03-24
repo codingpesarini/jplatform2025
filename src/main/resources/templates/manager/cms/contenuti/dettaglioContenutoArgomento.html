@@ -69,20 +69,21 @@
             <div id="tab_01" class="tab-pane active" role="tabpanel">
 
               <div class="row form-group">
-                <div class="col-lg-6">
+                <div class="col-lg-12">
                   <label for="titolo" class="col-form-label">Titolo</label>
-                  <input type="text" name="titolo" id="titolo"
-                         th:value="${post.titolo}"
-                         class="form-control obbligatorio">
+                  <textarea name="titolo" id="titolo"
+                            class="form-control obbligatorio"
+                            rows="2" th:text="${post.titolo}"></textarea>
                 </div>
+              </div>
 
+              <div class="row form-group">
                 <div class="col-lg-3">
                   <label for="titoloEN" class="col-form-label">Titolo breve (25 car)</label>
                   <input type="text" name="titoloEN" id="titoloEN"
                          th:value="${post.titoloEN}"
                          class="form-control obbligatorio maxSize25">
                 </div>
-
                 <div class="col-lg-3">
                   <label for="stato" class="col-form-label">Stato workflow</label>
                   <select name="stato" id="stato" class="form-control obbligatorio">
@@ -94,78 +95,46 @@
                     <option value="4" th:selected="${post.stato == '4'}">Altro</option>
                   </select>
                 </div>
-              </div>
-
-              <div class="row form-group">
                 <div class="col-lg-3">
                   <label for="dataVisualizzata" class="col-form-label">Data visualizzata</label>
                   <input type="text" name="dataVisualizzata" id="dataVisualizzata"
                          th:value="${post.dataVisualizzata}"
                          class="form-control dataVisualizzata obbligatorio">
                 </div>
-
                 <div class="col-lg-3">
                   <label for="data" class="col-form-label">Data riferimento</label>
                   <input type="text" name="data" id="data"
                          th:value="${post.data}"
                          class="form-control dataBase obbligatorio">
                 </div>
+              </div>
 
+              <div class="row">
+                <div class="col-lg-6">
+                  <div class="form-group">
+                    <label for="s3" class="col-form-label">Periodo visualizzazione</label>
+                    <select name="s3" id="s3" onchange="AttivaDataPubblicazione()"
+                            class="form-control obbligatorio">
+                      <option value="0" th:selected="${post.s3 == '0'}">Illimitato - Sempre visibile</option>
+                      <option value="1" th:selected="${post.s3 == '1'}">Pubblicazione programmata</option>
+                    </select>
+                  </div>
+                  <div id="datePubblicazione" class="row form-group mt-2" style="display:none; background: #f9f9f9; padding: 10px; border-radius: 8px; margin-left:0; margin-right:0;">
+                    <div class="col-lg-6">
+                      <label for="s1" class="col-form-label">Data inizio pubblicazione</label>
+                      <input type="text" name="s1" id="s1" th:value="${post.s1}" class="form-control dataBase">
+                    </div>
+                    <div class="col-lg-6">
+                      <label for="s2" class="col-form-label">Data fine pubblicazione</label>
+                      <input type="text" name="s2" id="s2" th:value="${post.s2}" class="form-control dataBase">
+                    </div>
+                  </div>
+                </div>
                 <div class="col-lg-6">
                   <label for="tag" class="col-form-label">TAG</label>
                   <input type="text" name="tag" id="tag"
                          th:value="${post.tag}"
-                         class="form-control"
-                         onblur="ControlloCampoTag(this);">
-                </div>
-              </div>
-
-              <div class="row form-group">
-                <div class="col-lg-4">
-                  <label for="s3" class="col-form-label">Periodo visualizzazione</label>
-                  <select name="s3" id="s3" onchange="AttivaDataPubblicazione()"
-                          class="form-control obbligatorio">
-                    <option value="0" th:selected="${post.s3 == '0'}">Illimitato - Sempre visibile</option>
-                    <option value="1" th:selected="${post.s3 == '1'}">Pubblicazione programmata</option>
-                  </select>
-                </div>
-
-                <div class="col-lg-4">
-                  ...
-                </div>
-
-                <div class="col-lg-4">
-                  ..
-                </div>
-              </div>
-
-              <div id="datePubblicazione" class="row form-group">
-                <div class="col-lg-2">
-                  <label for="s1" class="col-form-label">Data inizio pubblicazione</label>
-                  <input type="text" name="s1" id="s1"
-                         th:value="${post.s1}" class="form-control dataBase">
-                </div>
-
-                <div class="col-lg-2">
-                  <label for="s2" class="col-form-label">Data fine pubblicazione</label>
-                  <input type="text" name="s2" id="s2"
-                         th:value="${post.s2}" class="form-control dataBase">
-                </div>
-              </div>
-
-              <div class="row form-group">
-                <div class="col-lg-6">
-                  ...
-                </div>
-              </div>
-
-              <div class="row form-group" id="linkEsterno">
-                <div class="col-lg-3">
-                  ...
-                </div>
-
-                <div class="col-lg-3">
-                  ...
+                         class="form-control" onblur="ControlloCampoTag(this);">
                 </div>
               </div>
             </div>

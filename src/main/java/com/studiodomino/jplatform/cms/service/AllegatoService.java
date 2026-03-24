@@ -37,7 +37,7 @@ public class AllegatoService {
     private final AllegatoRepository allegatoRepository;
     private final DocAllegatiRepository docAllegatiRepository;
 
-    @Value("${allegati.repository.path:/var/jplatform/repository/}")
+    @Value("${allegati.repository.path}")
     private String repositoryPath;
 
     // ========================================

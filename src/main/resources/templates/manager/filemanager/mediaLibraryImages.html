@@ -145,7 +145,11 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="file-thumb mb-2">
+                                    <div class="file-thumb mb-2"
+                                         th:data-src="${config.imagesRepositoryWeb + imm.fullpath}"
+                                         th:data-nome="${imm.name}"
+                                         onclick="apriLightbox(this.dataset.src, this.dataset.nome)"
+                                         style="cursor:pointer">
                                         <img th:src="${config.imagesRepositoryWeb + imm.fullpath}"
                                              th:alt="${imm.name}"
                                              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"

@@ -80,25 +80,24 @@
             <div id="tab_01" class="tab-pane active">
 
               <div class="row form-group">
-                <div class="col-lg-6">
+                <div class="col-lg-12">
                   <label for="titolo" class="col-form-label">Titolo</label>
-                  <input type="text" name="titolo" id="titolo" th:value="${section.titolo}"
-                         class="form-control obbligatorio" required>
+                  <textarea name="titolo" id="titolo"
+                            class="form-control obbligatorio"
+                            rows="2" required th:text="${section.titolo}"></textarea>
                 </div>
+              </div>
+
+              <div class="row form-group">
                 <div class="col-lg-3">
                   <label for="stato" class="col-form-label">Stato workflow</label>
                   <select name="stato" id="stato" class="form-control obbligatorio">
                     <option value="">----- Seleziona lo stato -----</option>
-                    <option value="0" th:selected="${section.stato == '0'}"
-                            th:text="#{admin_stato_0}"></option>
-                    <option value="1" th:selected="${section.stato == '1'}"
-                            th:text="#{admin_stato_1}"></option>
-                    <option value="2" th:selected="${section.stato == '2'}"
-                            th:text="#{admin_stato_2}"></option>
-                    <option value="3" th:selected="${section.stato == '3'}"
-                            th:text="#{admin_stato_3}"></option>
-                    <option value="4" th:selected="${section.stato == '4'}"
-                            th:text="#{admin_stato_4}"></option>
+                    <option value="0" th:selected="${section.stato == '0'}">Bozza</option>
+                    <option value="1" th:selected="${section.stato == '1'}">Pubblicato</option>
+                    <option value="2" th:selected="${section.stato == '2'}">Archiviato</option>
+                    <option value="3" th:selected="${section.stato == '3'}">Annullato</option>
+                    <option value="4" th:selected="${section.stato == '4'}">Non Pubblicato</option>
                   </select>
                 </div>
                 <div class="col-lg-3">
@@ -112,9 +111,6 @@
                     </option>
                   </select>
                 </div>
-              </div>
-
-              <div class="row form-group">
                 <div class="col-lg-3">
                   <label for="dataVisualizzata" class="col-form-label">Data visualizzata</label>
                   <input type="text" name="dataVisualizzata" id="dataVisualizzata"
@@ -126,22 +122,9 @@
                   <input type="text" name="data" id="data" th:value="${section.data}"
                          class="form-control dataBase obbligatorio" required>
                 </div>
-                <div class="col-lg-6">
-                  <label for="tag" class="col-form-label">TAG</label>
-                  <input type="text" name="tag" id="tag" th:value="${section.tag}"
-                         class="form-control" onblur="ControlloCampoTag(this);">
-                </div>
               </div>
 
               <div class="row form-group">
-                <div class="col-lg-4">
-                  <label for="s3" class="col-form-label">Periodo visualizzazione</label>
-                  <select name="s3" id="s3" onchange="AttivaDataPubblicazione()"
-                          class="form-control obbligatorio" required>
-                    <option value="0" th:selected="${section.s3 == '0'}">Illimitato - Sempre visibile</option>
-                    <option value="1" th:selected="${section.s3 == '1'}">Pubblicazione programmata</option>
-                  </select>
-                </div>
                 <div class="col-lg-4">
                   <label for="menu1" class="col-form-label">Associa a menu</label>
                   <select name="menu1" id="menu1" class="form-control obbligatorio">
@@ -172,43 +155,58 @@
                     <option value="2" th:selected="${section.menu5 == '2'}">Lista sottosezioni</option>
                   </select>
                 </div>
-              </div>
-
-              <div id="datePubblicazione" class="row form-group" style="display:none">
-                <div class="col-lg-2">
-                  <label for="s1" class="col-form-label">Data inizio pubblicazione</label>
-                  <input type="text" name="s1" id="s1" th:value="${section.s1}" class="form-control dataBase">
-                </div>
-                <div class="col-lg-2">
-                  <label for="s2" class="col-form-label">Data fine pubblicazione</label>
-                  <input type="text" name="s2" id="s2" th:value="${section.s2}" class="form-control dataBase">
+                <div class="col-lg-4">
+                  <label for="tag" class="col-form-label">TAG</label>
+                  <input type="text" name="tag" id="tag" th:value="${section.tag}"
+                         class="form-control" onblur="ControlloCampoTag(this);">
                 </div>
               </div>
 
-              <div class="row form-group">
+              <div class="row">
                 <div class="col-lg-6">
-                  <label for="menu2" class="col-form-label">Tipo link</label>
-                  <select name="menu2" id="menu2" onchange="AttivaLinkEsterno()"
-                          class="form-control obbligatorio" required>
-                    <option value="">----- Seleziona tipo link menu -----</option>
-                    <option value="0" th:selected="${section.menu2 == '0'}">Linkabile</option>
-                    <option value="1" th:selected="${section.menu2 == '1'}">Non linkabile</option>
-                    <option value="2" th:selected="${section.menu2 == '2'}">Punta a link esterno</option>
-                  </select>
+                  <div class="form-group">
+                    <label for="s3" class="col-form-label">Periodo visualizzazione</label>
+                    <select name="s3" id="s3" onchange="AttivaDataPubblicazione()" class="form-control obbligatorio" required>
+                      <option value="0" th:selected="${section.s3 == '0'}">Illimitato - Sempre visibile</option>
+                      <option value="1" th:selected="${section.s3 == '1'}">Pubblicazione programmata</option>
+                    </select>
+                  </div>
+                  <div id="datePubblicazione" class="row form-group mt-2" style="display:none; background: #f9f9f9; padding: 10px; border-radius: 8px; margin-left:0; margin-right:0;">
+                    <div class="col-lg-6">
+                      <label for="s1" class="col-form-label">Data inizio pubblicazione</label>
+                      <input type="text" name="s1" id="s1" th:value="${section.s1}" class="form-control dataBase">
+                    </div>
+                    <div class="col-lg-6">
+                      <label for="s2" class="col-form-label">Data fine pubblicazione</label>
+                      <input type="text" name="s2" id="s2" th:value="${section.s2}" class="form-control dataBase">
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              <div class="row form-group" id="linkEsterno" style="display:none">
-                <div class="col-lg-3">
-                  <label for="menu3" class="col-form-label">URL link esterno</label>
-                  <input type="text" name="menu3" id="menu3" th:value="${section.menu3}" class="form-control">
-                </div>
-                <div class="col-lg-3">
-                  <label for="menu4" class="col-form-label">Titolo link esterno</label>
-                  <input type="text" name="menu4" id="menu4" th:value="${section.menu4}" class="form-control">
+                <div class="col-lg-6">
+                  <div class="form-group">
+                    <label for="menu2" class="col-form-label">Tipo link</label>
+                    <select name="menu2" id="menu2" onchange="AttivaLinkEsterno()" class="form-control obbligatorio" required>
+                      <option value="">----- Seleziona tipo link menu -----</option>
+                      <option value="0" th:selected="${section.menu2 == '0'}">Linkabile</option>
+                      <option value="1" th:selected="${section.menu2 == '1'}">Non linkabile</option>
+                      <option value="2" th:selected="${section.menu2 == '2'}">Punta a link esterno</option>
+                    </select>
+                  </div>
+                  <div id="linkEsterno" class="row form-group mt-2" style="display:none; background: #f9f9f9; padding: 10px; border-radius: 8px; margin-left:0; margin-right:0;">
+                    <div class="col-lg-6">
+                      <label for="menu3" class="col-form-label">URL link esterno</label>
+                      <input type="text" name="menu3" id="menu3" th:value="${section.menu3}" class="form-control">
+                    </div>
+                    <div class="col-lg-6">
+                      <label for="menu4" class="col-form-label">Titolo link esterno</label>
+                      <input type="text" name="menu4" id="menu4" th:value="${section.menu4}" class="form-control">
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+
 
             <div id="tab_02" class="tab-pane" role="tabpanel">
               <div class="row form-group">
