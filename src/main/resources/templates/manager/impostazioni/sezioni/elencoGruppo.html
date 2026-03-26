@@ -65,9 +65,9 @@
                 </a>
               </td>
               <td>
-                <span th:if="${'1'.equals(gruppo.l1)}" class="badge badge-success">Attivo</span>
-                <span th:if="${'0'.equals(gruppo.l1)}" class="badge badge-secondary">Disattivo</span>
-                <span th:if="${gruppo.l1 == null or gruppo.l1.isEmpty()}" class="badge badge-light">Indefinito</span>
+                <span th:if="${'1'.equals(gruppo.l1)}" style="color: black; font-weight: bold;">Attivo</span>
+                <span th:if="${'0'.equals(gruppo.l1)}" style="color: black;">Disattivo</span>
+                <span th:if="${gruppo.l1 == null or gruppo.l1.isEmpty()}" style="color: #666; font-style: italic;">Indefinito</span>
               </td>
               <td th:text="${gruppo.datamodifica}"></td>
               <td th:text="${gruppo.iscritti}"></td>

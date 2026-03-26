@@ -71,7 +71,7 @@ public class ContenutoController {
             model.addAttribute("content", datiBase);
             model.addAttribute("post", datiBase);
             model.addAttribute("sezione", sezione);
-            model.addAttribute("elencoSezioni", contentService.findRootSections(idSite));
+            model.addAttribute("elencoSezioni", contentService.findAllSections(idSite));
             model.addAttribute("config", config);
 
             log.info("NEW CONTENUTO -> idRoot={}, idType={}, page2={}",
@@ -149,7 +149,7 @@ public class ContenutoController {
             documento.setSection(sezione);
             caricaDocumentiCorrelati(documento, sezione, idSite);
 
-            List<Section> elencoSezioni = contentService.findRootSections(idSite);
+            List<Section> elencoSezioni = contentService.findAllSections(idSite);
 
             model.addAttribute("content", documento);
             model.addAttribute("post", documento);
@@ -293,6 +293,34 @@ public class ContenutoController {
 
                 contentService.saveContent(db);
                 log.info("Contenuto salvato: id={}", db.getId());
+                // --- AGGIUNTA DA INSERIRE QUI ---
+                if ("1".equals(documento.getTemp1())) {
+                    Integer idRoot = parseIntSafe(db.getIdRoot());
+                    if (idRoot != null) {
+                        // Recupera tutti i contenuti della stessa sezione (es. la 805)
+                        List<DatiBase> fratelli = contentService.findContentsBySection(idSite, idRoot);
+
+                        for (DatiBase f : fratelli) {
+                            // Salta il documento corrente per non sovrascriverlo inutilmente
+                            if (f.getId().equals(db.getId())) continue;
+
+                            // 1. Copia il TAG principale (es: "zumba,")
+                            f.setTag(db.getTag());
+
+                            // 2. Copia i 10 ExtraTag e i loro riferimenti (Sezioni Associate)
+                            for (int i = 1; i <= 10; i++) {
+                                f.setExtraTag(i, db.getExtraTag(i));
+                                f.setExtraTagRef(i, db.getExtraTagRef(i));
+                            }
+
+                            // Salva il "fratello" aggiornato
+                            contentService.saveContent(f);
+                        }
+                        log.info("Applicazione massiva completata con successo per la sezione {}", idRoot);
+                    }
+                }
+                // =================================================================
+
                 return "redirect:/admin/contenuti/" + db.getId();
             }
 
@@ -307,7 +335,7 @@ public class ContenutoController {
             model.addAttribute("content", documento);
             model.addAttribute("post", documento);
             model.addAttribute("sezione", sezione);
-            model.addAttribute("elencoSezioni", contentService.findRootSections(idSite));
+            model.addAttribute("elencoSezioni", contentService.findAllSections(idSite));
             model.addAttribute("config", config);
 
             return ViewUtils.resolveProtectedTemplate("cms/dettaglioContenutoTemplate");
@@ -426,7 +454,7 @@ public class ContenutoController {
             model.addAttribute("content", copia);
             model.addAttribute("post", copia);
             model.addAttribute("sezione", sezione);
-            model.addAttribute("elencoSezioni", contentService.findRootSections(idSite));
+            model.addAttribute("elencoSezioni", contentService.findAllSections(idSite));
             model.addAttribute("config", config);
 
         } catch (Exception e) {

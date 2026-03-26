@@ -102,12 +102,12 @@
                   </select>
                 </div>
                 <div class="col-lg-3">
-                  <label for="dataVisualizzata" class="form-label">Data visualizzata</label>
+                  <label for="dataVisualizzata" class="col-form-label">Data visualizzata</label>
                   <input type="text" id="dataVisualizzata" name="dataVisualizzata"
                          class="form-control dataVisualizzata" th:value="${post.dataVisualizzata}">
                 </div>
                 <div class="col-lg-3">
-                  <label for="data" class="form-label">Data riferimento</label>
+                  <label for="data" class="col-form-label">Data riferimento</label>
                   <input type="text" id="data" name="data"
                          class="form-control dataBase" th:value="${post.data}">
                 </div>
@@ -268,7 +268,7 @@
             <!-- TAB 04 IMMAGINI -->
             <div id="tab_04" class="tab-pane">
 
-              <div class="row form-group">
+              <div class="row form-group mt-3">
                 <div class="col-lg-6 text-left">
                   <h4>
                     Immagini inserite nella pagina
@@ -281,7 +281,6 @@
                 </div>
 
                 <div class="col-lg-6 text-right">
-                  <br>
                   <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
                           onclick="FileManager.apriForm('/admin/filemanager/popup/1/immagini','Media Library Immagini')">
                     <i class="fas fa-images"></i> Media Library
@@ -332,7 +331,7 @@
             <!-- TAB 05 ALLEGATI -->
             <div id="tab_05" class="tab-pane">
 
-              <div class="row form-group">
+              <div class="row form-group mt-3">
                 <div class="col-lg-6 text-left">
                   <h4>
                     Allegati inseriti nella pagine
@@ -343,7 +342,6 @@
                 </div>
 
                 <div class="col-lg-6 text-right">
-                  <br>
                   <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
                           onclick="FileManager.apriForm('/admin/filemanager/popup/1/allegati','Media Library Documenti')">
                     <i class="fas fa-images"></i> Media Library
@@ -420,21 +418,21 @@
 
               <div class="row g-3 mb-3">
                 <div class="col-lg-3">
-                  <label for="info2" class="form-label">Form contatti</label>
+                  <label for="info2" class="col-form-label">Form contatti</label>
                   <select id="info2" name="info2" class="form-select">
                     <option value="0" th:selected="${post.info2 == '0'}">Non visualizzare</option>
                     <option value="1" th:selected="${post.info2 == '1'}">Visualizza</option>
                   </select>
                 </div>
                 <div class="col-lg-3">
-                  <label for="info1" class="form-label">Form commenti</label>
+                  <label for="info1" class="col-form-label">Form commenti</label>
                   <select id="info1" name="info1" class="form-select">
                     <option value="0" th:selected="${post.info1 == '0'}">Non visualizzare</option>
                     <option value="1" th:selected="${post.info1 == '1'}">Visualizza</option>
                   </select>
                 </div>
                 <div class="col-lg-3">
-                  <label for="info3" class="form-label">Visualizza commenti</label>
+                  <label for="info3" class="col-form-label">Visualizza commenti</label>
                   <select id="info3" name="info3" class="form-select">
                     <option value="0" th:selected="${post.info3 == '0'}">Non visualizzare</option>
                     <option value="1" th:selected="${post.info3 == '1'}">Visualizza</option>
@@ -456,19 +454,19 @@
             <div id="tab_07" class="tab-pane fade" role="tabpanel">
               <div class="row g-3">
                 <div class="col-lg-3">
-                  <label for="varchar2" class="form-label">Varchar2</label>
+                  <label for="varchar2" class="col-form-label">Varchar2</label>
                   <input type="text" id="varchar2" name="varchar2" class="form-control" th:value="${post.varchar2}">
                 </div>
                 <div class="col-lg-3">
-                  <label for="varchar3" class="form-label">Varchar3</label>
+                  <label for="varchar3" class="col-form-label">Varchar3</label>
                   <input type="text" id="varchar3" name="varchar3" class="form-control" th:value="${post.varchar3}">
                 </div>
                 <div class="col-lg-3">
-                  <label for="varchar4" class="form-label">Varchar4</label>
+                  <label for="varchar4" class="col-form-label">Varchar4</label>
                   <input type="text" id="varchar4" name="varchar4" class="form-control" th:value="${post.varchar4}">
                 </div>
                 <div class="col-lg-3">
-                  <label for="varchar5" class="form-label">Varchar5</label>
+                  <label for="varchar5" class="col-form-label">Varchar5</label>
                   <input type="text" id="varchar5" name="varchar5" class="form-control" th:value="${post.varchar5}">
                 </div>
                 <div class="col-lg-3">
@@ -553,7 +551,7 @@
                       </select>
                     </div>
                     <div class="col-lg-6" id="SpazioEreditaExtraTag" style="display:none">
-                      <button id="EreditaExtraTag" class="mb-1 mt-1 mr-1 btn btn-primary btn-lg btn-block">
+                      <button type="button" id="EreditaExtraTag" class="mb-1 mt-1 mr-1 btn btn-primary btn-lg btn-block" onclick="ApplicaExtraTagContenuti()">
                         <i class="ti ti-copy me-1"></i> Applica ExtraTag a tutti i contenuti
                       </button>
                     </div>
@@ -572,7 +570,7 @@
                         <label th:for="|extraTagRef${i}|" class="form-label" th:text="${'Sezione associata ' + i}">Sezione</label>
                         <select th:id="|extraTagRef${i}|" th:name="|extraTagRef${i}|" class="form-select">
                           <option value="0">Nessuna relazione</option>
-                          <option th:each="s : ${elencoSezioniCompleto}"
+                          <option th:each="s : ${elencoSezioni}"
                                   th:value="${s.id}" th:text="${s.titolo}"
                                   th:selected="${post.__${'extraTagRef' + i}__ != null and s.id == post.__${'extraTagRef' + i}__}">
                           </option>
@@ -599,6 +597,8 @@
     </div>
 
     <!-- HIDDEN FINALI -->
+    <input type="hidden" id="temp1_trigger" name="temp1" value="0">
+
     <input type="hidden" name="anno" th:value="${post.anno}">
     <input type="hidden" name="mese" th:value="${post.mese}">
 
@@ -607,7 +607,6 @@
     <input type="hidden" name="log3" th:value="${post.log3}">
 
     <input type="hidden" name="idParent" id="idparent" th:value="${post.idParent}">
-    <input type="hidden" name="temp1" th:value="${post.statoText}">
     <input type="hidden" name="id" id="id" th:value="${post.id}">
     <input type="hidden" name="idRoot" th:value="${post.idRoot}">
     <input type="hidden" name="idType" th:value="${post.idType}">
@@ -649,7 +648,6 @@
         </div>
       </div>
     </div>
-
   </form>
 
   <script th:inline="javascript">
@@ -763,6 +761,7 @@
             });
         }
     });
+
   </script>
 
 </th:block>

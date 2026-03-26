@@ -48,8 +48,7 @@
       <div class="col-lg-12">
         <div class="card shadow-sm border-0" style="border-radius: 15px; background: #fff; padding: 20px;">
 
-          <div class="tabs" id="mytabs">
-            <ul class="nav nav-tabs border-0" role="tablist">
+          <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item"><a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Info</a></li>
             <li class="nav-item"><a class="nav-link" href="#tab_02" data-bs-toggle="tab">Email</a></li>
             <li class="nav-item"><a class="nav-link" href="#tab_03" data-bs-toggle="tab">Documenti</a></li>
@@ -59,22 +58,21 @@
             <li class="nav-item"><a class="nav-link" href="#tab_07" data-bs-toggle="tab">Altro</a></li>
             <li class="nav-item"><a class="nav-link" href="#tab_08" data-bs-toggle="tab">PEC</a></li>
             <li class="nav-item"><a class="nav-link" href="#tab_09" data-bs-toggle="tab">Account PEC/Email</a> </li>
-            </ul>
-          </div>
+          </ul>
 
           <div class="tab-content">
 
             <!-- ═══════════════════════════════════════════════════════ TAB 01: INFO -->
             <div id="tab_01" class="tab-pane active">
-              <fieldset>
-                <legend>Dati configurazione base</legend>
+              <fieldset class="border p-3 mb-4">
+                <legend class="float-none w-auto px-2">Dati configurazione base</legend>
                 <div class="row form-group">
                   <div class="col-lg-6">
-                    <label class="col-form-label">Descrizione sito</label>
+                    <label class="form-label">Descrizione sito</label>
                     <input type="text" th:field="${sito.type}" class="form-control" required/>
                   </div>
                   <div class="col-lg-6">
-                    <label class="col-form-label">URL sito</label>
+                    <label class="form-label">URL sito</label>
                     <input type="text" th:field="${sito.descrizione}" class="form-control"/>
                   </div>
                 </div>
@@ -146,15 +144,15 @@
 
             <!-- ═══════════════════════════════════════════════════════ TAB 02: EMAIL -->
             <div id="tab_02" class="tab-pane">
-              <fieldset>
-                <legend>Email</legend>
+              <fieldset class="border p-3 mb-4">
+                <legend class="float-none w-auto px-2">Email</legend>
                 <div class="row form-group">
                   <div class="col-lg-6">
-                    <label class="col-form-label">Email invio comunicazioni</label>
+                    <label class="form-label">Email invio comunicazioni</label>
                     <input type="text" th:field="${sito.newsletteremail}" class="form-control"/>
                   </div>
                   <div class="col-lg-6">
-                    <label class="col-form-label">Mittente invio comunicazioni</label>
+                    <label class="form-label">Mittente invio comunicazioni</label>
                     <input type="text" th:field="${sito.emailintestazione}" class="form-control"/>
                   </div>
                 </div>
@@ -204,15 +202,15 @@
 
             <!-- ═══════════════════════════════════════════════════════ TAB 03: DOCUMENTI -->
             <div id="tab_03" class="tab-pane">
-              <fieldset>
-                <legend>Repository e Document Management System</legend>
+              <fieldset class="border p-3 mb-4">
+                <legend class="float-none w-auto px-2">Repository e Document Management System</legend>
                 <div class="row form-group">
                   <div class="col-lg-6">
-                    <label class="col-form-label">Path server store</label>
+                    <label class="form-label">Path server store</label>
                     <input type="text" th:field="${sito.pathRepository}" class="form-control"/>
                   </div>
                   <div class="col-lg-6">
-                    <label class="col-form-label">Path accesso WEB</label>
+                    <label class="form-label">Path accesso WEB</label>
                     <input type="text" th:field="${sito.pathWeb}" class="form-control"/>
                     <input type="hidden" th:field="${sito.path1}"/>
                   </div>
@@ -258,8 +256,8 @@
 
             <!-- ═══════════════════════════════════════════════════════ TAB 04: ELEMENTI COMUNI -->
             <div id="tab_04" class="tab-pane">
-              <fieldset>
-                <legend>Numeratori Front-end (slot 1-10)</legend>
+              <fieldset class="border p-3 mb-4">
+                <legend class="float-none w-auto px-2">Numeratori Front-end (slot 1-10)</legend>
                 <p class="text-muted small">ID sezione indica il contenitore di contenuti.
                   Per caricare sottosezioni anteporre 0 (zero) all'ID (es. 01 carica le sottosezioni di 1).
                   Separato/terminato da virgola.</p>
@@ -308,11 +306,11 @@
                 </table>
               </fieldset>
 
-              <fieldset class="mt-4">
-                <legend>Paginazione</legend>
+              <fieldset class="border p-3 mb-4">
+                <legend class="float-none w-auto px-2">Paginazione</legend>
                 <div class="row form-group">
                   <div class="col-lg-6">
-                    <label class="col-form-label">Massimo elementi per pagina</label>
+                    <label class="form-label">Massimo elementi per pagina</label>
                     <input type="text" th:field="${sito.libero6}" class="form-control"/>
                   </div>
                   <div class="col-lg-6">
@@ -329,11 +327,11 @@
                 </div>
               </fieldset>
 
-              <fieldset class="mt-4">
-                <legend>CSS aggiuntivo</legend>
+              <fieldset class="border p-3 mb-4">
+                <legend class="float-none w-auto px-2">CSS aggiuntivo</legend>
                 <div class="row form-group">
                   <div class="col-lg-12">
-                    <label class="col-form-label">Definizione CSS aggiuntivo</label>
+                    <label class="form-label">Definizione CSS aggiuntivo</label>
                     <textarea th:field="${sito.css}" class="form-control" rows="6"></textarea>
                   </div>
                 </div>
@@ -342,11 +340,11 @@
 
             <!-- ═══════════════════════════════════════════════════════ TAB 05: SMS -->
             <div id="tab_05" class="tab-pane">
-              <fieldset>
-                <legend>Servizio SMS</legend>
+              <fieldset class="border p-3 mb-4">
+                <legend class="float-none w-auto px-2">Servizio SMS</legend>
                 <div class="row form-group">
                   <div class="col-lg-6">
-                    <label class="col-form-label">Attiva servizio SMS</label>
+                    <label class="form-label">Attiva servizio SMS</label>
                     <div class="switch switch-sm switch-primary">
                       <input type="checkbox" th:field="${sito.smsStatus}" value="1" class="toggleButton"/>
                     </div>
@@ -375,11 +373,11 @@
 
             <!-- ═══════════════════════════════════════════════════════ TAB 06: PROXY -->
             <div id="tab_06" class="tab-pane">
-              <fieldset>
-                <legend>Servizio PROXY</legend>
+              <fieldset class="border p-3 mb-4">
+                <legend class="float-none w-auto px-2">Servizio PROXY</legend>
                 <div class="row form-group">
                   <div class="col-lg-6">
-                    <label class="col-form-label">Attiva Proxy</label>
+                    <label class="form-label">Attiva Proxy</label>
                     <div class="switch switch-sm switch-primary">
                       <input type="checkbox" th:field="${sito.proxy}" value="1" class="toggleButton"/>
                     </div>
@@ -408,16 +406,16 @@
 
             <!-- ═══════════════════════════════════════════════════════ TAB 07: ALTRO -->
             <div id="tab_07" class="tab-pane">
-              <fieldset>
-                <legend>Altri elementi</legend>
+              <fieldset class="border p-3 mb-4">
+                <legend class="float-none w-auto px-2">Altri elementi</legend>
                 <div class="row form-group">
                   <div class="col-lg-6">
-                    <label class="col-form-label">Javascript page</label>
+                    <label class="form-label">Javascript page</label>
                     <textarea th:field="${sito.html1}" class="form-control" rows="4"></textarea>
                     <code>html1</code>
                   </div>
                   <div class="col-lg-6">
-                    <label class="col-form-label">Social Network Init Parameters</label>
+                    <label class="form-label">Social Network Init Parameters</label>
                     <textarea th:field="${sito.html3}" class="form-control" rows="4"></textarea>
                     <code>html3</code>
                   </div>
@@ -475,23 +473,23 @@
 
             <!-- ═══════════════════════════════════════════════════════ TAB 08: PEC -->
             <div id="tab_08" class="tab-pane">
-              <fieldset>
-                <legend>Dati configurazione PEC</legend>
+              <fieldset class="border p-3 mb-4">
+                <legend class="float-none w-auto px-2">Dati configurazione PEC</legend>
                 <div class="row form-group">
                   <div class="col-lg-3">
-                    <label class="col-form-label">Email PEC</label>
+                    <label class="form-label">Email PEC</label>
                     <input type="text" th:field="${sito.pecEmail}" class="form-control"/>
                   </div>
                   <div class="col-lg-3">
-                    <label class="col-form-label">Intestazione PEC</label>
+                    <label class="form-label">Intestazione PEC</label>
                     <input type="text" th:field="${sito.pecIntestazione}" class="form-control"/>
                   </div>
                   <div class="col-lg-3">
-                    <label class="col-form-label">PEC account username</label>
+                    <label class="form-label">PEC account username</label>
                     <input type="text" th:field="${sito.pecUsername}" class="form-control"/>
                   </div>
                   <div class="col-lg-3">
-                    <label class="col-form-label">PEC account password</label>
+                    <label class="form-label">PEC account password</label>
                     <input type="text" th:field="${sito.pecPassword}" class="form-control"/>
                   </div>
                 </div>
@@ -544,12 +542,12 @@
             <div id="tab_09" class="tab-pane">
               <div class="row form-group">
                 <div class="col-lg-6">
-                  <fieldset>
-                    <legend>Account EMAIL</legend>
+                  <fieldset class="border p-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <legend class="float-none w-auto px-2 mb-0" style="font-weight: 600;">Account EMAIL</legend>
 
-                    <div class="right-wrapper text-right">
                       <button type="button"
-                              class="mb-1 mt-1 mr-1 btn btn-sm btn-default"
+                              class="btn btn-outline-primary shadow-sm"
                               onclick="apriPopupAccount('EMAIL', 'data_tableEmail');">
                         Associa account EMAIL
                       </button>
@@ -572,12 +570,12 @@
                 </div>
 
                 <div class="col-lg-6">
-                  <fieldset>
-                    <legend>Account PEC</legend>
+                  <fieldset class="border p-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <legend class="float-none w-auto px-2 mb-0" style="font-weight: 600;">Account PEC</legend>
 
-                    <div class="right-wrapper text-right">
                       <button type="button"
-                              class="mb-1 mt-1 mr-1 btn btn-sm btn-default"
+                              class="btn btn-outline-primary shadow-sm"
                               onclick="apriPopupAccount('PEC', 'data_tablePec');">
                         Associa account PEC
                       </button>
@@ -606,93 +604,169 @@
     </div>
   </form>
 
+  <div class="modal fade" id="modalAccount" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalAccountTitle"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="modalAccountBody"></div>
+      </div>
+    </div>
+  </div>
 
 <!-- Script -->
   <script th:inline="javascript">
+    // 1. DICHIARAZIONE VARIABILI GLOBALI
+    let _popupTipo = '';
+    let _popupTargetTable = '';
+
+    // --- NUOVA FUNZIONE: Ripristina le tabelle al caricamento della pagina ---
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("Inizializzazione tabelle account salvati...");
+        // Ripristina EMAIL (ID campo hidden, ID tabella, Tipo)
+        ripristinaTabelleSalvate('idAccountEmail', 'data_tableEmail', 'EMAIL');
+        // Ripristina PEC
+        ripristinaTabelleSalvate('idAccountPec', 'data_tablePec', 'PEC');
+    });
+
+    function ripristinaTabelleSalvate(hiddenId, targetTableId, tipo) {
+        const hidden = document.getElementById(hiddenId);
+        if (!hidden || !hidden.value || hidden.value.trim() === "") return;
+
+        // Pulisce la stringa (gestisce sia virgole che punti e virgola) e crea un array di ID
+        const ids = hidden.value.replace(/;/g, ',').split(',').map(s => s.trim()).filter(x => x !== "" && !isNaN(x));
+
+        if (ids.length === 0) return;
+
+        // Recupera la lista completa dal server per trovare le descrizioni
+        fetch('/admin/account/popup?tipo=' + tipo)
+            .then(r => r.json())
+            .then(lista => {
+                ids.forEach(id => {
+                    const acc = lista.find(a => a.id == id);
+                    if (acc) {
+                        // Usiamo la funzione esistente per disegnare la riga
+                        disegnaRigaInTabella(targetTableId, hiddenId, acc.id, acc.descrizione, tipo);
+                    }
+                });
+            })
+            .catch(err => console.error("Errore nel ripristino account " + tipo, err));
+    }
+    // -----------------------------------------------------------------------
+
     function InviaForm() {
-      var form = document.getElementById('sito');
-      if (!form.checkValidity()) {
-        form.classList.add('was-validated');
-        return false;
-      }
-      form.submit();
+        var form = document.getElementById('sito');
+        if (!form) form = document.getElementById('type'); // Gestisce entrambi i nomi possibili dei form
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return false;
+        }
+        form.submit();
     }
 
     function apriPopupAccount(tipo, targetTable) {
-    _popupTipo = tipo;
-    _popupTargetTable = targetTable;
+        _popupTipo = tipo;
+        _popupTargetTable = targetTable;
 
-    document.getElementById('modalAccountTitle').innerText = 'Associa account ' + tipo;
-    const body = document.getElementById('modalAccountBody');
-    body.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-info"></div></div>';
+        document.getElementById('modalAccountTitle').innerText = 'Associa account ' + tipo;
+        const body = document.getElementById('modalAccountBody');
+        body.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-info"></div></div>';
 
-    fetch('/admin/account/popup?tipo=' + tipo)
-        .then(r => r.json())
-        .then(lista => {
-            let html = '<div class="p-3"><table class="table table-sm table-bordered table-striped">';
-            html += '<thead><tr><th>Descrizione</th><th style="width:80px" class="text-center">Associa</th></tr></thead><tbody>';
-            if (lista.length === 0) {
-                html += '<tr><td colspan="2" class="text-center text-muted">Nessun account disponibile</td></tr>';
-            } else {
-                lista.forEach(acc => {
-                    html += `<tr>
-                        <td>${acc.descrizione}</td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-primary"
-                                onclick="associaAccountDinamico('${acc.id}', '${acc.descrizione.replace(/'/g, "\\'")}')">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </td>
-                    </tr>`;
-                });
-            }
-            html += '</tbody></table></div>';
-            body.innerHTML = html;
-        })
-        .catch(() => {
-            body.innerHTML = '<div class="alert alert-danger m-3">Errore nel caricamento.</div>';
-        });
+        fetch('/admin/account/popup?tipo=' + tipo)
+            .then(r => r.json())
+            .then(lista => {
+                let html = '<div class="p-3"><table class="table table-sm table-bordered table-striped">';
+                html += '<thead><tr><th>Descrizione</th><th style="width:80px" class="text-center">Associa</th></tr></thead><tbody>';
+                if (!lista || lista.length === 0) {
+                    html += '<tr><td colspan="2" class="text-center text-muted">Nessun account disponibile</td></tr>';
+                } else {
+                    lista.forEach(acc => {
+                        html += `<tr>
+                            <td>${acc.descrizione}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-primary"
+                                    onclick="associaAccountDinamico('${acc.id}', '${acc.descrizione.replace(/'/g, "\\'")}')">
+                                    <i class="ti ti-plus"></i>
+                                </button>
+                            </td>
+                        </tr>`;
+                    });
+                }
+                html += '</tbody></table></div>';
+                body.innerHTML = html;
+            })
+            .catch(() => {
+                body.innerHTML = '<div class="alert alert-danger m-3">Errore nel caricamento.</div>';
+            });
 
-    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAccount')).show();
-}
+        const modalEl = document.getElementById('modalAccount');
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    }
 
     function associaAccountDinamico(id, descrizione) {
-    const tipo = _popupTipo;
-    const targetTableId = _popupTargetTable;
-    const hiddenId = (tipo === 'EMAIL') ? 'idaccountemail' : 'idaccountpec';
-    const prefix = (tipo === 'EMAIL') ? 'rowEMAIL_' : 'rowPEC_';
-    const rowId = prefix + id;
+        const tipo = _popupTipo;
+        const targetTableId = _popupTargetTable;
+        const hiddenId = (tipo === 'EMAIL') ? 'idAccountEmail' : 'idAccountPec';
+        const hidden = document.getElementById(hiddenId);
 
-    if (document.getElementById(rowId)) return;
+        if (!hidden) {
+            console.error("ERRORE: Campo hidden " + hiddenId + " non trovato.");
+            return;
+        }
 
-    const hidden = document.getElementById(hiddenId);
-    const ids = hidden.value ? hidden.value.split(',').filter(x => x.trim() !== '') : [];
-    ids.push(id);
-    hidden.value = ids.join(',');
+        // Aggiorna il valore nell'input hidden (evitando duplicati)
+        let currentVal = hidden.value.replace(/;/g, ',');
+        const ids = currentVal ? currentVal.split(',').map(s => s.trim()).filter(x => x !== "") : [];
 
-    const tbody = document.querySelector('#' + targetTableId + ' tbody');
-    tbody.insertAdjacentHTML('beforeend', `
-        <tr id="${rowId}">
-            <td>${descrizione}</td>
-            <td class="text-center">
-                <a href="javascript:void(0);"
-                   onclick="disassociaAccount('${hiddenId}','${id}','${rowId}')">
-                    <i class="fas fa-trash-alt text-danger"></i>
-                </a>
-            </td>
-        </tr>`);
+        if (!ids.includes(id.toString())) {
+            ids.push(id);
+            hidden.value = ids.join(',');
+            disegnaRigaInTabella(targetTableId, hiddenId, id, descrizione, tipo);
+        }
 
-    bootstrap.Modal.getInstance(document.getElementById('modalAccount')).hide();
-}
+        const modalEl = document.getElementById('modalAccount');
+        bootstrap.Modal.getInstance(modalEl).hide();
+    }
 
-function disassociaAccount(hiddenId, idToRemove, rowId) {
-    const hidden = document.getElementById(hiddenId);
-    hidden.value = hidden.value.split(',')
-        .filter(id => id.trim() !== '' && id.toString() !== idToRemove.toString())
-        .join(',');
-    const row = document.getElementById(rowId);
-    if (row) row.remove();
-}
+    // Funzione helper per aggiungere fisicamente la riga alla tabella
+    function disegnaRigaInTabella(targetTableId, hiddenId, id, descrizione, tipo) {
+        const prefix = (tipo === 'EMAIL') ? 'rowEMAIL_' : 'rowPEC_';
+        const rowId = prefix + id;
+
+        if (document.getElementById(rowId)) return;
+
+        const table = document.getElementById(targetTableId);
+        let tbody = table.querySelector('tbody');
+        if (!tbody) {
+            tbody = document.createElement('tbody');
+            table.appendChild(tbody);
+        }
+
+        tbody.insertAdjacentHTML('beforeend', `
+            <tr id="${rowId}">
+                <td>${descrizione}</td>
+                <td>${tipo}</td>
+                <td class="text-center">
+                    <a href="javascript:void(0);" onclick="disassociaAccount('${hiddenId}','${id}','${rowId}')">
+                        <i class="ti ti-trash text-danger" style="font-size: 1.2rem;"></i>
+                    </a>
+                </td>
+            </tr>`);
+    }
+
+    function disassociaAccount(hiddenId, idToRemove, rowId) {
+        const hidden = document.getElementById(hiddenId);
+        if (hidden) {
+            hidden.value = hidden.value.replace(/;/g, ',').split(',')
+                .map(s => s.trim())
+                .filter(id => id !== '' && id.toString() !== idToRemove.toString())
+                .join(',');
+        }
+        const row = document.getElementById(rowId);
+        if (row) row.remove();
+    }
   </script>
 </div>
 

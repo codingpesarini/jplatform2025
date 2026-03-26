@@ -777,3 +777,36 @@ function apriLightbox(src, nome) {
     document.getElementById('lightboxNome').textContent = nome || '';
     bootstrap.Modal.getOrCreateInstance(modalEl).show();
 }
+
+// Funzione chiamata dall'onblur nell'HTML
+function ControlloCampoTag(elemento) {
+    if (!elemento) return;
+
+    var $campo = $(elemento);
+    var valore = $campo.val().trim();
+
+    // Se il campo non è vuoto e l'ultimo carattere non è una virgola
+    if (valore.length > 0 && valore.slice(-1) !== ',') {
+        $campo.val(valore + ',');
+    }
+}
+
+// La definiamo come funzione globale attaccandola a window
+window.ApplicaExtraTagContenuti = function() {
+    // Cerchiamo gli elementi usando ID puri, senza il $ di jQuery
+    var trigger = document.getElementById("temp1_trigger");
+    var form = document.getElementById("documento");
+
+    if (trigger && form) {
+        // Impostiamo il valore
+        trigger.value = "1";
+
+        console.log("Procedo con invio massivo...");
+
+        // Invio diretto del form
+        form.submit();
+    } else {
+        // Se non li trova, almeno sappiamo perché
+        console.error("Errore: trigger o form non trovati nel DOM.");
+    }
+};

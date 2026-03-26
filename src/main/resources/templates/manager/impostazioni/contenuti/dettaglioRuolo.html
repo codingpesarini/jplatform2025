@@ -44,23 +44,22 @@
       <div class="col-lg-12">
         <div class="card shadow-sm border-0" style="border-radius: 15px; background: #fff; padding: 20px;">
 
-          <div class="tabs" id="mytabs">
-            <ul class="nav nav-tabs border-0" role="tablist">
+          <ul class="nav nav-tabs" role="tablist">
               <li class="nav-item storeTab" role="presentation">
               <li class="nav-item"><a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Definizione</a></li>
               <li class="nav-item"><a class="nav-link" href="#tab_02" data-bs-toggle="tab">Permessi 1 (l1-l10)</a></li>
               <li class="nav-item"><a class="nav-link" href="#tab_03" data-bs-toggle="tab">Permessi 2 (s1-s10)</a></li>
             </ul>
-          </div>
+
         <div class="tab-content">
 
           <!-- ══════════════════════════════════ TAB 01: DEFINIZIONE -->
           <div id="tab_01" class="tab-pane active">
-            <fieldset>
-              <legend>Dati principali</legend>
+            <fieldset class="border p-3 mb-3">
+              <legend class="float-none w-auto px-2">Dati principali</legend>
               <div class="row form-group">
                 <div class="col-lg-12">
-                  <label class="col-form-label">Nome</label>
+                  <label class="form-label">Nome</label>
                   <input type="text" th:field="${ruolo.nome}" class="form-control" required/>
                 </div>
                 <div class="col-lg-6">
@@ -77,14 +76,14 @@
 
           <!-- ══════════════════════════════════ TAB 02: PERMESSI L1-L10 -->
           <div id="tab_02" class="tab-pane">
-            <fieldset>
-              <legend>Livelli permessi (l1-l10)</legend>
+            <fieldset class="border p-3 mb-3">
+              <legend class="float-none w-auto px-2">Livelli permessi (l1-l10)</legend>
               <!-- Helper fragment per select livello — ripetuto per chiarezza -->
               <div th:each="i : ${#numbers.sequence(1,10)}">
                 <div class="row form-group" th:if="${i % 2 == 1}">
 
                   <div class="col-lg-6">
-                    <label class="col-form-label" th:text="${'l' + i}"></label>
+                    <label class="form-label" th:text="${'l' + i}"></label>
                     <select th:field="*{__${'l' + i}__}" class="form-control">
                       <option value="">Indefinito</option>
                       <option value="0">Disattivo</option>
@@ -93,7 +92,7 @@
                   </div>
 
                   <div class="col-lg-6" th:if="${i + 1 <= 10}">
-                    <label class="col-form-label" th:text="${'l' + (i + 1)}"></label>
+                    <label class="form-label" th:text="${'l' + (i + 1)}"></label>
                     <select th:field="*{__${'l' + (i + 1)}__}" class="form-control">
                       <option value="">Indefinito</option>
                       <option value="0">Disattivo</option>
@@ -109,13 +108,13 @@
 
           <!-- ══════════════════════════════════ TAB 03: PERMESSI S1-S10 -->
           <div id="tab_03" class="tab-pane">
-            <fieldset>
-              <legend>Sezioni permessi (s1-s10)</legend>
+            <fieldset class="border p-3 mb-4">
+              <legend class="float-none w-auto px-2">Sezioni permessi (s1-s10)</legend>
               <div th:each="i : ${#numbers.sequence(1,10)}">
                 <div class="row form-group" th:if="${i % 2 == 1}">
 
                   <div class="col-lg-6">
-                    <label class="col-form-label" th:text="${'s' + i}"></label>
+                    <label class="form-label" th:text="${'s' + i}"></label>
                     <select th:field="*{__${'s' + i}__}" class="form-control">
                       <option value="">Indefinito</option>
                       <option value="0">Disattivo</option>
@@ -124,7 +123,7 @@
                   </div>
 
                   <div class="col-lg-6" th:if="${i + 1 <= 10}">
-                    <label class="col-form-label" th:text="${'s' + (i + 1)}"></label>
+                    <label class="form-label" th:text="${'s' + (i + 1)}"></label>
                     <select th:field="*{__${'s' + (i + 1)}__}" class="form-control">
                       <option value="">Indefinito</option>
                       <option value="0">Disattivo</option>

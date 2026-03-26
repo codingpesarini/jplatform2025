@@ -100,17 +100,6 @@
                     </a>
                 </li>
 
-                <!-- LCMS Formazione - autorizzazione 2 -->
-                <li class="pc-item" id="sb03"
-                    th:if="${config?.amministratore?.hasRole(2)}">
-                    <a th:href="@{/admin/sezioni-lcms}" class="pc-link">
-                        <span class="pc-micon">
-                            <svg class="pc-icon"><use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-presentation|}"></use></svg>
-                        </span>
-                        <span class="pc-mtext">LCMS - Formazione</span>
-                    </a>
-                </li>
-
                 <!-- CMS Media Library - autorizzazione 3 -->
                 <li class="pc-item" id="sb04"
                     th:if="${config?.amministratore?.hasRole(3)}">
@@ -127,9 +116,9 @@
                     th:if="${config?.amministratore?.hasRole(4)}">
 
                     <a href="javascript:void(0)" class="pc-link">
-        <span class="pc-micon">
-            <svg class="pc-icon"><use xlink:href="#custom-user"></use></svg>
-        </span>
+                    <span class="pc-micon">
+                    <svg class="pc-icon"><use xlink:href="#custom-user"></use></svg>
+                    </span>
                         <span class="pc-mtext">CRM</span>
                         <span class="pc-arrow"><i data-feather="chevron-right"></i></span>
                     </a>
@@ -233,7 +222,39 @@
 
         </div>
     </div>
-</nav>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. Prendi l'URL attuale del browser
+        var currentUrl = window.location.pathname;
 
+        // 2. Cerca tutti i link della sidebar
+        var menuLinks = document.querySelectorAll(".pc-sidebar .pc-link");
+
+        menuLinks.forEach(function(link) {
+            var href = link.getAttribute("href");
+
+            // Se l'URL della pagina contiene il link (gestisce anche i "dettagli/open")
+            if (href && href !== "javascript:void(0)" && currentUrl.includes(href)) {
+
+                // Aggiunge la classe active al link corrente
+                link.parentElement.classList.add("active");
+
+                // Risale al menu padre (es. Impostazioni o CRM)
+                var parentMenu = link.closest(".pc-hasmenu");
+                if (parentMenu) {
+                    parentMenu.classList.add("pc-trigger");
+                    parentMenu.classList.add("active");
+
+                    // Forza l'apertura visiva del sottomenu
+                    var submenu = parentMenu.querySelector(".pc-submenu");
+                    if (submenu) {
+                        submenu.style.display = "block";
+                    }
+                }
+            }
+        });
+    });
+</script>
+</nav>
 </body>
 </html>

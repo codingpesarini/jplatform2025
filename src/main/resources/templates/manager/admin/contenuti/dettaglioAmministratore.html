@@ -89,18 +89,20 @@
 
                                 <div class="row form-group">
                                     <div class="col-lg-6 text-center">
-                                        <img th:src="${amministratoriUtente.avatar}" alt="" style="width:150px"><br>
+                                        <img id="avatar-img" th:src="${amministratoriUtente.avatar}" alt="Avatar" style="width:150px" class="img-thumbnail mb-2"><br>
+
                                         <a href="javascript:void(0);"
                                            th:data-id="${amministratoriUtente.id}"
-                                           onclick="return hs.htmlExpand(this,{headingText:'',align:'center',objectType:'iframe',width:400,height:600,src:'/filemanager/gestioneAvatar?idUser='+this.getAttribute('data-id')+'&userTable=utente&userTableField=image'})"
-                                           class="mb-1 mt-1 mr-1 btn btn-xs btn-default">
-                                            Carica foto utente
+                                           onclick="return hs.htmlExpand(this,{headingText:'Carica Foto', align:'center', objectType:'iframe', width:800, height:600, src:'/admin/filemanager/popup/1/immagini?idUtente='+this.getAttribute('data-id')})"
+                                           class="btn btn-sm btn-light-primary mb-1">
+                                            <i class="ti ti-upload"></i> Carica foto utente
                                         </a>
+
                                         <a href="javascript:void(0);"
                                            th:data-id="${amministratoriUtente.id}"
-                                           onclick="CancellaAvatar('gestioneAvatar',this.getAttribute('data-id'),'utente','image')"
-                                           class="mb-1 mt-1 mr-1 btn btn-xs btn-default">
-                                            Cancella foto
+                                           onclick="EliminaAvatarScript(this.getAttribute('data-id'))"
+                                           class="btn btn-sm btn-light-danger mb-1">
+                                            <i class="ti ti-trash"></i> Cancella foto
                                         </a>
                                     </div>
                                     <div class="col-lg-6">

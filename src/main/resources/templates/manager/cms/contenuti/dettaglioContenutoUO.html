@@ -225,7 +225,7 @@
 
             <!-- TAB 04 — IMMAGINI -->
             <div id="tab_04" class="tab-pane" role="tabpanel">
-              <div class="row form-group">
+              <div class="row form-group mt-3">
                 <div class="col-lg-6">
                   <h4>Immagini inserite nella pagina
                     <i class="fas fa-info-circle" data-bs-toggle="tooltip"
@@ -235,7 +235,6 @@
                 </div>
 
                 <div class="col-lg-6 text-right">
-                  <br>
                   <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
                           onclick="FileManager.apriForm('/admin/filemanager/popup/1/immagini','Media Library Immagini')">
                     <i class="fas fa-images"></i> Media Library
@@ -274,7 +273,7 @@
 
             <!-- TAB 05 — ALLEGATI -->
             <div id="tab_05" class="tab-pane" role="tabpanel">
-              <div class="row form-group">
+              <div class="row form-group mt-3">
                 <div class="col-lg-6">
                   <h4>Allegati inseriti nella pagina
                     <i class="fas fa-info-circle" data-bs-toggle="tooltip"
@@ -284,7 +283,6 @@
                 </div>
 
                 <div class="col-lg-6 text-right">
-                  <br>
                   <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
                           onclick="FileManager.apriForm('/admin/filemanager/popup/1/allegati','Media Library Documenti')">
                     <i class="fas fa-images"></i> Media Library
@@ -477,7 +475,7 @@
                     </select>
                   </div>
                   <div class="col-lg-6" id="SpazioEreditaExtraTag" style="display:none">
-                    <button id="EreditaExtraTag" class="mb-1 mt-1 mr-1 btn btn-primary btn-lg btn-block">
+                    <button type="button" id="EreditaExtraTag" class="mb-1 mt-1 mr-1 btn btn-primary btn-lg btn-block" onclick="ApplicaExtraTagContenuti()">
                       <i class="ti ti-copy me-1"></i> Applica ExtraTag a tutti i contenuti
                     </button>
                   </div>
@@ -492,7 +490,7 @@
                       <label th:for="|extraTagRef${i}|" class="col-form-label" th:text="${'Sezione associata ' + i}">Sezione</label>
                       <select th:id="|extraTagRef${i}|" th:name="|extraTagRef${i}|" class="form-select">
                         <option value="0">Nessuna relazione</option>
-                        <option th:each="s : ${elencoSezioniCompleto}"
+                        <option th:each="s : ${elencoSezioni}"
                                 th:value="${s.id}" th:text="${s.titolo}"
                                 th:selected="${post.__${'extraTagRef' + i}__ != null and s.id == post.__${'extraTagRef' + i}__}">
                         </option>
@@ -523,7 +521,7 @@
     <input type="hidden" name="log2"        th:value="${post.log2}">
     <input type="hidden" name="log3"        th:value="${post.log3}">
     <input type="hidden" name="idParent"    id="idparent" th:value="${post.idParent}">
-    <input type="hidden" name="temp1"       th:value="${post.statoText}">
+    <input type="hidden" id="temp1_trigger" name="temp1" value="0">
     <input type="hidden" name="idRoot"      th:value="${post.idRoot}">
     <input type="hidden" name="idType"      th:value="${post.idType}">
     <input type="hidden" name="l2"          value="0">

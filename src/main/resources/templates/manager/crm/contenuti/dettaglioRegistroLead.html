@@ -43,8 +43,7 @@
             <div class="col-lg-12">
                 <div class="card shadow-sm border-0" style="border-radius: 15px; background: #fff; padding: 20px;">
 
-                    <div class="tabs" id="mytabs">
-                        <ul class="nav nav-tabs border-0" role="tablist">
+                    <ul class="nav nav-tabs" role="tablist">
                             <li class="nav-item storeTab" role="presentation">
                             <a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Definizione</a>
                         </li>
@@ -52,7 +51,6 @@
                             <!--a class="nav-link" href="#tab_02" data-bs-toggle="tab">Altri dati</a-->
                         </li>
                     </ul>
-                    </div>
                     <div class="tab-content">
 
                         <!-- ═══ TAB 01 ═══ -->
@@ -80,7 +78,7 @@
                                             </div>
 
                                             <div class="col-lg-12 mb-2">
-                                                <label for="ricercaUtenteNuovoLead" class="col-form-label">Ricerca anagrafica rapida</label>
+                                                <label for="ricercaUtenteNuovoLead" class="form-label">Ricerca anagrafica rapida</label>
                                                 <input type="text"
                                                        id="ricercaUtenteNuovoLead"
                                                        class="form-control js-autocomplete"
@@ -131,7 +129,7 @@
                                         <div class="row form-group">
 
                                             <div class="col-lg-6">
-                                                <label for="data" class="col-form-label">Data</label>
+                                                <label for="data" class="form-label">Data</label>
                                                 <input type="text"
                                                        class="form-control dataBase obbligatorio notAutocomplete"
                                                        id="data"
@@ -140,7 +138,7 @@
                                             </div>
 
                                             <div class="col-lg-6">
-                                                <label for="stato" class="col-form-label">Stato</label>
+                                                <label for="stato" class="form-label">Stato</label>
                                                 <select class="form-control obbligatorio" name="stato" id="stato">
                                                     <option value="0" th:selected="${registroLead.stato == '0'}">Non gestito</option>
                                                     <option value="1" th:selected="${registroLead.stato == '1'}">Da richiamare</option>

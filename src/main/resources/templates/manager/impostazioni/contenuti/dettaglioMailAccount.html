@@ -55,8 +55,7 @@
       <div class="col-lg-12">
         <div class="card shadow-sm border-0" style="border-radius: 15px; background: #fff; padding: 20px;">
 
-          <div class="tabs tabs-secondary" id="mytabs">
-            <ul class="nav nav-tabs border-0" role="tablist">
+          <ul class="nav nav-tabs" role="tablist">
               <li class="nav-item storeTab" id="1" role="presentation">
                 <a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Generale</a>
               </li>
@@ -66,15 +65,13 @@
               <li class="nav-item storeTab" id="3">
                 <a class="nav-link" href="#tab_03" data-bs-toggle="tab">Dati Account PEC</a>
               </li>
-            </ul>
-          </div>
-          <hr class="mt-0 mb-3">
+          </ul>
           <div class="tab-content">
 
             <!-- TAB 01 — Generale -->
             <div id="tab_01" class="tab-pane active">
-              <fieldset>
-                <legend th:text="${account.id != null ? 'Definizione ID ' + account.id : 'Nuovo Account'}">Definizione</legend>
+              <fieldset class="border p-3 mb-4">
+                <legend class="float-none w-auto px-2" th:text="${account.id != null ? 'Definizione ID ' + account.id : 'Nuovo Account'}">Definizione</legend>
                 <div class="row form-group">
 
                   <div class="col-lg-12 mb-3">
@@ -113,8 +110,8 @@
 
             <!-- TAB 02 — Dati Account Email -->
             <div id="tab_02" class="tab-pane">
-              <fieldset>
-                <legend>Account email</legend>
+              <fieldset class="border p-3 mb-4">
+                <legend class="float-none w-auto px-2">Account email</legend>
 
                 <div class="row form-group">
                   <div class="col-lg-6">
@@ -192,8 +189,8 @@
 
             <!-- TAB 03 — Dati Account PEC -->
             <div id="tab_03" class="tab-pane">
-              <fieldset>
-                <legend>Account PEC</legend>
+              <fieldset class="border p-3 mb-4">
+                <legend class="float-none w-auto px-2">Account PEC</legend>
 
                 <div class="row form-group">
                   <div class="col-lg-6">
