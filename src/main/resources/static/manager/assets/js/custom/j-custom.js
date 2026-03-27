@@ -810,3 +810,19 @@ window.ApplicaExtraTagContenuti = function() {
         console.error("Errore: trigger o form non trovati nel DOM.");
     }
 };
+
+// Bootstrap Multiselect
+if (typeof $.fn.multiselect === 'function') {
+    $('select.multiselect').multiselect({
+        includeSelectAllOption: true,
+        selectAllText: 'Seleziona tutti',
+        nonSelectedText: 'None selected',
+        nSelectedText: ' selezionati',
+        allSelectedText: 'Tutti selezionati',
+        numberDisplayed: 0,
+        buttonClass: 'btn btn-default',
+        templates: {
+            button: '<button type="button" class="multiselect dropdown-toggle btn btn-default" data-bs-toggle="dropdown" style="width:100%"><span class="multiselect-selected-text"></span></button>'
+        }
+    });
+}

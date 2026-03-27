@@ -1,6 +1,7 @@
 package com.studiodomino.jplatform.crm.service;
 
 import com.studiodomino.jplatform.crm.entity.RegistroLead;
+import com.studiodomino.jplatform.crm.repository.AreaInteresseRepository;
 import com.studiodomino.jplatform.crm.repository.RegistroLeadRepository;
 import com.studiodomino.jplatform.shared.config.Configurazione;
 import com.studiodomino.jplatform.shared.entity.Utente;
@@ -29,6 +30,7 @@ public class RegistroLeadService {
     private final UtenteEsternoRepository utenteEsternoRepository;
     private final UtenteRepository utenteRepository;
     private final AnagraficaService anagraficaService;
+    private final AreaInteresseRepository areaInteresseRepository;
 
     // Adatta questi due service ai nomi reali del tuo progetto
     private final EmailSenderService emailSenderService;
@@ -61,7 +63,7 @@ public class RegistroLeadService {
     }
 
     public List<?> findAreeInteresse() {
-        return List.of();
+        return areaInteresseRepository.findAllByOrderByDescrizioneAsc();
     }
 
     public Object findCommentoById(Long idLeadStore) {

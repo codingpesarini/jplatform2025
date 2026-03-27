@@ -66,9 +66,9 @@
                   <tr th:each="lead : ${todoLead}">
                     <td th:text="${lead.data}">01/01/2024</td>
                     <td>
-                      <a th:href="@{/admin/crm/utenti/{id}(id=${lead.utente.id})}"
-                         th:title="'Apri anagrafica: ' + ${lead.utente.email}"
-                         th:text="${lead.utente.nome + ' ' + lead.utente.cognome}">
+                      <a th:href="@{/admin/crm/utenti/{id}(id=${lead?.utente?.id})}"
+                         th:title="'Apri anagrafica: ' + ${lead?.utente?.email}"
+                         th:text="${lead?.utente?.nome + ' ' + lead?.utente?.cognome}">
                         Mario Rossi
                       </a>
                     </td>
@@ -164,7 +164,7 @@
             <input type="text" class="form-control"
                    id="ricercaUtenteSchedaAnagrafica"
                    placeholder="Ricerca utente...">
-            <button class="btn btn-outline-secondary" type="button">
+            <button class="btn btn-outline-secondary" type="button" onclick="cercaUtenteDash()">
               <i class="ti ti-search"></i>
             </button>
           </div>
@@ -220,7 +220,6 @@
        ===================================================================== -->
   <script th:inline="javascript">
     function cancellaLead(id) {
-      if (!confirm('Confermi l\'eliminazione di questa attività?')) return;
 
       /*[- var baseUrl = [[@{/admin/crm/lead/}]]; -]*/
       var baseUrl = /*[[  @{/admin/crm/lead/}  ]]*/ '/admin/crm/lead/';
@@ -241,6 +240,32 @@
               })
               .catch(() => alert('Errore di rete.'));
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputRicerca = document.getElementById('ricercaUtenteSchedaAnagrafica');
+
+        if (inputRicerca) {
+            inputRicerca.addEventListener('input', function() {
+                // 1. Prendi il testo scritto e trasformalo in minuscolo
+                let filter = this.value.toLowerCase().trim();
+
+                // 2. Seleziona tutti i "li" della lista utenti (escludendo quello "Nessun utente")
+                let utenti = document.querySelectorAll('.list-unstyled li.d-flex');
+
+                utenti.forEach(function(li) {
+                    // 3. Leggi tutto il testo dentro il li (Nome, Cognome, Email)
+                    let testoUtente = li.innerText.toLowerCase();
+
+                    // 4. Mostra o Nascondi in base al match
+                    if (testoUtente.includes(filter)) {
+                        li.style.setProperty('display', 'flex', 'important');
+                    } else {
+                        li.style.setProperty('display', 'none', 'important');
+                    }
+                });
+            });
+        }
+    });
   </script>
 </div>
 </body>

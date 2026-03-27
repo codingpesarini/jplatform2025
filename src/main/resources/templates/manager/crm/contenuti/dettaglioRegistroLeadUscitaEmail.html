@@ -48,17 +48,6 @@
           <strong>Perfetto!</strong> Ho inviato il messaggio Email come da te richiesto.
         </div>
 
-        <ul class="nav nav-tabs mb-3">
-          <li class="nav-item">
-            <button class="nav-link active"
-                    type="button"
-                    data-bs-toggle="tab"
-                    data-bs-target="#tab_definizione">
-              Definizione
-            </button>
-          </li>
-        </ul>
-
         <div class="tab-content">
           <div class="tab-pane fade show active" id="tab_definizione">
 
@@ -149,11 +138,10 @@
                   <div class="col-12">
                     <label for="ricercaUtenteNuovoLead" class="form-label">Ricerca anagrafica</label>
                     <input type="text"
-                           class="form-control"
-                           name="ricercaUtenteNuovoLead"
                            id="ricercaUtenteNuovoLead"
-                           placeholder="Ricerca utente..."
-                           value="">
+                           class="form-control js-autocomplete"
+                           data-url="/admin/crm/utenti/search"
+                           placeholder="Scrivi Cognome o Nome...">
                   </div>
 
                   <div class="col-lg-6">
@@ -231,7 +219,20 @@
     </div>
   </form>
 
-  <script>
+  <script th:inline="javascript">
+    // Usa le tue funzioni globali esistenti
+    document.addEventListener('DOMContentLoaded', function () {
+        // Forza l'apertura immediata usando la TUA funzione initTinyMCE
+        if (typeof initTinyMCE === 'function') {
+            // Rimuoviamo eventuali istanze appese prima di inizializzare
+            if (typeof tinymce !== 'undefined' && tinymce.get('notalead')) {
+                tinymce.get('notalead').remove();
+            }
+            // Avviamo l'editor sulla tua textarea
+            initTinyMCE('#notalead');
+        }
+    });
+
     function submitRegistroLeadEmail(e) {
         if (e) {
             e.preventDefault();
@@ -239,27 +240,29 @@
         }
 
         var form = document.getElementById('registrolead');
-        if (!form) {
-            new PNotify({
-                title: 'Errore',
-                text: 'Form "registrolead" non trovato.',
-                type: 'error'
-            });
-            return false;
-        }
 
+        // Sincronizzazione sicura TinyMCE (la tua logica originale)
         if (typeof tinymce !== 'undefined') {
-            tinymce.triggerSave();
+            try {
+                if (typeof tinymce.triggerSave === 'function') {
+                    tinymce.triggerSave();
+                } else if (tinymce.editors && tinymce.editors.length > 0) {
+                    tinymce.editors.forEach(function(editor) { editor.save(); });
+                }
+            } catch(err) {
+                console.warn('TinyMCE save error:', err);
+            }
         }
 
         if (!form.checkValidity()) {
             form.classList.add('was-validated');
-
-            new PNotify({
-                title: 'Attenzione!',
-                text: 'Alcuni campi obbligatori del modulo richiedono un tuo intervento!',
-                type: 'error'
-            });
+            if (typeof PNotify !== 'undefined') {
+                new PNotify({
+                    title: 'Attenzione!',
+                    text: 'Alcuni campi obbligatori richiedono un intervento!',
+                    type: 'error'
+                });
+            }
             return false;
         }
 
@@ -267,41 +270,6 @@
         form.submit();
         return true;
     }
-
-    function resetAnagraficaLeadCRM() {
-        if (confirm('Confermi la pulizia dei campi anagrafici del LEAD?')) {
-            document.getElementById('idutente').value = '0';
-
-            var utenteid = document.getElementById('utenteid');
-            var utentenome = document.getElementById('utentenome');
-            var utentecognome = document.getElementById('utentecognome');
-            var utenteemail = document.getElementById('utenteemail');
-            var utentetelefono = document.getElementById('utentetelefono');
-            var utentetelefono2 = document.getElementById('utentetelefono2');
-
-            if (utenteid) utenteid.value = '';
-            if (utentenome) utentenome.value = '';
-            if (utentecognome) utentecognome.value = '';
-            if (utenteemail) utenteemail.value = '';
-            if (utentetelefono) utentetelefono.value = '';
-            if (utentetelefono2) utentetelefono2.value = '';
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        if (typeof tinymce !== 'undefined') {
-            tinymce.remove('#notalead');
-
-            tinymce.init({
-                selector: '#notalead',
-                height: 500,
-                menubar: 'file edit view insert format tools table help',
-                toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media table | forecolor backcolor | code fullscreen preview',
-                branding: false,
-                promotion: false
-            });
-        }
-    });
   </script>
 
 </div>

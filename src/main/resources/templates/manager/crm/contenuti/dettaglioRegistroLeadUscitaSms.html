@@ -48,17 +48,6 @@
                     <strong>Perfetto!</strong> Ho inviato il messaggio SMS come da te richiesto.
                 </div>
 
-                <ul class="nav nav-tabs mb-3">
-                    <li class="nav-item">
-                        <button class="nav-link active"
-                                type="button"
-                                data-bs-toggle="tab"
-                                data-bs-target="#tab_sms_definizione">
-                            Definizione
-                        </button>
-                    </li>
-                </ul>
-
                 <div class="tab-content">
                     <div id="tab_sms_definizione" class="tab-pane fade show active">
 
@@ -133,11 +122,10 @@
                                     <div class="col-12">
                                         <label class="form-label" for="ricercaUtenteNuovoLead">Ricerca anagrafica</label>
                                         <input type="text"
-                                               class="form-control"
-                                               name="ricercaUtenteNuovoLead"
                                                id="ricercaUtenteNuovoLead"
-                                               placeholder="Ricerca utente..."
-                                               value="">
+                                               class="form-control js-autocomplete"
+                                               data-url="/admin/crm/utenti/search"
+                                               placeholder="Scrivi Cognome o Nome...">
                                     </div>
 
                                     <div class="col-lg-6">
@@ -196,11 +184,6 @@
                             <div class="card-body">
                                 <div class="d-flex align-items-center justify-content-between mb-3">
                                     <h4 class="mb-0">Messaggio SMS</h4>
-                                    <a href="javascript:void(0)"
-                                       class="btn btn-sm btn-outline-secondary"
-                                       onclick="if(window.tinymce){ toggleEditor('notalead');}">
-                                        Editor
-                                    </a>
                                 </div>
 
                                 <div class="row">
@@ -222,18 +205,42 @@
         </div>
     </form>
 
-    <script>
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            // Avvio automatico dell'editor usando la TUA funzione globale
+            if (typeof initTinyMCE === 'function') {
+                if (typeof tinymce !== 'undefined' && tinymce.get('notalead')) {
+                    tinymce.get('notalead').remove();
+                }
+                initTinyMCE('#notalead');
+            }
+        });
+
         function inviaForm(e) {
             if (e) e.preventDefault();
 
             var form = document.getElementById('registrolead');
+
+            // Sincronizzazione TinyMCE (la tua logica sicura)
+            if (typeof tinymce !== 'undefined') {
+                try {
+                    if (typeof tinymce.triggerSave === 'function') {
+                        tinymce.triggerSave();
+                    } else if (tinymce.editors && tinymce.editors.length > 0) {
+                        tinymce.editors.forEach(function(editor) { editor.save(); });
+                    }
+                } catch(err) { console.warn('TinyMCE save error:', err); }
+            }
+
             if (!form.checkValidity()) {
                 form.classList.add('was-validated');
-                new PNotify({
-                    title: 'Attenzione!',
-                    text: 'Alcuni campi obbligatori richiedono un tuo intervento!',
-                    type: 'error'
-                });
+                if (typeof PNotify !== 'undefined') {
+                    new PNotify({
+                        title: 'Attenzione!',
+                        text: 'Alcuni campi obbligatori richiedono un tuo intervento!',
+                        type: 'error'
+                    });
+                }
                 return false;
             }
 
@@ -243,12 +250,13 @@
         }
 
         function resetAnagraficaLeadCRM() {
-            document.getElementById('idutente').value = '0';
-
-            ['utentenome','utentecognome','utenteemail','utentetelefono','utentetelefono2','utenteid'].forEach(function(id) {
-                var el = document.getElementById(id);
-                if (el) el.value = '';
-            });
+            if (confirm('Confermi la pulizia dei campi?')) {
+                document.getElementById('idutente').value = '0';
+                ['utentenome','utentecognome','utenteemail','utentetelefono','utentetelefono2','utenteid'].forEach(function(id) {
+                    var el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+            }
         }
     </script>
 
