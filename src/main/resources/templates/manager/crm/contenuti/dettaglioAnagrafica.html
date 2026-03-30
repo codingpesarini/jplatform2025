@@ -1,13 +1,10 @@
-<!doctype html>
 <html lang="it"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{manager/layout/template}">
 <body>
-
 <div layout:fragment="content">
 
-  <!-- Page Header -->
   <div class="page-header d-flex align-items-center justify-content-between mb-3">
     <div>
       <h4 class="page-title mb-0">
@@ -15,98 +12,55 @@
         <span>Dettaglio Anagrafica</span>
       </h4>
       <small class="text-muted">
-        ID:
-        <!-- elencoAnagrafico è LISTA: mostro id del primo elemento se presente, altrimenti 0 -->
-        <strong th:text="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].id != null) ? elencoAnagrafico[0].id : 0}"></strong>
+        ID: <strong th:text="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].id != null) ? elencoAnagrafico[0].id : 0}"></strong>
       </small>
     </div>
-
-    <!-- Toolbar azioni -->
     <div class="right-wrapper text-right" style="margin-left: auto; margin-right: 10%; margin-bottom: 20px;">
-
-      <a th:href="@{/admin/crm/utenti/new}"
-         class="mb-1 mt-1 mr-1 btn btn-sm btn-success">
+      <a th:href="@{/admin/crm/utenti/new}" class="mb-1 mt-1 mr-1 btn btn-sm btn-success">
         <i class="fas fa-plus-circle"></i> Nuova
       </a>
-
       <a th:if="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].id != null && elencoAnagrafico[0].id > 0}"
          th:href="@{/admin/crm/utenti/{id}/duplicate(id=${elencoAnagrafico[0].id})}"
          class="mb-1 mt-1 mr-1 btn btn-sm btn-info"
          onclick="confirmAction('Vuoi duplicare questa anagrafica?', function(){ window.location=this.href; }.bind(this)); return false;">
         <i class="fas fa-clone"></i> Duplica
       </a>
-
-      <button type="button"
-              class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
-              onclick="submitAnagraficaForm(event)">
+      <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary" onclick="submitAnagraficaForm(event)">
         <i class="fas fa-save"></i> Salva
       </button>
-
-      <a th:href="@{/admin/crm/utenti}"
-         class="mb-1 mt-1 mr-1 btn btn-sm btn-danger">
+      <a th:href="@{/admin/crm/utenti}" class="mb-1 mt-1 mr-1 btn btn-sm btn-danger">
         <i class="fas fa-times-circle"></i> Esci
       </a>
-
     </div>
   </div>
 
-  <!-- Form -->
-  <form th:action="@{/admin/crm/utenti/save}"
-        method="post"
-        id="elencoAnagrafico"
-        class="needs-validation"
-        novalidate>
+  <form th:action="@{/admin/crm/utenti/save}" method="post" id="elencoAnagrafico" class="needs-validation" novalidate>
 
-    <!-- Hidden base -->
     <input type="hidden" name="id" id="id"
            th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].id != null) ? elencoAnagrafico[0].id : ''}">
-
     <input type="hidden" name="profileImage" id="profileImage"
-           th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].profileImage != null) ? elencoAnagrafico[0].profileImage : ''}">
+           th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].profileImage != null) ? elencoAnagrafico[0].profileImage : 0}">
 
     <div class="card">
       <div class="card-header d-flex align-items-center justify-content-between">
-        <ul class="nav nav-tabs card-header-tabs" id="crmTabs" role="tablist">
+        <ul class="nav nav-tabs card-header-tabs" role="tablist">
           <li class="nav-item">
-            <a class="nav-link active"
-               href="#tab_01"
-               data-bs-toggle="tab"
-               role="tab"
-               aria-controls="tab_01"
-               aria-selected="true">
+            <a class="nav-link active" href="#tab_01" data-bs-toggle="tab" role="tab">
               <i class="ti ti-id me-1"></i> Dati anagrafici
             </a>
           </li>
-
           <li class="nav-item">
-            <a class="nav-link"
-               href="#tab_02"
-               data-bs-toggle="tab"
-               role="tab"
-               aria-controls="tab_02"
-               aria-selected="false">
+            <a class="nav-link" href="#tab_02" data-bs-toggle="tab" role="tab">
               <i class="ti ti-lock me-1"></i> Dati accesso
             </a>
           </li>
-
           <li class="nav-item">
-            <a class="nav-link"
-               href="#tab_03"
-               data-bs-toggle="tab"
-               role="tab"
-               aria-controls="tab_03"
-               aria-selected="false">
+            <a class="nav-link" href="#tab_03" data-bs-toggle="tab" role="tab">
               <i class="ti ti-settings me-1"></i> Servizi
             </a>
           </li>
-
           <li class="nav-item">
-            <a class="nav-link"
-               href="#tab_04"
-               data-bs-toggle="tab"
-               role="tab"
-               aria-controls="tab_04"
-               aria-selected="false">
+            <a class="nav-link" href="#tab_04" data-bs-toggle="tab" role="tab">
               <i class="ti ti-adjustments me-1"></i> Altri dati
             </a>
           </li>
@@ -116,32 +70,29 @@
       <div class="card-body">
         <div class="tab-content">
 
-          <!-- ========================================================= -->
-          <!-- TAB 01: DATI ANAGRAFICI                                    -->
-          <!-- ========================================================= -->
+          <!-- TAB 01 -->
           <div id="tab_01" class="tab-pane fade show active" role="tabpanel">
-
             <div class="row g-3">
 
-              <!-- Avatar box -->
+              <!-- Avatar -->
               <div class="col-lg-3">
                 <div class="border rounded p-3 text-center h-100">
-                  <img class="img-fluid rounded mb-2"
-                       style="max-width: 180px;"
-                       th:src="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].avatar != null && elencoAnagrafico[0].avatar != '') ?
-                  elencoAnagrafico[0].avatar : '/manager/assets/img/user/avatar-default.png'}"
+                  <img id="avatar-img"
+                       class="img-fluid rounded mb-2"
+                       style="max-width:180px;"
+                       th:src="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null
+              ? elencoAnagrafico[0].avatar
+              : '/manager/assets/img/user/avatar-1.jpg'}"
                        alt="avatar">
-
-                  <div class="d-grid gap-2">
-                       <a th:href="@{/admin/crm/utenti/avatar(id=${elencoAnagrafico[0].id})}"
-                       class="btn btn-outline-primary btn-sm">
+                  <div class="d-grid gap-2 mt-2">
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="apriModalAvatar()">
                       <i class="ti ti-upload me-1"></i> Carica foto
-                    </a>
-
-                    <a th:href="@{/admin/crm/utenti/avatar/delete(id=${elencoAnagrafico[0].id})}"
-                       class="btn btn-outline-danger btn-sm">
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-sm"
+                            th:data-id="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].id : 0}"
+                            onclick="cancellaAvatar(this.dataset.id)">
                       <i class="ti ti-trash me-1"></i> Cancella
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -149,519 +100,314 @@
               <!-- Dati -->
               <div class="col-lg-9">
                 <div class="row g-3">
-
                   <div class="col-lg-6">
-                    <label class="form-label" for="cognome">
-                      Cognome o denominazione <span class="text-danger">*</span>
-                    </label>
-                    <input type="text"
-                           class="form-control obbligatorio"
-                           id="cognome"
-                           name="cognome"
-                           th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].cognome : ''}"
-                           required>
-                    <div class="invalid-feedback">Campo obbligatorio</div>
+                    <label class="form-label" for="cognome">Cognome o denominazione <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control obbligatorio" id="cognome" name="cognome"
+                           th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].cognome : ''}" required>
                   </div>
-
                   <div class="col-lg-6">
                     <label class="form-label" for="nome">Nome</label>
-                    <input type="text"
-                           class="form-control"
-                           id="nome"
-                           name="nome"
+                    <input type="text" class="form-control" id="nome" name="nome"
                            th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].nome : ''}">
                   </div>
-
                   <div class="col-lg-4">
                     <label class="form-label" for="datanascita">Data di nascita</label>
-                    <input type="text"
-                           class="form-control dataBase"
-                           id="datanascita"
-                           name="datanascita"
-                           th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0]?.datanascita : ''}">
+                    <input type="text" class="form-control dataBase" id="datanascita" name="datanascita"
+                           th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].datanascita : ''}">
                   </div>
-
                   <div class="col-lg-4">
                     <label class="form-label" for="genere">Genere</label>
                     <select id="genere" name="genere" class="form-select">
-                      <option value=""
-                              th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].genere == null || elencoAnagrafico[0].genere == ''}">
-                        Indefinito
-                      </option>
-                      <option value="M"
-                              th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].genere == 'M'}">Maschio</option>
-                      <option value="F"
-                              th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].genere == 'F'}">Femmina</option>
+                      <option value="" th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].genere == null || elencoAnagrafico[0].genere == ''}">Indefinito</option>
+                      <option value="M" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].genere == 'M'}">Maschio</option>
+                      <option value="F" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].genere == 'F'}">Femmina</option>
                     </select>
                   </div>
-
                   <div class="col-lg-4">
                     <label class="form-label" for="personagiuridica">Persona giuridica</label>
                     <select id="personagiuridica" name="personagiuridica" class="form-select">
-                      <option value=""
-                              th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].personagiuridica == null || elencoAnagrafico[0].personagiuridica == ''}">
-                        Indefinito
-                      </option>
-                      <option value="0"
-                              th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].personagiuridica == '0'}">No</option>
-                      <option value="1"
-                              th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].personagiuridica == '1'}">Sì</option>
+                      <option value="" th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].personagiuridica == null || elencoAnagrafico[0].personagiuridica == ''}">Indefinito</option>
+                      <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].personagiuridica == '0'}">No</option>
+                      <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].personagiuridica == '1'}">Sì</option>
                     </select>
                   </div>
-
                   <div class="col-lg-6">
                     <label class="form-label" for="email">Email</label>
-                    <input type="text" class="form-control"
-                           id="email" name="email"
+                    <input type="text" class="form-control" id="email" name="email"
                            th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].email : ''}">
                   </div>
-
                   <div class="col-lg-6">
                     <label class="form-label" for="pec">PEC</label>
-                    <input type="text" class="form-control"
-                           id="pec" name="pec"
+                    <input type="text" class="form-control" id="pec" name="pec"
                            th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].pec : ''}">
                   </div>
-
                   <div class="col-lg-6">
                     <label class="form-label" for="codicefiscale">Codice fiscale</label>
-                    <input type="text" class="form-control upper"
-                           id="codicefiscale" name="codicefiscale"
+                    <input type="text" class="form-control upper" id="codicefiscale" name="codicefiscale"
                            th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].codicefiscale : ''}">
                   </div>
-
                   <div class="col-lg-6">
                     <label class="form-label" for="partitaiva">Partita IVA</label>
-                    <input type="text" class="form-control upper"
-                           id="partitaiva" name="partitaiva"
+                    <input type="text" class="form-control upper" id="partitaiva" name="partitaiva"
                            th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].partitaiva : ''}">
                   </div>
-
                   <div class="col-lg-6">
                     <label class="form-label" for="indirizzo">Via e numero civico</label>
-                    <input type="text" class="form-control upper"
-                           id="indirizzo" name="indirizzo"
+                    <input type="text" class="form-control upper" id="indirizzo" name="indirizzo"
                            th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].indirizzo : ''}">
                   </div>
-
                   <div class="col-lg-4">
                     <label class="form-label" for="comune">Comune</label>
-                    <input type="text" class="form-control upper"
-                           id="comune" name="comune"
+                    <input type="text" class="form-control upper" id="comune" name="comune"
                            th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].comune : ''}">
                   </div>
-
                   <div class="col-lg-2">
                     <label class="form-label" for="provincia">Prov</label>
-                    <input type="text" class="form-control upper"
-                           id="provincia" name="provincia"
+                    <input type="text" class="form-control upper" id="provincia" name="provincia"
                            th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].provincia : ''}">
                   </div>
-
                   <div class="col-lg-3">
                     <label class="form-label" for="cap">CAP</label>
-                    <input type="text" class="form-control upper"
-                           id="cap" name="cap"
+                    <input type="text" class="form-control upper" id="cap" name="cap"
                            th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].cap : ''}">
                   </div>
-
                   <div class="col-lg-3">
                     <label class="form-label" for="nazione">Nazione</label>
-                    <input type="text" class="form-control upper"
-                           id="nazione" name="nazione"
+                    <input type="text" class="form-control upper" id="nazione" name="nazione"
                            th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].nazione : ''}">
                   </div>
-
                   <div class="col-lg-3">
                     <label class="form-label" for="telefono">Telefono fisso</label>
-                    <input type="text" class="form-control"
-                           id="telefono" name="telefono"
+                    <input type="text" class="form-control" id="telefono" name="telefono"
                            th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].telefono : ''}">
                   </div>
-
                   <div class="col-lg-3">
                     <label class="form-label" for="telefono2">Mobile</label>
-                    <input type="text" class="form-control"
-                           id="telefono2" name="telefono2"
+                    <input type="text" class="form-control" id="telefono2" name="telefono2"
                            th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].telefono2 : ''}">
                   </div>
-
                   <div class="col-lg-6">
                     <label class="form-label" for="societa">Definizione aggiuntiva persona giuridica</label>
-                    <input type="text" class="form-control"
-                           id="societa" name="societa"
+                    <input type="text" class="form-control" id="societa" name="societa"
                            th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].societa : ''}">
                   </div>
-
                   <div class="col-lg-6">
                     <label class="form-label" for="indirizzospedizione">Indirizzo aggiuntivo completo</label>
-                    <input type="text" class="form-control"
-                           id="indirizzospedizione" name="indirizzospedizione"
+                    <input type="text" class="form-control" id="indirizzospedizione" name="indirizzospedizione"
                            th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].indirizzospedizione : ''}">
                   </div>
-
                 </div>
               </div>
-
             </div>
-
             <div class="mt-3">
               <small class="text-muted"><span class="text-danger">*</span> campi obbligatori</small>
             </div>
-
           </div>
 
-          <!-- ========================================================= -->
-          <!-- TAB 02: DATI ACCESSO                                       -->
-          <!-- ========================================================= -->
+          <!-- TAB 02 -->
           <div id="tab_02" class="tab-pane fade" role="tabpanel">
-
             <div class="row g-3">
-
               <div class="col-lg-6">
                 <label class="form-label" for="username">Username</label>
-                <input type="text" class="form-control"
-                       id="username" name="username"
+                <input type="text" class="form-control" id="username" name="username"
                        th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].username : ''}">
               </div>
-
               <div class="col-lg-3">
                 <label class="form-label" for="status">Stato attivazione</label>
                 <select id="status" name="status" class="form-select">
-                  <option value=""
-                          th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].status == null || elencoAnagrafico[0].status == ''}">
-                    Indefinito
-                  </option>
-                  <option value="0"
-                          th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].status == '0'}">Disattivo</option>
-                  <option value="1"
-                          th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].status == '1'}">Attivo</option>
-                  <option value="2"
-                          th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].status == '2'}">Attivo ma non aggiornato</option>
+                  <option value="" th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].status == null || elencoAnagrafico[0].status == ''}">Indefinito</option>
+                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].status == '0'}">Disattivo</option>
+                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].status == '1'}">Attivo</option>
+                  <option value="2" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].status == '2'}">Attivo ma non aggiornato</option>
                 </select>
               </div>
-
               <div class="col-lg-3">
                 <label class="form-label" for="password">Password</label>
-                <input type="password" class="form-control"
-                       id="password" name="password"
+                <input type="password" class="form-control" id="password" name="password"
                        th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].password : ''}">
-                <small class="text-muted d-block mt-1">
-                  8-15 caratteri, maiuscola, minuscola, numero, speciale
-                </small>
+                <small class="text-muted d-block mt-1">8-15 caratteri, maiuscola, minuscola, numero, speciale</small>
               </div>
-
               <div class="col-lg-6">
                 <label for="id_gruppi" class="form-label fw-bold">Gruppi associati</label>
                 <select id="id_gruppi" name="id_gruppi" multiple size="8" class="form-select shadow-sm">
                   <option th:each="g : ${config.gruppi}"
-                          th:value="${g.id}"
-                          th:text="${g.nome}"
-                          th:selected="${utente.idGruppi != null && #lists.contains(utente.idGruppi, g.id.toString())}">
+                          th:value="${g.id}" th:text="${g.nome}"
+                          th:selected="${utente != null && utente.idGruppi != null && #lists.contains(utente.idGruppi, g.id.toString())}">
                   </option>
                 </select>
                 <div class="form-text">Tenere premuto <kbd>Ctrl</kbd> per selezioni multiple.</div>
               </div>
-
               <div class="col-lg-6">
                 <label class="form-label">Audit</label>
                 <div class="border rounded p-3">
-                  <div>Data di registrazione:
-                    <strong th:text="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].datacreazione : '-'}">-</strong>
-                  </div>
-                  <div>Ultimo accesso:
-                    <strong th:text="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].dataultimoaccesso : '-'}">-</strong>
-                  </div>
+                  <div>Data di registrazione: <strong th:text="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].datacreazione : '-'}">-</strong></div>
+                  <div>Ultimo accesso: <strong th:text="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].dataultimoaccesso : '-'}">-</strong></div>
                 </div>
               </div>
-
             </div>
-
           </div>
 
-          <!-- ========================================================= -->
-          <!-- TAB 03: SERVIZI (l1..l10)                                  -->
-          <!-- ========================================================= -->
+          <!-- TAB 03 -->
           <div id="tab_03" class="tab-pane fade" role="tabpanel">
-
             <h6 class="text-muted mb-3">Impostazioni Servizi (l1 - l10)</h6>
-
             <div class="row g-3">
-              <!-- l1 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="l1">l1</label>
-                <select class="form-select" id="l1" name="l1">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].l1 == null || elencoAnagrafico[0].l1 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l1 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l1 == '1'}">Attivo</option>
-                </select>
-              </div>
-
-              <!-- l2 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="l2">l2</label>
-                <select class="form-select" id="l2" name="l2">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].l2 == null || elencoAnagrafico[0].l2 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l2 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l2 == '1'}">Attivo</option>
-                </select>
-              </div>
-
-              <!-- l3 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="l3">l3</label>
-                <select class="form-select" id="l3" name="l3">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].l3 == null || elencoAnagrafico[0].l3 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l3 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l3 == '1'}">Attivo</option>
-                </select>
-              </div>
-
-              <!-- l4 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="l4">l4</label>
-                <select class="form-select" id="l4" name="l4">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].l4 == null || elencoAnagrafico[0].l4 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l4 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l4 == '1'}">Attivo</option>
-                </select>
-              </div>
-
-              <!-- l5 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="l5">l5</label>
-                <select class="form-select" id="l5" name="l5">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].l5 == null || elencoAnagrafico[0].l5 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l5 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l5 == '1'}">Attivo</option>
-                </select>
-              </div>
-
-              <!-- l6 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="l6">l6</label>
-                <select class="form-select" id="l6" name="l6">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].l6 == null || elencoAnagrafico[0].l6 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l6 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l6 == '1'}">Attivo</option>
-                </select>
-              </div>
-
-              <!-- l7 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="l7">l7</label>
-                <select class="form-select" id="l7" name="l7">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].l7 == null || elencoAnagrafico[0].l7 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l7 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l7 == '1'}">Attivo</option>
-                </select>
-              </div>
-
-              <!-- l8 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="l8">l8</label>
-                <select class="form-select" id="l8" name="l8">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].l8 == null || elencoAnagrafico[0].l8 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l8 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l8 == '1'}">Attivo</option>
-                </select>
-              </div>
-
-              <!-- l9 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="l9">l9</label>
-                <select class="form-select" id="l9" name="l9">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].l9 == null || elencoAnagrafico[0].l9 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l9 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l9 == '1'}">Attivo</option>
-                </select>
-              </div>
-
-              <!-- l10 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="l10">l10</label>
-                <select class="form-select" id="l10" name="l10">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].l10 == null || elencoAnagrafico[0].l10 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l10 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].l10 == '1'}">Attivo</option>
-                </select>
-              </div>
+              <th:block th:each="i : ${#numbers.sequence(1, 10)}">
+                <div class="col-lg-6">
+                  <label class="form-label" th:for="${'l' + i}" th:text="${'l' + i}">lN</label>
+                  <select class="form-select" th:id="${'l' + i}" th:name="${'l' + i}">
+                    <option value="" th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].__${'l' + i}__ == null || elencoAnagrafico[0].__${'l' + i}__ == ''}">Indefinito</option>
+                    <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].__${'l' + i}__ == '0'}">Disattivo</option>
+                    <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].__${'l' + i}__ == '1'}">Attivo</option>
+                  </select>
+                </div>
+              </th:block>
             </div>
-
           </div>
 
-          <!-- ========================================================= -->
-          <!-- TAB 04: ALTRI DATI (s1..s10)                               -->
-          <!-- ========================================================= -->
+          <!-- TAB 04 -->
           <div id="tab_04" class="tab-pane fade" role="tabpanel">
-
             <h6 class="text-muted mb-3">Altri dati (s1 - s10)</h6>
-
             <div class="row g-3">
-              <!-- s1 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="s1">s1</label>
-                <select class="form-select" id="s1" name="s1">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].s1 == null || elencoAnagrafico[0].s1 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s1 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s1 == '1'}">Attivo</option>
-                </select>
-              </div>
-
-              <!-- s2 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="s2">s2</label>
-                <select class="form-select" id="s2" name="s2">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].s2 == null || elencoAnagrafico[0].s2 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s2 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s2 == '1'}">Attivo</option>
-                </select>
-              </div>
-
-              <!-- s3 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="s3">s3</label>
-                <select class="form-select" id="s3" name="s3">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].s3 == null || elencoAnagrafico[0].s3 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s3 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s3 == '1'}">Attivo</option>
-                </select>
-              </div>
-
-              <!-- s4 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="s4">s4</label>
-                <select class="form-select" id="s4" name="s4">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].s4 == null || elencoAnagrafico[0].s4 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s4 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s4 == '1'}">Attivo</option>
-                </select>
-              </div>
-
-              <!-- s5 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="s5">s5</label>
-                <select class="form-select" id="s5" name="s5">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].s5 == null || elencoAnagrafico[0].s5 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s5 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s5 == '1'}">Attivo</option>
-                </select>
-              </div>
-
-              <!-- s6 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="s6">s6</label>
-                <select class="form-select" id="s6" name="s6">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].s6 == null || elencoAnagrafico[0].s6 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s6 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s6 == '1'}">Attivo</option>
-                </select>
-              </div>
-
-              <!-- s7 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="s7">s7</label>
-                <select class="form-select" id="s7" name="s7">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].s7 == null || elencoAnagrafico[0].s7 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s7 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s7 == '1'}">Attivo</option>
-                </select>
-              </div>
-
-              <!-- s8 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="s8">s8</label>
-                <select class="form-select" id="s8" name="s8">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].s8 == null || elencoAnagrafico[0].s8 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s8 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s8 == '1'}">Attivo</option>
-                </select>
-              </div>
-
-              <!-- s9 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="s9">s9</label>
-                <select class="form-select" id="s9" name="s9">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].s9 == null || elencoAnagrafico[0].s9 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s9 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s9 == '1'}">Attivo</option>
-                </select>
-              </div>
-
-              <!-- s10 -->
-              <div class="col-lg-6">
-                <label class="form-label" for="s10">s10</label>
-                <select class="form-select" id="s10" name="s10">
-                  <option value=""  th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].s10 == null || elencoAnagrafico[0].s10 == ''}">Indefinito</option>
-                  <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s10 == '0'}">Disattivo</option>
-                  <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].s10 == '1'}">Attivo</option>
-                </select>
-              </div>
+              <th:block th:each="i : ${#numbers.sequence(1, 10)}">
+                <div class="col-lg-6">
+                  <label class="form-label" th:for="${'s' + i}" th:text="${'s' + i}">sN</label>
+                  <select class="form-select" th:id="${'s' + i}" th:name="${'s' + i}">
+                    <option value="" th:selected="${elencoAnagrafico == null || #lists.isEmpty(elencoAnagrafico) || elencoAnagrafico[0] == null || elencoAnagrafico[0].__${'s' + i}__ == null || elencoAnagrafico[0].__${'s' + i}__ == ''}">Indefinito</option>
+                    <option value="0" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].__${'s' + i}__ == '0'}">Disattivo</option>
+                    <option value="1" th:selected="${elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].__${'s' + i}__ == '1'}">Attivo</option>
+                  </select>
+                </div>
+              </th:block>
             </div>
-
           </div>
 
-        </div><!-- /tab-content -->
-      </div><!-- /card-body -->
-    </div><!-- /card -->
+        </div>
+      </div>
+    </div>
   </form>
 
+  <!-- Modal Avatar -->
+  <div class="modal fade" id="modalAvatar" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Foto profilo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Tab switcher -->
+          <ul class="nav nav-tabs mb-3">
+            <li class="nav-item">
+              <a class="nav-link active" href="#avatarTabUpload" data-bs-toggle="tab">
+                <i class="ti ti-upload me-1"></i> Carica foto
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#avatarTabScegli" data-bs-toggle="tab">
+                <i class="ti ti-mood-smile me-1"></i> Scegli avatar
+              </a>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <!-- Tab 1: Upload con crop -->
+            <div id="avatarTabUpload" class="tab-pane fade show active">
+              <div class="mb-3">
+                <input type="file" id="avatarFileInput" class="form-control" accept="image/*">
+              </div>
+              <div id="avatarCropContainer" style="display:none;max-height:350px;overflow:hidden">
+                <img id="avatarImgPreview" src="" style="max-width:100%">
+              </div>
+              <div id="avatarPreviewBox" style="display:none;margin-top:15px">
+                <label class="form-label fw-bold">Anteprima</label><br>
+                <div class="overflow-hidden rounded-circle border d-inline-block"
+                     style="width:100px;height:100px">
+                  <div class="cropper-preview" style="width:100px;height:100px;overflow:hidden"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 2: Scelta avatar predefiniti -->
+            <div id="avatarTabScegli" class="tab-pane fade">
+              <p class="text-muted mb-3">Clicca su un avatar per selezionarlo</p>
+              <div class="d-flex flex-wrap gap-3 justify-content-center">
+                <img th:each="i : ${#numbers.sequence(1, 10)}"
+                     th:src="@{'/manager/assets/img/user/avatar-' + ${i} + '.jpg'}"
+                     th:data-num="${i}"
+                     onclick="selezionaAvatarPredefinito(this)"
+                     class="rounded-circle border avatar-predefinito"
+                     style="width:80px;height:80px;cursor:pointer;object-fit:cover;transition:all 0.2s">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+          <button type="button" class="btn btn-primary" id="btnSalvaAvatar"
+                  style="display:none" onclick="salvaAvatar()">
+            <i class="fas fa-save me-1"></i> Salva foto
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script th:inline="javascript">
+    var _avatarCropper = null;
+    var _avatarPredefinitaSelezionata = null;
+    var _idUtenteFisso = /*[[${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].id : 0}]]*/ 0;
+
+    function apriModalAvatar() {
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAvatar')).show();
+    }
+
+    function selezionaAvatarPredefinito(el) {
+        document.querySelectorAll('.avatar-predefinito').forEach(img => img.style.border = '2px solid #dee2e6');
+        el.style.border = '4px solid #0088cc';
+        _avatarPredefinitaSelezionata = el.src;
+        _avatarCropper = null;
+        document.getElementById('btnSalvaAvatar').style.display = 'inline-block';
+    }
+
+    function salvaAvatar() {
+        const inputProfileImage = document.getElementById('profileImage');
+
+        if (_avatarPredefinitaSelezionata) {
+            var num = _avatarPredefinitaSelezionata.match(/avatar-(\d+)\.jpg/);
+            if (num) {
+                inputProfileImage.value = "0"; // Modalità Icona
+                // Crea o aggiorna il campo avatarNum per il controller
+                let hNum = document.getElementById('avatarNum') || Object.assign(document.createElement('input'), {type:'hidden', name:'avatarNum', id:'avatarNum'});
+                if(!hNum.parentElement) document.getElementById('elencoAnagrafico').appendChild(hNum);
+                hNum.value = num[1];
+
+                document.getElementById('avatar-img').src = _avatarPredefinitaSelezionata;
+            }
+            bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
+        } else if (_avatarCropper) {
+            var base64 = _avatarCropper.getCroppedCanvas({width:300,height:300}).toDataURL('image/jpeg', 0.85);
+            fetch('/admin/filemanager/avatar/upload-base64', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({image: base64, idUtente: String(_idUtenteFisso)})
+            }).then(r => r.text()).then(data => {
+                if (data === 'OK') {
+                    inputProfileImage.value = "1"; // Modalità Foto Custom
+                    document.getElementById('avatar-img').src = base64;
+                    bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
+                }
+            });
+        }
+    }
+
     function submitAnagraficaForm(e) {
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-
-      const form = document.getElementById("elencoAnagrafico");
-      const emailInput = document.getElementById("email");
-      const emailValue = emailInput ? emailInput.value.trim() : "";
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-      // --- CONTROLLO EMAIL CON GRAFICA CONFIRMACTION ---
-      if (emailValue === "" || !emailRegex.test(emailValue)) {
-
-        // Portiamo l'utente sul tab corretto prima di mostrare l'alert
-        const tabBtn = document.querySelector('a[href="#tab_01"]');
-        if (tabBtn) tabBtn.click();
-
-        // Usiamo la tua funzione grafica del template
-        confirmAction('Attenzione: l\'indirizzo email è obbligatorio e deve essere valido per poter salvare l\'anagrafica.', function() {
-            // Questa funzione viene eseguita quando l'utente preme il tasto di conferma della modale
-            if (emailInput) {
-                emailInput.focus();
-                emailInput.classList.add("is-invalid"); // Evidenzia il campo in rosso
-            }
-        });
-
-        // Nascondiamo il tasto "Annulla" dalla modale (se presente) perché è solo un avviso
-        setTimeout(() => {
-            const btnAnnulla = document.querySelector('.modal-footer button:not(.btn-primary):not(.btn-danger)');
-            if (btnAnnulla) btnAnnulla.style.display = 'none';
-        }, 150);
-
-        return false;
-      }
-
-      // --- VALIDAZIONE BOOTSTRAP STANDARD ---
-      if (form.checkValidity() === false) {
-        form.classList.add("was-validated");
-
-        confirmAction('Alcuni campi obbligatori richiedono un tuo intervento prima di salvare.', function() {
-            const firstInvalid = form.querySelector(":invalid");
-            if (firstInvalid) {
-                firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
-                firstInvalid.focus();
-            }
-        });
-        return false;
-      }
-
-      // Se tutto è ok, invia il form
-      form.classList.add("was-validated");
-      form.submit();
+        if (e) e.preventDefault();
+        // Assicuriamoci che l'ID sia nel form
+        document.getElementById('id').value = _idUtenteFisso;
+        document.getElementById("elencoAnagrafico").submit();
     }
   </script>
+
 </div>
 </body>
 </html>

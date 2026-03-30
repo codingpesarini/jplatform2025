@@ -15,26 +15,22 @@
 
         <header class="page-header mb-2">
             <div class="title-container mb-3">
-                <h2 style="border-left: 5px solid #0088cc; padding-left: 15px;">Dettaglio amministratori</h2></div>
-                <div class="right-wrapper text-right" style="margin-left: auto; margin-right: 10%;">
-
-                <a th:href="@{/admin/amministratori/new}"
-                   class="mb-1 mt-1 mr-1 btn btn-sm btn-success">
+                <h2 style="border-left: 5px solid #0088cc; padding-left: 15px;">Dettaglio amministratori</h2>
+            </div>
+            <div class="right-wrapper text-right" style="margin-left: auto; margin-right: 10%;">
+                <a th:href="@{/admin/amministratori/new}" class="mb-1 mt-1 mr-1 btn btn-sm btn-success">
                     <i class="fas fa-plus-circle"></i> Nuova
                 </a>
-
-                    <a th:if="${amministratoriUtente != null and amministratoriUtente.id != null}"
-                       th:href="@{|/admin/amministratori/${amministratoriUtente.id}/duplica|}"
-                       onclick="return ConfermaOperazione(this.href, 'duplicare questa amministratori')"
-                       class="mb-1 mt-1 mr-1 btn btn-sm btn-info">
-                        <i class="fas fa-clone"></i> Duplica
-                    </a>
-
-                    <button type="button"
-                            class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
-                            onclick="InviaForm('amministratoriUtente');">
-                        <i class="fas fa-save"></i> Salva
-                    </button>
+                <a th:if="${amministratoriUtente != null and amministratoriUtente.id != null}"
+                   th:href="@{|/admin/amministratori/${amministratoriUtente.id}/duplica|}"
+                   onclick="return ConfermaOperazione(this.href, 'duplicare questa amministratori')"
+                   class="mb-1 mt-1 mr-1 btn btn-sm btn-info">
+                    <i class="fas fa-clone"></i> Duplica
+                </a>
+                <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
+                        onclick="InviaForm('amministratoriUtente');">
+                    <i class="fas fa-save"></i> Salva
+                </button>
                 <a th:href="@{/admin/amministratori}" onclick="CloseHsReloadBase();"
                    class="mb-1 mt-1 mr-1 btn btn-sm btn-danger">
                     <i class="fas fa-times-circle"></i> Esci
@@ -69,14 +65,13 @@
 
                     <div class="tab-content">
 
-                        <!-- ═══ TAB 01 — DATI ANAGRAFICI ═══ -->
+                        <!-- TAB 01 -->
                         <div id="tab_01" class="tab-pane active" role="tabpanel">
                             <fieldset class="border p-3 mb-4">
                                 <legend class="float-none w-auto px-2">
                                     Dati anagrafici ID <span th:text="${amministratoriUtente.id}">0</span>
                                 </legend>
 
-                                <!-- hidden fields -->
                                 <input type="hidden" name="id"           th:value="${amministratoriUtente.id}">
                                 <input type="hidden" name="idsite"       th:value="${amministratoriUtente.idsite}">
                                 <input type="hidden" name="statoaccesso" value="1">
@@ -89,18 +84,16 @@
 
                                 <div class="row form-group">
                                     <div class="col-lg-6 text-center">
-                                        <img id="avatar-img" th:src="${amministratoriUtente.avatar}" alt="Avatar" style="width:150px" class="img-thumbnail mb-2"><br>
-
-                                        <a href="javascript:void(0);"
-                                           th:data-id="${amministratoriUtente.id}"
-                                           onclick="return hs.htmlExpand(this,{headingText:'Carica Foto', align:'center', objectType:'iframe', width:800, height:600, src:'/admin/filemanager/popup/1/immagini?idUtente='+this.getAttribute('data-id')})"
+                                        <img id="avatar-img"
+                                             th:src="${amministratoriUtente.avatar}"
+                                             alt="Avatar" style="width:150px" class="img-thumbnail mb-2"><br>
+                                        <a href="javascript:void(0);" onclick="apriModalAvatar()"
                                            class="btn btn-sm btn-light-primary mb-1">
                                             <i class="ti ti-upload"></i> Carica foto utente
                                         </a>
-
                                         <a href="javascript:void(0);"
                                            th:data-id="${amministratoriUtente.id}"
-                                           onclick="EliminaAvatarScript(this.getAttribute('data-id'))"
+                                           onclick="cancellaAvatar(this.dataset.id)"
                                            class="btn btn-sm btn-light-danger mb-1">
                                             <i class="ti ti-trash"></i> Cancella foto
                                         </a>
@@ -154,13 +147,11 @@
                                 </div>
                             </fieldset>
                         </div>
-                        <!-- fine TAB 01 -->
 
-                        <!-- ═══ TAB 02 — DATI ACCESSO ═══ -->
+                        <!-- TAB 02 -->
                         <div id="tab_02" class="tab-pane" role="tabpanel">
                             <fieldset class="border p-3 mb-4">
                                 <legend class="float-none w-auto px-2">Dati di accesso</legend>
-
                                 <div class="row form-group">
                                     <div class="col-lg-6">
                                         <label for="username" class="col-form-label">Username accesso</label>
@@ -169,18 +160,15 @@
                                                class="form-control obbligatorio" required>
                                     </div>
                                     <div class="col-lg-2">
-                                        <!-- Password nuova utente (password vuota) -->
                                         <th:block th:if="${amministratoriUtente.password == null or amministratoriUtente.password == ''}">
                                             <label for="passwordNew" class="col-form-label">Password</label>
                                             <input type="password" name="password" id="passwordNew"
                                                    class="form-control obbligatorio" required>
                                             <code>[da 8 a 15 caratteri con almeno una minuscola, una maiuscola, una cifra e un carattere speciale]</code>
                                         </th:block>
-                                        <!-- Password già impostata -->
                                         <th:block th:unless="${amministratoriUtente.password == null or amministratoriUtente.password == ''}">
                                             <label for="passwordHidden" class="col-form-label">Modifica la password di accesso</label>
-                                            <a href="javascript:void(0);"
-                                               onclick="$('#nuovaPasswordAccesso').toggle()"
+                                            <a href="javascript:void(0);" onclick="$('#nuovaPasswordAccesso').toggle()"
                                                class="btn btn-lg btn-default">Cambia password</a>
                                             <input type="hidden" name="password" id="passwordHidden"
                                                    th:value="${amministratoriUtente.password}">
@@ -195,8 +183,6 @@
                                         </select>
                                     </div>
                                 </div>
-
-                                <!-- Cambio password -->
                                 <div class="row form-group" id="nuovaPasswordAccesso" style="display:none">
                                     <div class="col-lg-6">
                                         <p>Inserire la nuova password con i seguenti requisiti:</p>
@@ -212,8 +198,6 @@
                                         <input type="password" id="newpasswordretype" name="newpasswordretype" class="form-control">
                                     </div>
                                 </div>
-
-                                <!-- 2FA -->
                                 <div class="row form-group">
                                     <div class="col-lg-4">
                                         <label for="role19" class="col-form-label">Stato autenticazione 2F - Google Authenticator</label>
@@ -223,17 +207,11 @@
                                             <option value="1" th:selected="${amministratoriUtente.role19 == '1'}">Attivo</option>
                                         </select>
                                     </div>
-
-
                                     <div class="col-lg-4">
                                         <label for="role20" class="col-form-label">secretKey generator</label>
-                                        <input type="text"
-                                               name="role20"
-                                               id="role20"
-                                               th:value="${amministratoriUtente.role20}"
-                                               class="form-control">
+                                        <input type="text" name="role20" id="role20"
+                                               th:value="${amministratoriUtente.role20}" class="form-control">
                                     </div>
-
                                     <div class="col-lg-2">
                                         <a href="javascript:void(0);"
                                            class="mb-0 mt-4 btn btn-primary btn-lg btn-block"
@@ -241,48 +219,34 @@
                                             Genera AUTHCODE
                                         </a>
                                     </div>
-
                                     <div class="col-lg-2">
-                                        <!-- Bottone che apre la modale -->
                                         <a href="javascript:void(0);"
                                            class="mb-0 mt-4 btn btn-primary btn-lg btn-block"
-                                           data-bs-toggle="modal"
-                                           data-bs-target="#modalQRCODE">
+                                           data-bs-toggle="modal" data-bs-target="#modalQRCODE">
                                             QRCODE
                                         </a>
                                     </div>
-
-                                    <!-- MODALE BOOTSTRAP -->
                                     <div class="modal fade" id="modalQRCODE" tabindex="-1" aria-hidden="true">
                                         <div class="modal-dialog modal-lg modal-dialog-centered">
                                             <div class="modal-content">
-
                                                 <div class="modal-header">
                                                     <h5 class="modal-title">Google Authenticator QR Code</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                 </div>
-
                                                 <div class="modal-body text-center">
                                                     <p>Scansiona il codice utilizzando Google Authenticator APP</p>
-
                                                     <div class="d-flex justify-content-center">
                                                         <img th:src="@{/admin/amministratori/qrcode(email=${amministratoriUtente.email},securkey=${amministratoriUtente.role20})}"
-                                                             class="img-fluid w-50"
-                                                             alt="QR Code">
+                                                             class="img-fluid w-50" alt="QR Code">
                                                     </div>
                                                 </div>
-
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Completato</button>
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
-
-                                <!-- Social -->
                                 <div class="row form-group">
                                     <div class="col-lg-6">
                                         <label for="socialId" class="col-form-label">Id social network</label>
@@ -307,27 +271,22 @@
                                                th:value="${amministratoriUtente.socialImage}" class="form-control">
                                     </div>
                                 </div>
-
-                                <!-- Gruppi + dati accesso -->
                                 <div class="row g-3">
                                     <div class="col-lg-6">
                                         <label class="form-label fw-bold">Gruppi associati</label>
                                         <select name="idGruppiArray" id="id_gruppi" multiple size="10" class="form-select shadow-sm">
                                             <option th:each="g : ${listaGruppi}"
-                                                    th:value="${g.id}"
-                                                    th:text="${g.nome}"
+                                                    th:value="${g.id}" th:text="${g.nome}"
                                                     th:selected="${amministratoriUtente.idGruppiArray != null and #arrays.contains(amministratoriUtente.idGruppiArray, g.id.toString())}">
                                             </option>
                                         </select>
                                     </div>
-
                                     <div class="col-lg-6">
                                         <div class="row g-2">
                                             <div class="col-12 col-md-5">
                                                 <label class="form-label fw-bold">Data di registrazione</label>
                                                 <div class="form-control-plaintext border-bottom" th:text="${amministratoriUtente.datacreazione}">-</div>
                                             </div>
-
                                             <div class="col-12 col-md-7">
                                                 <label class="form-label fw-bold">Ultimo accesso | IP | Totale</label>
                                                 <div class="form-control-plaintext border-bottom">
@@ -341,19 +300,16 @@
                                 </div>
                             </fieldset>
                         </div>
-                        <!-- fine TAB 02 -->
 
-                        <!-- ═══ TAB 03 — RUOLI OPERATIVI ═══ -->
+                        <!-- TAB 03 -->
                         <div id="tab_03" class="tab-pane" role="tabpanel">
                             <fieldset class="border p-3">
                                 <legend class="float-none w-auto px-2">Ruoli di servizio</legend>
                                 <div class="row form-group">
                                     <th:block th:each="i : ${#numbers.sequence(1, 5)}">
                                         <div class="col-lg-6 mb-3">
-                                            <label th:for="${'ruoliA' + i}" class="col-form-label"
-                                                   th:text="${'Ruolo ' + i}">Ruolo N</label>
-                                            <select th:name="${'ruoliA' + i}" th:id="${'ruoliA' + i}"
-                                                    multiple size="5" class="form-control">
+                                            <label th:for="${'ruoliA' + i}" class="col-form-label" th:text="${'Ruolo ' + i}">Ruolo N</label>
+                                            <select th:name="${'ruoliA' + i}" th:id="${'ruoliA' + i}" multiple size="5" class="form-control">
                                                 <option value="0">Nessuno</option>
                                                 <option th:each="r : ${config.ruoli}"
                                                         th:value="${r.id}" th:text="${r.nome}"
@@ -364,15 +320,12 @@
                                 </div>
                             </fieldset>
                         </div>
-                        <!-- fine TAB 03 -->
 
-                        <!-- ═══ TAB 04 — PERMESSI ACCESSO (role1..role18) ═══ -->
+                        <!-- TAB 04 -->
                         <div id="tab_04" class="tab-pane" role="tabpanel">
                             <fieldset class="border p-3">
                                 <legend class="float-none w-auto px-2">Altri dati</legend>
                                 <div class="row form-group">
-
-                                    <!-- role1: Amm/Sup/Red ha opzioni speciali -->
                                     <div class="col-lg-6 mb-3">
                                         <label for="role1" class="col-form-label">Amm/Sup/Red</label>
                                         <select name="role1" id="role1" class="form-control">
@@ -381,8 +334,6 @@
                                             <option value="r" th:selected="${amministratoriUtente.role1 == 'r'}">Redattore</option>
                                         </select>
                                     </div>
-
-                                    <!-- role2: Accesso portale -->
                                     <div class="col-lg-6 mb-3">
                                         <label for="role2" class="col-form-label">Accesso portale</label>
                                         <select name="role2" id="role2" class="form-control">
@@ -391,12 +342,9 @@
                                             <option value="1" th:selected="${amministratoriUtente.role2 == '1'}">Attivo</option>
                                         </select>
                                     </div>
-
-                                    <!-- role3..role18: pattern uniforme generato con th:each -->
                                     <th:block th:each="i : ${#numbers.sequence(3, 18)}">
                                         <div class="col-lg-6 mb-3">
-                                            <label th:for="${'role' + i}" class="col-form-label"
-                                                   th:text="${'Ruolo ' + i}">Ruolo N</label>
+                                            <label th:for="${'role' + i}" class="col-form-label" th:text="${'Ruolo ' + i}">Ruolo N</label>
                                             <select th:name="${'role' + i}" th:id="${'role' + i}" class="form-control">
                                                 <option value=""  th:selected="${__${'amministratoriUtente.role' + i}__ == ''}">Indefinito</option>
                                                 <option value="0" th:selected="${__${'amministratoriUtente.role' + i}__ == '0'}">Disattivo</option>
@@ -404,19 +352,15 @@
                                             </select>
                                         </div>
                                     </th:block>
-
                                 </div>
                             </fieldset>
                         </div>
-                        <!-- fine TAB 04 -->
 
-                        <!-- ═══ TAB 05 — AUTORIZZAZIONI (l1..l10) ═══ -->
+                        <!-- TAB 05 -->
                         <div id="tab_05" class="tab-pane" role="tabpanel">
                             <fieldset class="border p-3">
                                 <legend class="float-none w-auto px-2">Altri dati</legend>
                                 <div class="row form-group">
-
-                                    <!-- l1: generico -->
                                     <div class="col-lg-6 mb-3">
                                         <label for="l1" class="col-form-label">L1</label>
                                         <select name="l1" id="l1" class="form-control">
@@ -425,8 +369,6 @@
                                             <option value="1" th:selected="${amministratoriUtente.l1 == '1'}">Attivo</option>
                                         </select>
                                     </div>
-
-                                    <!-- l2: opzioni speciali "Accesso a" -->
                                     <div class="col-lg-6 mb-3">
                                         <label for="l2" class="col-form-label">Accesso a</label>
                                         <select name="l2" id="l2" class="form-control">
@@ -437,14 +379,10 @@
                                             <option value="3" th:selected="${amministratoriUtente.l2 == '3'}">Casa dello studente</option>
                                             <option value="4" th:selected="${amministratoriUtente.l2 == '4'}">Gestione Bandi e Concorsi</option>
                                         </select>
-                                        <span class="f_help">L2</span>
                                     </div>
-
-                                    <!-- l3..l10: pattern uniforme -->
                                     <th:block th:each="i : ${#numbers.sequence(3, 10)}">
                                         <div class="col-lg-6 mb-3">
-                                            <label th:for="${'l' + i}" class="col-form-label"
-                                                   th:text="${'L' + i}">LN</label>
+                                            <label th:for="${'l' + i}" class="col-form-label" th:text="${'L' + i}">LN</label>
                                             <select th:name="${'l' + i}" th:id="${'l' + i}" class="form-control">
                                                 <option value=""  th:selected="${__${'amministratoriUtente.l' + i}__ == ''}">Indefinito</option>
                                                 <option value="0" th:selected="${__${'amministratoriUtente.l' + i}__ == '0'}">Disattivo</option>
@@ -452,26 +390,22 @@
                                             </select>
                                         </div>
                                     </th:block>
-
                                 </div>
                             </fieldset>
                         </div>
-                        <!-- fine TAB 05 -->
 
-                        <!-- ═══ TAB 06 — EMAIL E PEC ═══ -->
+                        <!-- TAB 06 -->
                         <div id="tab_06" class="tab-pane" role="tabpanel">
                             <fieldset class="border p-3">
                                 <legend class="float-none w-auto px-2">Associazione Account Email e PEC</legend>
                                 <div class="row">
-
                                     <div class="col-lg-6 mb-3">
                                         <div class="card h-100 shadow-sm border">
                                             <div class="card-body">
                                                 <h5>Email Ordinaria</h5>
                                                 <div class="text-end mb-2">
                                                     <button type="button" class="btn btn-outline-info btn-sm"
-                                                            data-tipo="EMAIL"
-                                                            data-target="data_tableEmail"
+                                                            data-tipo="EMAIL" data-target="data_tableEmail"
                                                             onclick="apriPopupAccount(this.dataset.tipo, this.dataset.target);">
                                                         <i class="fas fa-plus"></i> Associa Email
                                                     </button>
@@ -481,8 +415,7 @@
                                                 <table id="data_tableEmail" class="table table-sm table-bordered table-striped mb-0">
                                                     <thead><tr><th>Descrizione</th><th style="width:50px">Rimuovi</th></tr></thead>
                                                     <tbody>
-                                                    <tr th:each="acc : ${amministratoriUtente.accountEmail}"
-                                                        th:id="'rowEMAIL_' + ${acc.id}">
+                                                    <tr th:each="acc : ${amministratoriUtente.accountEmail}" th:id="'rowEMAIL_' + ${acc.id}">
                                                         <td th:text="${acc.descrizione}"></td>
                                                         <td class="text-center">
                                                             <a href="javascript:void(0);"
@@ -499,15 +432,13 @@
                                             </div>
                                         </div>
                                     </div>
-
                                     <div class="col-lg-6 mb-3">
                                         <div class="card h-100 shadow-sm border">
                                             <div class="card-body">
                                                 <h5>Account PEC</h5>
                                                 <div class="text-end mb-2">
                                                     <button type="button" class="btn btn-outline-info btn-sm"
-                                                            data-tipo="PEC"
-                                                            data-target="data_tablePec"
+                                                            data-tipo="PEC" data-target="data_tablePec"
                                                             onclick="apriPopupAccount(this.dataset.tipo, this.dataset.target);">
                                                         <i class="fas fa-plus"></i> Associa PEC
                                                     </button>
@@ -517,8 +448,7 @@
                                                 <table id="data_tablePec" class="table table-sm table-bordered table-striped mb-0">
                                                     <thead><tr><th>Descrizione</th><th style="width:50px">Rimuovi</th></tr></thead>
                                                     <tbody>
-                                                    <tr th:each="acc : ${amministratoriUtente.accountPec}"
-                                                        th:id="'rowPEC_' + ${acc.id}">
+                                                    <tr th:each="acc : ${amministratoriUtente.accountPec}" th:id="'rowPEC_' + ${acc.id}">
                                                         <td th:text="${acc.descrizione}"></td>
                                                         <td class="text-center">
                                                             <a href="javascript:void(0);"
@@ -535,95 +465,229 @@
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
                             </fieldset>
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
     </form>
 
+    <!-- Modal Avatar -->
+    <div class="modal fade" id="modalAvatar" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Foto profilo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#avatarTabUpload" data-bs-toggle="tab">
+                                <i class="ti ti-upload me-1"></i> Carica foto
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#avatarTabScegli" data-bs-toggle="tab">
+                                <i class="ti ti-mood-smile me-1"></i> Scegli avatar
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="avatarTabUpload" class="tab-pane fade show active">
+                            <div class="mb-3">
+                                <input type="file" id="avatarFileInput" class="form-control" accept="image/*">
+                            </div>
+                            <div id="avatarCropContainer" style="display:none;max-height:350px;overflow:hidden">
+                                <img id="avatarImgPreview" src="" style="max-width:100%">
+                            </div>
+                            <div id="avatarPreviewBox" style="display:none;margin-top:15px">
+                                <label class="form-label fw-bold">Anteprima</label><br>
+                                <div class="overflow-hidden rounded-circle border d-inline-block" style="width:100px;height:100px">
+                                    <div class="cropper-preview" style="width:100px;height:100px;overflow:hidden"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="avatarTabScegli" class="tab-pane fade">
+                            <p class="text-muted mb-3">Clicca su un avatar per selezionarlo</p>
+                            <div class="d-flex flex-wrap gap-3 justify-content-center">
+                                <img th:each="i : ${#numbers.sequence(1, 10)}"
+                                     th:src="@{'/manager/assets/img/user/avatar-' + ${i} + '.jpg'}"
+                                     th:data-num="${i}"
+                                     onclick="selezionaAvatarPredefinito(this)"
+                                     class="rounded-circle border avatar-predefinito"
+                                     style="width:80px;height:80px;cursor:pointer;object-fit:cover;transition:all 0.2s">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" id="btnSalvaAvatar"
+                            style="display:none" onclick="salvaAvatar()">
+                        <i class="fas fa-save me-1"></i> Salva foto
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script th:inline="javascript">
         var _popupTargetTable = null;
-var _popupTipo = null;
+        var _popupTipo = null;
+        var _avatarCropper = null;
+        var _avatarPredefinitaSelezionata = null;
+        var _avatarUtenteId = /*[[${amministratoriUtente.id}]]*/ 0;
 
-function apriPopupAccount(tipo, targetTable) {
-    _popupTipo = tipo;
-    _popupTargetTable = targetTable;
+        function apriPopupAccount(tipo, targetTable) {
+            _popupTipo = tipo;
+            _popupTargetTable = targetTable;
+            document.getElementById('modalAccountTitle').innerText = 'Associa account ' + tipo;
+            const body = document.getElementById('modalAccountBody');
+            body.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-info"></div></div>';
+            fetch('/admin/account/popup?tipo=' + tipo)
+                .then(r => r.json())
+                .then(lista => {
+                    let html = '<div class="p-3"><table class="table table-sm table-bordered table-striped">';
+                    html += '<thead><tr><th>Descrizione</th><th style="width:80px" class="text-center">Associa</th></tr></thead><tbody>';
+                    if (lista.length === 0) {
+                        html += '<tr><td colspan="2" class="text-center text-muted">Nessun account disponibile</td></tr>';
+                    } else {
+                        lista.forEach(acc => {
+                            html += `<tr><td>${acc.descrizione}</td><td class="text-center">
+                                <button type="button" class="btn btn-sm btn-primary"
+                                    onclick="associaAccountDinamico('${acc.id}', '${acc.descrizione.replace(/'/g, "\\'")}')">
+                                    <i class="fas fa-plus"></i></button></td></tr>`;
+                        });
+                    }
+                    html += '</tbody></table></div>';
+                    body.innerHTML = html;
+                })
+                .catch(() => { body.innerHTML = '<div class="alert alert-danger m-3">Errore nel caricamento.</div>'; });
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAccount')).show();
+        }
 
-    document.getElementById('modalAccountTitle').innerText = 'Associa account ' + tipo;
-    const body = document.getElementById('modalAccountBody');
-    body.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-info"></div></div>';
+        function associaAccountDinamico(id, descrizione) {
+            const tipo = _popupTipo;
+            const targetTableId = _popupTargetTable;
+            const hiddenId = (tipo === 'EMAIL') ? 'idaccountemail' : 'idaccountpec';
+            const prefix = (tipo === 'EMAIL') ? 'rowEMAIL_' : 'rowPEC_';
+            const rowId = prefix + id;
+            if (document.getElementById(rowId)) return;
+            const hidden = document.getElementById(hiddenId);
+            const ids = hidden.value ? hidden.value.split(',').filter(x => x.trim() !== '') : [];
+            ids.push(id);
+            hidden.value = ids.join(',');
+            const tbody = document.querySelector('#' + targetTableId + ' tbody');
+            tbody.insertAdjacentHTML('beforeend', `<tr id="${rowId}"><td>${descrizione}</td>
+                <td class="text-center"><a href="javascript:void(0);"
+                onclick="disassociaAccount('${hiddenId}','${id}','${rowId}')">
+                <i class="fas fa-trash-alt text-danger"></i></a></td></tr>`);
+            bootstrap.Modal.getInstance(document.getElementById('modalAccount')).hide();
+        }
 
-    fetch('/admin/account/popup?tipo=' + tipo)
-        .then(r => r.json())
-        .then(lista => {
-            let html = '<div class="p-3"><table class="table table-sm table-bordered table-striped">';
-            html += '<thead><tr><th>Descrizione</th><th style="width:80px" class="text-center">Associa</th></tr></thead><tbody>';
-            if (lista.length === 0) {
-                html += '<tr><td colspan="2" class="text-center text-muted">Nessun account disponibile</td></tr>';
-            } else {
-                lista.forEach(acc => {
-                    html += `<tr>
-                        <td>${acc.descrizione}</td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-primary"
-                                onclick="associaAccountDinamico('${acc.id}', '${acc.descrizione.replace(/'/g, "\\'")}')">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </td>
-                    </tr>`;
-                });
-            }
-            html += '</tbody></table></div>';
-            body.innerHTML = html;
-        })
-        .catch(() => {
-            body.innerHTML = '<div class="alert alert-danger m-3">Errore nel caricamento.</div>';
+        function disassociaAccount(hiddenId, idToRemove, rowId) {
+            const hidden = document.getElementById(hiddenId);
+            hidden.value = hidden.value.split(',')
+                .filter(id => id.trim() !== '' && id.toString() !== idToRemove.toString()).join(',');
+            const row = document.getElementById(rowId);
+            if (row) row.remove();
+        }
+
+        function apriModalAvatar() {
+            _avatarCropper = null;
+            _avatarPredefinitaSelezionata = null;
+            document.getElementById('btnSalvaAvatar').style.display = 'none';
+            document.getElementById('avatarCropContainer').style.display = 'none';
+            document.getElementById('avatarPreviewBox').style.display = 'none';
+            document.getElementById('avatarFileInput').value = '';
+            document.querySelectorAll('.avatar-predefinito').forEach(function(img) {
+                img.style.border = '2px solid #dee2e6';
+                img.style.opacity = '1';
+            });
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAvatar')).show();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('avatarFileInput').addEventListener('change', function(e) {
+                var file = e.target.files[0];
+                if (!file) return;
+                _avatarPredefinitaSelezionata = null;
+                var reader = new FileReader();
+                reader.onload = function(ev) {
+                    var img = document.getElementById('avatarImgPreview');
+                    img.src = ev.target.result;
+                    document.getElementById('avatarCropContainer').style.display = '';
+                    document.getElementById('avatarPreviewBox').style.display = '';
+                    document.getElementById('btnSalvaAvatar').style.display = '';
+                    if (_avatarCropper) _avatarCropper.destroy();
+                    _avatarCropper = new Cropper(img, {
+                        aspectRatio: 1, viewMode: 1,
+                        preview: '.cropper-preview', autoCropArea: 0.8
+                    });
+                };
+                reader.readAsDataURL(file);
+            });
         });
 
-    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAccount')).show();
-}
+        function selezionaAvatarPredefinito(el) {
+            document.querySelectorAll('.avatar-predefinito').forEach(function(img) {
+                img.style.border = '2px solid #dee2e6';
+                img.style.opacity = '1';
+            });
+            el.style.border = '3px solid #0088cc';
+            el.style.opacity = '0.85';
+            _avatarPredefinitaSelezionata = el.src;
+            _avatarCropper = null;
+            document.getElementById('btnSalvaAvatar').style.display = '';
+        }
 
-function associaAccountDinamico(id, descrizione) {
-    const tipo = _popupTipo;
-    const targetTableId = _popupTargetTable;
-    const hiddenId = (tipo === 'EMAIL') ? 'idaccountemail' : 'idaccountpec';
-    const prefix = (tipo === 'EMAIL') ? 'rowEMAIL_' : 'rowPEC_';
-    const rowId = prefix + id;
+        function salvaAvatar() {
+            if (_avatarPredefinitaSelezionata) {
+                document.getElementById('avatar-img').src = _avatarPredefinitaSelezionata;
+                document.querySelector('input[name="profileImage"]').value = '0';
+                bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
+                _avatarPredefinitaSelezionata = null;
+                showToast('Completato', 'Avatar selezionato. Ricordati di salvare il form.');
+                return;
+            }
+            if (!_avatarCropper) return;
+            var canvas = _avatarCropper.getCroppedCanvas({ width: 300, height: 300 });
+            var base64 = canvas.toDataURL('image/jpeg', 0.85);
+            fetch('/admin/filemanager/avatar/upload-base64', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: base64, idUtente: String(_avatarUtenteId) })
+            })
+            .then(function(r) { return r.text(); })
+            .then(function(data) {
+                if (data === 'OK') {
+                    document.querySelector('input[name="profileImage"]').value = '1';
+                    bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
+                    document.getElementById('avatar-img').src = base64;
+                    showToast('Completato', 'Foto salvata. Ricordati di salvare il form.');
+                } else {
+                    showToast('Errore', 'Errore nel salvataggio della foto.', 'danger');
+                }
+            });
+        }
 
-    if (document.getElementById(rowId)) return;
-
-    const hidden = document.getElementById(hiddenId);
-    const ids = hidden.value ? hidden.value.split(',').filter(x => x.trim() !== '') : [];
-    ids.push(id);
-    hidden.value = ids.join(',');
-
-    const tbody = document.querySelector('#' + targetTableId + ' tbody');
-    tbody.insertAdjacentHTML('beforeend', `
-        <tr id="${rowId}">
-            <td>${descrizione}</td>
-            <td class="text-center">
-                <a href="javascript:void(0);"
-                   onclick="disassociaAccount('${hiddenId}','${id}','${rowId}')">
-                    <i class="fas fa-trash-alt text-danger"></i>
-                </a>
-            </td>
-        </tr>`);
-
-    bootstrap.Modal.getInstance(document.getElementById('modalAccount')).hide();
-}
-
-function disassociaAccount(hiddenId, idToRemove, rowId) {
-    const hidden = document.getElementById(hiddenId);
-    hidden.value = hidden.value.split(',')
-        .filter(id => id.trim() !== '' && id.toString() !== idToRemove.toString())
-        .join(',');
-    const row = document.getElementById(rowId);
-    if (row) row.remove();
-}
+        function cancellaAvatar(id) {
+            confirmAction('Eliminare la foto profilo?', function() {
+                fetch('/admin/filemanager/avatar/upload-base64', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: '', idUtente: String(id) })
+                }).then(function() {
+                    document.querySelector('input[name="profileImage"]').value = '0';
+                    document.getElementById('avatar-img').src = '/manager/assets/img/user/avatar-1.jpg';
+                    showToast('Completato', 'Foto eliminata. Ricordati di salvare il form.');
+                });
+            });
+        }
     </script>
 </div>
 </body>

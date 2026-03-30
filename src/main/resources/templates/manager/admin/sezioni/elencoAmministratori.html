@@ -4,8 +4,17 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{manager/layout/template}">
 <body>
-<div layout:fragment="content">
 
+<div layout:fragment="content">
+  <style>
+    .miniAvatar {
+      width: 35px;
+      height: 35px;
+      object-fit: cover; /* Mantiene le proporzioni */
+      margin-right: 10px;
+      border: 1px solid #ddd;
+  }
+  </style>
   <div class="row">
 
     <!-- ═══ SIDEBAR RICERCA ═══ -->
@@ -28,7 +37,7 @@
               <div class="col-lg-12">
                 <a th:href="@{/admin/amministratori/new}"
                    class="mb-1 mt-1 mr-1 btn btn-primary btn-lg btn-block">
-                  <i class="fas fa-file-medical"></i> Nuova amministratori
+                  <i class="fas fa-file-medical"></i> Nuova anagrafica
                 </a>
               </div>
               <div class="col-lg-6">

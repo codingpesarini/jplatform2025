@@ -166,12 +166,13 @@
 
                 <td>
                   <a th:href="@{/admin/crm/utenti/{id}(id=${r.id})}">
+                    <img th:src="${r.avatar}"
+                         class="rounded-circle"
+                         style="width:35px;height:35px;object-fit:cover;margin-right:8px;border:1px solid #ddd"
+                         alt="">
                     <span th:text="${r.cognome}">Cognome</span>
                     <span th:text="${r.nome}">Nome</span>
                   </a>
-                  <small class="text-muted d-block"
-                         th:if="${r.codicefiscale != null and r.codicefiscale != '0'}"
-                         th:text="'CF: ' + ${r.codicefiscale}"></small>
                 </td>
 
                 <td>

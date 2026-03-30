@@ -225,7 +225,9 @@ public class Utente implements Serializable {
             if (socialImage != null && !socialImage.trim().isEmpty()) {
                 return socialImage;
             }
-            return (filePath != null ? filePath : "") + "imageProfile/nofoto.png";
+            // Avatar di default basato sull'id — uno dei 10 disponibili
+            int avatarNum = (id != null ? (id % 10) + 1 : 1);
+            return "/manager/assets/img/user/avatar-" + avatarNum + ".jpg";
         }
         return (filePath != null ? filePath : "") + "imageProfile/usImage" + id + ".jpg";
     }

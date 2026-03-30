@@ -114,6 +114,7 @@ public class AnagraficaController {
             @ModelAttribute UtenteEsterno form,
             @RequestParam(value = "newpassword", defaultValue = "") String newPassword,
             @RequestParam(value = "newpasswordretype", defaultValue = "") String newPasswordRetype,
+            @RequestParam(value = "avatarNum", required = false) Integer avatarNum,
             HttpServletRequest request, Model model) {
 
         HttpSession session = request.getSession();
@@ -129,6 +130,17 @@ public class AnagraficaController {
             boolean isNew = (id == null || id <= 0);
 
             if (isNew) {
+
+                if (form.getEmail() != null && !form.getEmail().isBlank()) {
+                    Integer esistente = anagraficaService.getIdByEmail(form.getEmail().trim());
+                    if (esistente != null) {
+                        model.addAttribute("errorMessage", "L'email " + form.getEmail() + " è già presente in anagrafica.");
+                        model.addAttribute("utente", form);
+                        model.addAttribute("elencoAnagrafico", List.of(form));
+                        model.addAttribute("config", config);
+                        return ViewUtils.resolveProtectedTemplate("crm/contenuti/dettaglioAnagrafica");
+                    }
+                }
                 utente.setId(null);
                 Random rnd = new Random(System.currentTimeMillis());
                 int rnn = Math.abs(rnd.nextInt() / 1000);
@@ -177,6 +189,10 @@ public class AnagraficaController {
                 db.setS4(form.getS4()); db.setS5(form.getS5()); db.setS6(form.getS6());
                 db.setS7(form.getS7()); db.setS8(form.getS8()); db.setS9(form.getS9());
                 db.setS10(form.getS10());
+                db.setProfileImage(form.getProfileImage());
+                if (avatarNum != null) {
+                    db.setS1(String.valueOf(avatarNum));
+                }
                 // datacreazione, username, password, socialId ecc. restano dal DB
 
                 if (!newPassword.isEmpty() && newPassword.equals(newPasswordRetype)) {
@@ -349,6 +365,34 @@ public class AnagraficaController {
         } catch (Exception e) {
             log.error("Errore searchJson per term: {}", term, e);
             return List.of();
+        }
+    }
+
+    @PostMapping("/{id}/avatar/save")
+    @ResponseBody
+    public ResponseEntity<String> saveAvatar(
+            @PathVariable Integer id,
+            @RequestBody Map<String, String> body,
+            HttpServletRequest request) {
+
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+        if (!config.isLogged()) return ResponseEntity.status(401).body("KO");
+
+        try {
+            String base64 = body.get("image");
+            UtenteEsterno utente = anagraficaService.findById(id);
+            if (base64 == null || base64.isEmpty()) {
+                utente.setProfileImage(0);
+            } else {
+                utente.setImage(base64);
+                utente.setProfileImage(1);
+            }
+            anagraficaService.salva(utente);
+            return ResponseEntity.ok("OK");
+        } catch (Exception e) {
+            log.error("Errore saveAvatar CRM id={}", id, e);
+            return ResponseEntity.ok("KO");
         }
     }
 }

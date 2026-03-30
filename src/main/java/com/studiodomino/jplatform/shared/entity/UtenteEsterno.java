@@ -439,15 +439,30 @@ public class UtenteEsterno implements Serializable {
      * Priorità: 1) profileImage custom, 2) socialImage, 3) default
      */
     public String getAvatar() {
-        if (profileImage != null && profileImage == 0) {
-            if (socialImage != null && !socialImage.trim().isEmpty()
-                    && !socialImage.equals(" ")) {
-                return socialImage;
-            }
-            return filePath + "imageProfile/nofoto.png";
+        // 1. Se l'utente ha caricato una foto personalizzata (Crop)
+        if (profileImage != null && profileImage == 1 && image != null && !image.isEmpty()) {
+            return image; // Stringa Base64
         }
 
-        return filePath + "imageProfile/pfImage" + id + ".jpg";
+        // 2. Se l'utente ha un'immagine da Social Login
+        if (socialImage != null && !socialImage.trim().isEmpty() && !socialImage.equals(" ")) {
+            return socialImage;
+        }
+
+        // 3. Avatar predefinito scelto dall'utente (salvato in S1)
+        // Se S1 è vuoto o non è un numero, usiamo il calcolo basato sull'ID
+        int n = 1;
+        try {
+            if (s1 != null && !s1.equals("0") && !s1.isEmpty()) {
+                n = Integer.parseInt(s1);
+            } else {
+                n = (id != null ? (id % 10) + 1 : 1);
+            }
+        } catch (NumberFormatException e) {
+            n = (id != null ? (id % 10) + 1 : 1);
+        }
+
+        return "/manager/assets/img/user/avatar-" + n + ".jpg";
     }
 
     /**
