@@ -162,12 +162,44 @@ public class AllegatoService {
             return updated;
 
         } else if ("versione".equals(modoUpdate)) {
-            // Crea nuova versione
+            String idVersionOriginale = allegato.getIdVersion();
             int currentVersion = Integer.parseInt(allegato.getVersion());
-            allegato.setVersion(String.valueOf(currentVersion + 1));
-            allegato.setId(null); // Force insert
 
-            return salvaAllegato(allegato, file);
+            // Data attuale per la nuova versione
+            String dataOra = java.time.LocalDateTime.now()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm"));
+
+            // Crea un NUOVO oggetto distaccato dal contesto Hibernate
+            Allegato nuovaVersione = new Allegato();
+            nuovaVersione.setL1(allegato.getL1());
+            nuovaVersione.setL3(allegato.getL3());
+            nuovaVersione.setNome(file.getOriginalFilename()); // nuovo filename
+            nuovaVersione.setType(allegato.getType());
+            nuovaVersione.setAnnotazioni(allegato.getAnnotazioni());
+            nuovaVersione.setIdFolder(allegato.getIdFolder());
+            nuovaVersione.setIdUtente(allegato.getIdUtente());
+            nuovaVersione.setApertoDa(allegato.getApertoDa());
+            nuovaVersione.setDataInserimento(dataOra); // data aggiornata
+            nuovaVersione.setDove(allegato.getDove());
+            nuovaVersione.setIdDocAllegati(allegato.getIdDocAllegati());
+            nuovaVersione.setVersion(String.valueOf(currentVersion + 1));
+            nuovaVersione.setIdVersion(idVersionOriginale); // collegato all'originale
+
+            nuovaVersione.setSize(String.valueOf(file.getSize()));
+            nuovaVersione.setImprontaSHA1(calculateSHA1(file.getInputStream()));
+
+            Allegato saved = allegatoRepository.saveAndFlush(nuovaVersione);
+
+            DecimalFormat formatter = new DecimalFormat("0000000000");
+            saved.setPath(formatter.format(saved.getId()) + "." + saved.getType());
+            allegatoRepository.save(saved);
+
+            saveFileToFileSystem(saved, file.getInputStream());
+
+            log.info("Nuova versione creata: id={}, version={}, idVersion={}",
+                    saved.getId(), saved.getVersion(), saved.getIdVersion());
+
+            return saved;
         }
 
         return allegato;

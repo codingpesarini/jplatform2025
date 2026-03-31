@@ -439,18 +439,19 @@ public class UtenteEsterno implements Serializable {
      * Priorità: 1) profileImage custom, 2) socialImage, 3) default
      */
     public String getAvatar() {
-        // 1. Se l'utente ha caricato una foto personalizzata (Crop)
         if (profileImage != null && profileImage == 1 && image != null && !image.isEmpty()) {
-            return image; // Stringa Base64
+            // base64 diretto
+            if (image.startsWith("data:")) {
+                return image;
+            }
+            // path su disco → URL relativo servito da Spring
+            return "/imageProfile/pfImage" + id + ".jpg";
         }
 
-        // 2. Se l'utente ha un'immagine da Social Login
         if (socialImage != null && !socialImage.trim().isEmpty() && !socialImage.equals(" ")) {
             return socialImage;
         }
 
-        // 3. Avatar predefinito scelto dall'utente (salvato in S1)
-        // Se S1 è vuoto o non è un numero, usiamo il calcolo basato sull'ID
         int n = 1;
         try {
             if (s1 != null && !s1.equals("0") && !s1.isEmpty()) {

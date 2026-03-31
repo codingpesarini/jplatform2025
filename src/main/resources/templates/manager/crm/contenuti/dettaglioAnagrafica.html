@@ -39,7 +39,10 @@
     <input type="hidden" name="id" id="id"
            th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].id != null) ? elencoAnagrafico[0].id : ''}">
     <input type="hidden" name="profileImage" id="profileImage"
-           th:value="${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null && elencoAnagrafico[0].profileImage != null) ? elencoAnagrafico[0].profileImage : 0}">
+           th:value="${(utente != null) ? utente.profileImage : 0}">
+
+    <input type="hidden" name="avatarChanged" id="avatarChanged" value="0">
+    <input type="hidden" name="avatarNum" id="avatarNum" value="0">
 
     <div class="card">
       <div class="card-header d-flex align-items-center justify-content-between">
@@ -357,12 +360,47 @@
     var _avatarPredefinitaSelezionata = null;
     var _idUtenteFisso = /*[[${(elencoAnagrafico != null && !#lists.isEmpty(elencoAnagrafico) && elencoAnagrafico[0] != null) ? elencoAnagrafico[0].id : 0}]]*/ 0;
 
+    document.addEventListener('DOMContentLoaded', function() {
+        var fileInput = document.getElementById('avatarFileInput');
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                var file = e.target.files[0];
+                if (!file) return;
+
+                _avatarPredefinitaSelezionata = null;
+                var reader = new FileReader();
+                reader.onload = function(ev) {
+                    var img = document.getElementById('avatarImgPreview');
+                    img.src = ev.target.result;
+                    document.getElementById('avatarCropContainer').style.display = 'block';
+                    document.getElementById('avatarPreviewBox').style.display = 'block';
+                    document.getElementById('btnSalvaAvatar').style.display = 'inline-block';
+                    if (_avatarCropper) _avatarCropper.destroy();
+                    _avatarCropper = new Cropper(img, {
+                        aspectRatio: 1,
+                        viewMode: 1,
+                        preview: '.cropper-preview'
+                    });
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    });
+
     function apriModalAvatar() {
+        _avatarCropper = null;
+        _avatarPredefinitaSelezionata = null;
+        document.getElementById('btnSalvaAvatar').style.display = 'none';
+        document.getElementById('avatarCropContainer').style.display = 'none';
+        document.getElementById('avatarPreviewBox').style.display = 'none';
+        document.getElementById('avatarFileInput').value = '';
         bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAvatar')).show();
     }
 
     function selezionaAvatarPredefinito(el) {
-        document.querySelectorAll('.avatar-predefinito').forEach(img => img.style.border = '2px solid #dee2e6');
+        document.querySelectorAll('.avatar-predefinito').forEach(function(img) {
+            img.style.border = '2px solid #dee2e6';
+        });
         el.style.border = '4px solid #0088cc';
         _avatarPredefinitaSelezionata = el.src;
         _avatarCropper = null;
@@ -373,26 +411,38 @@
         const inputProfileImage = document.getElementById('profileImage');
 
         if (_avatarPredefinitaSelezionata) {
+            // Avatar predefinito scelto
             var num = _avatarPredefinitaSelezionata.match(/avatar-(\d+)\.jpg/);
             if (num) {
-                inputProfileImage.value = "0"; // Modalità Icona
-                // Crea o aggiorna il campo avatarNum per il controller
-                let hNum = document.getElementById('avatarNum') || Object.assign(document.createElement('input'), {type:'hidden', name:'avatarNum', id:'avatarNum'});
-                if(!hNum.parentElement) document.getElementById('elencoAnagrafico').appendChild(hNum);
+                inputProfileImage.value = "0";
+                // Aggiorna o crea avatarNum
+                var hNum = document.getElementById('avatarNum');
+                if (!hNum) {
+                    hNum = document.createElement('input');
+                    hNum.type = 'hidden';
+                    hNum.name = 'avatarNum';
+                    hNum.id = 'avatarNum';
+                    document.getElementById('elencoAnagrafico').appendChild(hNum);
+                }
                 hNum.value = num[1];
-
+                // Segnala che l'avatar è stato modificato
+                document.getElementById('avatarChanged').value = '1';
                 document.getElementById('avatar-img').src = _avatarPredefinitaSelezionata;
             }
             bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
+            _avatarPredefinitaSelezionata = null;
+
         } else if (_avatarCropper) {
-            var base64 = _avatarCropper.getCroppedCanvas({width:300,height:300}).toDataURL('image/jpeg', 0.85);
+            // Foto custom con crop
+            var base64 = _avatarCropper.getCroppedCanvas({width: 300, height: 300}).toDataURL('image/jpeg', 0.85);
             fetch('/admin/filemanager/avatar/upload-base64', {
                 method: 'POST',
-                headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({image: base64, idUtente: String(_idUtenteFisso)})
-            }).then(r => r.text()).then(data => {
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({image: base64, idUtente: String(_idUtenteFisso), tipo: 'utente'})
+            }).then(function(r) { return r.text(); }).then(function(data) {
                 if (data === 'OK') {
-                    inputProfileImage.value = "1"; // Modalità Foto Custom
+                    inputProfileImage.value = "1";
+                    document.getElementById('avatarChanged').value = '1';
                     document.getElementById('avatar-img').src = base64;
                     bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
                 }
@@ -400,14 +450,26 @@
         }
     }
 
+    function cancellaAvatar(id) {
+        confirmAction('Eliminare la foto profilo?', function() {
+            fetch('/admin/filemanager/avatar/upload-base64', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({image: '', idUtente: String(id), tipo: 'utente'})
+            }).then(function() {
+                document.getElementById('profileImage').value = '0';
+                document.getElementById('avatarChanged').value = '1';
+                document.getElementById('avatar-img').src = '/manager/assets/img/user/avatar-1.jpg';
+            });
+        });
+    }
+
     function submitAnagraficaForm(e) {
         if (e) e.preventDefault();
-        // Assicuriamoci che l'ID sia nel form
         document.getElementById('id').value = _idUtenteFisso;
         document.getElementById("elencoAnagrafico").submit();
     }
   </script>
-
 </div>
 </body>
 </html>

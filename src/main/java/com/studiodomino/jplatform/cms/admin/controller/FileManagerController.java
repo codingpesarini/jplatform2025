@@ -2,9 +2,13 @@ package com.studiodomino.jplatform.cms.admin.controller;
 
 import com.studiodomino.jplatform.cms.entity.Allegato;
 import com.studiodomino.jplatform.cms.service.AllegatoService;
+import com.studiodomino.jplatform.crm.service.AnagraficaService;
 import com.studiodomino.jplatform.shared.config.Configurazione;
 import com.studiodomino.jplatform.shared.entity.Folder;
 import com.studiodomino.jplatform.shared.entity.Images;
+import com.studiodomino.jplatform.shared.entity.Utente;
+import com.studiodomino.jplatform.shared.entity.UtenteEsterno;
+import com.studiodomino.jplatform.shared.repository.UtenteRepository;
 import com.studiodomino.jplatform.shared.service.ConfigurazioneService;
 import com.studiodomino.jplatform.shared.service.FolderService;
 import com.studiodomino.jplatform.shared.service.ImagesService;
@@ -44,6 +48,8 @@ public class FileManagerController {
     private final FolderService folderService;
     private final ImagesService imagesService;
     private final AllegatoService allegatoService;
+    private final AnagraficaService anagraficaService;
+    private final UtenteRepository utenteRepository;
 
     @Value("${upload.path}")
     private String imagesRepositoryPath;
@@ -761,14 +767,48 @@ public class FileManagerController {
         if (!config.isLogged()) return ResponseEntity.status(401).body("KO");
 
         try {
-            String imageBase64 = body.get("image").replaceAll("^data:image/\\w+;base64,", "");
+            String imageBase64 = body.get("image");
             String idUtente    = body.get("idUtente");
-            byte[] bytes = java.util.Base64.getDecoder().decode(imageBase64);
+            String tipo        = body.getOrDefault("tipo", "utente"); // "utente" o "amministratore"
+
+            // Salva su disco
             Path avatarDir = Paths.get(imagesRepositoryPath, "imageProfile");
             Files.createDirectories(avatarDir);
             Path avatarPath = avatarDir.resolve("pfImage" + idUtente + ".jpg");
-            Files.write(avatarPath, bytes);
+
+            if (imageBase64 == null || imageBase64.isEmpty()) {
+                // Cancella l'immagine
+                Files.deleteIfExists(avatarPath);
+            } else {
+                byte[] bytes = java.util.Base64.getDecoder()
+                        .decode(imageBase64.replaceAll("^data:image/\\w+;base64,", ""));
+                Files.write(avatarPath, bytes);
+            }
+
+            // Aggiorna DB in base al tipo
+            String pathRelativo = (imageBase64 != null && !imageBase64.isEmpty())
+                    ? "/imageProfile/pfImage" + idUtente + ".jpg"
+                    : null;
+            Integer flagProfileImage = (pathRelativo != null) ? 1 : 0;
+
+            if ("amministratore".equals(tipo)) {
+                Utente utente = utenteRepository.findById(Integer.parseInt(idUtente))
+                        .orElseThrow(() -> new RuntimeException("Amministratore non trovato: " + idUtente));
+                utente.setImage(pathRelativo);
+                utente.setProfileImage(flagProfileImage);
+                Utente saved = utenteRepository.save(utente);
+                log.info("Avatar DB aggiornato: id={}, profileImage={}, image={}",
+                        saved.getId(), saved.getProfileImage(), saved.getImage());
+            } else {
+                UtenteEsterno utente = anagraficaService.findById(Integer.parseInt(idUtente));
+                utente.setImage(pathRelativo);
+                utente.setProfileImage(flagProfileImage);
+                anagraficaService.salva(utente);
+            }
+
+            log.info("Avatar salvato per tipo={} id={} profileImage={}", tipo, idUtente, flagProfileImage);
             return ResponseEntity.ok("OK");
+
         } catch (Exception e) {
             log.error("Errore upload avatar base64", e);
             return ResponseEntity.internalServerError().body("KO");
@@ -818,5 +858,99 @@ public class FileManagerController {
             m.put("hasSubfolders", f.hasSubfolders());
             return m;
         }).toList();
+    }
+
+    @PostMapping("/files/save")
+    public String saveAllegato(
+            @RequestParam(value = "id", required = false) Integer id,
+            @RequestParam(value = "nome", defaultValue = "") String nome,
+            @RequestParam(value = "annotazioni", defaultValue = "") String annotazioni,
+            @RequestParam(value = "l3", defaultValue = "0") String l3,
+            @RequestParam(value = "idfolder", defaultValue = "1") String idFolderRaw,
+            @RequestParam(value = "docid", defaultValue = "0") String docId,
+            @RequestParam(value = "tipoVersione", defaultValue = "0") String tipoVersione,
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            HttpServletRequest request) {
+
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+        if (!config.isLogged()) return "redirect:/login";
+
+        // Se arrivano più valori concatenati (es: "1,1"), prendi solo il primo
+        String idFolder = idFolderRaw.contains(",")
+                ? idFolderRaw.split(",")[0].trim()
+                : idFolderRaw.trim();
+
+        try {
+            if (id == null || id <= 0) {
+                // --- NUOVO ALLEGATO ---
+                if (file == null || file.isEmpty()) {
+                    log.warn("Nessun file fornito per nuovo allegato");
+                    return "redirect:/admin/filemanager/" + idFolder;
+                }
+                String originalFilename = file.getOriginalFilename();
+                String ext = originalFilename != null && originalFilename.contains(".")
+                        ? originalFilename.substring(originalFilename.lastIndexOf(".") + 1) : "bin";
+                String nomeFile = !nome.isEmpty() ? nome
+                        : (originalFilename != null
+                        ? originalFilename.substring(0, originalFilename.lastIndexOf(".")) : "file");
+
+                Allegato allegato = new Allegato();
+                allegato.setIdFolder(Integer.parseInt(idFolder));
+                allegato.setL1(nomeFile);
+                allegato.setL3(l3);
+                allegato.setNome(originalFilename);
+                allegato.setType(ext);
+                allegato.setVersion("0");
+                allegato.setAnnotazioni(annotazioni.isEmpty() ? nomeFile : annotazioni);
+                allegato.setIdUtente(config.getAmministratore().getId().toString());
+                allegato.setApertoDa(config.getAmministratore().getNomeCompleto());
+                allegato.setDataInserimento(LocalDateTime.now().format(DF));
+                allegato.setDove("file");
+                allegato.setIdDocAllegati(docId);
+
+                Allegato saved = allegatoService.salvaAllegato(allegato, file);
+
+                if (!"0".equals(docId)) {
+                    allegatoService.collegaAllegato(
+                            Integer.parseInt(docId), saved.getId(),
+                            config.getAmministratore().getNomeCompleto(),
+                            config.getAmministratore().getId().toString());
+                }
+
+            } else {
+                // --- AGGIORNAMENTO ALLEGATO ---
+                Allegato allegato = allegatoService.findById(id).orElseThrow();
+                if (!nome.isEmpty()) allegato.setL1(nome);
+                if (!annotazioni.isEmpty()) allegato.setAnnotazioni(annotazioni);
+                allegato.setL3(l3);
+                allegato.setIdFolder(Integer.parseInt(idFolder));
+
+                boolean hasFile = file != null && !file.isEmpty();
+
+                if (!hasFile || "0".equals(tipoVersione)) {
+                    allegatoService.updateAllegato(allegato, file, "semplice");
+                } else if ("1".equals(tipoVersione)) {
+                    String ext = file.getOriginalFilename() != null && file.getOriginalFilename().contains(".")
+                            ? file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1) : "bin";
+                    allegato.setNome(file.getOriginalFilename());
+                    allegato.setType(ext);
+                    allegatoService.updateAllegato(allegato, file, "cambia");
+                } else if ("2".equals(tipoVersione)) {
+                    String ext = file.getOriginalFilename() != null && file.getOriginalFilename().contains(".")
+                            ? file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1) : "bin";
+                    allegato.setNome(file.getOriginalFilename());
+                    allegato.setType(ext);
+                    allegatoService.updateAllegato(allegato, file, "versione");
+                }
+            }
+
+            log.info("Allegato salvato: id={}, folder={}", id, idFolder);
+
+        } catch (Exception e) {
+            log.error("Errore saveAllegato", e);
+        }
+
+        return "redirect:/admin/filemanager/" + idFolder;
     }
 }

@@ -113,12 +113,15 @@ public class ImagesService {
 
         log.debug("Uploading image: {}", file.getOriginalFilename());
 
+        // Cartella per anno (es: 2026)
+        String anno = String.valueOf(java.time.LocalDate.now().getYear());
+
         // Genera nome unico
         String uniqueName = UUID.randomUUID().toString() + "_" +
                 file.getOriginalFilename();
 
-        // Crea path
-        Path uploadPath = Paths.get(imagesRepository, idfolder);
+        // Crea path con solo l'anno come sottocartella
+        Path uploadPath = Paths.get(imagesRepository, anno);
         Files.createDirectories(uploadPath);
 
         // Salva file
@@ -132,7 +135,7 @@ public class ImagesService {
         image.setSize(String.valueOf(file.getSize()));
         image.setIdfolder(idfolder);
         image.setPathname(uniqueName);
-        image.setFullpath(idfolder + "/" + uniqueName);
+        image.setFullpath(anno + "/" + uniqueName);
         image.setPrivato("0");
 
         return save(image);

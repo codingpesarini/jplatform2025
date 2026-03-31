@@ -21,8 +21,9 @@
 <div class="tab-content">
 
   <div id="tab_allegato" class="tab-pane active">
-    <form th:action="@{/admin/filemanager/files/save}" method="post" id="allegatoForm">
+    <form th:action="@{/admin/filemanager/files/save}" method="post" id="allegatoForm" enctype="multipart/form-data">
 
+      <input type="hidden" name="id" th:value="${allegato?.id}">
       <input type="hidden" name="idfolder" th:value="${currentFolder}">
       <input type="hidden" name="docid"    th:value="${allegato?.idDocAllegati}">
       <input type="hidden" name="sorgente" th:value="${sorgente}">

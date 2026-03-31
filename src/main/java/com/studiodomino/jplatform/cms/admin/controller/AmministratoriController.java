@@ -121,6 +121,8 @@ public class AmministratoriController {
         if (!config.isLogged()) return "redirect:/login";
 
         Utente utente = utenteRepository.findById(id).orElse(null);
+        log.info("OPEN id={}, profileImage={}, image={}, avatar={}",
+                id, utente.getProfileImage(), utente.getImage(), utente.getAvatar());
         if (utente == null) return "redirect:/admin/amministratori";
 
         log.info("=== AMMINISTRATORI OPEN === id: {}", id);
@@ -183,6 +185,8 @@ public class AmministratoriController {
             @ModelAttribute("anagraficaUtente") Utente utenteDatiForm,
             @RequestParam(value = "newpassword", required = false) String newPassword,
             @RequestParam(value = "newpasswordretype", required = false) String newPasswordRetype,
+            @RequestParam(value = "avatarChanged", defaultValue = "0") String avatarChanged,
+            @RequestParam(value = "avatarNum", defaultValue = "0") Integer avatarNum,
             HttpServletRequest request, Model model) {
 
         HttpSession session = request.getSession();
@@ -192,45 +196,118 @@ public class AmministratoriController {
         Utente utenteDaSalvare;
 
         if (utenteDatiForm.getId() != null) {
-            // --- CASO UPDATE ---
-            // 1. Carichiamo l'utente REALE dal database
             utenteDaSalvare = utenteRepository.findById(utenteDatiForm.getId())
                     .orElseThrow(() -> new RuntimeException("Utente non trovato"));
 
-            // 2. Copiamo i dati dal form all'oggetto reale (usando i setter per i campi presenti)
-            // Questo protegge TUTTI i campi che non sono nel form (telefono, date, ecc.)
-            utenteDaSalvare.setNome(utenteDatiForm.getNome());
-            utenteDaSalvare.setCognome(utenteDatiForm.getCognome());
-            utenteDaSalvare.setEmail(utenteDatiForm.getEmail());
-            utenteDaSalvare.setUsername(utenteDatiForm.getUsername());
-            // Aggiungi qui gli altri setter per i campi che hai effettivamente nel form HTML...
+            String imagePreservata       = utenteDaSalvare.getImage();
+            Integer profileImagePreservato = utenteDaSalvare.getProfileImage();
 
-            // Gestione specifica per i gruppi
+            utenteDaSalvare.setNome(utenteDatiForm.getNome()         != null ? utenteDatiForm.getNome()         : "");
+            utenteDaSalvare.setCognome(utenteDatiForm.getCognome()   != null ? utenteDatiForm.getCognome()      : "");
+            utenteDaSalvare.setEmail(utenteDatiForm.getEmail()       != null ? utenteDatiForm.getEmail()        : "");
+            utenteDaSalvare.setPec(utenteDatiForm.getPec()           != null ? utenteDatiForm.getPec()          : "");
+            utenteDaSalvare.setUsername(utenteDatiForm.getUsername() != null ? utenteDatiForm.getUsername()     : "");
+            utenteDaSalvare.setTelefono(utenteDatiForm.getTelefono() != null ? utenteDatiForm.getTelefono()     : "");
+            utenteDaSalvare.setTelefono2(utenteDatiForm.getTelefono2() != null ? utenteDatiForm.getTelefono2()  : "");
+            utenteDaSalvare.setIndirizzo(utenteDatiForm.getIndirizzo() != null ? utenteDatiForm.getIndirizzo()  : "");
+            utenteDaSalvare.setIncarico(utenteDatiForm.getIncarico() != null ? utenteDatiForm.getIncarico()     : "");
+            utenteDaSalvare.setExtra1(utenteDatiForm.getExtra1()     != null ? utenteDatiForm.getExtra1()       : "");
+            utenteDaSalvare.setStatoaccesso(utenteDatiForm.getStatoaccesso());
+            utenteDaSalvare.setIdsite(utenteDatiForm.getIdsite());
+            utenteDaSalvare.setRole1(utenteDatiForm.getRole1());
+            utenteDaSalvare.setRole2(utenteDatiForm.getRole2());
+            utenteDaSalvare.setRole3(utenteDatiForm.getRole3());
+            utenteDaSalvare.setRole4(utenteDatiForm.getRole4());
+            utenteDaSalvare.setRole5(utenteDatiForm.getRole5());
+            utenteDaSalvare.setRole6(utenteDatiForm.getRole6());
+            utenteDaSalvare.setRole7(utenteDatiForm.getRole7());
+            utenteDaSalvare.setRole8(utenteDatiForm.getRole8());
+            utenteDaSalvare.setRole9(utenteDatiForm.getRole9());
+            utenteDaSalvare.setRole10(utenteDatiForm.getRole10());
+            utenteDaSalvare.setRole11(utenteDatiForm.getRole11());
+            utenteDaSalvare.setRole12(utenteDatiForm.getRole12());
+            utenteDaSalvare.setRole13(utenteDatiForm.getRole13());
+            utenteDaSalvare.setRole14(utenteDatiForm.getRole14());
+            utenteDaSalvare.setRole15(utenteDatiForm.getRole15());
+            utenteDaSalvare.setRole16(utenteDatiForm.getRole16());
+            utenteDaSalvare.setRole17(utenteDatiForm.getRole17());
+            utenteDaSalvare.setRole18(utenteDatiForm.getRole18());
+            utenteDaSalvare.setRole19(utenteDatiForm.getRole19());
+            utenteDaSalvare.setRole20(utenteDatiForm.getRole20());
+            utenteDaSalvare.setL1(utenteDatiForm.getL1());
+            utenteDaSalvare.setL2(utenteDatiForm.getL2());
+            utenteDaSalvare.setL3(utenteDatiForm.getL3());
+            utenteDaSalvare.setL4(utenteDatiForm.getL4());
+            utenteDaSalvare.setL5(utenteDatiForm.getL5());
+            utenteDaSalvare.setL6(utenteDatiForm.getL6());
+            utenteDaSalvare.setL7(utenteDatiForm.getL7());
+            utenteDaSalvare.setL8(utenteDatiForm.getL8());
+            utenteDaSalvare.setL9(utenteDatiForm.getL9());
+            utenteDaSalvare.setL10(utenteDatiForm.getL10());
+            utenteDaSalvare.setRuoli1String(utenteDatiForm.getRuoli1String());
+            utenteDaSalvare.setRuoli2String(utenteDatiForm.getRuoli2String());
+            utenteDaSalvare.setRuoli3String(utenteDatiForm.getRuoli3String());
+            utenteDaSalvare.setRuoli4String(utenteDatiForm.getRuoli4String());
+            utenteDaSalvare.setRuoli5String(utenteDatiForm.getRuoli5String());
+            utenteDaSalvare.setSocialId(utenteDatiForm.getSocialId());
+            utenteDaSalvare.setSocialName(utenteDatiForm.getSocialName());
+            utenteDaSalvare.setSocialType(utenteDatiForm.getSocialType());
+            utenteDaSalvare.setSocialImage(utenteDatiForm.getSocialImage());
+            utenteDaSalvare.setIdaccountemail(utenteDatiForm.getIdaccountemail());
+            utenteDaSalvare.setIdaccountpec(utenteDatiForm.getIdaccountpec());
+
             if (utenteDatiForm.getIdGruppiArray() != null) {
                 utenteDaSalvare.setIdgruppi(String.join(",", utenteDatiForm.getIdGruppiArray()));
             }
 
+            // ── Gestione avatar ──────────────────────────────────────────
+            // avatarChanged=1 solo se l'utente ha esplicitamente modificato l'avatar
+            if ("1".equals(avatarChanged)) {
+                Integer profileImageDalForm = utenteDatiForm.getProfileImage();
+                if (profileImageDalForm != null && profileImageDalForm == 1) {
+                    // Foto custom salvata via AJAX — il path è già nel DB, mantienilo
+                    utenteDaSalvare.setImage(imagePreservata);
+                    utenteDaSalvare.setProfileImage(1);
+                } else {
+                    // Avatar predefinito scelto — salva il path statico in image
+                    String avatarPath = avatarNum > 0
+                            ? "/manager/assets/img/user/avatar-" + avatarNum + ".jpg"
+                            : null;
+                    utenteDaSalvare.setImage(avatarPath);
+                    utenteDaSalvare.setProfileImage(0);
+                }
+            } else {
+                // Nessuna modifica avatar — mantieni sempre quello del DB
+                utenteDaSalvare.setImage(imagePreservata);
+                utenteDaSalvare.setProfileImage(profileImagePreservato);
+            }
+
+            if (newPassword != null && !newPassword.isEmpty()
+                    && newPassword.equals(newPasswordRetype)) {
+                utenteDaSalvare.setPassword(newPassword);
+                log.info("Password aggiornata per utente id={}", utenteDaSalvare.getId());
+            }
+
         } else {
-            // --- CASO NUOVO UTENTE ---
             utenteDaSalvare = utenteDatiForm;
             String now = new SimpleDateFormat("dd/MM/yyyy - HH:mm").format(new Date());
             utenteDaSalvare.setDatacreazione(now);
             utenteDaSalvare.setDataultimoaccesso(now);
             utenteDaSalvare.setIpultimoaccesso(request.getRemoteAddr());
             utenteDaSalvare.setNumeroaccessi("0");
-
-            // Inizializziamo a stringa vuota i campi che il DB vuole NOT NULL
-            if (utenteDaSalvare.getTelefono() == null) utenteDaSalvare.setTelefono("");
+            utenteDaSalvare.setProfileImage(0);
+            utenteDaSalvare.setImage(null);
+            if (utenteDaSalvare.getTelefono()  == null) utenteDaSalvare.setTelefono("");
             if (utenteDaSalvare.getTelefono2() == null) utenteDaSalvare.setTelefono2("");
-            if (utenteDaSalvare.getIncarico() == null) utenteDaSalvare.setIncarico("");
-            // ... e così via per gli altri campi segnalati dai log
+            if (utenteDaSalvare.getIncarico()  == null) utenteDaSalvare.setIncarico("");
+            if (utenteDaSalvare.getIndirizzo() == null) utenteDaSalvare.setIndirizzo("");
+            if (utenteDaSalvare.getEmail()     == null) utenteDaSalvare.setEmail("");
         }
 
-        // Salvataggio finale
         try {
             Utente salvato = utenteRepository.save(utenteDaSalvare);
-            log.info("=== SAVE SUCCESS === id: {}", salvato.getId());
-
+            log.info("=== SAVE SUCCESS === id: {}, profileImage: {}, image: {}",
+                    salvato.getId(), salvato.getProfileImage(), salvato.getImage());
             model.addAttribute("anagraficaUtente", salvato);
             model.addAttribute("amministratoriUtente", salvato);
         } catch (Exception e) {
@@ -240,7 +317,6 @@ public class AmministratoriController {
 
         model.addAttribute("config", config);
         model.addAttribute("listaGruppi", gruppoRepository.findAll());
-
         return ViewUtils.resolveProtectedTemplate("admin/contenuti/dettaglioAmministratore");
     }
 

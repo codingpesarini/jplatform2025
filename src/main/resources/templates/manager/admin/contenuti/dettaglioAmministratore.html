@@ -76,6 +76,8 @@
                                 <input type="hidden" name="idsite"       th:value="${amministratoriUtente.idsite}">
                                 <input type="hidden" name="statoaccesso" value="1">
                                 <input type="hidden" name="profileImage" th:value="${amministratoriUtente.profileImage}">
+                                <input type="hidden" name="avatarChanged" id="avatarChanged" value="0">
+                                <input type="hidden" name="avatarNum" id="avatarNum" value="0">
                                 <input type="hidden" name="ruoli1String" th:value="${amministratoriUtente.ruoli1String}">
                                 <input type="hidden" name="ruoli2String" th:value="${amministratoriUtente.ruoli2String}">
                                 <input type="hidden" name="ruoli3String" th:value="${amministratoriUtente.ruoli3String}">
@@ -634,60 +636,78 @@
         });
 
         function selezionaAvatarPredefinito(el) {
-            document.querySelectorAll('.avatar-predefinito').forEach(function(img) {
-                img.style.border = '2px solid #dee2e6';
-                img.style.opacity = '1';
-            });
-            el.style.border = '3px solid #0088cc';
-            el.style.opacity = '0.85';
-            _avatarPredefinitaSelezionata = el.src;
-            _avatarCropper = null;
-            document.getElementById('btnSalvaAvatar').style.display = '';
-        }
+    document.querySelectorAll('.avatar-predefinito').forEach(function(img) {
+        img.style.border = '2px solid #dee2e6';
+        img.style.opacity = '1';
+    });
+    el.style.border = '3px solid #0088cc';
+    el.style.opacity = '0.85';
+    _avatarPredefinitaSelezionata = el.src;
+    _avatarCropper = null;
+    document.getElementById('btnSalvaAvatar').style.display = '';
+}
 
-        function salvaAvatar() {
-            if (_avatarPredefinitaSelezionata) {
-                document.getElementById('avatar-img').src = _avatarPredefinitaSelezionata;
-                document.querySelector('input[name="profileImage"]').value = '0';
-                bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
-                _avatarPredefinitaSelezionata = null;
-                showToast('Completato', 'Avatar selezionato. Ricordati di salvare il form.');
-                return;
-            }
-            if (!_avatarCropper) return;
-            var canvas = _avatarCropper.getCroppedCanvas({ width: 300, height: 300 });
-            var base64 = canvas.toDataURL('image/jpeg', 0.85);
-            fetch('/admin/filemanager/avatar/upload-base64', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image: base64, idUtente: String(_avatarUtenteId) })
-            })
-            .then(function(r) { return r.text(); })
-            .then(function(data) {
-                if (data === 'OK') {
-                    document.querySelector('input[name="profileImage"]').value = '1';
-                    bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
-                    document.getElementById('avatar-img').src = base64;
-                    showToast('Completato', 'Foto salvata. Ricordati di salvare il form.');
-                } else {
-                    showToast('Errore', 'Errore nel salvataggio della foto.', 'danger');
-                }
-            });
-        }
+function salvaAvatar() {
+   if (_avatarPredefinitaSelezionata) {
+    var num = _avatarPredefinitaSelezionata.match(/avatar-(\d+)\.jpg/);
+    if (num) {
+        document.getElementById('avatarNum').value = num[1];
+    }
+    document.querySelector('input[name="profileImage"]').value = '0';
+    document.querySelector('input[name="avatarChanged"]').value = '1';
+    document.getElementById('avatar-img').src = _avatarPredefinitaSelezionata;
+    bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
+    _avatarPredefinitaSelezionata = null;
+    showToast('Completato', 'Avatar selezionato. Ricordati di salvare il form.');
+    return;
+}
 
-        function cancellaAvatar(id) {
-            confirmAction('Eliminare la foto profilo?', function() {
-                fetch('/admin/filemanager/avatar/upload-base64', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ image: '', idUtente: String(id) })
-                }).then(function() {
-                    document.querySelector('input[name="profileImage"]').value = '0';
-                    document.getElementById('avatar-img').src = '/manager/assets/img/user/avatar-1.jpg';
-                    showToast('Completato', 'Foto eliminata. Ricordati di salvare il form.');
-                });
-            });
+    if (!_avatarCropper) return;
+
+    var canvas = _avatarCropper.getCroppedCanvas({ width: 300, height: 300 });
+    var base64 = canvas.toDataURL('image/jpeg', 0.85);
+
+    fetch('/admin/filemanager/avatar/upload-base64', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            image: base64,
+            idUtente: String(_avatarUtenteId),
+            tipo: 'amministratore'
+        })
+    })
+    .then(function(r) { return r.text(); })
+    .then(function(data) {
+        if (data === 'OK') {
+            document.querySelector('input[name="profileImage"]').value = '1';
+            document.querySelector('input[name="avatarChanged"]').value = '1'; // ← segnala modifica
+            document.getElementById('avatar-img').src = base64;
+            bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
+            showToast('Completato', 'Foto salvata. Ricordati di salvare il form.');
+        } else {
+            showToast('Errore', 'Errore nel salvataggio della foto.', 'danger');
         }
+    })
+    .catch(function(err) {
+        console.error('Errore fetch avatar:', err);
+        showToast('Errore', 'Errore di rete.', 'danger');
+    });
+}
+
+function cancellaAvatar(id) {
+    confirmAction('Eliminare la foto profilo?', function() {
+        fetch('/admin/filemanager/avatar/upload-base64', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: '', idUtente: String(id), tipo: 'amministratore' })
+        }).then(function() {
+            document.querySelector('input[name="profileImage"]').value = '0';
+            document.querySelector('input[name="avatarChanged"]').value = '1'; // ← segnala modifica
+            document.getElementById('avatar-img').src = '/manager/assets/img/user/avatar-1.jpg';
+            showToast('Completato', 'Foto eliminata. Ricordati di salvare il form.');
+        });
+    });
+}
     </script>
 </div>
 </body>

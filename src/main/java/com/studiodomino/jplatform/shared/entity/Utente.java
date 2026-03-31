@@ -153,8 +153,9 @@ public class Utente implements Serializable {
     @Transient
     private String[] ruoliA5;
 
-    @Transient
-    private String avatar;
+    @Lob
+    @Column(name = "image", columnDefinition = "LONGTEXT")
+    private String image;
 
     @Transient
     private String filePath;
@@ -221,15 +222,21 @@ public class Utente implements Serializable {
      */
     @Transient
     public String getAvatar() {
-        if (profileImage == null || profileImage == 0) {
-            if (socialImage != null && !socialImage.trim().isEmpty()) {
-                return socialImage;
-            }
-            // Avatar di default basato sull'id — uno dei 10 disponibili
-            int avatarNum = (id != null ? (id % 10) + 1 : 1);
-            return "/manager/assets/img/user/avatar-" + avatarNum + ".jpg";
+        // Foto custom su disco
+        if (profileImage != null && profileImage == 1 && image != null && !image.isEmpty()) {
+            return image;
         }
-        return (filePath != null ? filePath : "") + "imageProfile/usImage" + id + ".jpg";
+        // Avatar predefinito salvato esplicitamente in image
+        if (image != null && !image.isEmpty()) {
+            return image;
+        }
+        // Social
+        if (socialImage != null && !socialImage.trim().isEmpty()) {
+            return socialImage;
+        }
+        // Default calcolato sull'ID
+        int n = (id != null ? (id % 10) + 1 : 1);
+        return "/manager/assets/img/user/avatar-" + n + ".jpg";
     }
 
     /**

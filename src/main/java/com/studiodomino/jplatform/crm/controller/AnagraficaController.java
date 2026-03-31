@@ -114,6 +114,7 @@ public class AnagraficaController {
             @ModelAttribute UtenteEsterno form,
             @RequestParam(value = "newpassword", defaultValue = "") String newPassword,
             @RequestParam(value = "newpasswordretype", defaultValue = "") String newPasswordRetype,
+            @RequestParam(value = "avatarChanged", defaultValue = "0") String avatarChanged,
             @RequestParam(value = "avatarNum", required = false) Integer avatarNum,
             HttpServletRequest request, Model model) {
 
@@ -185,15 +186,32 @@ public class AnagraficaController {
                 db.setExtra4(form.getExtra4());
                 db.setExtra5(form.getExtra5());
                 db.setSottoscrizioni(form.getSottoscrizioni());
-                db.setS1(form.getS1()); db.setS2(form.getS2()); db.setS3(form.getS3());
+                db.setS2(form.getS2()); db.setS3(form.getS3());
                 db.setS4(form.getS4()); db.setS5(form.getS5()); db.setS6(form.getS6());
                 db.setS7(form.getS7()); db.setS8(form.getS8()); db.setS9(form.getS9());
                 db.setS10(form.getS10());
-                db.setProfileImage(form.getProfileImage());
-                if (avatarNum != null) {
+
+                // Gestione avatar/immagine profilo
+                if (avatarNum != null && avatarNum > 0) {
+                    // Utente ha scelto un avatar predefinito
                     db.setS1(String.valueOf(avatarNum));
+                    db.setProfileImage(0);
+                } else {
+                    Integer piForm = form.getProfileImage();
+                    if (piForm != null && piForm == 1) {
+                        // Foto custom già salvata via AJAX: aggiorna solo il flag,
+                        // NON toccare db.image che è già persistito correttamente
+                        db.setProfileImage(1);
+                        db.setImage("/imageProfile/pfImage" + id + ".jpg");
+                    }
+                    // Se piForm è null o 0 non tocchiamo né profileImage né image:
+                    // restano quelli già presenti nel DB
+
+                    // Aggiorna S1 solo se è un valore intenzionale (non vuoto e non "0")
+                    if (form.getS1() != null && !form.getS1().equals("0") && !form.getS1().isEmpty()) {
+                        db.setS1(form.getS1());
+                    }
                 }
-                // datacreazione, username, password, socialId ecc. restano dal DB
 
                 if (!newPassword.isEmpty() && newPassword.equals(newPasswordRetype)) {
                     anagraficaService.cambiaPassword(id, newPassword);
@@ -201,7 +219,8 @@ public class AnagraficaController {
                 }
 
                 utente = anagraficaService.salva(db);
-                log.info("Utente salvato: id={}", utente.getId());
+                log.info("Utente salvato: id={}, profileImage={}, hasImage={}",
+                        utente.getId(), utente.getProfileImage(), (utente.getImage() != null));
             }
 
             model.addAttribute("utente", utente);
