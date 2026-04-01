@@ -434,6 +434,28 @@ public class FileManagerController {
         return ViewUtils.resolveProtectedTemplate("filemanager/allegato");
     }
 
+    @GetMapping("/files/new/{idfolder}/{docid}")
+    public String newAllegato(
+            @PathVariable String idfolder,
+            @PathVariable(required = false) String docid,
+            HttpServletRequest request, Model model) {
+
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+        if (!config.isLogged()) return "redirect:/login";
+
+        Allegato allegato = new Allegato();
+        allegato.setIdDocAllegati(docid != null ? docid : "0");
+        allegato.setIdFolder(Integer.parseInt(idfolder));
+
+        model.addAttribute("allegato", allegato);
+        model.addAttribute("folders", folderService.getAllFolders());
+        model.addAttribute("currentFolder", idfolder);
+        model.addAttribute("sorgente", "");
+        model.addAttribute("config", config);
+        return ViewUtils.resolveProtectedTemplate("filemanager/allegato");
+    }
+
     @GetMapping("/files/{id}/edit/{idfolder}")
     public String editAllegato(
             @PathVariable Integer id,
@@ -952,5 +974,53 @@ public class FileManagerController {
         }
 
         return "redirect:/admin/filemanager/" + idFolder;
+    }
+
+    @PostMapping("/images/save-ajax")
+    @ResponseBody
+    public Map<String, Object> saveImageAjax(
+            @RequestParam(value = "id", required = false) Integer id,
+            @RequestParam(value = "name", defaultValue = "") String name,
+            @RequestParam(value = "didascalia", defaultValue = "") String didascalia,
+            @RequestParam(value = "idfolder", defaultValue = "1") String idFolder,
+            @RequestParam(value = "filer", required = false) MultipartFile filer,
+            HttpServletRequest request) {
+
+        Map<String, Object> result = new HashMap<>();
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+
+        if (!config.isLogged()) {
+            result.put("success", false);
+            return result;
+        }
+
+        try {
+            Images image;
+            if (id == null || id <= 0) {
+                image = imagesService.uploadImage(filer, idFolder, imagesRepositoryPath);
+            } else {
+                image = imagesService.findById(id).orElseThrow();
+                if (filer != null && !filer.isEmpty()) {
+                    imagesService.delete(id);
+                    image = imagesService.uploadImage(filer, idFolder, imagesRepositoryPath);
+                }
+            }
+            if (!name.isEmpty()) image.setName(name);
+            if (!didascalia.isEmpty()) image.setDidascalia(didascalia);
+            image.setL4(config.getAmministratore().getNomeCompleto());
+            image.setL5(LocalDateTime.now().format(DF));
+            imagesService.save(image);
+
+            result.put("success", true);
+            result.put("id", image.getId());
+            result.put("url", config.getImagesRepositoryWeb() + image.getFullpath());
+            result.put("nome", image.getName());
+        } catch (Exception e) {
+            log.error("Errore saveImageAjax", e);
+            result.put("success", false);
+            result.put("error", e.getMessage());
+        }
+        return result;
     }
 }

@@ -17,17 +17,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service per la gestione completa degli allegati:
- * - CRUD allegati
- * - Upload/Download file
- * - Gestione versioni
- * - Collegamento con documenti
- * - Calcolo SHA1
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -40,60 +35,42 @@ public class AllegatoService {
     @Value("${allegati.repository.path}")
     private String repositoryPath;
 
+    private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm");
+    private static final DecimalFormat ID_FORMATTER = new DecimalFormat("0000000000");
+
     // ========================================
     // CRUD ALLEGATI
     // ========================================
 
-    /**
-     * Trova allegato per ID
-     */
     public Optional<Allegato> findById(Integer id) {
         log.debug("Finding allegato by id: {}", id);
         Optional<Allegato> allegatoOpt = allegatoRepository.findById(id);
-
-        // Carica versioni se esiste
         allegatoOpt.ifPresent(allegato -> {
-            if (!"0".equals(allegato.getIdVersion())) {
+            if (allegato.getIdVersion() != null && !"0".equals(allegato.getIdVersion())) {
                 allegato.setVersioni(findVersions(allegato.getIdVersion()));
             }
         });
-
         return allegatoOpt;
     }
 
-    /**
-     * Trova allegati per folder
-     */
     public List<Allegato> findByFolder(Integer idFolder) {
         log.debug("Finding allegati by folder: {}", idFolder);
         return allegatoRepository.findByFolder(idFolder);
     }
 
-    /**
-     * Trova versioni di un allegato
-     */
     public List<Allegato> findVersions(String idVersion) {
         log.debug("Finding versions for idVersion: {}", idVersion);
         return allegatoRepository.findVersions(idVersion);
     }
 
-    /**
-     * Trova ultima versione
-     */
     public Optional<Allegato> findLatestVersion(String idVersion) {
         return allegatoRepository.findLatestVersion(idVersion);
     }
 
-    /**
-     * Trova allegati per tipo
-     */
     public List<Allegato> findByTipo(Long tipo) {
         return allegatoRepository.findByTipo(tipo);
     }
 
-    /**
-     * Trova allegati per anno
-     */
     public List<Allegato> findByAnno(String anno) {
         return allegatoRepository.findByAnno(anno);
     }
@@ -102,112 +79,87 @@ public class AllegatoService {
     // UPLOAD E SALVATAGGIO FILE
     // ========================================
 
-    /**
-     * Salva allegato con file upload
-     */
     @Transactional
     public Allegato salvaAllegato(Allegato allegato, MultipartFile file) throws IOException {
         log.info("Saving allegato: {}", allegato.getNome());
 
-        // Imposta dimensione file
         allegato.setSize(String.valueOf(file.getSize()));
-
-        // Calcola SHA1 prima del salvataggio
         allegato.setImprontaSHA1(calculateSHA1(file.getInputStream()));
 
-        // Salva nel database
         Allegato saved = allegatoRepository.save(allegato);
 
-        // Formatta ID con padding (es: 0000000123)
-        DecimalFormat formatter = new DecimalFormat("0000000000");
-        String paddedId = formatter.format(saved.getId());
-
-        // Aggiorna path relativo
-        String relativePath = paddedId + "." + allegato.getType();
+        // Path: anno/0000000123.pdf
+        String anno = String.valueOf(LocalDate.now().getYear());
+        String paddedId = ID_FORMATTER.format(saved.getId());
+        String relativePath = anno + "/" + paddedId + "." + allegato.getType();
         saved.setPath(relativePath);
 
-        // Se è versione 0, imposta idVersion = id
         if ("0".equals(saved.getVersion())) {
             saved.setIdVersion(saved.getId().toString());
         }
 
         allegatoRepository.save(saved);
-
-        // Salva file fisico
         saveFileToFileSystem(saved, file.getInputStream());
 
         log.info("Allegato saved with id: {}", saved.getId());
         return saved;
     }
 
-    /**
-     * Aggiorna allegato esistente
-     */
     @Transactional
     public Allegato updateAllegato(Allegato allegato, MultipartFile file, String modoUpdate) throws IOException {
         log.info("Updating allegato: {} with mode: {}", allegato.getId(), modoUpdate);
 
         if ("semplice".equals(modoUpdate)) {
-            // Aggiornamento solo metadati
             return allegatoRepository.save(allegato);
 
         } else if ("cambia".equals(modoUpdate)) {
-            // Aggiornamento con sostituzione file
+            // Sostituzione file — mantieni il path esistente nel DB
             allegato.setSize(String.valueOf(file.getSize()));
             allegato.setImprontaSHA1(calculateSHA1(file.getInputStream()));
-
             Allegato updated = allegatoRepository.save(allegato);
             saveFileToFileSystem(updated, file.getInputStream());
-
             return updated;
 
         } else if ("versione".equals(modoUpdate)) {
             String idVersionOriginale = allegato.getIdVersion();
             int currentVersion = Integer.parseInt(allegato.getVersion());
+            String dataOra = LocalDateTime.now().format(DF);
 
-            // Data attuale per la nuova versione
-            String dataOra = java.time.LocalDateTime.now()
-                    .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm"));
-
-            // Crea un NUOVO oggetto distaccato dal contesto Hibernate
+            // Nuovo oggetto distaccato dal contesto Hibernate
             Allegato nuovaVersione = new Allegato();
             nuovaVersione.setL1(allegato.getL1());
             nuovaVersione.setL3(allegato.getL3());
-            nuovaVersione.setNome(file.getOriginalFilename()); // nuovo filename
+            nuovaVersione.setNome(file.getOriginalFilename());
             nuovaVersione.setType(allegato.getType());
             nuovaVersione.setAnnotazioni(allegato.getAnnotazioni());
             nuovaVersione.setIdFolder(allegato.getIdFolder());
             nuovaVersione.setIdUtente(allegato.getIdUtente());
             nuovaVersione.setApertoDa(allegato.getApertoDa());
-            nuovaVersione.setDataInserimento(dataOra); // data aggiornata
+            nuovaVersione.setDataInserimento(dataOra);
             nuovaVersione.setDove(allegato.getDove());
             nuovaVersione.setIdDocAllegati(allegato.getIdDocAllegati());
             nuovaVersione.setVersion(String.valueOf(currentVersion + 1));
-            nuovaVersione.setIdVersion(idVersionOriginale); // collegato all'originale
-
+            nuovaVersione.setIdVersion(idVersionOriginale);
             nuovaVersione.setSize(String.valueOf(file.getSize()));
             nuovaVersione.setImprontaSHA1(calculateSHA1(file.getInputStream()));
 
             Allegato saved = allegatoRepository.saveAndFlush(nuovaVersione);
 
-            DecimalFormat formatter = new DecimalFormat("0000000000");
-            saved.setPath(formatter.format(saved.getId()) + "." + saved.getType());
+            // Path: anno/0000000123.pdf
+            String anno = String.valueOf(LocalDate.now().getYear());
+            saved.setPath(anno + "/" + ID_FORMATTER.format(saved.getId()) + "." + saved.getType());
             allegatoRepository.save(saved);
 
             saveFileToFileSystem(saved, file.getInputStream());
 
             log.info("Nuova versione creata: id={}, version={}, idVersion={}",
                     saved.getId(), saved.getVersion(), saved.getIdVersion());
-
             return saved;
         }
 
         return allegato;
     }
 
-    /**
-     * Elimina allegato (file + DB)
-     */
     @Transactional
     public void deleteAllegato(Integer id) throws IOException {
         log.info("Deleting allegato: {}", id);
@@ -218,15 +170,10 @@ public class AllegatoService {
         }
 
         Allegato allegato = allegatoOpt.get();
-
-        // Elimina file fisico
         deleteFileFromFileSystem(allegato);
-
-        // Elimina collegamenti in docallegati
         docAllegatiRepository.deleteByAllegato(id);
 
-        // Elimina versioni associate
-        if (!"0".equals(allegato.getIdVersion())) {
+        if (allegato.getIdVersion() != null && !"0".equals(allegato.getIdVersion())) {
             List<Allegato> versioni = findVersions(allegato.getIdVersion());
             for (Allegato versione : versioni) {
                 if (!versione.getId().equals(id)) {
@@ -236,9 +183,7 @@ public class AllegatoService {
             }
         }
 
-        // Elimina allegato
         allegatoRepository.deleteById(id);
-
         log.info("Allegato deleted: {}", id);
     }
 
@@ -246,54 +191,38 @@ public class AllegatoService {
     // GESTIONE COLLEGAMENTI DOCUMENTO-ALLEGATO
     // ========================================
 
-    /**
-     * Collega un allegato a un documento
-     */
     @Transactional
     public DocAllegati collegaAllegato(Integer idDocumento, Integer idAllegato,
                                        String user, String idUser) {
         log.info("Linking allegato {} to documento {}", idAllegato, idDocumento);
 
-        // Verifica allegato esiste
         if (!allegatoRepository.existsById(idAllegato)) {
             throw new IllegalArgumentException("Allegato not found: " + idAllegato);
         }
 
-        // Calcola ordine (max + 1)
         List<DocAllegati> existing = docAllegatiRepository.findByDocumento(idDocumento);
-        int maxOrdine = existing.stream()
-                .mapToInt(DocAllegati::getOrdine)
-                .max()
-                .orElse(0);
+        int maxOrdine = existing.stream().mapToInt(DocAllegati::getOrdine).max().orElse(0);
 
         DocAllegati docAllegati = new DocAllegati();
         docAllegati.setIdDocumento(idDocumento);
         docAllegati.setIdAllegato(idAllegato);
         docAllegati.setUser(user);
         docAllegati.setIdUser(idUser);
-        docAllegati.setDataInsert(java.time.LocalDateTime.now().toString());
+        docAllegati.setDataInsert(LocalDateTime.now().toString());
         docAllegati.setOrdine(maxOrdine + 1);
 
         return docAllegatiRepository.save(docAllegati);
     }
 
-    /**
-     * Scollega un allegato da un documento
-     */
     @Transactional
     public void scollegaAllegato(Integer idDocAllegati) {
         log.info("Unlinking docAllegati: {}", idDocAllegati);
         docAllegatiRepository.deleteById(idDocAllegati);
     }
 
-    /**
-     * Trova tutti gli allegati di un documento (con oggetti Allegato popolati)
-     */
     public List<Allegato> findAllegatiByDocumento(Integer idDocumento) {
         log.debug("Finding allegati for documento: {}", idDocumento);
-
         List<DocAllegati> collegamenti = docAllegatiRepository.findByDocumento(idDocumento);
-
         return collegamenti.stream()
                 .map(doc -> {
                     Optional<Allegato> allegatoOpt = findById(doc.getIdAllegato());
@@ -310,9 +239,6 @@ public class AllegatoService {
                 .toList();
     }
 
-    /**
-     * Conta allegati per documento
-     */
     public Long countAllegatiByDocumento(Integer idDocumento) {
         return docAllegatiRepository.countByDocumento(idDocumento);
     }
@@ -321,23 +247,14 @@ public class AllegatoService {
     // GESTIONE FILE SYSTEM
     // ========================================
 
-    /**
-     * Salva file nel filesystem
-     */
     private void saveFileToFileSystem(Allegato allegato, InputStream inputStream) throws IOException {
-        // Crea directory se non esiste
-        Path directory = Paths.get(repositoryPath);
-        if (!Files.exists(directory)) {
-            Files.createDirectories(directory);
-        }
+        Path filePath = Paths.get(repositoryPath).resolve(allegato.getPath());
 
-        // Path completo del file
-        Path filePath = directory.resolve(allegato.getPath());
+        // Crea directory inclusa sottocartella anno
+        Files.createDirectories(filePath.getParent());
 
-        // Salva file
         try (InputStream in = inputStream;
              OutputStream out = new FileOutputStream(filePath.toFile())) {
-
             byte[] buffer = new byte[8192];
             int bytesRead;
             while ((bytesRead = in.read(buffer)) != -1) {
@@ -348,21 +265,14 @@ public class AllegatoService {
         log.debug("File saved to: {}", filePath);
     }
 
-    /**
-     * Elimina file dal filesystem
-     */
     private void deleteFileFromFileSystem(Allegato allegato) throws IOException {
         Path filePath = Paths.get(repositoryPath, allegato.getPath());
-
         if (Files.exists(filePath)) {
             Files.delete(filePath);
             log.debug("File deleted: {}", filePath);
         }
     }
 
-    /**
-     * Ottiene InputStream per download file
-     */
     public InputStream getFileInputStream(Integer id) throws IOException {
         Optional<Allegato> allegatoOpt = findById(id);
         if (allegatoOpt.isEmpty()) {
@@ -383,39 +293,26 @@ public class AllegatoService {
     // UTILITY
     // ========================================
 
-    /**
-     * Calcola SHA1 di un file
-     */
     private String calculateSHA1(InputStream inputStream) throws IOException {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-1");
-
             byte[] buffer = new byte[8192];
             int bytesRead;
-
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 md.update(buffer, 0, bytesRead);
             }
-
             byte[] hash = md.digest();
-
-            // Converti in stringa hex
             StringBuilder sb = new StringBuilder();
             for (byte b : hash) {
                 sb.append(String.format("%02x", b));
             }
-
             return sb.toString();
-
         } catch (Exception e) {
             log.error("Error calculating SHA1", e);
             return "";
         }
     }
 
-    /**
-     * Verifica esistenza allegato
-     */
     public boolean exists(Integer id) {
         return allegatoRepository.existsById(id);
     }

@@ -33,7 +33,7 @@
            class="btn btn-sm btn-secondary">
           <i class="fas fa-plus"></i> Nuovo allegato
         </a>
-        <button type="submit" class="btn btn-sm btn-primary">
+        <button type="button" class="btn btn-sm btn-primary" onclick="salvaAllegatoForm()">
           <i class="fas fa-save"></i> Salva
         </button>
         <button type="button" class="btn btn-sm btn-danger" data-bs-dismiss="modal">
@@ -205,6 +205,7 @@
   var docId         = /*[[${allegato?.idDocAllegati}]]*/ '0';
 
   (function() {
+    // Mostra singola se modifica, multipla se nuovo
     if (allegatoId && allegatoId > 0) {
       document.getElementById('singola').style.display = '';
       document.getElementById('multiplo').style.display = 'none';
@@ -213,6 +214,7 @@
       document.getElementById('multiplo').style.display = '';
     }
 
+    // Upload multiplo — usa endpoint upload per ottenere id e dati
     var fileMultiplo = document.getElementById('fileMultiplo');
     if (fileMultiplo) {
       fileMultiplo.addEventListener('change', function() {
@@ -224,6 +226,7 @@
         var done   = 0;
         if (!tot) return;
         document.getElementById('progressoUpload').style.display = '';
+
         Array.from(files).forEach(function(file, i) {
           var fd = new FormData();
           fd.append('file',        file);
@@ -231,23 +234,88 @@
           fd.append('docid',       docId);
           fd.append('nome',        nome ? nome + '_' + (i + 1) : '');
           fd.append('annotazioni', annot);
+
           fetch('/admin/filemanager/files/upload', { method: 'POST', body: fd })
-            .then(function() {
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
               done++;
               var pct = Math.round(done / tot * 100);
               document.getElementById('progressBarAll').style.width = pct + '%';
               document.getElementById('progressLabelAll').textContent = done + ' / ' + tot + ' caricati';
+
+              // Inserisci allegato nel tab_05 se siamo in contesto sezione/contenuto
+              if (data.success && data.id && typeof window.InserisciAllegatoInPagina === 'function') {
+                window.InserisciAllegatoInPagina(data);
+              }
+
               if (done === tot) {
                 document.getElementById('progressLabelAll').textContent = 'Completato!';
                 setTimeout(function() {
-                  if (window.FileManager) window.FileManager.refresh(folder);
-                }, 800);
+                  var modalEl = document.getElementById('modalAccount');
+                  if (modalEl) bootstrap.Modal.getInstance(modalEl).hide();
+                  if (typeof showToast === 'function') showToast('Completato', tot + ' allegati caricati.');
+                }, 600);
               }
             });
         });
       });
     }
   })();
+
+  // Salva allegato singolo via AJAX (usato in modifica)
+  function salvaAllegatoForm() {
+    var form = document.getElementById('allegatoForm');
+    var f = new FormData();
+
+    var fileInput = form.querySelector('input[type="file"][name="file"]');
+    if (fileInput && fileInput.files[0]) {
+      f.append('file', fileInput.files[0]);
+    } else if (!allegatoId) {
+      if (typeof showToast === 'function') showToast('Attenzione', 'Seleziona un file.', 'danger');
+      return;
+    }
+
+    // Prendi idfolder dal select (può essere duplicato, prendi il primo valorizzato)
+    var idfolderInputs = form.querySelectorAll('[name="idfolder"]');
+    var idfolder = '1';
+    idfolderInputs.forEach(function(el) { if (el.value) idfolder = el.value; });
+
+    f.append('idfolder',    idfolder);
+    f.append('docid',       docId);
+    f.append('nome',        form.querySelector('[name="nome"]') ? form.querySelector('[name="nome"]').value : '');
+    f.append('annotazioni', form.querySelector('[name="annotazioni"]') ? form.querySelector('[name="annotazioni"]').value : '');
+
+    // Se è un aggiornamento, usa /files/save con FormData completo
+    if (allegatoId && allegatoId > 0) {
+      f.append('id',          allegatoId);
+      f.append('tipoVersione', form.querySelector('[name="tipoVersione"]') ? form.querySelector('[name="tipoVersione"]').value : '0');
+      f.append('l3',          form.querySelector('[name="l3"]') ? form.querySelector('[name="l3"]').value : '0');
+
+      fetch('/admin/filemanager/files/save', { method: 'POST', body: f })
+        .then(function() {
+          var modalEl = document.getElementById('modalAccount');
+          if (modalEl) bootstrap.Modal.getInstance(modalEl).hide();
+          if (typeof showToast === 'function') showToast('Completato', 'Allegato aggiornato.');
+        });
+      return;
+    }
+
+    // Nuovo allegato — usa /files/upload per ottenere i dati e inserire nel tab_05
+    fetch('/admin/filemanager/files/upload', { method: 'POST', body: f })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.success) {
+          if (typeof window.InserisciAllegatoInPagina === 'function') {
+            window.InserisciAllegatoInPagina(data);
+          }
+          var modalEl = document.getElementById('modalAccount');
+          if (modalEl) bootstrap.Modal.getInstance(modalEl).hide();
+          if (typeof showToast === 'function') showToast('Completato', 'Allegato salvato.');
+        } else {
+          if (typeof showToast === 'function') showToast('Errore', data.error || 'Errore salvataggio', 'danger');
+        }
+      });
+  }
 </script>
 </body>
 </html>

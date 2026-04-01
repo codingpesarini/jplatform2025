@@ -1,11 +1,15 @@
 package com.studiodomino.jplatform.cms.admin.controller;
 
+import com.studiodomino.jplatform.cms.entity.Allegato;
 import com.studiodomino.jplatform.cms.entity.DatiBase;
 import com.studiodomino.jplatform.cms.entity.Section;
 import com.studiodomino.jplatform.cms.entity.SectionType;
+import com.studiodomino.jplatform.cms.service.AllegatoService;
 import com.studiodomino.jplatform.cms.service.ContentService;
 import com.studiodomino.jplatform.shared.config.Configurazione;
+import com.studiodomino.jplatform.shared.entity.Images;
 import com.studiodomino.jplatform.shared.service.ConfigurazioneService;
+import com.studiodomino.jplatform.shared.service.ImagesService;
 import com.studiodomino.jplatform.shared.util.ViewUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -19,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -29,6 +34,8 @@ public class ContenutoController {
 
     private final ConfigurazioneService configurazioneService;
     private final ContentService contentService;
+    private final AllegatoService allegatoService;
+    private final ImagesService imagesService;
 
     // =====================================================================
     // NEW FORM
@@ -156,6 +163,30 @@ public class ContenutoController {
             model.addAttribute("sezione", sezione);
             model.addAttribute("elencoSezioni", elencoSezioni);
             model.addAttribute("config", config);
+
+            // Popola gallery dalla galleryString
+            String galleryString = documento.getGalleryString();
+            if (galleryString != null && !galleryString.isEmpty()) {
+                List<Images> gallery = new ArrayList<>();
+                String[] parts = galleryString.split(";");
+                for (String part : parts) {
+                    part = part.trim().replace("(", "").replace(")", "");
+                    if (!part.isEmpty()) {
+                        try {
+                            Integer imgId = Integer.parseInt(part);
+                            imagesService.findById(imgId).ifPresent(gallery::add);
+                        } catch (NumberFormatException ignored) {}
+                    }
+                }
+                documento.setGallery(gallery);
+            }
+
+// Popola allegati
+            if (documento.getId() != null && !documento.getId().isBlank()) {
+                List<Allegato> allegati = allegatoService.findAllegatiByDocumento(
+                        Integer.parseInt(documento.getId()));
+                documento.setAllegati(allegati);
+            }
 
             log.info("OPEN CONTENUTO -> id={}, idRoot={}, page2={}",
                     id,

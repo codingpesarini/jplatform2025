@@ -92,7 +92,9 @@
                 </a>
               </td>
               <td th:text="${sito.descrizione}"></td>
-              <td th:text="${sito.pathRepository}"></td>
+              <td th:text="${sito.pathRepository}"
+                  style="max-width: 250px; word-break: break-all; white-space: normal;">
+              </td>
               <td>
                 <a th:href="@{/admin/impostazioni/configurazioni/{id}/open(id=${sito.id})}"
                    title="Modifica">

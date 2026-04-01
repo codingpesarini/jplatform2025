@@ -606,6 +606,10 @@ window.FileManager = {
         var modalInstance = bootstrap.Modal.getInstance(modalEl);
         if (modalInstance) modalInstance.hide();
         showToast('Completato', 'Operazione eseguita.');
+        // NON ricaricare se siamo in una sezione/contenuto
+        if (document.getElementById('divgallery') || document.getElementById('galleryString')) {
+            return; // siamo in una pagina con gallery, non navigare
+        }
         setTimeout(function() {
             if (typeof window.ricaricaLibreria === 'function') {
                 window.ricaricaLibreria(idFolder);
@@ -616,7 +620,7 @@ window.FileManager = {
     }
 };
 
-$(document).on('submit', '#folderForm, #imageForm, #allegatoForm', function(e) {
+$(document).on('submit', '#folderForm', function(e) {
     e.preventDefault();
     var $form = $(this);
     var idFolder = $form.find('input[name="idfolder"]').val() || '1';
@@ -826,3 +830,95 @@ if (typeof $.fn.multiselect === 'function') {
         }
     });
 }
+// ============================================================
+// GALLERY IMMAGINI - Inserimento da Media Library
+// ============================================================
+window.InserisciImmagineLibreria = function(src, id, didascalia) {
+    var galleryInput = document.getElementById('galleryString');
+    var divGallery = document.getElementById('divgallery');
+    if (!galleryInput || !divGallery) return;
+
+    var current = galleryInput.value || '';
+    if (current.indexOf('(' + id + ');') === -1) {
+        galleryInput.value = current + '(' + id + ');';
+
+        var div = document.createElement('div');
+        div.className = 'float-left mb-1 mr-1';
+        div.id = id;
+        div.innerHTML =
+            '<div class="img-fluid">' +
+            '<a href="' + src + '" title="' + src + '">' +
+            '<img src="' + src + '" width="200">' +
+            '</a></div>' +
+            '<a href="javascript:void(0);" onclick="cancellaImmagineInserita(\'' + id + '\')">Cancella</a>';
+        divGallery.appendChild(div);
+    }
+};
+
+function cancellaImmagineInserita(id) {
+    var galleryInput = document.getElementById('galleryString');
+    if (galleryInput) {
+        galleryInput.value = galleryInput.value.replace('(' + id + ');', '');
+    }
+    var el = document.getElementById(id);
+    if (el) el.remove();
+}
+window.InserisciAllegatoInPagina = function(data) {
+    var allegatiInput = document.getElementById('allegatiString'); // Assicurati di avere questo input hidden nel form
+    var lista = document.getElementById('sortableAllegato');
+    if (!lista) return;
+
+    // Se non esiste l'input per la stringa, lo cerchiamo o usiamo quello esistente
+    var current = (allegatiInput) ? allegatiInput.value : '';
+    var id = data.id;
+
+    // Evitiamo duplicati nella stringa
+    if (current.indexOf('(' + id + ');') === -1) {
+        if (allegatiInput) {
+            allegatiInput.value = current + '(' + id + ');';
+        }
+
+        var li = document.createElement('li');
+        li.id = 'li_allegato_' + id; // ID univoco per il <li>
+        li.className = 'mb-2';
+
+        // Costruiamo l'HTML esattamente come la gallery
+        li.innerHTML =
+            '<div id="boxallegato_' + id + '" style="display: flex; align-items: center;">' +
+                // Icona Cestino per cancellare
+                '<img src="/manager/assets/img/icons/trashcan.png" ' +
+                'style="cursor:pointer; margin-right:10px;" ' +
+                'alt="Cancella" onclick="cancellaAllegatoInserito(\'' + id + '\')">' +
+
+                // Icona del tipo file con fallback se non esiste il PNG
+                '<img src="/manager/assets/img/filetypes/32/' + data.type + '.png" ' +
+                'onerror="this.src=\'/manager/assets/img/filetypes/32/pdf.png\'" ' +
+                'width="22" height="22" style="margin-right:10px;"> ' +
+
+                '<span>' + (data.l1 || 'Documento') + '</span>' +
+                '<span class="text-muted ml-2"> - (Versione 0)</span>' +
+            '</div>';
+
+        lista.appendChild(li);
+    }
+};
+
+/**
+ * Rimuove l'allegato dal DOM e dalla stringa degli ID
+ * (Logica identica a cancellaImmagineInserita)
+ */
+window.cancellaAllegatoInserito = function(id) {
+    // 1. Rimuoviamo l'ID dalla stringa che verrà inviata al server
+    var allegatiInput = document.getElementById('allegatiString');
+    if (allegatiInput) {
+        allegatiInput.value = allegatiInput.value.replace('(' + id + ');', '');
+    }
+
+    // 2. Rimuoviamo l'elemento visuale (il tag <li>)
+    var el = document.getElementById('li_allegato_' + id);
+    if (el) {
+        el.remove();
+    }
+
+    console.log("Allegato " + id + " rimosso dalla coda di inserimento.");
+};

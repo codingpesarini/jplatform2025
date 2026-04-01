@@ -352,7 +352,7 @@
                     <i class="fas fa-images"></i> Media Library
                   </button>
                   <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
-                          onclick="FileManager.apriForm('/admin/filemanager/images/new/1','Carica immagine')">
+                          th:onclick="|FileManager.apriForm('/admin/filemanager/images/new/' + ${section.id != null ? section.id : 1},'Carica immagine')|">
                     <i class="fas fa-upload"></i> Carica immagine
                   </button>
 
@@ -399,15 +399,11 @@
                 <div class="col-lg-6 text-left">
                   <h4>
                     Allegati inseriti nella pagine
-                    <i class="fas fa-info-circle"
-                       data-bs-toggle="tooltip"
-                       data-placement="right"
-                       title=""
-                       data-original-title="E' possibile inserire allegati dalla Media Library o con caricamento diretto."></i>
+                    <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-placement="right"
+                       title="" data-original-title="E' possibile inserire allegati dalla Media Library o con caricamento diretto."></i>
                   </h4>
                   <small class="form-text text-muted">Gli allegati possono essere spostati e riordinati.</small>
                 </div>
-
                 <div class="col-lg-6 text-right">
                   <br>
                   <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
@@ -415,8 +411,7 @@
                     <i class="fas fa-images"></i> Media Library
                   </button>
                   <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
-                          th:data-docid="${section.id}"
-                          onclick="FileManager.apriForm('/admin/filemanager/files/new/1','Carica allegato')">
+                          th:onclick="|FileManager.apriForm('/admin/filemanager/files/new/1/' + ${section.id},'Carica allegato')|">
                     <i class="fas fa-file-upload"></i> Carica allegato
                   </button>
                 </div>
@@ -430,53 +425,17 @@
                   <div id="boxallegati">
                     <ul id="sortableAllegato" class="list-unstyled">
                       <li th:each="allegato : ${section.allegati}"
-                          th:if="${allegato.id != -1}"
-                          th:attr="id=${allegato.iddocallegati}">
-                        <div th:attr="id=${'boxallegato_' + allegato.iddocallegati}">
-                          <img style="float:left; margin-right:10px;"
-                               src="img/icons/pencil.png"
-                               alt="Modifica allegato"
-                               title="Modifica allegato"
-                               th:onclick="|return hs.htmlExpand(this, {align: 'center', objectType: 'iframe', contentId: 'immagini', width: 600, height:400 , src: '/admin/allegati/openAllegato?metodo=all&sorgente=galleryDiretto&idfolder=${allegato.idfolder}&id=${allegato.id}&docid=${allegato.iddocallegati}'})|">
+                          th:if="${allegato.id != null and allegato.id != -1}">
+                        <div th:attr="id=${'boxallegato_' + allegato.idDocAllegati}">
 
-                          <img style="float:left; margin-right:10px;"
-                               src="img/icons/trashcan.png"
-                               alt="Cancella allegato"
-                               title="Cancella allegato"
-                               th:onclick="|javascript:CancellaAllegatoInserito('${allegato.id}','${allegato.iddocallegati}');|">
-
-                          <img th:if="${allegato.versioniIsEmpty == false}"
-                               style="float:left; margin-right:10px;"
-                               src="img/icons/documents.png"
-                               alt="Ci sono versioni precedenti di questo documento"
-                               title="Ci sono versioni precedenti di questo documento">
-
-                          <img th:if="${allegato.versioniIsEmpty == true}"
-                               style="float:left; margin-right:10px;"
-                               src="img/icons/access_denied_gray.png"
-                               alt="Non ci sono versioni precedenti di questo documento"
-                               title="Non ci sono versioni precedenti di questo documento">
-
-                          <a target="_blank"
-                             th:href="@{'/files/' + ${allegato.id} + '/' + ${allegato.l2} + '/' + ${allegato.l1} + '.' + ${allegato.type}}">
-                            <img style="float:left; margin-right:10px;"
-                                 src="img/icons/download.png"
-                                 alt="Visualizza allegato"
-                                 title="Visualizza allegato"
-                                 width="22"
-                                 height="22"
-                                 border="0">
+                          <a href="javascript:void(0);"
+                             th:data-id="${allegato.id}"
+                             onclick="cancellaAllegato(this.getAttribute('data-id'))">
+                            Cancella
                           </a>
 
-                          <img th:src="@{'img/filetypes/32/' + ${allegato.type} + '.png'}"
-                               alt=""
-                               width="22"
-                               height="22"
-                               border="0"
-                               align="absmiddle">
-
                           <span th:text="${allegato.l1}">Nome</span>
-                          - (<span th:text="${allegato.datainserimento}">data</span>)
+                          - (<span th:text="${allegato.dataInserimento}">data</span>)
                           - (Versione <span th:text="${allegato.version}">1</span>)
                         </div>
                       </li>
@@ -821,7 +780,6 @@
   </div>
   <script th:inline="javascript">
 
-    // ── AGGIUNTE ────────────────────────────────────────────────────────────
 
     function AttivaDataPubblicazione() {
         if ($('#s3').val() === '1') {
@@ -841,34 +799,10 @@
 
     function AttivaExtraTag() {
         if ($('#regolaExtraTag1').val() === '1') {
-            $('#ZonaExtraTag').slideDown();
-            $('#ZonaExtraTagOrdine').slideDown();
+            $('#ZonaExtraTag, #ZonaExtraTagOrdine').slideDown();
         } else {
-            $('#ZonaExtraTag').slideUp();
-            $('#ZonaExtraTagOrdine').slideUp();
+            $('#ZonaExtraTag, #ZonaExtraTagOrdine').slideUp();
         }
-    }
-
-    // ── INVARIATO ───────────────────────────────────────────────────────────
-
-    function InviaForm() {
-        const $form = $("#sezione");
-
-        if ($form[0].checkValidity() === false) {
-            if (typeof PNotify !== 'undefined') {
-                new PNotify({
-                    title: 'Attenzione!',
-                    text: 'Alcuni campi obbligatori richiedono un tuo intervento!',
-                    type: 'error',
-                    styling: 'bootstrap3'
-                });
-            }
-            $form.addClass('was-validated');
-            return false;
-        }
-
-        $form.addClass('was-validated');
-        document.sezione.submit();
     }
 
     function AttivaAutorizzazioniUtente() {
@@ -888,11 +822,30 @@
         }
     }
 
+    // ── AZIONI FORM E UTENTI ───────────────────────────────────────────────
+
+    function InviaForm() {
+        const $form = $("#sezione");
+        if ($form[0].checkValidity() === false) {
+            if (typeof PNotify !== 'undefined') {
+                new PNotify({
+                    title: 'Attenzione!',
+                    text: 'Alcuni campi obbligatori richiedono un tuo intervento!',
+                    type: 'error',
+                    styling: 'bootstrap3'
+                });
+            }
+            $form.addClass('was-validated');
+            return false;
+        }
+        $form.addClass('was-validated');
+        document.sezione.submit();
+    }
+
     function RimuoviUtenteAssociato(id) {
         const $input = $("#utentiAssociatiString");
         let stringa = $input.val();
         const ids = "(" + id + ");";
-
         $input.val(stringa.replace(ids, ""));
 
         $("#" + id + ", #user-badge-" + id).fadeOut(300, function() {
@@ -900,15 +853,16 @@
         });
     }
 
-    $(document).ready(function() {
-        AttivaAutorizzazioniUtente();
+    // ── INIZIALIZZAZIONE ───────────────────────────────────────────────────
 
-        // AGGIUNTA: chiamate dirette ora che le funzioni sono definite sopra
+    $(document).ready(function() {
+        // Stato iniziale
+        AttivaAutorizzazioniUtente();
         AttivaDataPubblicazione();
         AttivaLinkEsterno();
         AttivaExtraTag();
 
-        // AGGIUNTA: binding on change
+        // Eventi Change
         $('#privato').on('change', AttivaAutorizzazioniUtente);
         $('#s3').on('change', AttivaDataPubblicazione);
         $('#menu2').on('change', AttivaLinkEsterno);
@@ -920,6 +874,7 @@
             return false;
         });
 
+        // Integrazione AutoSave (se presente il plugin)
         const $form = $('#sezione');
         const $statusHolder = $('.notifyZone');
 
@@ -928,26 +883,24 @@
 
             $form.on('beforeSave.autoSaveForm', function () {
                 if ($("#autosave").prop("checked") === false) return false;
-
                 if ($form[0].checkValidity() === false) {
-                    $statusHolder.html('<small class="text-danger">Salvataggio bloccato: campi obbligatori mancanti</small>');
+                    $statusHolder.html('<small class="text-danger">Salvataggio bloccato: campi mancanti</small>');
                     return false;
                 }
-
-                $statusHolder.html('<span class="text-primary small"><i class="fas fa-sync fa-spin me-1"></i> Salvataggio automatico in corso...</span>');
+                $statusHolder.html('<span class="text-primary small"><i class="fas fa-sync fa-spin"></i> In corso...</span>');
             });
 
             $form.on('saveError.autoSaveForm', function () {
-                $statusHolder.html('<span class="text-danger small"><i class="fas fa-exclamation-triangle me-1"></i> Errore nel salvataggio.</span>');
+                $statusHolder.html('<span class="text-danger small">Errore salvataggio</span>');
             });
 
             $form.on('saveSuccess.autoSaveForm', function () {
-                const d = new Date();
-                const ora = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                $statusHolder.html('<span class="text-success small"><i class="fas fa-check-circle me-1"></i> Sincronizzato alle ' + ora + '</span>');
+                const ora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                $statusHolder.html('<span class="text-success small"><i class="fas fa-check-circle"></i> Sincronizzato ' + ora + '</span>');
             });
         }
     });
+
   </script>
 
 </th:block>

@@ -365,6 +365,13 @@
             });
         }
     });
+
+    // Aggiungi questa funzione
+    function apriLightbox(src, nome) {
+        document.getElementById('lightboxNome').textContent = nome || '';
+        document.getElementById('lightboxImg').src = src || '';
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalLightbox')).show();
+    }
   </script>
 </th:block>
 

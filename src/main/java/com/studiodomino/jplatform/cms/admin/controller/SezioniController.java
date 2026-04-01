@@ -1,11 +1,15 @@
 package com.studiodomino.jplatform.cms.admin.controller;
 
+import com.studiodomino.jplatform.cms.entity.Allegato;
 import com.studiodomino.jplatform.cms.entity.DatiBase;
 import com.studiodomino.jplatform.cms.entity.Section;
 import com.studiodomino.jplatform.cms.entity.SectionType;
+import com.studiodomino.jplatform.cms.service.AllegatoService;
 import com.studiodomino.jplatform.cms.service.ContentService;
 import com.studiodomino.jplatform.shared.config.Configurazione;
+import com.studiodomino.jplatform.shared.entity.Images;
 import com.studiodomino.jplatform.shared.service.ConfigurazioneService;
+import com.studiodomino.jplatform.shared.service.ImagesService;
 import com.studiodomino.jplatform.shared.util.ViewUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -30,6 +34,8 @@ public class SezioniController {
 
     private final ConfigurazioneService configurazioneService;
     private final ContentService contentService;
+    private final ImagesService imagesService;
+    private final AllegatoService allegatoService;
 
     @GetMapping
     public String elencoSezioni(HttpServletRequest request, Model model) {
@@ -114,6 +120,30 @@ public class SezioniController {
 
             model.addAttribute("section", section);
             populateDetailModel(model, config, idSite);
+
+            // Popola gallery dalla galleryString
+            String galleryString = section.getGalleryString();
+            if (galleryString != null && !galleryString.isEmpty()) {
+                List<Images> gallery = new ArrayList<>();
+                // formato: (106);(128);
+                String[] parts = galleryString.split(";");
+                for (String part : parts) {
+                    part = part.trim().replace("(", "").replace(")", "");
+                    if (!part.isEmpty()) {
+                        try {
+                            Integer imgId = Integer.parseInt(part);
+                            imagesService.findById(imgId).ifPresent(gallery::add);
+                        } catch (NumberFormatException ignored) {}
+                    }
+                }
+                section.setGallery(gallery);
+            }
+
+            // Popola allegati dalla sezione
+            if (section.getId() != null) {
+                List<Allegato> allegati = allegatoService.findAllegatiByDocumento(section.getId());
+                section.setAllegati(allegati);
+            }
 
         } catch (Exception e) {
             log.error("Errore open sezione id={}", id, e);
@@ -309,6 +339,7 @@ public class SezioniController {
 
                 db.setModificato(now);
                 db.setModificatoDa(operatore);
+                db.setGalleryString(form.getGalleryString());
             }
 
             // Validazioni e Parsing finali

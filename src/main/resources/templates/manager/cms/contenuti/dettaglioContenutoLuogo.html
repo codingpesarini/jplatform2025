@@ -308,17 +308,13 @@
                     <div th:each="immagine : ${post.gallery}"
                          style="height:170px" class="float-left mb-1 mr-1"
                          th:id="${immagine.id}">
-
                       <div class="img-fluid">
-                        <a th:id="${immagine.id}"
-                           th:href="${config.imagesRepositoryWeb + immagine.fullpath}"
-                           th:title="${immagine.name + ' | ' + (config.imagesRepositoryWeb + immagine.fullpath)}">
-                          <img th:id="${'imm_' + immagine.id}"
-                               th:src="${config.imagesRepositoryWeb + immagine.fullpath}"
-                               width="200" alt="">
+                        <a th:href="${config.imagesRepositoryWeb + immagine.fullpath}">
+                          <img th:src="${config.imagesRepositoryWeb + immagine.fullpath}"
+                               width="200" alt=""
+                               th:onerror="|this.closest('div.float-left').style.display='none'|">
                         </a>
                       </div>
-
                       <a href="javascript:void(0);" th:onclick="|cancellaImmagineInserita('${immagine.id}')|">Cancella</a>
                     </div>
                   </div>

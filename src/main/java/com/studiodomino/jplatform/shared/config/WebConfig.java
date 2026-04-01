@@ -36,9 +36,10 @@ public class WebConfig implements ServletContextInitializer, WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Serve i file fisici su disco dalla cartella imageProfile
-        String location = "file:" + uploadPath + "/imageProfile/";
         registry.addResourceHandler("/imageProfile/**")
-                .addResourceLocations(location);
+                .addResourceLocations("file:" + uploadPath + "imageProfile/");
+
+        registry.addResourceHandler("/cmss/cms-repository/images/**")
+                .addResourceLocations("file:" + uploadPath);
     }
 }

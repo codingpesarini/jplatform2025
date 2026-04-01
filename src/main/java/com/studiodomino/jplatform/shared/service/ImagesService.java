@@ -4,6 +4,7 @@ import com.studiodomino.jplatform.shared.entity.Images;
 import com.studiodomino.jplatform.shared.repository.ImagesRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -64,25 +65,28 @@ public class ImagesService {
     /**
      * Elimina immagine
      */
+
+    @Value("${upload.path}")
+    private String uploadPath;
     @Transactional
     public void delete(Integer id) {
         log.debug("Deleting image: {}", id);
 
-        // Trova immagine
         Optional<Images> imageOpt = imagesRepository.findById(id);
-
         if (imageOpt.isPresent()) {
             Images image = imageOpt.get();
 
-            // Elimina file fisico
-            deletePhysicalFile(image.getPathname());
-
-            // Elimina thumbnail
-            if (image.getPaththumb() != null) {
-                deletePhysicalFile(image.getPaththumb());
+            // fullpath è "2026/uuid_nome.jpg" — costruisci il path assoluto
+            if (image.getFullpath() != null && !image.getFullpath().isEmpty()) {
+                try {
+                    Path filePath = Paths.get(uploadPath, image.getFullpath());
+                    Files.deleteIfExists(filePath);
+                    log.debug("Deleted file: {}", filePath);
+                } catch (IOException e) {
+                    log.error("Error deleting file: {}", image.getFullpath(), e);
+                }
             }
 
-            // Elimina da database
             imagesRepository.deleteById(id);
         }
     }
@@ -135,7 +139,7 @@ public class ImagesService {
         image.setSize(String.valueOf(file.getSize()));
         image.setIdfolder(idfolder);
         image.setPathname(uniqueName);
-        image.setFullpath(anno + "/" + uniqueName);
+        image.setFullpath(anno + "/" + uniqueName);  // solo il path relativo
         image.setPrivato("0");
 
         return save(image);
