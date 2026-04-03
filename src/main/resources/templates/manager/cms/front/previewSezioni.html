@@ -464,36 +464,38 @@
 
 
 <script>
-    $(function () {
-      var $form = $('form');
-      var $formStatusHolder = $('.notifyZone');
+    if (typeof $ !== 'undefined' && typeof $.fn.autoSaveForm !== 'undefined') {
+        $(function () {
+            var $form = $('form');
+            var $formStatusHolder = $('.notifyZone');
 
-      $form.autoSaveForm();
+            $form.autoSaveForm();
 
-      $form.on('beforeSave.autoSaveForm', function (ev, $form, xhr) {
-        var formx = $("#sezione");
-        if (formx.length && formx[0].checkValidity() === false) {
-          new PNotify({
-            title: 'Attenzione!',
-            text: 'Alcuni campi obbligatori del modulo richiedono un tuo intervento!',
-            type: 'error'
+            $form.on('beforeSave.autoSaveForm', function (ev, $form, xhr) {
+                var formx = $("#sezione");
+                if (formx.length && formx[0].checkValidity() === false) {
+                  new PNotify({
+                    title: 'Attenzione!',
+                    text: 'Alcuni campi obbligatori del modulo richiedono un tuo intervento!',
+                    type: 'error'
+                  });
+                  return false;
+                }
+            });
+
+            $form.on('saveError.autoSaveForm', function () {
+                $formStatusHolder.html('Errore nel salvataggio automatico.');
+            });
+
+            $form.on('saveSuccess.autoSaveForm', function () {
+                new PNotify({
+                title: 'Ho fatto!',
+                text: 'Ho memorizzato le modifiche effettuate!',
+                type: 'success'
+            });
           });
-          return false;
-        }
-      });
-
-      $form.on('saveError.autoSaveForm', function () {
-        $formStatusHolder.html('Errore nel salvataggio automatico.');
-      });
-
-      $form.on('saveSuccess.autoSaveForm', function () {
-        new PNotify({
-          title: 'Ho fatto!',
-          text: 'Ho memorizzato le modifiche effettuate!',
-          type: 'success'
         });
-      });
-    });
+    }
 </script>
 
 </div>

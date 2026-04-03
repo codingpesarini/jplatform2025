@@ -124,10 +124,7 @@
                th:data-l2="${all.l2}"
                th:data-type="${all.type}"
                onclick="popSelezionaAllegato(this.dataset.id, this.dataset.l1, this.dataset.l2, this.dataset.type)">
-            <img th:src="@{'/manager/assets/img/filetypes/32/' + ${all.type} + '.png'}"
-                 style="max-width:48px;max-height:48px"
-                 onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-            <i class="fas fa-file fa-2x text-muted" style="display:none"></i>
+            <i class="fas fa-file fa-2x text-secondary"></i>
           </div>
           <div class="pop-thumb-name" th:text="${all.l1}">nome</div>
         </div>
@@ -172,11 +169,11 @@
     }
 
     function popSelezionaAllegato(id, l1, l2, type) {
-        if (typeof window.InserisciAllegatoLibreria === 'function') {
-            window.InserisciAllegatoLibreria(id, l2, l1, type, '');
-        }
-        bootstrap.Modal.getInstance(document.getElementById('modalAccount')).hide();
+    if (typeof window.CollegaAllegatoDaLibreria === 'function') {
+        window.CollegaAllegatoDaLibreria(id, l1, type);
     }
+    bootstrap.Modal.getInstance(document.getElementById('modalAccount')).hide();
+}
   </script>
 </div>
 </body>

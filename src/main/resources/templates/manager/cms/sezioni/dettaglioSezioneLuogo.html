@@ -394,18 +394,16 @@
             </div>
 
             <!-- TAB 05 -->
-            <div id="tab_05" class="tab-pane">
+            <div id="tab_05" class="tab-pane" role="tabpanel">
               <div class="row form-group mt-3">
-                <div class="col-lg-6 text-left">
-                  <h4>
-                    Allegati inseriti nella pagine
-                    <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-placement="right"
-                       title="" data-original-title="E' possibile inserire allegati dalla Media Library o con caricamento diretto."></i>
+                <div class="col-lg-6">
+                  <h4>Allegati inseriti nella pagina
+                    <i class="fas fa-info-circle" data-bs-toggle="tooltip"
+                       title="E' possibile inserire allegati dalla Media Library o con caricamento diretto."></i>
                   </h4>
                   <small class="form-text text-muted">Gli allegati possono essere spostati e riordinati.</small>
                 </div>
                 <div class="col-lg-6 text-right">
-                  <br>
                   <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
                           onclick="FileManager.apriForm('/admin/filemanager/popup/1/allegati','Media Library Documenti')">
                     <i class="fas fa-images"></i> Media Library
@@ -416,23 +414,30 @@
                   </button>
                 </div>
               </div>
-
               <div class="row form-group">
                 <div class="col-lg-12">
-                  <input type="hidden" name="ordineAllegatiBase" id="ordineAllegatiBase" />
-                  <input type="hidden" name="ordineAllegati" id="ordineAllegati" />
-
+                  <input type="hidden" name="ordineAllegatiBase" id="ordineAllegatiBase">
+                  <input type="hidden" name="ordineAllegati" id="ordineAllegati">
                   <div id="boxallegati">
                     <ul id="sortableAllegato" class="list-unstyled">
                       <li th:each="allegato : ${section.allegati}"
-                          th:if="${allegato.id != null and allegato.id != -1}">
+                          th:if="${allegato.id != -1}"
+                          th:attr="id=${allegato.idDocAllegati}">
                         <div th:attr="id=${'boxallegato_' + allegato.idDocAllegati}">
 
                           <a href="javascript:void(0);"
-                             th:data-id="${allegato.id}"
-                             onclick="cancellaAllegato(this.getAttribute('data-id'))">
+                             th:data-id="${allegato.idDocAllegati}"
+                             th:data-allegato-id="${allegato.id}"
+                             onclick="scollegaErimuovi(this.getAttribute('data-id'), this.getAttribute('data-allegato-id'))">
                             Cancella
                           </a>
+
+                          <a th:href="@{'/admin/filemanager/files/' + ${allegato.id} + '/download'}"
+                             target="_blank" title="Scarica">
+                            <i class="fas fa-download" style="margin-right:6px;"></i>
+                          </a>
+
+                          <i class="fas fa-file text-secondary" style="margin-right:6px;"></i>
 
                           <span th:text="${allegato.l1}">Nome</span>
                           - (<span th:text="${allegato.dataInserimento}">data</span>)

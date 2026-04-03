@@ -1023,4 +1023,42 @@ public class FileManagerController {
         }
         return result;
     }
+
+    // =====================================================================
+// COLLEGA ALLEGATO DA MEDIA LIBRARY
+// =====================================================================
+
+    @PostMapping("/files/collega")
+    @ResponseBody
+    public Map<String, Object> collegaAllegatoDaLibreria(
+            @RequestBody Map<String, String> body,
+            HttpServletRequest request) {
+
+        Map<String, Object> result = new HashMap<>();
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+
+        if (!config.isLogged()) {
+            result.put("success", false);
+            return result;
+        }
+
+        try {
+            Integer idAllegato  = Integer.parseInt(body.get("idAllegato"));
+            Integer idDocumento = Integer.parseInt(body.get("idDocumento"));
+
+            allegatoService.collegaAllegato(
+                    idDocumento, idAllegato,
+                    config.getAmministratore().getNomeCompleto(),
+                    config.getAmministratore().getId().toString());
+
+            result.put("success", true);
+        } catch (Exception e) {
+            log.error("Errore collegaAllegatoDaLibreria", e);
+            result.put("success", false);
+            result.put("error", e.getMessage());
+        }
+        return result;
+    }
 }
+

@@ -363,10 +363,13 @@
             </div>
 
             <!-- TAB 05 -->
-            <div id="tab_05" class="tab-pane">
+            <div id="tab_05" class="tab-pane" role="tabpanel">
               <div class="row form-group mt-3">
-                <div class="col-lg-6 text-left">
-                  <h4> Allegati inseriti nella pagine <i class="fas fa-info-circle" data-bs-toggle="tooltip" data-placement="right" title="" data-original-title="E' possibile inserire allegati dalla Media Library o con caricamento diretto."></i></h4>
+                <div class="col-lg-6">
+                  <h4>Allegati inseriti nella pagina
+                    <i class="fas fa-info-circle" data-bs-toggle="tooltip"
+                       title="E' possibile inserire allegati dalla Media Library o con caricamento diretto."></i>
+                  </h4>
                   <small class="form-text text-muted">Gli allegati possono essere spostati e riordinati.</small>
                 </div>
                 <div class="col-lg-6 text-right">
@@ -375,65 +378,38 @@
                     <i class="fas fa-images"></i> Media Library
                   </button>
                   <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
-                          th:data-docid="${section.id}"
-                          onclick="FileManager.apriForm('/admin/filemanager/files/new/1','Carica allegato')">
+                          th:onclick="|FileManager.apriForm('/admin/filemanager/files/new/1/' + ${section.id},'Carica allegato')|">
                     <i class="fas fa-file-upload"></i> Carica allegato
                   </button>
                 </div>
               </div>
-
               <div class="row form-group">
                 <div class="col-lg-12">
-                  <input type="hidden" name="ordineAllegatiBase" id="ordineAllegatiBase" />
-                  <input type="hidden" name="ordineAllegati" id="ordineAllegati" />
-
+                  <input type="hidden" name="ordineAllegatiBase" id="ordineAllegatiBase">
+                  <input type="hidden" name="ordineAllegati" id="ordineAllegati">
                   <div id="boxallegati">
                     <ul id="sortableAllegato" class="list-unstyled">
                       <li th:each="allegato : ${section.allegati}"
                           th:if="${allegato.id != -1}"
-                          th:attr="id=${allegato.iddocallegati}">
-                        <div th:attr="id=${'boxallegato_' + allegato.iddocallegati}">
-                          <img style="float:left; margin-right:10px;"
-                               src="/manager/assets/img/icons/pencil.png"
-                               alt="Modifica allegato"
-                               title="Modifica allegato"
-                               th:data-folder="${allegato.idfolder}"
-                               th:data-id="${allegato.id}"
-                               th:data-docid="${allegato.iddocallegati}"
-                               onclick="var f=this.getAttribute('data-folder');var i=this.getAttribute('data-id');var d=this.getAttribute('data-docid'); return hs.htmlExpand(this, {align: 'center', objectType: 'iframe', contentId: 'immagini', width: 600, height:400 , src: '/admin/allegati/edit?idfolder='+f+'&id='+i+'&docid='+d} )">
+                          th:attr="id=${allegato.idDocAllegati}">
+                        <div th:attr="id=${'boxallegato_' + allegato.idDocAllegati}">
 
-                          <img style="float:left; margin-right:10px;"
-                               src="/manager/assets/img/icons/trashcan.png"
-                               alt="Cancella allegato"
-                               title="Cancella allegato"
-                               th:onclick="|javascript:CancellaAllegatoInserito('${allegato.id}','${allegato.iddocallegati}');|">
-
-                          <img style="float:left; margin-right:10px;"
-                               th:if="${allegato.versioniIsEmpty == false}"
-                               src="/manager/assets/img/icons/documents.png"
-                               alt="Ci sono versioni precedenti di questo documento"
-                               title="Ci sono versioni precedenti di questo documento">
-
-                          <img style="float:left; margin-right:10px;"
-                               th:if="${allegato.versioniIsEmpty == true}"
-                               src="/manager/assets/img/icons/access_denied_gray.png"
-                               alt="Non ci sono versioni precedenti di questo documento"
-                               title="Non ci sono versioni precedenti di questo documento">
-
-                          <a target="_blank"
-                             th:href="@{/files/{id}/{l2}/{l1}.{ext}(id=${allegato.id},l2=${allegato.l2},l1=${allegato.l1},ext=${allegato.type})}">
-                            <img style="float:left; margin-right:10px;"
-                                 src="/manager/assets/img/icons/download.png"
-                                 alt="Visualizza allegato"
-                                 title="Visualizza allegato"
-                                 width="22" height="22" border="0">
+                          <a href="javascript:void(0);"
+                             th:data-id="${allegato.idDocAllegati}"
+                             th:data-allegato-id="${allegato.id}"
+                             onclick="scollegaErimuovi(this.getAttribute('data-id'), this.getAttribute('data-allegato-id'))">
+                            Cancella
                           </a>
 
-                          <img th:src="@{'/manager/assets/img/filetypes/32/' + ${allegato.type} + '.png'}"
-                               alt="" width="22" height="22" border="0" align="absmiddle">
+                          <a th:href="@{'/admin/filemanager/files/' + ${allegato.id} + '/download'}"
+                             target="_blank" title="Scarica">
+                            <i class="fas fa-download" style="margin-right:6px;"></i>
+                          </a>
 
-                          <span th:text="${allegato.l1}">Nome file</span>
-                          - (<span th:text="${allegato.datainserimento}">data</span>)
+                          <i class="fas fa-file text-secondary" style="margin-right:6px;"></i>
+
+                          <span th:text="${allegato.l1}">Nome</span>
+                          - (<span th:text="${allegato.dataInserimento}">data</span>)
                           - (Versione <span th:text="${allegato.version}">1</span>)
                         </div>
                       </li>

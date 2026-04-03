@@ -864,43 +864,34 @@ function cancellaImmagineInserita(id) {
     if (el) el.remove();
 }
 window.InserisciAllegatoInPagina = function(data) {
-    var allegatiInput = document.getElementById('allegatiString'); // Assicurati di avere questo input hidden nel form
     var lista = document.getElementById('sortableAllegato');
     if (!lista) return;
 
-    // Se non esiste l'input per la stringa, lo cerchiamo o usiamo quello esistente
-    var current = (allegatiInput) ? allegatiInput.value : '';
     var id = data.id;
+    if (document.getElementById('li_allegato_' + id)) return; // evita duplicati
 
-    // Evitiamo duplicati nella stringa
-    if (current.indexOf('(' + id + ');') === -1) {
-        if (allegatiInput) {
-            allegatiInput.value = current + '(' + id + ');';
-        }
+    var oggi = new Date();
+    var dataFormattata = ('0'+oggi.getDate()).slice(-2) + '/' +
+                         ('0'+(oggi.getMonth()+1)).slice(-2) + '/' +
+                         oggi.getFullYear() + ' - ' +
+                         ('0'+oggi.getHours()).slice(-2) + ':' +
+                         ('0'+oggi.getMinutes()).slice(-2);
 
-        var li = document.createElement('li');
-        li.id = 'li_allegato_' + id; // ID univoco per il <li>
-        li.className = 'mb-2';
-
-        // Costruiamo l'HTML esattamente come la gallery
-        li.innerHTML =
-            '<div id="boxallegato_' + id + '" style="display: flex; align-items: center;">' +
-                // Icona Cestino per cancellare
-                '<img src="/manager/assets/img/icons/trashcan.png" ' +
-                'style="cursor:pointer; margin-right:10px;" ' +
-                'alt="Cancella" onclick="cancellaAllegatoInserito(\'' + id + '\')">' +
-
-                // Icona del tipo file con fallback se non esiste il PNG
-                '<img src="/manager/assets/img/filetypes/32/' + data.type + '.png" ' +
-                'onerror="this.src=\'/manager/assets/img/filetypes/32/pdf.png\'" ' +
-                'width="22" height="22" style="margin-right:10px;"> ' +
-
-                '<span>' + (data.l1 || 'Documento') + '</span>' +
-                '<span class="text-muted ml-2"> - (Versione 0)</span>' +
-            '</div>';
-
-        lista.appendChild(li);
-    }
+    var li = document.createElement('li');
+    li.id = 'li_allegato_' + id;
+    li.innerHTML =
+        '<div id="boxallegato_' + id + '">' +
+        '<a href="javascript:void(0);" ' +
+        'onclick="cancellaAllegatoInserito(\'' + id + '\')" ' +
+        'style="margin-right:6px;">Cancella</a>' +
+        '<a href="/admin/filemanager/files/' + id + '/download" target="_blank" title="Scarica" style="margin-right:6px;">' +
+        '<i class="fas fa-download"></i></a>' +
+        '<i class="fas fa-file text-secondary" style="margin-right:6px;"></i>' +
+        '<span>' + (data.l1 || 'Documento') + '</span>' +
+        ' - (' + dataFormattata + ')' +
+        ' - (Versione 0)' +
+        '</div>';
+    lista.appendChild(li);
 };
 
 /**
@@ -908,17 +899,52 @@ window.InserisciAllegatoInPagina = function(data) {
  * (Logica identica a cancellaImmagineInserita)
  */
 window.cancellaAllegatoInserito = function(id) {
-    // 1. Rimuoviamo l'ID dalla stringa che verrà inviata al server
-    var allegatiInput = document.getElementById('allegatiString');
-    if (allegatiInput) {
-        allegatiInput.value = allegatiInput.value.replace('(' + id + ');', '');
-    }
-
-    // 2. Rimuoviamo l'elemento visuale (il tag <li>)
-    var el = document.getElementById('li_allegato_' + id);
-    if (el) {
-        el.remove();
-    }
-
-    console.log("Allegato " + id + " rimosso dalla coda di inserimento.");
+    confirmAction('Rimuovere l\'allegato dalla sezione?', function() {
+        var docId = document.getElementById('id') ? document.getElementById('id').value : '0';
+        // Cerca il record docallegati per questo allegato+documento e scollega
+        fetch('/admin/filemanager/files/scollegaByAllegato', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idAllegato: id, idDocumento: docId })
+        }).then(function() {
+            var el = document.getElementById('li_allegato_' + id);
+            if (el) el.remove();
+            showToast('Completato', 'Allegato rimosso.');
+        });
+    });
 };
+
+window.CollegaAllegatoDaLibreria = function(idAllegato, l1, type) {
+    var docId = document.getElementById('id') ? document.getElementById('id').value : '0';
+    if (!docId || docId === '0') {
+        showToast('Attenzione', 'Salva prima la sezione prima di collegare allegati.', 'danger');
+        return;
+    }
+    fetch('/admin/filemanager/files/collega', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idAllegato: idAllegato, idDocumento: docId })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            window.InserisciAllegatoInPagina({ id: idAllegato, l1: l1, type: type });
+            showToast('Completato', 'Allegato collegato.');
+        } else {
+            showToast('Errore', 'Errore nel collegamento.', 'danger');
+        }
+    });
+};
+function scollegaErimuovi(idDocAllegati, idAllegato) {
+    confirmAction('Rimuovere l\'allegato dalla sezione?', function() {
+        fetch('/admin/filemanager/files/' + idDocAllegati + '/scollega', { method: 'POST' })
+            .then(function() {
+                // Rimuovi dal DOM — cerca sia il formato DB che quello dinamico
+                var elDb = document.getElementById('boxallegato_' + idDocAllegati);
+                if (elDb) elDb.closest('li').remove();
+                var elDyn = document.getElementById('li_allegato_' + idAllegato);
+                if (elDyn) elDyn.remove();
+                showToast('Completato', 'Allegato rimosso.');
+            });
+    });
+}
