@@ -66,6 +66,23 @@ public class ImagesService {
      * Elimina immagine
      */
 
+    /**
+     * Sposta un'immagine in una nuova cartella
+     */
+    @Transactional
+    public void moveImage(String imageId, String targetFolderId) {
+        // 1. Recupero l'immagine (usa l'ID corretto, solitamente Long o Integer)
+        Images image = imagesRepository.findById(Integer.parseInt(imageId))
+                .orElseThrow(() -> new RuntimeException("Immagine non trovata"));
+
+        // 2. Aggiorno l'ID della cartella di destinazione
+        // Nota: assicurati che il campo nell'entità Images si chiami 'idfolder' o 'folder'
+        image.setIdfolder(targetFolderId);
+
+        // 3. Salvo l'immagine nella nuova posizione
+        imagesRepository.save(image);
+    }
+
     @Value("${upload.path}")
     private String uploadPath;
     @Transactional

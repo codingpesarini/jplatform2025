@@ -4,6 +4,8 @@ import com.studiodomino.jplatform.cms.entity.Allegato;
 import com.studiodomino.jplatform.cms.entity.DocAllegati;
 import com.studiodomino.jplatform.cms.repository.AllegatoRepository;
 import com.studiodomino.jplatform.cms.repository.DocAllegatiRepository;
+import com.studiodomino.jplatform.shared.entity.Folder;
+import com.studiodomino.jplatform.shared.repository.FolderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +33,7 @@ public class AllegatoService {
 
     private final AllegatoRepository allegatoRepository;
     private final DocAllegatiRepository docAllegatiRepository;
+    private final FolderRepository folderRepository;
 
     @Value("${allegati.repository.path}")
     private String repositoryPath;
@@ -73,6 +76,27 @@ public class AllegatoService {
 
     public List<Allegato> findByAnno(String anno) {
         return allegatoRepository.findByAnno(anno);
+    }
+
+    /**
+     * Sposta una cartella sotto un nuovo genitore
+     */
+    @Transactional
+    public void moveAllegato(String folderId, String targetFolderId) {
+        // 1. Recupero la cartella da spostare
+        Folder folder = folderRepository.findById(Integer.parseInt(folderId))
+                .orElseThrow(() -> new RuntimeException("Cartella sorgente non trovata"));
+
+        // 2. Controllo di sicurezza: non spostare una cartella dentro se stessa
+        if (folderId.equals(targetFolderId)) {
+            throw new IllegalArgumentException("Impossibile spostare una cartella dentro se stessa");
+        }
+
+        // 3. Aggiorno il riferimento al padre (idfolder)
+        folder.setIdfolder(targetFolderId);
+
+        // 4. Salvo la modifica
+        folderRepository.save(folder);
     }
 
     // ========================================

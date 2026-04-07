@@ -19,6 +19,7 @@
     .file-thumb { height:100px; display:flex; align-items:center; justify-content:center; overflow:hidden; border-radius:6px; background:var(--bs-light); }
     .file-thumb img { max-width:100%; max-height:100px; object-fit:cover; }
     .filter-active { border:2px solid var(--bs-primary) !important; }
+    .drag-over { border:2px dashed var(--bs-primary) !important; background:var(--bs-primary-bg-subtle); }
   </style>
 </head>
 <body>
@@ -110,12 +111,10 @@
       <div class="row my-2 align-items-center">
         <div class="col">
           <div class="d-flex align-items-center gap-2 flex-wrap">
-            <a th:href="@{/admin/filemanager/1}"
-               class="btn btn-sm btn-outline-secondary" title="Root">
+            <a th:href="@{/admin/filemanager/1}" class="btn btn-sm btn-outline-secondary" title="Root">
               <i class="fas fa-home"></i>
             </a>
-            <a th:href="@{'/admin/filemanager/' + ${currentFolder}}"
-               class="btn btn-sm btn-outline-secondary" title="Aggiorna">
+            <a th:href="@{'/admin/filemanager/' + ${currentFolder}}" class="btn btn-sm btn-outline-secondary" title="Aggiorna">
               <i class="fas fa-sync"></i>
             </a>
             <button class="btn btn-sm btn-outline-primary"
@@ -147,30 +146,52 @@
 
       <div class="fm-wrapper mt-3">
         <div class="fm-sidebar d-none d-lg-block">
-          <div class="tree-item" th:classappend="${currentFolder == '1'} ? 'active'">
-            <a th:href="@{/admin/filemanager/1}">
-              <i class="fas fa-home me-1 text-primary"></i> Root
-            </a>
-          </div>
-          <div class="tree-children">
-            <div th:each="f : ${allFolders}" class="tree-item"
-                 th:classappend="${currentFolder == f.id.toString()} ? 'active'">
-              <a th:href="@{'/admin/filemanager/' + ${f.id}}">
-                <i class="fas fa-folder me-1 text-warning"></i>
-                <span th:text="${f.nome}">Cartella</span>
-              </a>
-            </div>
+          <div id="sidebar" class="mb-3">
+            <ul id="tree" class="filetree">
+              <li th:classappend="${currentFolder == '1'} ? 'active'">
+                <a th:href="@{/admin/filemanager/1}">
+                  <i class="fas fa-home me-1 text-primary"></i> <strong>Home</strong>
+                </a>
+              </li>
+              <li th:each="f : ${allFolders}"
+                  th:classappend="${currentFolder == f.id.toString()} ? 'active'"
+                  th:class="${f.hasSubfolders()} ? 'closed' : ''">
+                <a th:href="@{'/admin/filemanager/' + ${f.id}}">
+                  <i class="fas fa-folder me-1 text-warning"></i>
+                  <span th:text="${f.nome}"></span>
+                </a>
+                <ul th:if="${f.hasSubfolders() and !#lists.isEmpty(f.subfolder)}">
+                  <li th:each="subf : ${f.subfolder}"
+                      th:classappend="${currentFolder == subf.id.toString()} ? 'active'"
+                      th:class="${subf.hasSubfolders()} ? 'closed' : ''">
+                    <a th:href="@{'/admin/filemanager/' + ${subf.id}}">
+                      <i class="fas fa-folder me-1 text-warning"></i>
+                      <span th:text="${subf.nome}"></span>
+                    </a>
+                    <ul th:if="${subf.hasSubfolders() and !#lists.isEmpty(subf.subfolder)}">
+                      <li th:each="subsubf : ${subf.subfolder}"
+                          th:classappend="${currentFolder == subsubf.id.toString()} ? 'active'">
+                        <a th:href="@{'/admin/filemanager/' + ${subsubf.id}}">
+                          <i class="fas fa-folder me-1 text-warning"></i>
+                          <span th:text="${subsubf.nome}"></span>
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
           </div>
         </div>
 
         <div class="fm-main ps-3">
-          <div class="row g-3" id="griglia">
+          <div class="row g-3" id="griglia" ondragover="event.preventDefault()">
 
-            <!-- SOTTOCARTELLE -->
+            <!-- CARTELLE -->
             <div th:each="sf : ${subfolders}"
-                 class="col-6 col-md-4 col-lg-3 col-xl-2"
-                 th:id="'fold' + ${sf.id}"
-                 th:attr="data-tipo='folder', data-id=${sf.id}, data-nome=${sf.nome}">
+                 class="col-6 col-md-4 col-lg-3 col-xl-2 folder-draggable"
+                 draggable="true"
+                 th:attr="data-id=${sf.id},data-tipo='folder'">
               <div class="card file-card-fm border">
                 <div class="card-body p-2">
                   <div class="d-flex align-items-center justify-content-between mb-2">
@@ -183,8 +204,7 @@
                         <i class="material-icons-two-tone f-16">more_vert</i>
                       </a>
                       <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item"
-                           th:href="@{'/admin/filemanager/' + ${sf.id}}">
+                        <a class="dropdown-item" th:href="@{'/admin/filemanager/' + ${sf.id}}">
                           <i class="fas fa-folder-open me-2"></i>Apri
                         </a>
                         <a class="dropdown-item" href="javascript:void(0)"
@@ -213,8 +233,8 @@
             <!-- IMMAGINI -->
             <div th:each="imm : ${images}"
                  class="col-6 col-md-4 col-lg-3 col-xl-2"
-                 th:id="'imm' + ${imm.id}"
-                 th:attr="data-tipo='immagine', data-id=${imm.id}, data-nome=${imm.name}">
+                 draggable="true"
+                 th:attr="data-id=${imm.id},data-tipo='image'">
               <div class="card file-card-fm border">
                 <div class="card-body p-2">
                   <div class="d-flex align-items-center justify-content-between mb-2">
@@ -262,8 +282,8 @@
             <!-- ALLEGATI -->
             <div th:each="all : ${allegati}"
                  class="col-6 col-md-4 col-lg-3 col-xl-2"
-                 th:id="'all' + ${all.id}"
-                 th:attr="data-tipo='allegato', data-id=${all.id}, data-nome=${all.l1}">
+                 draggable="true"
+                 th:attr="data-id=${all.id},data-tipo='file'">
               <div class="card file-card-fm border">
                 <div class="card-body p-2">
                   <div class="d-flex align-items-center justify-content-between mb-2">
@@ -321,6 +341,7 @@
     </div>
   </div>
 
+  <!-- Modal FileManager -->
   <div id="modalAccount" class="modal fade" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content">
@@ -335,6 +356,7 @@
     </div>
   </div>
 
+  <!-- Modal Lightbox -->
   <div class="modal fade" id="modalLightbox" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content bg-dark border-0">
@@ -354,6 +376,8 @@
 <th:block layout:fragment="scripts">
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+
+        // Ricerca
         var searchInput = document.getElementById('searchInput');
         if (searchInput) {
             searchInput.addEventListener('input', function() {
@@ -364,14 +388,66 @@
                 });
             });
         }
+
+        // Drag & Drop via addEventListener
+        document.querySelectorAll('[draggable="true"]').forEach(function(el) {
+    var id   = el.getAttribute('data-id');
+    var tipo = el.getAttribute('data-tipo') || 'file';
+
+    el.addEventListener('dragstart', function(e) {
+        e.dataTransfer.setData('elementId', id);
+        e.dataTransfer.setData('elementType', tipo);
+        el.style.opacity = '0.4';
     });
 
-    // Aggiungi questa funzione
-    function apriLightbox(src, nome) {
-        document.getElementById('lightboxNome').textContent = nome || '';
-        document.getElementById('lightboxImg').src = src || '';
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalLightbox')).show();
+    el.addEventListener('dragend', function() {
+        el.style.opacity = '1';
+        el.classList.remove('drag-over');
+    });
+
+    // dragover su TUTTI per evitare il cursore divieto
+    el.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = tipo === 'folder' ? 'move' : 'none';
+        if (tipo === 'folder') el.classList.add('drag-over');
+    });
+
+    el.addEventListener('dragleave', function() {
+        el.classList.remove('drag-over');
+    });
+
+    // drop solo sulle cartelle
+    if (tipo === 'folder') {
+        el.addEventListener('drop', function(e) {
+            e.preventDefault();
+            el.classList.remove('drag-over');
+            var elementId   = e.dataTransfer.getData('elementId');
+            var elementType = e.dataTransfer.getData('elementType');
+
+console.log('targetFolderId:', id);
+    console.log('elementId:', elementId);
+    console.log('elementType:', elementType);
+            if (elementId === id && elementType === 'folder') return;
+
+            if (confirm('Spostare l\'elemento in questa cartella?')) {
+                var params = new URLSearchParams();
+                params.append('elementId', elementId);
+                params.append('targetFolderId', id);
+                params.append('type', elementType);
+
+                fetch('/admin/filemanager/move-element', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: params
+                }).then(function(res) {
+                    if (res.ok) location.reload();
+                    else alert('Errore durante lo spostamento.');
+                });
+            }
+        });
     }
+});
+    });
   </script>
 </th:block>
 

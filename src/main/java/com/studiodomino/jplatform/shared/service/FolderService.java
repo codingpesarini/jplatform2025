@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Service per gestione Folder
@@ -85,6 +86,38 @@ public class FolderService {
         }
 
         return folders;
+    }
+
+    /**
+     * Ottiene l'albero delle cartelle partendo da un ID (Ricorsivo)
+     */
+    public List<Folder> getFolderTree(String idfolderParent, int depth) {
+        if (depth > 3) return new ArrayList<>();
+
+        // Recuperiamo i figli
+        List<Folder> folders = folderRepository.findByIdfolderOrderByNomeAsc(idfolderParent);
+
+        // FILTRO: Rimuoviamo dalla lista cartelle che si chiamano "ROOT"
+        // o che hanno lo stesso ID del parent (per evitare loop)
+        return folders.stream()
+                .filter(f -> !f.getNome().equalsIgnoreCase("ROOT"))
+                .filter(f -> !f.getId().toString().equals(idfolderParent))
+                .peek(f -> {
+                    List<Folder> children = getFolderTree(f.getId().toString(), depth + 1);
+                    f.setSubfolder(children);
+                    f.setSubfolders(!children.isEmpty() ? "1" : "0");
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void moveFolder(String folderId, String targetFolderId) {
+        Folder folder = folderRepository.findById(Integer.parseInt(folderId))
+                .orElseThrow(() -> new RuntimeException("Cartella non trovata"));
+
+        // Cambiamo il riferimento al padre
+        folder.setIdfolder(targetFolderId);
+        folderRepository.save(folder);
     }
 
     /**

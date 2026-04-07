@@ -63,29 +63,62 @@ public class FileManagerController {
 
     private void caricaModelBase(String idFolder, Model model, Configurazione config) {
         try {
+            // 1. Identificazione cartella attuale
             int idFolderInt = Integer.parseInt(idFolder);
+            Folder currentFolderObj = folderService.findById(idFolderInt).orElse(new Folder());
+
+            // 2. Caricamento contenuti della cartella selezionata (per la GRIGLIA centrale)
             List<Folder> subfolders = folderService.getSubfolders(idFolder);
             List<Images> images     = imagesService.findByFolder(idFolder);
             List<Allegato> allegati = allegatoService.findByFolder(idFolderInt);
-            List<Folder> folderPath = folderService.getFolderPath(idFolderInt);
-            List<Folder> allFolders = folderService.getAllFolders();
 
-            Folder currentFolderObj = folderService.findById(idFolderInt).orElse(new Folder());
+            // 3. Caricamento Breadcrumb (percorso in alto)
+            List<Folder> folderPath = folderService.getFolderPath(idFolderInt);
+
+            // 4. Caricamento ALBERO GERARCHICO (per la SIDEBAR a sinistra)
+            // Partiamo dai figli di "1" per evitare di mostrare la Root stessa o file spazzatura
+            List<Folder> sidebarTree = folderService.getFolderTree("1", 0);
+
+            // 5. Arricchimento oggetto corrente con i conteggi per i "Filtri Rapidi" (le card colorate)
             currentFolderObj.setSubfolder(subfolders);
             currentFolderObj.setNumeroFolder(String.valueOf(subfolders.size()));
             currentFolderObj.setNumeroImmagini(String.valueOf(images.size()));
             currentFolderObj.setNumeroAllegati(String.valueOf(allegati.size()));
 
+            // 6. Invio dati al Model (Thymeleaf)
             model.addAttribute("currentFolderObj", currentFolderObj);
-            model.addAttribute("subfolders",    subfolders);
-            model.addAttribute("images",        images);
-            model.addAttribute("allegati",      allegati);
-            model.addAttribute("folderPath",    folderPath);
-            model.addAttribute("allFolders",    allFolders);
+            model.addAttribute("subfolders",    subfolders); // Cartelle nella griglia
+            model.addAttribute("images",        images);     // Immagini nella griglia
+            model.addAttribute("allegati",      allegati);   // Allegati nella griglia
+            model.addAttribute("folderPath",    folderPath); // Breadcrumb
+            model.addAttribute("allFolders",    sidebarTree);// L'albero gerarchico per la sidebar
+
             model.addAttribute("currentFolder", idFolder);
             model.addAttribute("config",        config);
+
         } catch (Exception e) {
             log.error("Errore caricaModelBase folder={}", idFolder, e);
+        }
+    }
+
+    @PostMapping("/admin/filemanager/move-element")
+    @ResponseBody
+    public ResponseEntity<?> moveElement(
+            @RequestParam String elementId,
+            @RequestParam String targetFolderId,
+            @RequestParam String type) { // "folder", "image", "allegato"
+        try {
+            if (type.equals("folder")) {
+                if (elementId.equals(targetFolderId)) return ResponseEntity.badRequest().build();
+                folderService.moveFolder(elementId, targetFolderId);
+            } else if (type.equals("image")) {
+                imagesService.moveImage(elementId, targetFolderId);
+            } else {
+                allegatoService.moveAllegato(elementId, targetFolderId);
+            }
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 
