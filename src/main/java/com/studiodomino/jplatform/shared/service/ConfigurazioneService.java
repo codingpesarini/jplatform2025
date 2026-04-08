@@ -6,6 +6,7 @@ import com.studiodomino.jplatform.shared.entity.Site;
 import com.studiodomino.jplatform.shared.entity.Utente;
 import com.studiodomino.jplatform.shared.entity.UtenteEsterno;
 import com.studiodomino.jplatform.shared.repository.GruppoRepository;
+import com.studiodomino.jplatform.shared.repository.RuoloRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class ConfigurazioneService {
 
     private final SiteService siteService;
     private final GruppoRepository gruppoRepository;
+    private final RuoloRepository ruoloRepository;
 
     // ========================================
     // CONFIGURAZIONE CORE
@@ -46,6 +48,16 @@ public class ConfigurazioneService {
             session.setAttribute(CONFIG_KEY, config);
         }
 
+        // Popola ruoli se vuoti (es. dopo primo login)
+        if (config.getRuoli() == null || config.getRuoli().isEmpty()) {
+            try {
+                config.setRuoli(ruoloRepository.findAll());
+                saveConfig(session, config);
+            } catch (Exception e) {
+                log.warn("Impossibile caricare ruoli: {}", e.getMessage());
+            }
+        }
+
         return config;
     }
 
@@ -62,7 +74,6 @@ public class ConfigurazioneService {
     private Configurazione createNewConfig() {
         Configurazione config = new Configurazione();
 
-        // Carica sito default
         try {
             Site defaultSite = siteService.findById(1);
             config.setSito(defaultSite);
@@ -71,9 +82,14 @@ public class ConfigurazioneService {
             log.warn("Impossibile caricare sito default: {}", e.getMessage());
         }
 
-        // Imposta locale
-        config.setLocale("it_IT");
+        // Carica ruoli
+        try {
+            config.setRuoli(ruoloRepository.findAll());
+        } catch (Exception e) {
+            log.warn("Impossibile caricare ruoli: {}", e.getMessage());
+        }
 
+        config.setLocale("it_IT");
         return config;
     }
 

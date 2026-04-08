@@ -101,12 +101,12 @@ public class FileManagerController {
         }
     }
 
-    @PostMapping("/admin/filemanager/move-element")
+    @PostMapping("/move-element")
     @ResponseBody
     public ResponseEntity<?> moveElement(
             @RequestParam String elementId,
             @RequestParam String targetFolderId,
-            @RequestParam String type) { // "folder", "image", "allegato"
+            @RequestParam String type) {
         try {
             if (type.equals("folder")) {
                 if (elementId.equals(targetFolderId)) return ResponseEntity.badRequest().build();

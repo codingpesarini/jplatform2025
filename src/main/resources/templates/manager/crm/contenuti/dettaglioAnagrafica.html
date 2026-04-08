@@ -310,6 +310,11 @@
                 <i class="ti ti-mood-smile me-1"></i> Scegli avatar
               </a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#avatarTabWebcam" data-bs-toggle="tab">
+                <i class="ti ti-camera me-1"></i> Scatta foto
+              </a>
+            </li>
           </ul>
 
           <div class="tab-content">
@@ -340,6 +345,27 @@
                      onclick="selezionaAvatarPredefinito(this)"
                      class="rounded-circle border avatar-predefinito"
                      style="width:80px;height:80px;cursor:pointer;object-fit:cover;transition:all 0.2s">
+              </div>
+            </div>
+
+            <!--Tab 3: Scatta foto-->
+            <div id="avatarTabWebcam" class="tab-pane fade">
+              <div id="webcamContainer">
+                <video id="webcamVideo" autoplay playsinline
+                       style="width:100%;max-height:300px;border-radius:8px;background:#000"></video>
+                <canvas id="webcamCanvas" style="display:none"></canvas>
+              </div>
+              <div class="mt-2 text-center">
+                <button type="button" class="btn btn-primary" onclick="scattaFoto()">
+                  <i class="fas fa-camera me-1"></i> Scatta
+                </button>
+                <button type="button" class="btn btn-secondary ms-2" id="btnRiscatta"
+                        style="display:none" onclick="riscattaFoto()">
+                  <i class="fas fa-redo me-1"></i> Riscatta
+                </button>
+              </div>
+              <div id="webcamPreview" style="display:none;margin-top:10px;text-align:center">
+                <img id="webcamSnapshot" src="" style="max-width:200px;border-radius:50%;border:3px solid #0d6efd">
               </div>
             </div>
           </div>
@@ -388,6 +414,7 @@
     });
 
     function apriModalAvatar() {
+        window._webcamPhotoData = null;
         _avatarCropper = null;
         _avatarPredefinitaSelezionata = null;
         document.getElementById('btnSalvaAvatar').style.display = 'none';
@@ -408,47 +435,76 @@
     }
 
     function salvaAvatar() {
-        const inputProfileImage = document.getElementById('profileImage');
+    const inputProfileImage = document.getElementById('profileImage');
 
-        if (_avatarPredefinitaSelezionata) {
-            // Avatar predefinito scelto
-            var num = _avatarPredefinitaSelezionata.match(/avatar-(\d+)\.jpg/);
-            if (num) {
-                inputProfileImage.value = "0";
-                // Aggiorna o crea avatarNum
-                var hNum = document.getElementById('avatarNum');
-                if (!hNum) {
-                    hNum = document.createElement('input');
-                    hNum.type = 'hidden';
-                    hNum.name = 'avatarNum';
-                    hNum.id = 'avatarNum';
-                    document.getElementById('elencoAnagrafico').appendChild(hNum);
-                }
-                hNum.value = num[1];
-                // Segnala che l'avatar è stato modificato
+    // CASO 1: foto da webcam
+    if (window._webcamPhotoData) {
+        fetch('/admin/filemanager/avatar/upload-base64', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                image: window._webcamPhotoData,
+                idUtente: String(_idUtenteFisso),
+                tipo: 'utente'
+            })
+        })
+        .then(function(r) { return r.text(); })
+        .then(function(data) {
+            if (data === 'OK') {
+                inputProfileImage.value = '1';
                 document.getElementById('avatarChanged').value = '1';
-                document.getElementById('avatar-img').src = _avatarPredefinitaSelezionata;
+                document.getElementById('avatar-img').src = window._webcamPhotoData;
+                bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
+                window._webcamPhotoData = null;
             }
-            bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
-            _avatarPredefinitaSelezionata = null;
-
-        } else if (_avatarCropper) {
-            // Foto custom con crop
-            var base64 = _avatarCropper.getCroppedCanvas({width: 300, height: 300}).toDataURL('image/jpeg', 0.85);
-            fetch('/admin/filemanager/avatar/upload-base64', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({image: base64, idUtente: String(_idUtenteFisso), tipo: 'utente'})
-            }).then(function(r) { return r.text(); }).then(function(data) {
-                if (data === 'OK') {
-                    inputProfileImage.value = "1";
-                    document.getElementById('avatarChanged').value = '1';
-                    document.getElementById('avatar-img').src = base64;
-                    bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
-                }
-            });
-        }
+        });
+        return;
     }
+
+    // CASO 2: avatar predefinito
+    if (_avatarPredefinitaSelezionata) {
+        var num = _avatarPredefinitaSelezionata.match(/avatar-(\d+)\.jpg/);
+        if (num) {
+            inputProfileImage.value = '0';
+            var hNum = document.getElementById('avatarNum');
+            if (!hNum) {
+                hNum = document.createElement('input');
+                hNum.type = 'hidden';
+                hNum.name = 'avatarNum';
+                hNum.id = 'avatarNum';
+                document.getElementById('elencoAnagrafico').appendChild(hNum);
+            }
+            hNum.value = num[1];
+            document.getElementById('avatarChanged').value = '1';
+            document.getElementById('avatar-img').src = _avatarPredefinitaSelezionata;
+        }
+        bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
+        _avatarPredefinitaSelezionata = null;
+        return;
+    }
+
+    // CASO 3: crop da file
+    if (!_avatarCropper) return;
+    var base64 = _avatarCropper.getCroppedCanvas({ width: 300, height: 300 }).toDataURL('image/jpeg', 0.85);
+    fetch('/admin/filemanager/avatar/upload-base64', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            image: base64,
+            idUtente: String(_idUtenteFisso),
+            tipo: 'utente'
+        })
+    })
+    .then(function(r) { return r.text(); })
+    .then(function(data) {
+        if (data === 'OK') {
+            inputProfileImage.value = '1';
+            document.getElementById('avatarChanged').value = '1';
+            document.getElementById('avatar-img').src = base64;
+            bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
+        }
+    });
+}
 
     function cancellaAvatar(id) {
         confirmAction('Eliminare la foto profilo?', function() {

@@ -186,12 +186,59 @@ function showToast(title, message, type = 'success') {
 }
 
 // -------------------------------------------------------
+// Toast POP
+// -------------------------------------------------------
+function showToastPop(title, message, type = 'success') {
+    const toastId = 'toast_' + Date.now();
+    const bgClass = type === 'success' ? 'bg-success' : 'bg-danger';
+    const toastHtml = `
+        <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0"
+             role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <strong>${title}</strong><br>${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast"></button>
+            </div>
+        </div>`;
+    $('#toast-container-pop').append(toastHtml);
+    const toastEl = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastEl, { delay: 5000 }); // 5s per leggere i campi
+    toast.show();
+    toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+}
+
+// -------------------------------------------------------
 // Confirm modal
 // -------------------------------------------------------
 function confirmAction(message, onConfirm, btnLabel = 'Conferma', btnClass = 'btn-danger') {
     const modal = document.getElementById('confirmModal');
     const btnConfirm = document.getElementById('confirmModalBtn');
     const msgEl = document.getElementById('confirmModalMessage');
+
+    msgEl.textContent = message;
+    btnConfirm.textContent = btnLabel;
+    btnConfirm.className = 'btn ' + btnClass;
+
+    const newBtn = btnConfirm.cloneNode(true);
+    btnConfirm.parentNode.replaceChild(newBtn, btnConfirm);
+
+    newBtn.addEventListener('click', function() {
+        bootstrap.Modal.getInstance(modal).hide();
+        onConfirm();
+    });
+
+    new bootstrap.Modal(modal).show();
+}
+
+// -------------------------------------------------------
+// Confirm modal
+// -------------------------------------------------------
+function confirmActionPop(message, onConfirm, btnLabel = 'Conferma', btnClass = 'btn-danger') {
+    const modal = document.getElementById('confirmModal-pop');
+    const btnConfirm = document.getElementById('confirmModalBtn-pop');
+    const msgEl = document.getElementById('confirmModalMessage-pop');
 
     msgEl.textContent = message;
     btnConfirm.textContent = btnLabel;
@@ -484,7 +531,7 @@ $(document).ready(function() {
 
     // Genera AUTHCODE per Google Authenticator
     window.GeneraAuthCodeGoogleAuthenticatorUtente = function (msg) {
-        if (msg && !confirm(msg)) return;
+        if (msg && !confirmAction(msg)) return;
 
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
         let secret = "";
@@ -947,4 +994,132 @@ function scollegaErimuovi(idDocAllegati, idAllegato) {
                 showToast('Completato', 'Allegato rimosso.');
             });
     });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var griglia = document.getElementById('griglia');
+    if (!griglia) return;
+    var draggingId = null;
+    var draggingType = null;
+
+    griglia.addEventListener('dragstart', function(e) {
+        var el = e.target.closest('[draggable="true"]');
+        if (!el) return;
+        draggingId = el.getAttribute('data-id');
+        draggingType = el.getAttribute('data-tipo');
+        el.style.opacity = '0.4';
+        e.dataTransfer.setData('text/plain', draggingId);
+        e.dataTransfer.effectAllowed = 'move';
+    });
+
+    griglia.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    });
+
+    griglia.addEventListener('dragend', function(e) {
+        var el = e.target.closest('[draggable="true"]');
+        if (el) el.style.opacity = '1';
+        document.querySelectorAll('.drag-over').forEach(function(x) {
+            x.classList.remove('drag-over');
+        });
+    });
+
+    griglia.addEventListener('drop', function(e) {
+        e.preventDefault();
+        var folder = e.target.closest('.folder-draggable');
+        if (!folder) return;
+        var targetId = folder.getAttribute('data-id');
+        console.log('DROP! draggingId:', draggingId, 'targetId:', targetId, 'type:', draggingType);
+
+        if (draggingId === targetId && draggingType === 'folder') return;
+
+        confirmAction('Spostare l\'elemento in questa cartella?', function() {
+            var params = new URLSearchParams();
+            params.append('elementId', draggingId);
+            params.append('targetFolderId', targetId);
+            params.append('type', draggingType);
+
+            fetch('/admin/filemanager/move-element', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
+            }).then(function(res) {
+                if (res.ok)
+                {document.querySelector('[data-id="' + draggingId  + '"][data-tipo="image"]')?.remove();
+                showToast('Completato', 'elemento spostato.');
+                }
+
+                else alert('Errore durante lo spostamento.');
+            });
+        });
+    });
+});
+
+var webcamStream = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.querySelector('a[href="#avatarTabWebcam"]')) {
+
+        document.querySelector('a[href="#avatarTabWebcam"]').addEventListener('shown.bs.tab', function() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    webcamStream = stream;
+                    document.getElementById('webcamVideo').srcObject = stream;
+                })
+                .catch(function(err) {
+                    alert('Webcam non disponibile: ' + err.message);
+                });
+        });
+
+        if (document.querySelector('a[href="#avatarTabUpload"]')) {
+            document.querySelector('a[href="#avatarTabUpload"]').addEventListener('shown.bs.tab', fermaWebcam);
+        }
+        if (document.querySelector('a[href="#avatarTabScegli"]')) {
+            document.querySelector('a[href="#avatarTabScegli"]').addEventListener('shown.bs.tab', fermaWebcam);
+        }
+        if (document.getElementById('modalAvatar')) {
+            document.getElementById('modalAvatar').addEventListener('hidden.bs.modal', fermaWebcam);
+        }
+    }
+});
+
+function fermaWebcam() {
+    if (webcamStream) {
+        webcamStream.getTracks().forEach(function(t) { t.stop(); });
+        webcamStream = null;
+    }
+    var v = document.getElementById('webcamVideo');
+    if (v) v.srcObject = null;
+}
+
+function scattaFoto() {
+    var video = document.getElementById('webcamVideo');
+    var canvas = document.getElementById('webcamCanvas');
+    canvas.width  = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+
+    var fotoData = canvas.toDataURL('image/jpeg', 0.85);
+
+    document.getElementById('webcamSnapshot').src = fotoData;
+    document.getElementById('webcamPreview').style.display = 'block';
+    document.getElementById('btnRiscatta').style.display = 'inline-block';
+    document.getElementById('btnSalvaAvatar').style.display = 'inline-block';
+
+    fermaWebcam();
+
+    window._webcamPhotoData = fotoData;
+}
+
+function riscattaFoto() {
+    window._webcamPhotoData = null;
+    document.getElementById('webcamPreview').style.display = 'none';
+    document.getElementById('btnRiscatta').style.display = 'none';
+    document.getElementById('btnSalvaAvatar').style.display = 'none';
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream) {
+            webcamStream = stream;
+            document.getElementById('webcamVideo').srcObject = stream;
+        });
 }

@@ -311,11 +311,16 @@
                                     <th:block th:each="i : ${#numbers.sequence(1, 5)}">
                                         <div class="col-lg-6 mb-3">
                                             <label th:for="${'ruoliA' + i}" class="col-form-label" th:text="${'Ruolo ' + i}">Ruolo N</label>
-                                            <select th:name="${'ruoliA' + i}" th:id="${'ruoliA' + i}" multiple size="5" class="form-control">
+                                            <select th:name="${'ruoliA' + i}" th:id="${'ruoliA' + i}" multiple size="5" class="form-select shadow-sm">
                                                 <option value="0">Nessuno</option>
                                                 <option th:each="r : ${config.ruoli}"
                                                         th:value="${r.id}" th:text="${r.nome}"
-                                                        th:selected="${__${'amministratoriUtente.ruoliA' + i}__ != null and #lists.contains(__${'amministratoriUtente.ruoliA' + i}__, r.id)}"></option>
+                                                        th:selected="${i == 1 and amministratoriUtente.ruoliA1 != null and #arrays.contains(amministratoriUtente.ruoliA1, r.id.toString())}
+                             or ${i == 2 and amministratoriUtente.ruoliA2 != null and #arrays.contains(amministratoriUtente.ruoliA2, r.id.toString())}
+                             or ${i == 3 and amministratoriUtente.ruoliA3 != null and #arrays.contains(amministratoriUtente.ruoliA3, r.id.toString())}
+                             or ${i == 4 and amministratoriUtente.ruoliA4 != null and #arrays.contains(amministratoriUtente.ruoliA4, r.id.toString())}
+                             or ${i == 5 and amministratoriUtente.ruoliA5 != null and #arrays.contains(amministratoriUtente.ruoliA5, r.id.toString())}">
+                                                </option>
                                             </select>
                                         </div>
                                     </th:block>
@@ -497,6 +502,11 @@
                                 <i class="ti ti-mood-smile me-1"></i> Scegli avatar
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#avatarTabWebcam" data-bs-toggle="tab">
+                                <i class="ti ti-camera me-1"></i> Scatta foto
+                            </a>
+                        </li>
                     </ul>
                     <div class="tab-content">
                         <div id="avatarTabUpload" class="tab-pane fade show active">
@@ -522,6 +532,25 @@
                                      onclick="selezionaAvatarPredefinito(this)"
                                      class="rounded-circle border avatar-predefinito"
                                      style="width:80px;height:80px;cursor:pointer;object-fit:cover;transition:all 0.2s">
+                            </div>
+                        </div>
+                        <div id="avatarTabWebcam" class="tab-pane fade">
+                            <div id="webcamContainer">
+                                <video id="webcamVideo" autoplay playsinline
+                                       style="width:100%;max-height:300px;border-radius:8px;background:#000"></video>
+                                <canvas id="webcamCanvas" style="display:none"></canvas>
+                            </div>
+                            <div class="mt-2 text-center">
+                                <button type="button" class="btn btn-primary" onclick="scattaFoto()">
+                                    <i class="fas fa-camera me-1"></i> Scatta
+                                </button>
+                                <button type="button" class="btn btn-secondary ms-2" id="btnRiscatta"
+                                        style="display:none" onclick="riscattaFoto()">
+                                    <i class="fas fa-redo me-1"></i> Riscatta
+                                </button>
+                            </div>
+                            <div id="webcamPreview" style="display:none;margin-top:10px;text-align:center">
+                                <img id="webcamSnapshot" src="" style="max-width:200px;border-radius:50%;border:3px solid #0d6efd">
                             </div>
                         </div>
                     </div>
@@ -600,6 +629,7 @@
         }
 
         function apriModalAvatar() {
+            window._webcamPhotoData = null;
             _avatarCropper = null;
             _avatarPredefinitaSelezionata = null;
             document.getElementById('btnSalvaAvatar').style.display = 'none';
@@ -618,13 +648,14 @@
                 var file = e.target.files[0];
                 if (!file) return;
                 _avatarPredefinitaSelezionata = null;
+                window._webcamPhotoData = null;
                 var reader = new FileReader();
                 reader.onload = function(ev) {
                     var img = document.getElementById('avatarImgPreview');
                     img.src = ev.target.result;
                     document.getElementById('avatarCropContainer').style.display = '';
                     document.getElementById('avatarPreviewBox').style.display = '';
-                    document.getElementById('btnSalvaAvatar').style.display = '';
+                    document.getElementById('btnSalvaAvatar').style.display = 'inline-block';
                     if (_avatarCropper) _avatarCropper.destroy();
                     _avatarCropper = new Cropper(img, {
                         aspectRatio: 1, viewMode: 1,
@@ -636,78 +667,113 @@
         });
 
         function selezionaAvatarPredefinito(el) {
-    document.querySelectorAll('.avatar-predefinito').forEach(function(img) {
-        img.style.border = '2px solid #dee2e6';
-        img.style.opacity = '1';
-    });
-    el.style.border = '3px solid #0088cc';
-    el.style.opacity = '0.85';
-    _avatarPredefinitaSelezionata = el.src;
-    _avatarCropper = null;
-    document.getElementById('btnSalvaAvatar').style.display = '';
-}
-
-function salvaAvatar() {
-   if (_avatarPredefinitaSelezionata) {
-    var num = _avatarPredefinitaSelezionata.match(/avatar-(\d+)\.jpg/);
-    if (num) {
-        document.getElementById('avatarNum').value = num[1];
-    }
-    document.querySelector('input[name="profileImage"]').value = '0';
-    document.querySelector('input[name="avatarChanged"]').value = '1';
-    document.getElementById('avatar-img').src = _avatarPredefinitaSelezionata;
-    bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
-    _avatarPredefinitaSelezionata = null;
-    showToast('Completato', 'Avatar selezionato. Ricordati di salvare il form.');
-    return;
-}
-
-    if (!_avatarCropper) return;
-
-    var canvas = _avatarCropper.getCroppedCanvas({ width: 300, height: 300 });
-    var base64 = canvas.toDataURL('image/jpeg', 0.85);
-
-    fetch('/admin/filemanager/avatar/upload-base64', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            image: base64,
-            idUtente: String(_avatarUtenteId),
-            tipo: 'amministratore'
-        })
-    })
-    .then(function(r) { return r.text(); })
-    .then(function(data) {
-        if (data === 'OK') {
-            document.querySelector('input[name="profileImage"]').value = '1';
-            document.querySelector('input[name="avatarChanged"]').value = '1'; // ← segnala modifica
-            document.getElementById('avatar-img').src = base64;
-            bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
-            showToast('Completato', 'Foto salvata. Ricordati di salvare il form.');
-        } else {
-            showToast('Errore', 'Errore nel salvataggio della foto.', 'danger');
+            document.querySelectorAll('.avatar-predefinito').forEach(function(img) {
+                img.style.border = '2px solid #dee2e6';
+                img.style.opacity = '1';
+            });
+            el.style.border = '3px solid #0088cc';
+            el.style.opacity = '0.85';
+            _avatarPredefinitaSelezionata = el.src;
+            _avatarCropper = null;
+            window._webcamPhotoData = null;
+            document.getElementById('btnSalvaAvatar').style.display = 'inline-block';
         }
-    })
-    .catch(function(err) {
-        console.error('Errore fetch avatar:', err);
-        showToast('Errore', 'Errore di rete.', 'danger');
-    });
-}
 
-function cancellaAvatar(id) {
-    confirmAction('Eliminare la foto profilo?', function() {
-        fetch('/admin/filemanager/avatar/upload-base64', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: '', idUtente: String(id), tipo: 'amministratore' })
-        }).then(function() {
-            document.querySelector('input[name="profileImage"]').value = '0';
-            document.querySelector('input[name="avatarChanged"]').value = '1'; // ← segnala modifica
-            document.getElementById('avatar-img').src = '/manager/assets/img/user/avatar-1.jpg';
-            showToast('Completato', 'Foto eliminata. Ricordati di salvare il form.');
-        });
-    });
-}
+        function salvaAvatar() {
+
+            // CASO 1: foto da webcam
+            if (window._webcamPhotoData) {
+                fetch('/admin/filemanager/avatar/upload-base64', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        image: window._webcamPhotoData,
+                        idUtente: String(_avatarUtenteId),
+                        tipo: 'amministratore'
+                    })
+                })
+                .then(function(r) { return r.text(); })
+                .then(function(data) {
+                    if (data === 'OK') {
+                        document.querySelector('input[name="profileImage"]').value = '1';
+                        document.querySelector('input[name="avatarChanged"]').value = '1';
+                        document.getElementById('avatar-img').src = window._webcamPhotoData;
+                        bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
+                        window._webcamPhotoData = null;
+                        showToast('Completato', 'Foto salvata. Ricordati di salvare il form.');
+                    } else {
+                        showToast('Errore', 'Errore nel salvataggio della foto.', 'danger');
+                    }
+                })
+                .catch(function(err) {
+                    console.error('Errore fetch avatar webcam:', err);
+                    showToast('Errore', 'Errore di rete.', 'danger');
+                });
+                return;
+            }
+
+            // CASO 2: avatar predefinito
+            if (_avatarPredefinitaSelezionata) {
+                var num = _avatarPredefinitaSelezionata.match(/avatar-(\d+)\.jpg/);
+                if (num) {
+                    document.getElementById('avatarNum').value = num[1];
+                }
+                document.querySelector('input[name="profileImage"]').value = '0';
+                document.querySelector('input[name="avatarChanged"]').value = '1';
+                document.getElementById('avatar-img').src = _avatarPredefinitaSelezionata;
+                bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
+                _avatarPredefinitaSelezionata = null;
+                showToast('Completato', 'Avatar selezionato. Ricordati di salvare il form.');
+                return;
+            }
+
+            // CASO 3: crop da file
+            if (!_avatarCropper) return;
+
+            var canvas = _avatarCropper.getCroppedCanvas({ width: 300, height: 300 });
+            var base64 = canvas.toDataURL('image/jpeg', 0.85);
+
+            fetch('/admin/filemanager/avatar/upload-base64', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    image: base64,
+                    idUtente: String(_avatarUtenteId),
+                    tipo: 'amministratore'
+                })
+            })
+            .then(function(r) { return r.text(); })
+            .then(function(data) {
+                if (data === 'OK') {
+                    document.querySelector('input[name="profileImage"]').value = '1';
+                    document.querySelector('input[name="avatarChanged"]').value = '1';
+                    document.getElementById('avatar-img').src = base64;
+                    bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
+                    showToast('Completato', 'Foto salvata. Ricordati di salvare il form.');
+                } else {
+                    showToast('Errore', 'Errore nel salvataggio della foto.', 'danger');
+                }
+            })
+            .catch(function(err) {
+                console.error('Errore fetch avatar:', err);
+                showToast('Errore', 'Errore di rete.', 'danger');
+            });
+        }
+
+        function cancellaAvatar(id) {
+            confirmAction('Eliminare la foto profilo?', function() {
+                fetch('/admin/filemanager/avatar/upload-base64', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: '', idUtente: String(id), tipo: 'amministratore' })
+                }).then(function() {
+                    document.querySelector('input[name="profileImage"]').value = '0';
+                    document.querySelector('input[name="avatarChanged"]').value = '1';
+                    document.getElementById('avatar-img').src = '/manager/assets/img/user/avatar-1.jpg';
+                    showToast('Completato', 'Foto eliminata. Ricordati di salvare il form.');
+                });
+            });
+        }
     </script>
 </div>
 </body>
