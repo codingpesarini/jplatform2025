@@ -19,7 +19,7 @@
             <div class="right-wrapper text-right" style="margin-left: auto; margin-right: 10%;">
 
                 <a th:href="@{/admin/sezioni/new}" class="mb-1 mt-1 mr-1 btn btn-sm btn-success">
-                    <i class="fas fa-plus-circle"></i> Nuova
+                    <i class="fas fa-plus-circle"></i> <span class="btn-text">Nuova</span>
                 </a>
 
                 <a th:if="${section.id != null}"
@@ -27,17 +27,17 @@
                    th:data-titolo="${section.titolo}"
                    class="mb-1 mt-1 mr-1 btn btn-sm btn-info"
                    onclick="confirmAction('Duplicare &quot;' + this.dataset.titolo + '&quot;?', function(){ window.location=this.href; }.bind(this)); return false;">
-                    <i class="fas fa-clone"></i> Duplica
+                    <i class="fas fa-clone"></i> <span class="btn-text">Duplica</span>
                 </a>
 
                 <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
                         onclick="InviaForm('sezione');">
-                    <i class="fas fa-save"></i> Salva
+                    <i class="fas fa-save"></i> <span class="btn-text">Salva</span>
                 </button>
 
                 <a th:href="@{/admin/sezioni}" onclick="CloseHsReloadBase();"
                    class="mb-1 mt-1 mr-1 btn btn-sm btn-danger">
-                    <i class="fas fa-times-circle"></i> Esci
+                    <i class="fas fa-times-circle"></i> <span class="btn-text">Esci</span>
                 </a>
             </div>
         </header>

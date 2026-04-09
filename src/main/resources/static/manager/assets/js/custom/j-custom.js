@@ -632,7 +632,7 @@ window.FileManager = {
         const modalEl = document.getElementById('modalAccount');
         const titleEl = document.getElementById('modalAccountTitle');
         const bodyEl  = document.getElementById('modalAccountBody');
-        if (!modalEl) { alert("Modal 'modalAccount' non trovata!"); return; }
+        if (!modalEl) { showToast('Errore', 'modalAccount non trovata!', 'danger'); return; }
         titleEl.innerText = titolo;
         bodyEl.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-info"></div><p class="mt-2">Caricamento...</p></div>';
         bootstrap.Modal.getOrCreateInstance(modalEl).show();
@@ -1050,7 +1050,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 showToast('Completato', 'elemento spostato.');
                 }
 
-                else alert('Errore durante lo spostamento.');
+                else
+                showToast('Errore', 'Errore durante lo spostamento.', 'danger');
             });
         });
     });
@@ -1068,7 +1069,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('webcamVideo').srcObject = stream;
                 })
                 .catch(function(err) {
-                    alert('Webcam non disponibile: ' + err.message);
+                    showToast('Errore', 'Webcam non disponibile', 'danger');
                 });
         });
 
@@ -1123,3 +1124,93 @@ function riscattaFoto() {
             document.getElementById('webcamVideo').srcObject = stream;
         });
 }
+
+var _spostaElementoId   = null;
+var _spostaElementoTipo = null;
+
+function apriModalSposta(id, nome, tipo) {
+    _spostaElementoId   = id;
+    _spostaElementoTipo = tipo;
+    document.getElementById('modalSpostaNome').textContent = nome;
+    document.getElementById('modalSpostaSelect').value = '';
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalSposta')).show();
+}
+
+function confermaSpostaModal() {
+    var targetId = document.getElementById('modalSpostaSelect').value;
+    if (!targetId) {
+        showToast('Errore', 'Seleziona una cartella di destinazione.', 'danger');
+        return;
+    }
+    if (targetId === _spostaElementoId && _spostaElementoTipo === 'folder') {
+        showToast('Errore', 'Errore non puoi spostare una cartella in se stessa.', 'danger');
+        return;
+    }
+
+    var params = new URLSearchParams();
+    params.append('elementId', _spostaElementoId);
+    params.append('targetFolderId', targetId);
+    params.append('type', _spostaElementoTipo);
+
+    fetch('/admin/filemanager/move-element', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params
+    }).then(function(res) {
+        bootstrap.Modal.getInstance(document.getElementById('modalSposta')).hide();
+        if (res.ok) location.reload();
+        else showToast('Errore', 'Errore durante lo spostamento.', 'danger');
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var modal = document.getElementById('modalAccount');
+    if (!modal) return;
+
+    var dialog = document.getElementById('modalAccountDialog');
+    var header = document.getElementById('modalAccountHeader');
+    if (!dialog || !header) return;
+
+    var isDragging = false;
+    var startX, startY, startLeft, startTop;
+
+    header.addEventListener('mousedown', function(e) {
+        if (e.target.classList.contains('btn-close')) return;
+        // Calcola posizione attuale del dialog
+        var rect = dialog.getBoundingClientRect();
+        dialog.style.position = 'fixed';
+        dialog.style.margin = '0';
+        dialog.style.left = rect.left + 'px';
+        dialog.style.top  = rect.top  + 'px';
+
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        startLeft = rect.left;
+        startTop  = rect.top;
+        document.body.style.userSelect = 'none';
+        e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        var dx = e.clientX - startX;
+        var dy = e.clientY - startY;
+        dialog.style.left = (startLeft + dx) + 'px';
+        dialog.style.top  = (startTop  + dy) + 'px';
+    });
+
+    document.addEventListener('mouseup', function() {
+        if (isDragging) {
+            isDragging = false;
+            document.body.style.userSelect = '';
+        }
+    });
+
+    modal.addEventListener('hidden.bs.modal', function() {
+        dialog.style.position = '';
+        dialog.style.left = '';
+        dialog.style.top  = '';
+        dialog.style.margin = '';
+    });
+});

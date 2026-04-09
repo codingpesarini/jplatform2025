@@ -20,7 +20,7 @@
 
         <a th:href="@{/admin/contenuti/new/{idRoot}(idRoot=${post.idRoot})}"
            class="mb-1 mt-1 mr-1 btn btn-sm btn-success">
-          <i class="fas fa-plus-circle"></i> Nuova
+          <i class="fas fa-plus-circle"></i> <span class="btn-text">Nuova</span>
         </a>
 
         <a th:if="${post.id != null and post.id != 0}"
@@ -28,19 +28,19 @@
            th:data-titolo="${post.titolo}"
            class="mb-1 mt-1 mr-1 btn btn-sm btn-info"
            onclick="confirmAction('Duplicare &quot;' + this.dataset.titolo + '&quot;?', function(){ window.location=this.href; }.bind(this)); return false;">
-          <i class="fas fa-clone"></i> Duplica
+          <i class="fas fa-clone"></i> <span class="btn-text">Duplica</span>
         </a>
 
         <button type="button"
                 class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
                 onclick="InviaForm('documento');">
-          <i class="fas fa-save"></i> Salva
+          <i class="fas fa-save"></i> <span class="btn-text">Salva</span>
         </button>
 
         <a th:href="@{/admin/sezioni/{id}/preview(id=${post.idRoot})}"
            onclick="CloseHsReloadBase();"
            class="mb-1 mt-1 mr-1 btn btn-sm btn-danger">
-          <i class="fas fa-times-circle"></i> Esci
+          <i class="fas fa-times-circle"></i> <span class="btn-text">Esci</span>
         </a>
       </div>
     </header>
@@ -266,41 +266,24 @@
                     <ul id="sortableAllegato" class="list-unstyled">
                       <li th:each="allegato : ${post.allegati}"
                           th:if="${allegato.id != -1}"
-                          th:attr="id=${allegato.iddocallegati}">
-
-                        <div th:attr="id=${'boxallegato_' + allegato.iddocallegati}">
-                          <img style="float:left; margin-right:10px; cursor:pointer;"
-                               th:src="@{/manager/assets/img/icons/pencil.png}"
-                               th:data-folder="${allegato.idfolder}"
-                               th:data-id="${allegato.id}"
-                               th:data-docid="${allegato.iddocallegati}"
-                               onclick="var f=this.getAttribute('data-folder');var i=this.getAttribute('data-id');var d=this.getAttribute('data-docid'); return hs.htmlExpand(this,{align:'center',objectType:'iframe',width:600,height:400,src:'/admin/allegati/edit?idfolder='+f+'&id='+i+'&docid='+d});">
-
-                          <img style="float:left; margin-right:10px; cursor:pointer;"
-                               th:src="@{/manager/assets/img/icons/trashcan.png}"
-                               th:data-id="${allegato.id}"
-                               th:data-docid="${allegato.iddocallegati}"
-                               onclick="CancellaAllegatoInserito(this.getAttribute('data-id'),this.getAttribute('data-docid'))">
-
-                          <img style="float:left; margin-right:10px;"
-                               th:if="${!allegato.versioniIsEmpty}"
-                               th:src="@{/manager/assets/img/icons/documents.png}">
-
-                          <img style="float:left; margin-right:10px;"
-                               th:if="${allegato.versioniIsEmpty}"
-                               th:src="@{/manager/assets/img/icons/access_denied_gray.png}">
-
-                          <a target="_blank"
-                             th:href="@{/files/{id}/{l2}/{l1}.{ext}(id=${allegato.id},l2=${allegato.l2},l1=${allegato.l1},ext=${allegato.type})}">
-                            <img th:src="@{/manager/assets/img/icons/download.png}"
-                                 width="22" height="22" alt="">
+                          th:attr="id=${allegato.idDocAllegati}">
+                        <div th:attr="id=${'boxallegato_' + allegato.idDocAllegati}">
+                          <a href="javascript:void(0);"
+                             th:data-id="${allegato.idDocAllegati}"
+                             th:data-allegato-id="${allegato.id}"
+                             onclick="scollegaErimuovi(this.getAttribute('data-id'), this.getAttribute('data-allegato-id'))">
+                            Cancella
                           </a>
 
-                          <img th:src="@{'/manager/assets/img/filetypes/32/'+${allegato.type}+'.png'}"
-                               width="22" height="22" alt="">
+                          <a th:href="@{'/admin/filemanager/files/' + ${allegato.id} + '/download'}"
+                             target="_blank" title="Scarica">
+                            <i class="fas fa-download" style="margin-right:6px;"></i>
+                          </a>
 
-                          <span th:text="${allegato.l1}">file</span>
-                          - (<span th:text="${allegato.datainserimento}">data</span>)
+                          <i class="fas fa-file text-secondary" style="margin-right:6px;"></i>
+
+                          <span th:text="${allegato.l1}">Nome</span>
+                          - (<span th:text="${allegato.dataInserimento}">data</span>)
                           - (Versione <span th:text="${allegato.version}">1</span>)
                         </div>
                       </li>

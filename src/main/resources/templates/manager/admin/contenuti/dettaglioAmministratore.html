@@ -19,21 +19,21 @@
             </div>
             <div class="right-wrapper text-right" style="margin-left: auto; margin-right: 10%;">
                 <a th:href="@{/admin/amministratori/new}" class="mb-1 mt-1 mr-1 btn btn-sm btn-success">
-                    <i class="fas fa-plus-circle"></i> Nuova
+                    <i class="fas fa-plus-circle"></i> <span class="btn-text">Nuova</span>
                 </a>
                 <a th:if="${amministratoriUtente != null and amministratoriUtente.id != null}"
                    th:href="@{|/admin/amministratori/${amministratoriUtente.id}/duplica|}"
                    onclick="return ConfermaOperazione(this.href, 'duplicare questa amministratori')"
                    class="mb-1 mt-1 mr-1 btn btn-sm btn-info">
-                    <i class="fas fa-clone"></i> Duplica
+                    <i class="fas fa-clone"></i> <span class="btn-text">Duplica</span>
                 </a>
                 <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
                         onclick="InviaForm('amministratoriUtente');">
-                    <i class="fas fa-save"></i> Salva
+                    <i class="fas fa-save"></i> <span class="btn-text">Salva</span>
                 </button>
                 <a th:href="@{/admin/amministratori}" onclick="CloseHsReloadBase();"
                    class="mb-1 mt-1 mr-1 btn btn-sm btn-danger">
-                    <i class="fas fa-times-circle"></i> Esci
+                    <i class="fas fa-times-circle"></i> <span class="btn-text">Esci</span>
                 </a>
             </div>
         </header>
@@ -309,7 +309,7 @@
                                 <legend class="float-none w-auto px-2">Ruoli di servizio</legend>
                                 <div class="row form-group">
                                     <th:block th:each="i : ${#numbers.sequence(1, 5)}">
-                                        <div class="col-lg-6 mb-3">
+                                        <div class="col-lg-6 mb-1">
                                             <label th:for="${'ruoliA' + i}" class="col-form-label" th:text="${'Ruolo ' + i}">Ruolo N</label>
                                             <select th:name="${'ruoliA' + i}" th:id="${'ruoliA' + i}" multiple size="5" class="form-select shadow-sm">
                                                 <option value="0">Nessuno</option>
@@ -333,7 +333,7 @@
                             <fieldset class="border p-3">
                                 <legend class="float-none w-auto px-2">Altri dati</legend>
                                 <div class="row form-group">
-                                    <div class="col-lg-6 mb-3">
+                                    <div class="col-lg-6">
                                         <label for="role1" class="col-form-label">Amm/Sup/Red</label>
                                         <select name="role1" id="role1" class="form-control">
                                             <option value="a" th:selected="${amministratoriUtente.role1 == 'a'}">Amministratore</option>
@@ -341,7 +341,7 @@
                                             <option value="r" th:selected="${amministratoriUtente.role1 == 'r'}">Redattore</option>
                                         </select>
                                     </div>
-                                    <div class="col-lg-6 mb-3">
+                                    <div class="col-lg-6">
                                         <label for="role2" class="col-form-label">Accesso portale</label>
                                         <select name="role2" id="role2" class="form-control">
                                             <option value=""  th:selected="${amministratoriUtente.role2 == ''}">Indefinito</option>
@@ -350,7 +350,7 @@
                                         </select>
                                     </div>
                                     <th:block th:each="i : ${#numbers.sequence(3, 18)}">
-                                        <div class="col-lg-6 mb-3">
+                                        <div class="col-lg-6 mb-1">
                                             <label th:for="${'role' + i}" class="col-form-label" th:text="${'Ruolo ' + i}">Ruolo N</label>
                                             <select th:name="${'role' + i}" th:id="${'role' + i}" class="form-control">
                                                 <option value=""  th:selected="${__${'amministratoriUtente.role' + i}__ == ''}">Indefinito</option>
@@ -368,7 +368,7 @@
                             <fieldset class="border p-3">
                                 <legend class="float-none w-auto px-2">Altri dati</legend>
                                 <div class="row form-group">
-                                    <div class="col-lg-6 mb-3">
+                                    <div class="col-lg-6 mb-1">
                                         <label for="l1" class="col-form-label">L1</label>
                                         <select name="l1" id="l1" class="form-control">
                                             <option value=""  th:selected="${amministratoriUtente.l1 == ''}">Indefinito</option>

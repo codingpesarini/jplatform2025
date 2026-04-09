@@ -27,24 +27,24 @@
       <div class="right-wrapper text-right" style="margin-left: auto; margin-right: 10%;">
         <a th:href="@{/admin/impostazioni/numeratori/new}"
            class="mb-1 mt-1 mr-1 btn btn-sm btn-success">
-          <i class="fas fa-plus-circle"></i> Nuovo
+          <i class="fas fa-plus-circle"></i> <span class="btn-text">Nuovo</span>
         </a>
 
         <a th:if="${numeratore.id != null}"
            th:href="@{/admin/impostazioni/numeratori/{id}/duplica(id=${numeratore.id})}"
            class="mb-1 mt-1 mr-1 btn btn-sm btn-info">
-          <i class="fas fa-clone"></i> Duplica
+          <i class="fas fa-clone"></i> <span class="btn-text">Duplica</span>
         </a>
 
         <button type="button"
                 class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
                 onclick="InviaForm('numeratore');">
-          <i class="fas fa-save"></i> Salva
+          <i class="fas fa-save"></i> <span class="btn-text">Salva</span>
         </button>
 
         <a th:href="@{/admin/impostazioni/numeratori}"
            class="mb-1 mt-1 mr-1 btn btn-sm btn-danger">
-          <i class="fas fa-times-circle"></i> Esci
+          <i class="fas fa-times-circle"></i> <span class="btn-text">Esci</span>
         </a>
       </div>
     </header>

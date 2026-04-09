@@ -74,13 +74,14 @@
 
 <!-- Modal FileManager — disponibile globalmente -->
 <div id="modalAccount" class="modal fade" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered" id="modalAccountDialog"
+         style="max-width:1200px;">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header" id="modalAccountHeader" style="cursor:move;">
                 <h5 class="modal-title" id="modalAccountTitle">Caricamento...</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="modalAccountBody">
+            <div class="modal-body" id="modalAccountBody" style="max-height:1200px; overflow-y:auto;">
                 <div class="text-center p-4">
                     <div class="spinner-border text-info"></div>
                 </div>

@@ -20,22 +20,22 @@
 
       <div class="right-wrapper text-right" style="margin-left: auto; margin-right: 10%;">
         <a th:href="@{/admin/impostazioni/ruoli/new}" class="mb-1 mt-1 mr-1 btn btn-sm btn-success">
-          <i class="fas fa-plus-circle"></i> Nuovo
+          <i class="fas fa-plus-circle"></i> <span class="btn-text">Nuovo</span>
         </a>
 
         <a th:if="${ruolo.id != null}"
            th:href="@{/admin/impostazioni/ruoli/{id}/duplica(id=${ruolo.id})}"
            class="mb-1 mt-1 mr-1 btn btn-sm btn-info">
-          <i class="fas fa-clone"></i> Duplica
+          <i class="fas fa-clone"></i> <span class="btn-text">Duplica</span>
         </a>
 
         <button type="button" onclick="InviaForm('ruolo');"
                 class="mb-1 mt-1 mr-1 btn btn-sm btn-primary">
-          <i class="fas fa-save"></i> Salva
+          <i class="fas fa-save"></i> <span class="btn-text">Salva</span>
         </button>
 
         <a th:href="@{/admin/impostazioni/ruoli}" class="mb-1 mt-1 mr-1 btn btn-sm btn-danger">
-          <i class="fas fa-times-circle"></i> Esci
+          <i class="fas fa-times-circle"></i> <span class="btn-text">Esci</span>
         </a>
       </div>
     </header>

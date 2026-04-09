@@ -229,6 +229,12 @@
                                onclick="FileManager.apriForm('/admin/filemanager/folder/'+this.dataset.id+'/edit','Modifica cartella')">
                               <i class="fas fa-edit me-2"></i>Modifica
                             </a>
+                            <a class="dropdown-item" href="javascript:void(0)"
+                               th:data-id="${sf.id}"
+                               th:data-nome="${sf.nome}"
+                               onclick="apriModalSposta(this.dataset.id, this.dataset.nome, 'folder')">
+                              <i class="fas fa-arrows-alt me-2"></i>Sposta
+                            </a>
                             <a class="dropdown-item text-danger" href="javascript:void(0)"
                                th:data-id="${sf.id}"
                                onclick="cancellaFolder(this.dataset.id)">
@@ -267,6 +273,12 @@
                                th:data-id="${imm.id}"
                                onclick="FileManager.apriForm('/admin/filemanager/images/'+this.dataset.id+'/edit/'+currentFolder,'Modifica immagine')">
                               <i class="fas fa-edit me-2"></i>Modifica
+                            </a>
+                            <a class="dropdown-item" href="javascript:void(0)"
+                               th:data-id="${imm.id}"
+                               th:data-nome="${imm.name}"
+                               onclick="apriModalSposta(this.dataset.id, this.dataset.nome, 'image')">
+                              <i class="fas fa-arrows-alt me-2"></i>Sposta
                             </a>
                             <a class="dropdown-item text-danger" href="javascript:void(0)"
                                th:data-id="${imm.id}"
@@ -320,6 +332,12 @@
                                th:data-id="${all.id}"
                                onclick="FileManager.apriForm('/admin/filemanager/files/'+this.dataset.id+'/edit/'+currentFolder,'Modifica allegato')">
                               <i class="fas fa-edit me-2"></i>Modifica
+                            </a>
+                            <a class="dropdown-item" href="javascript:void(0)"
+                               th:data-id="${all.id}"
+                               th:data-nome="${all.nome}"
+                               onclick="apriModalSposta(this.dataset.id, this.dataset.nome, 'file')">
+                              <i class="fas fa-arrows-alt me-2"></i>Sposta
                             </a>
                             <a class="dropdown-item text-danger" href="javascript:void(0)"
                                th:data-id="${all.id}"
@@ -382,6 +400,12 @@
                             <div class="dropdown-menu dropdown-menu-end">
                               <a class="dropdown-item" th:href="@{'/admin/filemanager/' + ${sf.id}}"><i class="fas fa-folder-open me-2"></i>Apri</a>
                               <a class="dropdown-item" href="javascript:void(0)" th:data-id="${sf.id}" onclick="FileManager.apriForm('/admin/filemanager/folder/'+this.dataset.id+'/edit','Modifica cartella')"><i class="fas fa-edit me-2"></i>Modifica</a>
+                              <a class="dropdown-item" href="javascript:void(0)"
+                                 th:data-id="${sf.id}"
+                                 th:data-nome="${sf.nome}"
+                                 onclick="apriModalSposta(this.dataset.id, this.dataset.nome, 'folder')">
+                                <i class="fas fa-arrows-alt me-2"></i>Sposta
+                              </a>
                               <a class="dropdown-item text-danger" href="javascript:void(0)" th:data-id="${sf.id}" onclick="cancellaFolder(this.dataset.id)"><i class="fas fa-trash me-2"></i>Elimina</a>
                             </div>
                           </div>
@@ -402,6 +426,12 @@
                             </a>
                             <div class="dropdown-menu dropdown-menu-end">
                               <a class="dropdown-item" href="javascript:void(0)" th:data-id="${imm.id}" onclick="FileManager.apriForm('/admin/filemanager/images/'+this.dataset.id+'/edit/'+currentFolder,'Modifica immagine')"><i class="fas fa-edit me-2"></i>Modifica</a>
+                              <a class="dropdown-item" href="javascript:void(0)"
+                                 th:data-id="${imm.id}"
+                                 th:data-nome="${imm.name}"
+                                 onclick="apriModalSposta(this.dataset.id, this.dataset.nome, 'image')">
+                                <i class="fas fa-arrows-alt me-2"></i>Sposta
+                              </a>
                               <a class="dropdown-item text-danger" href="javascript:void(0)" th:data-id="${imm.id}" onclick="cancellaImmagine(this.dataset.id)"><i class="fas fa-trash me-2"></i>Elimina</a>
                             </div>
                           </div>
@@ -425,6 +455,12 @@
                             <div class="dropdown-menu dropdown-menu-end">
                               <a class="dropdown-item" th:href="@{/admin/filemanager/files/{id}/download(id=${all.id})}" target="_blank"><i class="fas fa-download me-2"></i>Scarica</a>
                               <a class="dropdown-item" href="javascript:void(0)" th:data-id="${all.id}" onclick="FileManager.apriForm('/admin/filemanager/files/'+this.dataset.id+'/edit/'+currentFolder,'Modifica allegato')"><i class="fas fa-edit me-2"></i>Modifica</a>
+                              <a class="dropdown-item" href="javascript:void(0)"
+                                 th:data-id="${all.id}"
+                                 th:data-nome="${all.nome}"
+                                 onclick="apriModalSposta(this.dataset.id, this.dataset.nome, 'file')">
+                                <i class="fas fa-arrows-alt me-2"></i>Sposta
+                              </a>
                               <a class="dropdown-item text-danger" href="javascript:void(0)" th:data-id="${all.id}" onclick="cancellaAllegato(this.dataset.id)"><i class="fas fa-trash me-2"></i>Elimina</a>
                             </div>
                           </div>
@@ -466,6 +502,33 @@
         </div>
         <div class="modal-body text-center p-4">
           <img id="lightboxImg" src="" class="img-fluid rounded shadow" style="max-height: 80vh;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Sposta -->
+  <div class="modal fade" id="modalSposta" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Sposta elemento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Seleziona la cartella di destinazione per <strong id="modalSpostaNome"></strong>:</p>
+          <select id="modalSpostaSelect" class="form-select">
+            <option value="">-- Seleziona cartella --</option>
+            <option th:each="f : ${allFolders}"
+                    th:value="${f.id}"
+                    th:text="${f.nome}">Cartella</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+          <button type="button" class="btn btn-primary" onclick="confermaSpostaModal()">
+            <i class="fas fa-arrows-alt me-1"></i> Sposta
+          </button>
         </div>
       </div>
     </div>

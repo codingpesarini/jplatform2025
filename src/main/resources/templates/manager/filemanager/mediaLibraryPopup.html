@@ -4,7 +4,7 @@
 <body>
 <div th:fragment="content">
   <style>
-    .pop-wrapper { display:flex; height:520px; }
+    .pop-wrapper { display:flex; height:700px; }
     .pop-sidebar { width:210px; border-right:1px solid #dee2e6; overflow-y:auto; padding:8px 0; flex-shrink:0; }
     .pop-main { flex:1; overflow-y:auto; padding:8px; }
 
@@ -42,19 +42,50 @@
     }
 
     .pop-thumb { display:inline-flex; flex-direction:column; align-items:center;
-                 width:110px; margin:4px; vertical-align:top; cursor:pointer; }
+                 width:110px; margin:4px; vertical-align:top; cursor:pointer; position:relative; }
     .pop-thumb-box { width:100px; height:90px; border:2px solid #dee2e6; border-radius:6px;
                      display:flex; align-items:center; justify-content:center;
                      background:#f8f9fa; overflow:hidden; transition:border-color .2s; }
     .pop-thumb-box:hover { border-color:#0d6efd; }
     .pop-thumb-name { font-size:10px; text-align:center; width:100px; overflow:hidden;
                       text-overflow:ellipsis; white-space:nowrap; margin-top:3px; color:#555; }
+    .pop-thumb-menu { position:absolute; top:0; right:4px; z-index:10; }
+
     .pop-toolbar { padding:6px 8px; border-bottom:1px solid #dee2e6; display:flex;
                    align-items:center; gap:6px; flex-wrap:wrap; }
-    .pop-search { width:160px; font-size:12px; }
+    .pop-search { width:130px; font-size:12px; }
     .pop-folder-drag { cursor:grab; }
     .pop-drag-over .pop-thumb-box { border-color:#0d6efd !important; background:#e7f1ff !important; }
     #popGriglia.dragging [draggable="true"] * { pointer-events: none; }
+
+    /* Vista lista */
+    #popGriglia.pop-view-list { display:block; }
+    #popGriglia.pop-view-list .pop-thumb {
+      display:flex;
+      flex-direction:row;
+      width:100%;
+      align-items:center;
+      gap:8px;
+      margin:2px 0;
+      border-bottom:1px solid #f0f0f0;
+      padding:4px 6px;
+      box-sizing:border-box;
+    }
+    #popGriglia.pop-view-list .pop-thumb-box {
+      width:36px;
+      height:36px;
+      flex-shrink:0;
+    }
+    #popGriglia.pop-view-list .pop-thumb-name {
+      width:auto;
+      flex:1;
+      text-align:left;
+      white-space:normal;
+      font-size:12px;
+    }
+    #popGriglia.pop-view-list .pop-thumb-menu {
+      position:static;
+    }
   </style>
 
   <script th:inline="javascript">
@@ -85,7 +116,18 @@
     </button>
     <input type="text" id="popSearchInput" class="form-control form-control-sm pop-search"
            placeholder="Cerca..." oninput="popFiltra(this.value)">
-    <span class="ms-auto text-muted" style="font-size:11px"
+    <!-- Switcher vista -->
+    <div class="d-flex gap-1 ms-auto">
+      <button class="btn btn-sm btn-outline-secondary active" id="popViewGrid"
+              onclick="popSetView('grid')" title="Griglia">
+        <i class="ti ti-layout-grid"></i>
+      </button>
+      <button class="btn btn-sm btn-outline-secondary" id="popViewList"
+              onclick="popSetView('list')" title="Lista">
+        <i class="ti ti-layout-list"></i>
+      </button>
+    </div>
+    <span class="text-muted" style="font-size:11px"
           th:text="${currentFolderObj?.nome ?: 'Root'}">Root</span>
   </div>
 
@@ -94,6 +136,7 @@
     <!-- Sidebar albero -->
     <div class="pop-sidebar">
       <div class="pop-tree-item" th:classappend="${currentFolder == '1'} ? 'active'">
+        <span style="width:16px;display:inline-block;flex-shrink:0"></span>
         <a href="javascript:void(0)" onclick="popNavigate('1')">
           <i class="fas fa-home me-1 text-primary"></i> Root
         </a>
@@ -101,12 +144,13 @@
       <th:block th:each="f : ${allFolders}">
         <div class="pop-tree-item"
              th:classappend="${currentFolder == f.id.toString()} ? 'active'">
-      <span th:if="${f.hasSubfolders()}"
-            onclick="popToggleTree(this)"
-            style="cursor:pointer;margin-right:4px;font-size:10px">
-        <i class="fas fa-plus-square text-muted"></i>
-      </span>
-          <span th:unless="${f.hasSubfolders()}" style="margin-right:16px"></span>
+          <span th:if="${f.hasSubfolders()}"
+                class="pop-toggle"
+                onclick="popToggleTree(this)">
+            <i class="fas fa-chevron-right"></i>
+          </span>
+          <span th:unless="${f.hasSubfolders()}"
+                style="width:16px;display:inline-block;flex-shrink:0"></span>
           <a href="javascript:void(0)"
              th:data-id="${f.id}"
              onclick="popNavigate(this.dataset.id)">
@@ -114,11 +158,18 @@
             <span th:text="${f.nome}">Cartella</span>
           </a>
         </div>
-        <div class="pop-tree-children" style="display:none"
+        <div class="pop-tree-children"
              th:if="${f.hasSubfolders() and !#lists.isEmpty(f.subfolder)}">
           <div th:each="subf : ${f.subfolder}"
                class="pop-tree-item"
                th:classappend="${currentFolder == subf.id.toString()} ? 'active'">
+            <span th:if="${subf.hasSubfolders()}"
+                  class="pop-toggle"
+                  onclick="popToggleTree(this)">
+              <i class="fas fa-chevron-right"></i>
+            </span>
+            <span th:unless="${subf.hasSubfolders()}"
+                  style="width:16px;display:inline-block;flex-shrink:0"></span>
             <a href="javascript:void(0)"
                th:data-id="${subf.id}"
                onclick="popNavigate(this.dataset.id)">
@@ -138,6 +189,30 @@
            class="pop-thumb pop-folder-drag"
            draggable="true"
            th:attr="data-id=${sf.id},data-tipo='folder',data-nome=${sf.nome}">
+        <div class="pop-thumb-menu dropdown">
+          <a class="btn btn-link btn-sm p-0 dropdown-toggle arrow-none"
+             href="#" data-bs-toggle="dropdown" onclick="event.stopPropagation()">
+            <i class="material-icons-two-tone f-16">more_vert</i>
+          </a>
+          <div class="dropdown-menu dropdown-menu-end">
+            <a class="dropdown-item" href="javascript:void(0)"
+               th:data-id="${sf.id}"
+               onclick="popNavigate(this.dataset.id)">
+              <i class="fas fa-folder-open me-2"></i>Apri
+            </a>
+            <a class="dropdown-item" href="javascript:void(0)"
+               th:data-id="${sf.id}"
+               th:data-nome="${sf.nome}"
+               onclick="apriModalSpostaPopup(this.dataset.id, this.dataset.nome, 'folder')">
+              <i class="fas fa-arrows-alt me-2"></i>Sposta
+            </a>
+            <a class="dropdown-item text-danger" href="javascript:void(0)"
+               th:data-id="${sf.id}"
+               onclick="cancellaFolder(this.dataset.id)">
+              <i class="fas fa-trash me-2"></i>Elimina
+            </a>
+          </div>
+        </div>
         <div class="pop-thumb-box"
              th:data-id="${sf.id}"
              onclick="popNavigate(this.dataset.id)">
@@ -152,6 +227,25 @@
              class="pop-thumb"
              draggable="true"
              th:attr="data-id=${imm.id},data-tipo='image',data-nome=${imm.name}">
+          <div class="pop-thumb-menu dropdown">
+            <a class="btn btn-link btn-sm p-0 dropdown-toggle arrow-none"
+               href="#" data-bs-toggle="dropdown" onclick="event.stopPropagation()">
+              <i class="material-icons-two-tone f-16">more_vert</i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end">
+              <a class="dropdown-item" href="javascript:void(0)"
+                 th:data-id="${imm.id}"
+                 th:data-nome="${imm.name}"
+                 onclick="apriModalSpostaPopup(this.dataset.id, this.dataset.nome, 'image')">
+                <i class="fas fa-arrows-alt me-2"></i>Sposta
+              </a>
+              <a class="dropdown-item text-danger" href="javascript:void(0)"
+                 th:data-id="${imm.id}"
+                 onclick="cancellaImmagine(this.dataset.id)">
+                <i class="fas fa-trash me-2"></i>Elimina
+              </a>
+            </div>
+          </div>
           <div class="pop-thumb-box"
                th:data-src="${config.imagesRepositoryWeb + imm.fullpath}"
                th:data-id="${imm.id}"
@@ -172,6 +266,25 @@
              class="pop-thumb"
              draggable="true"
              th:attr="data-id=${all.id},data-tipo='file',data-nome=${all.l1}">
+          <div class="pop-thumb-menu dropdown">
+            <a class="btn btn-link btn-sm p-0 dropdown-toggle arrow-none"
+               href="#" data-bs-toggle="dropdown" onclick="event.stopPropagation()">
+              <i class="material-icons-two-tone f-16">more_vert</i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end">
+              <a class="dropdown-item" href="javascript:void(0)"
+                 th:data-id="${all.id}"
+                 th:data-nome="${all.l1}"
+                 onclick="apriModalSpostaPopup(this.dataset.id, this.dataset.nome, 'file')">
+                <i class="fas fa-arrows-alt me-2"></i>Sposta
+              </a>
+              <a class="dropdown-item text-danger" href="javascript:void(0)"
+                 th:data-id="${all.id}"
+                 onclick="cancellaAllegato(this.dataset.id)">
+                <i class="fas fa-trash me-2"></i>Elimina
+              </a>
+            </div>
+          </div>
           <div class="pop-thumb-box"
                th:data-id="${all.id}"
                th:data-l1="${all.l1}"
@@ -195,7 +308,105 @@
     </div>
   </div>
 
+  <!-- Modal Sposta interno al popup -->
+  <div id="modalSpostaPopup" class="modal fade" tabindex="-1" style="z-index:9999">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h6 class="modal-title">Sposta: <strong id="popSpostaNome"></strong></h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <select id="popSpostaSelect" class="form-select form-select-sm">
+            <option value="">-- Seleziona cartella --</option>
+            <option th:each="f : ${allFolders}"
+                    th:value="${f.id}"
+                    th:text="${f.nome}">Cartella</option>
+          </select>
+        </div>
+        <div class="modal-footer py-2">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annulla</button>
+          <button type="button" class="btn btn-primary btn-sm" onclick="confermaSpostaPopup()">
+            <i class="fas fa-arrows-alt me-1"></i> Sposta
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container-pop"
+       class="toast-container position-fixed bottom-0 end-0 p-3"
+       style="z-index:9999">
+  </div>
+
+  <!-- Confirm Modal -->
+  <div id="confirmModal-pop" class="modal fade" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Conferma</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p id="confirmModalMessage-pop">Sei sicuro di voler procedere?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+          <button type="button" class="btn btn-danger" id="confirmModalBtn-pop">Conferma</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
+    var _popSpostaId   = null;
+    var _popSpostaTipo = null;
+
+    function apriModalSpostaPopup(id, nome, tipo) {
+        _popSpostaId   = id;
+        _popSpostaTipo = tipo;
+        document.getElementById('popSpostaNome').textContent = nome;
+        document.getElementById('popSpostaSelect').value = '';
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalSpostaPopup')).show();
+    }
+
+    function confermaSpostaPopup() {
+        var targetId = document.getElementById('popSpostaSelect').value;
+        if (!targetId) { alert('Seleziona una cartella di destinazione.'); return; }
+        if (targetId === _popSpostaId && _popSpostaTipo === 'folder') {
+            alert('Non puoi spostare una cartella in se stessa.');
+            return;
+        }
+        var params = new URLSearchParams();
+        params.append('elementId', _popSpostaId);
+        params.append('targetFolderId', targetId);
+        params.append('type', _popSpostaTipo);
+
+        fetch('/admin/filemanager/move-element', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params
+        }).then(function(res) {
+            bootstrap.Modal.getInstance(document.getElementById('modalSpostaPopup')).hide();
+            if (res.ok) popNavigate(_popFolder);
+            else alert('Errore durante lo spostamento.');
+        });
+    }
+
+    function popSetView(view) {
+        var griglia = document.getElementById('popGriglia');
+        if (view === 'list') {
+            griglia.classList.add('pop-view-list');
+            document.getElementById('popViewList').classList.add('active');
+            document.getElementById('popViewGrid').classList.remove('active');
+        } else {
+            griglia.classList.remove('pop-view-list');
+            document.getElementById('popViewGrid').classList.add('active');
+            document.getElementById('popViewList').classList.remove('active');
+        }
+    }
+
     function popNavigate(folderId) {
         _popFolder = folderId;
         var modalBody = document.getElementById('modalAccountBody');
@@ -214,6 +425,15 @@
         });
     }
 
+    function popToggleTree(btn) {
+        var treeItem = btn.closest('.pop-tree-item');
+        var children = treeItem.nextElementSibling;
+        if (!children || !children.classList.contains('pop-tree-children')) return;
+        var isOpen = children.style.display !== 'none';
+        children.style.display = isOpen ? 'none' : 'block';
+        btn.classList.toggle('open', !isOpen);
+    }
+
     function popSelezionaImmagine(src, id, nome) {
         if (typeof window.InserisciImmagineLibreria === 'function') {
             window.InserisciImmagineLibreria(src, id, '');
@@ -228,7 +448,7 @@
         bootstrap.Modal.getInstance(document.getElementById('modalAccount')).hide();
     }
 
-    // Drag & Drop nel popup via event delegation
+    // Drag & Drop
     (function() {
         var griglia = document.getElementById('popGriglia');
         if (!griglia) return;
@@ -236,15 +456,14 @@
         var draggingType = null;
 
         griglia.addEventListener('dragstart', function(e) {
-    var el = e.target.closest('[draggable="true"]');
-    if (!el) return;
-    draggingId   = el.getAttribute('data-id');
-    draggingType = el.getAttribute('data-tipo');
-    el.style.opacity = '0.4';
-    e.dataTransfer.effectAllowed = 'move';
-    // Disabilita pointer-events sui figli durante il drag
-    griglia.classList.add('dragging');
-});
+            var el = e.target.closest('[draggable="true"]');
+            if (!el) return;
+            draggingId   = el.getAttribute('data-id');
+            draggingType = el.getAttribute('data-tipo');
+            el.style.opacity = '0.4';
+            e.dataTransfer.effectAllowed = 'move';
+            griglia.classList.add('dragging');
+        });
 
         griglia.addEventListener('dragover', function(e) {
             e.preventDefault();
@@ -254,11 +473,11 @@
         });
 
         griglia.addEventListener('dragend', function(e) {
-    var el = e.target.closest('[draggable="true"]');
-    if (el) el.style.opacity = '1';
-    griglia.classList.remove('dragging');
-    document.querySelectorAll('.pop-drag-over').forEach(function(x) { x.classList.remove('pop-drag-over'); });
-});
+            var el = e.target.closest('[draggable="true"]');
+            if (el) el.style.opacity = '1';
+            griglia.classList.remove('dragging');
+            document.querySelectorAll('.pop-drag-over').forEach(function(x) { x.classList.remove('pop-drag-over'); });
+        });
 
         griglia.addEventListener('drop', function(e) {
             e.preventDefault();
@@ -266,62 +485,25 @@
             if (!folder) return;
             var targetId = folder.getAttribute('data-id');
             document.querySelectorAll('.pop-drag-over').forEach(function(x) { x.classList.remove('pop-drag-over'); });
-
             if (draggingId === targetId && draggingType === 'folder') return;
 
-            confirmActionPop('Spostare l\'elemento in questa cartella?', function() {
-            var params = new URLSearchParams();
-            params.append('elementId', draggingId);
-            params.append('targetFolderId', targetId);
-            params.append('type', draggingType);
-
-            fetch('/admin/filemanager/move-element', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: params
-            }).then(function(res) {
-                if (res.ok)
-                {document.querySelector('[data-id="' + draggingId  + '"][data-tipo="image"]')?.remove();
-                showToastPop('Completato', 'elemento spostato.');
-                }
-            });
-        });
+            if (confirm('Spostare l\'elemento in questa cartella?')) {
+                var params = new URLSearchParams();
+                params.append('elementId', draggingId);
+                params.append('targetFolderId', targetId);
+                params.append('type', draggingType);
+                fetch('/admin/filemanager/move-element', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: params
+                }).then(function(res) {
+                    if (res.ok) popNavigate(_popFolder);
+                    else alert('Errore durante lo spostamento.');
+                });
+            }
         });
     })();
-
-    function popToggleTree(btn) {
-    var children = btn.closest('.pop-tree-item').nextElementSibling;
-    if (!children || !children.classList.contains('pop-tree-children')) return;
-    var isOpen = children.style.display !== 'none';
-    children.style.display = isOpen ? 'none' : 'block';
-    var icon = btn.querySelector('i');
-    icon.classList.toggle('fa-plus-square', isOpen);
-    icon.classList.toggle('fa-minus-square', !isOpen);
-}
   </script>
-</div>
-<!-- Toast Container -->
-<div id="toast-container-pop"
-     class="toast-container position-fixed bottom-0 end-0 p-3"
-     style="z-index: 9999;">
-</div>
-<!-- Confirm Modal -->
-<div id="confirmModal-pop" class="modal fade" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="confirmModalLabel-pop">Conferma</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p id="confirmModalMessage-pop">Sei sicuro di voler procedere?</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-        <button type="button" class="btn btn-danger" id="confirmModalBtn-pop">Conferma</button>
-      </div>
-    </div>
-  </div>
 </div>
 </body>
 </html>
