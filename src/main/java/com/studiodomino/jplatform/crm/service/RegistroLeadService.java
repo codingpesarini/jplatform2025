@@ -82,22 +82,25 @@ public class RegistroLeadService {
 
     @Transactional
     public RegistroLead crea(RegistroLead registroLead, Configurazione config) {
-        log.debug("Creazione registro lead store={}", registroLead.getStore());
+        log.info("Creazione registro lead store={}", registroLead.getStore());
 
-        // Se arriva -1 o 0 come sentinella, forza nuova insert
         if (registroLead.getId() == null || registroLead.getId() <= 0) {
             registroLead.setId(null);
         }
 
-        // Caso lead diretto con utente inserito a mano
-        if ("diretto".equalsIgnoreCase(registroLead.getStore())
-                && registroLead.getUtente() != null
-                && registroLead.getIdutente() != 0
-                && registroLead.getIdutente() <= 0) {
+        if ("diretto".equalsIgnoreCase(registroLead.getStore())) {
 
-            UtenteEsterno utente = creaOAggiornaUtentePerLead(registroLead, config);
-            registroLead.setUtente(utente);
-            registroLead.setIdutente(utente.getId());
+            // CASO 1: utente esistente selezionato dall'autocomplete
+            if (registroLead.getIdutente() > 0) {
+                UtenteEsterno utente = findUtenteBase(registroLead.getIdutente());
+                registroLead.setUtente(utente);
+            }
+            // CASO 2: utente nuovo inserito a mano
+            else if (registroLead.getUtente() != null) {
+                UtenteEsterno utente = creaOAggiornaUtentePerLead(registroLead, config);
+                registroLead.setUtente(utente);
+                registroLead.setIdutente(utente.getId());
+            }
         }
 
         RegistroLead saved = registroLeadRepository.save(registroLead);

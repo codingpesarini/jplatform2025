@@ -130,7 +130,6 @@
 
                                             <!-- hidden -->
                                         <input type="hidden" name="id"               th:value="${registroLead.id}">
-                                        <input type="hidden" name="idutente"         th:value="${registroLead.idutente}" id="idutente">
                                         <input type="hidden" name="idleadstore"      th:value="${registroLead.idleadstore}">
                                         <input type="hidden" name="idamministratore" th:value="${registroLead.idamministratore}">
                                         <input type="hidden" name="store"            th:value="${registroLead.store}">
@@ -299,31 +298,28 @@
 
     <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function() {
-    if (typeof initTinyMCE === 'function') {
-        initTinyMCE('#notalead');
-    }
+            if (typeof initTinyMCE === 'function') {
+                initTinyMCE('#notalead');
+            }
 
-    // Choices.js per multiselect area interesse
-    var metatagEl = document.getElementById('metatag');
-    if (metatagEl && typeof Choices !== 'undefined') {
-        new Choices(metatagEl, {
-            removeItemButton: true,
-            placeholder: true,
-            placeholderValue: 'Seleziona aree interesse...',
-            noResultsText: 'Nessun risultato',
-            noChoicesText: 'Nessuna opzione disponibile',
-            itemSelectText: '',
-            shouldSort: false
+            var metatagEl = document.getElementById('metatag');
+            if (metatagEl && typeof Choices !== 'undefined') {
+                new Choices(metatagEl, {
+                    removeItemButton: true,
+                    placeholder: true,
+                    placeholderValue: 'Seleziona aree interesse...',
+                    noResultsText: 'Nessun risultato',
+                    noChoicesText: 'Nessuna opzione disponibile',
+                    itemSelectText: '',
+                    shouldSort: false
+                });
+            }
         });
-    }
-});
 
-        // --- 3. FUNZIONE INVIO FORM (La tua InviaForm corretta) ---
         function inviaForm(e) {
             if (e) e.preventDefault();
             var form = document.getElementById('registrolead');
 
-            // Sincronizzazione TinyMCE (dal tuo codice originale)
             if (typeof tinymce !== 'undefined') {
                 try {
                     if (typeof tinymce.triggerSave === 'function') {
@@ -342,27 +338,6 @@
             form.submit();
             return true;
         }
-        function resetAnagraficaLeadCRM() {
-    if (confirmAction("Sei sicuro di voler rimuovere l'anagrafica collegata?")) {
-
-        // 1. Svuota gli ID (fondamentale per il database)
-        document.getElementById('idUtenteLead').value = "0";
-        document.getElementById('utenteid').value = "";
-
-        // 2. Opzionale: Svuota i campi visibili se vuoi resettare tutto
-        // Se invece vuoi solo "scollegarli" ma tenere i nomi scritti, commenta queste righe
-        document.getElementById('utentenome').value = "";
-        document.getElementById('utentecognome').value = "";
-        document.getElementById('utenteemail').value = "";
-        document.getElementById('utentetelefono').value = "";
-        document.getElementById('ricercaUtenteNuovoLead').value = "";
-
-        // 3. Nascondi la barra dei bottoni (opzionale, dato che l'utente è rimosso)
-        // Se usi jQuery: $(event.target).closest('.row').fadeOut();
-
-        console.log("Anagrafica scollegata con successo.");
-    }
-}
     </script>
 
 </div>

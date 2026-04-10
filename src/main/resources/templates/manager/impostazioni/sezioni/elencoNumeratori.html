@@ -8,7 +8,7 @@
 <div layout:fragment="content">
 
   <div class="row">
-    <div class="col-md-3">
+    <div class="col-12 col-md-3">
       <section class="card card-info" style="border-radius: 15px; overflow: hidden; border: none;">
         <header class="card-header" style="background-color: #3EC9D6; border-bottom: none; padding: 15px 20px;">
           <div class="card-actions">
@@ -26,7 +26,7 @@
       </section>
     </div>
 
-    <div class="col-md-9">
+    <div class="col-12 col-md-9 mt-3 mt-md-0">
       <section class="card card-info" style="border-radius: 15px; overflow: hidden; border: none;">
         <header class="card-header" style="background-color: #3EC9D6; border-bottom: none; padding: 15px 20px;">
           <div class="card-actions">
@@ -39,10 +39,10 @@
         <div class="card-body">
           <div class="right-wrapper text-right mb-2">
             <a th:href="@{/admin/impostazioni/numeratori/new}" class="btn btn-info">
-              <i class="fas fa-file-medical"></i> Crea nuovo
+              <i class="fas fa-file-medical"></i> <span class="btn-text">Crea nuovo</span>
             </a>
             <a href="javascript:void(0);" class="btn btn-info" onclick="CancellaNumeratoreMultiplaAjax()">
-              <i class="fas fa-trash-alt"></i> Cancella selezionati
+              <i class="fas fa-trash-alt"></i> <span class="btn-text">Cancella selezionati</span>
             </a>
           </div>
 
@@ -53,8 +53,8 @@
                 <input type="checkbox" class="chSel_all inpt_c2" onclick="toggleAll(this)">
               </th>
               <th>Descrizione</th>
-              <th>Anno gestione</th>
-              <th>Ultimo numero</th>
+              <th class="d-none d-lg-table-cell">Anno gestione</th>
+              <th class="d-none d-lg-table-cell">Ultimo numero</th>
               <th>Azioni</th>
             </tr>
             </thead>
@@ -66,8 +66,8 @@
               <td>
                 <a th:href="@{/admin/impostazioni/numeratori/{id}/open(id=${row.id})}" th:text="${row.l1}">Descrizione</a>
               </td>
-              <td th:text="${row.anno}">2020</td>
-              <td th:text="${row.numero}">0</td>
+              <td class="d-none d-lg-table-cell" th:text="${row.anno}">2020</td>
+              <td class="d-none d-lg-table-cell" th:text="${row.numero}">0</td>
               <td>
                 <a title="Modifica" th:href="@{/admin/impostazioni/numeratori/{id}/open(id=${row.id})}">
                   <i class="fas fa-pencil-alt"></i>

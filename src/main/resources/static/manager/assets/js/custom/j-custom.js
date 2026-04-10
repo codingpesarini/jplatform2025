@@ -1214,3 +1214,29 @@ document.addEventListener('DOMContentLoaded', function() {
         dialog.style.margin = '';
     });
 });
+
+function resetAnagraficaLeadCRM() {
+    confirmAction("Sei sicuro di voler rimuovere l'anagrafica collegata?", function() {
+        document.getElementById('idUtenteLead').value = "0";
+
+        var utenteid = document.getElementById('utenteid');
+        if (utenteid) utenteid.value = "";
+
+        var utentenome = document.getElementById('utentenome');
+        if (utentenome) utentenome.value = "";
+
+        var utentecognome = document.getElementById('utentecognome');
+        if (utentecognome) utentecognome.value = "";
+
+        var utenteemail = document.getElementById('utenteemail');
+        if (utenteemail) utenteemail.value = "";
+
+        var utentetelefono = document.getElementById('utentetelefono');
+        if (utentetelefono) utentetelefono.value = "";
+
+        var ricerca = document.getElementById('ricercaUtenteNuovoLead');
+        if (ricerca) ricerca.value = "";
+
+        showToast('Completato', 'Anagrafica rimossa.');
+    });
+}

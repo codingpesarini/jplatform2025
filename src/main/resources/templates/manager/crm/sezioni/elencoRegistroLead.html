@@ -21,14 +21,15 @@
         <div class="card-body" style="background: #fff; padding: 20px;">
           <p>In questa sezione sono visualizzati tutti i messaggi diretti utenti (LEAD) inviati tramite web-forms o altri canali diretti di comunicazione quali landing page. I messaggi email non sono riportati in questa sezione ma nella gestione web-mail del CRM.</p>
           <p>È possibile visualizzare i commenti/messaggi non ancora visualizzati o quelli già completati.</p>
-            <a th:href="@{/admin/crm/lead(stato=0, direzione='e')}"
-               class="btn btn-success btn-block shadow-sm mb-2">
-              <i class="fas fa-play mr-2"></i> Da iniziare
-            </a>
-            <a th:href="@{/admin/crm/lead(stato=4, direzione='e')}"
-               class="btn btn-success btn-block shadow-sm mb-2">
-              <i class="fas fa-check-double mr-2"></i> Completati
-            </a>
+          <a th:href="@{/admin/crm/lead/filtro/e/0}"
+             class="btn btn-success btn-block shadow-sm mb-2">
+            <i class="fas fa-play mr-2"></i> Da iniziare
+          </a>
+
+          <a th:href="@{/admin/crm/lead/filtro/e/4}"
+             class="btn btn-success btn-block shadow-sm mb-2">
+            <i class="fas fa-check-double mr-2"></i> Completati
+          </a>
         </div>
       </section>
     </div>

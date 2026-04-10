@@ -15,7 +15,7 @@
   <div class="row">
 
     <!-- LEFT: SIDEBAR -->
-    <div class="col-md-4">
+      <div class="col-12 col-md-4">
       <section class="card card-featured card-featured-danger mb-4">
             <div class="card" style="border-top: 3px solid #d9534f;">
                 <div class="card-header bg-white">
@@ -116,7 +116,7 @@
     </div>
 
     <!-- RIGHT: TABS -->
-      <div class="col-lg-8">
+      <div class="col-12 col-lg-8 mt-3 mt-lg-0">
           <div class="card">
               <div class="card-header">
                   <ul class="nav nav-tabs card-header-tabs" id="mytabs" role="tablist">
@@ -395,11 +395,11 @@
                               <a th:if="${previewSezione != null}"
                                  th:href="@{/admin/contenuti/new/{idRoot}(idRoot=${previewSezione.id})}"
                                  class="btn btn-outline-primary btn-sm">
-                                  <i class="ti ti-file-plus me-1"></i> Nuovo contenuto
+                                  <i class="ti ti-file-plus me-1"></i> <span class="btn-text">Nuovo contenuto</span>
                               </a>
                               <button type="button" class="btn btn-outline-danger btn-sm"
                                       onclick="cancellaContenutiSelezionati()">
-                                  <i class="ti ti-trash me-1"></i> Cancella selezionati
+                                  <i class="ti ti-trash me-1"></i> <span class="btn-text">Cancella selezionati</span>
                               </button>
                           </div>
 
@@ -415,10 +415,10 @@
                                       <th style="width:40px;">
                                           <input type="checkbox" class="form-check-input chSel_all" data-bs-target="inpt_c2"/>
                                       </th>
-                                      <th>Numero</th>
+                                      <th class="d-none d-lg-table-cell">Numero</th>
                                       <th>Titolo</th>
-                                      <th style="width:100px;">Data</th>
-                                      <th style="width:100px;">Stato</th>
+                                      <th style="width:100px;" class="d-none d-lg-table-cell">Data</th>
+                                      <th style="width:100px;" class="d-none d-lg-table-cell">Stato</th>
                                       <th style="width:60px;">Azioni</th>
                                   </tr>
                                   </thead>
@@ -430,13 +430,13 @@
                                                  th:id="${'contRow' + c.id}"
                                                  th:value="${c.id}"/>
                                       </td>
-                                      <td th:text="${c.numeratore1}">0</td>
+                                      <td class="d-none d-lg-table-cell" th:text="${c.numeratore1}">0</td>
                                       <td>
                                           <a th:href="@{/admin/contenuti/{id}(id=${c.id})}"
                                              th:text="${c.titolo + ' - ' + c.id}"></a>
                                       </td>
-                                      <td th:text="${c.data}">-</td>
-                                      <td>
+                                      <td class="d-none d-lg-table-cell" th:text="${c.data}">-</td>
+                                      <td class="d-none d-lg-table-cell">
                                     <span class="badge"
                                           th:classappend="${c.stato == '1'} ? 'bg-success' : 'bg-secondary'"
                                           th:text="${c.statoText}"></span>

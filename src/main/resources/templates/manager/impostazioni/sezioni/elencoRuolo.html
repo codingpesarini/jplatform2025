@@ -7,7 +7,7 @@
 <div layout:fragment="content">
 
   <div class="row">
-    <div class="col-md-3">
+    <div class="col-12 col-md-3">
       <section class="card card-primary" style="border-radius: 15px; overflow: hidden; border: none;">
         <header class="card-header" style="background-color: #4680FF; border-bottom: none; padding: 15px 20px;">
           <div class="card-actions">
@@ -23,7 +23,7 @@
       </section>
     </div>
 
-    <div class="col-md-9">
+    <div class="col-12 col-md-9 mt-3 mt-md-0">
       <section class="card card-primary" style="border-radius: 15px; overflow: hidden; border: none;">
         <header class="card-header" style="background-color: #4680FF; border-bottom: none; padding: 15px 20px;">
           <div class="card-actions">
@@ -36,20 +36,20 @@
 
           <div class="right-wrapper text-right mb-3">
             <a th:href="@{/admin/impostazioni/ruoli/new}" class="btn btn-primary">
-              <i class="fas fa-file-medical"></i> Crea nuovo
+              <i class="fas fa-file-medical"></i> <span class="btn-text">Crea nuovo</span>
             </a>
             <a href="javascript:void(0);" onclick="cancellaMultiplo()" class="btn btn-primary">
-              <i class="fas fa-trash-alt"></i> <span class="d-none d-md-inline">Cancella selezionati</span>
+              <i class="fas fa-trash-alt"></i> <span class="btn-text">Cancella selezionati</span>
             </a>
           </div>
 
-          <table class="table table-responsive-lg table-bordered table-striped mb-0">
+          <table id="elencoRuoli" class="table table-responsive-lg table-bordered table-striped mb-0">
             <thead>
             <tr>
               <th style="width:5%;"><input type="checkbox" id="selAll"/></th>
               <th>Etichetta ruolo</th>
-              <th>Descrizione</th>
-              <th>Data modifica</th>
+              <th class="d-none d-lg-table-cell">Descrizione</th>
+              <th class="d-none d-lg-table-cell">Data modifica</th>
               <th>Azioni</th>
             </tr>
             </thead>
@@ -63,8 +63,8 @@
                   <span th:text="${ruolo.nome + ' - ' + ruolo.id}"></span>
                 </a>
               </td>
-              <td th:text="${ruolo.descrizione}"></td>
-              <td th:text="${ruolo.datamodifica}"></td>
+              <td class="d-none d-lg-table-cell" th:text="${ruolo.descrizione}"></td>
+              <td class="d-none d-lg-table-cell" th:text="${ruolo.datamodifica}"></td>
               <td>
                 <a th:href="@{/admin/impostazioni/ruoli/{id}/open(id=${ruolo.id})}" title="Modifica">
                   <i class="fas fa-pencil-alt"></i>

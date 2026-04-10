@@ -118,36 +118,36 @@
               <i class="fas fa-sync"></i>
             </a>
             <button class="btn btn-sm btn-outline-primary"
-                    onclick="FileManager.apriForm('/admin/filemanager/folder/new/'+currentFolder, 'Nuova cartella')">
-              <i class="fas fa-folder-plus"></i> Nuova cartella
+                    onclick="FileManager.apriForm('/admin/filemanager/folder/new/'+currentFolder, 'Nuova cartella')" title="Crea nuova cartella">
+              <i class="fas fa-folder-plus"></i> <span class="btn-text">Nuova cartella</span>
             </button>
             <button class="btn btn-sm btn-outline-success"
-                    onclick="FileManager.apriForm('/admin/filemanager/images/new/'+currentFolder, 'Nuova immagine')">
-              <i class="fas fa-image"></i> Nuova immagine
+                    onclick="FileManager.apriForm('/admin/filemanager/images/new/'+currentFolder, 'Nuova immagine')" title="Crea nuova immagine">
+              <i class="fas fa-image"></i> <span class="btn-text">Nuova immagine</span>
             </button>
             <button class="btn btn-sm btn-outline-info"
-                    onclick="FileManager.apriForm('/admin/filemanager/files/new/'+currentFolder, 'Nuovo allegato')">
-              <i class="fas fa-file-upload"></i> Nuovo allegato
+                    onclick="FileManager.apriForm('/admin/filemanager/files/new/'+currentFolder, 'Nuovo allegato')" title="Crea nuovo allegato">
+              <i class="fas fa-file-upload"></i> <span class="btn-text">Nuovo allegato</span>
             </button>
-            <button class="btn btn-sm btn-outline-warning" onclick="selezionaTutto()">
+            <button class="btn btn-sm btn-outline-warning" onclick="selezionaTutto()" title="Seleziona tutto">
               <i class="fas fa-check-square"></i>
             </button>
             <button type="button" class="btn btn-outline-danger btn-sm" id="btnCancella"
                     style="display:none" onclick="cancellaSelezionati()">
-              <i class="fas fa-trash me-1"></i> Cancella selezionati
+              <i class="fas fa-trash me-1"></i> <span class="btn-text">Cancella selezionati</span>
             </button>
           </div>
         </div>
         <div class="col-auto">
           <ul class="nav nav-pills nav-files custom-view-switcher" id="pills-tab" role="tablist">
             <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">
+              <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true" title ="Visualizza griglia">
                 <i class="ti ti-layout-grid"></i>
               </button>
             </li>
 
             <li class="nav-item" role="presentation">
-              <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false" tabindex="-1">
+              <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false" tabindex="-1" title ="Visualizza lista">
                 <i class="ti ti-layout-list"></i>
               </button>
             </li>
@@ -155,7 +155,7 @@
         </div>
         <div class="col-auto">
           <input type="text" id="searchInput" class="form-control form-control-sm"
-                 placeholder="Cerca..." style="width:200px">
+                 placeholder="Cerca..." style="width:200px;max-width:100%">
         </div>
       </div>
 

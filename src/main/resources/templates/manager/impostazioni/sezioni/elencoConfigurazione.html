@@ -12,7 +12,7 @@
   <div class="row">
 
     <!-- Sidebar info -->
-    <div class="col-md-3">
+    <div class="col-12 col-md-3">
       <section class="card card-warning">
         <header class="card-header" style="background-color: #f39c12; border-color: #f39c12; border-radius: 15px 15px 0 0;">
           <div class="card-actions">
@@ -31,7 +31,7 @@
     </div>
 
     <!-- Tabella elenco -->
-    <div class="col-md-9">
+    <div class="col-12 col-md-9 mt-3 mt-md-0">
       <section class="card card-warning">
         <header class="card-header" style="background-color: #f39c12; border-color: #f39c12; border-radius: 15px 15px 0 0; padding: 15px 20px;">
           <div class="card-actions">
@@ -46,24 +46,24 @@
           <div class="right-wrapper text-right mb-3">
             <a th:href="@{/admin/impostazioni/configurazioni/new}"
                class="btn btn-warning">
-              <i class="fas fa-file-medical"></i> Crea nuovo
+              <i class="fas fa-file-medical"></i> <span class="btn-text">Crea nuovo</span>
             </a>
             <a href="javascript:void(0);"
                class="btn btn-warning" onclick="CancellaAnagraficaMultiplaAjax()">
-              <i class="fas fa-trash-alt"></i> Cancella selezionati
+              <i class="fas fa-trash-alt"></i> <span class="btn-text">Cancella Selezionati</span>
             </a>
           </div>
 
           <!-- Tabella -->
-          <table class="table table-responsive-lg table-bordered table-striped mb-0">
+          <table id="tabellaConfigurazioni" class="table table-responsive-lg table-bordered table-striped mb-0">
             <thead>
             <tr>
               <th style="width:5%;">
                 <input type="checkbox" class="chSel_all" id="selAll"/>
               </th>
               <th>Titolo</th>
-              <th>URL</th>
-              <th>Repository</th>
+              <th class="d-none d-lg-table-cell">URL</th>
+              <th class="d-none d-lg-table-cell">Repository</th>
               <th>Azioni</th>
             </tr>
             </thead>
@@ -79,20 +79,20 @@
 
       <span th:if="${config.sito != null and config.sito.id == sito.id}"
             class="badge"
-            style="background-color: #47a447; color: white; padding: 6px 12px; border-radius: 20px; font-weight: bold; display: inline-block;">
+            style="background-color: #47a447; color: white; padding: 6px 12px; border-radius: 20px; font-weight: bold; display: inline-block;" title="Attiva questa configurazione!">
         <i class="fas fa-check-circle"></i> [[${sito.type}]]
       </span>
 
                   <span th:unless="${config.sito != null and config.sito.id == sito.id}"
                         class="badge"
-                        style="background-color: #5bc0de; color: white; padding: 6px 12px; border-radius: 20px; font-weight: bold; display: inline-block;">
+                        style="background-color: #5bc0de; color: white; padding: 6px 12px; border-radius: 20px; font-weight: bold; display: inline-block;" title="Attiva questa configurazione!">
         [[${sito.type}]]
       </span>
 
                 </a>
               </td>
-              <td th:text="${sito.descrizione}"></td>
-              <td th:text="${sito.pathRepository}"
+              <td class="d-none d-lg-table-cell" th:text="${sito.descrizione}"></td>
+              <td class="d-none d-lg-table-cell" th:text="${sito.pathRepository}"
                   style="max-width: 250px; word-break: break-all; white-space: normal;">
               </td>
               <td>

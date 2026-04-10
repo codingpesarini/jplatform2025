@@ -57,25 +57,35 @@ public class RegistroLeadController {
     // GET /admin/crm/lead
     // =====================================================================
 
-    @GetMapping
+    // =====================================================================
+    // ELENCO CON URL PULITI
+    // GET /admin/crm/lead/filtro/{direzione}/{stato}
+    // =====================================================================
+
+    @GetMapping({"", "/filtro/{direzione}/{stato}"})
     public String elencoRegistroLead(
-            @RequestParam(value = "stato",     defaultValue = "4") String stato,
-            @RequestParam(value = "direzione", defaultValue = "e") String direzione,
+            @PathVariable(required = false) String direzione,
+            @PathVariable(required = false) String stato,
             HttpServletRequest request, Model model) {
 
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
+        // Gestione valori di default se l'URL è quello base (/admin/crm/lead)
+        String dirFinal = (direzione != null) ? direzione : "e";
+        String statoFinal = (stato != null) ? stato : "0";
+
         try {
             model.addAttribute("elencoRegistroLead",
-                    registroLeadService.findAll(direzione, stato));
+                    registroLeadService.findAll(dirFinal, statoFinal));
+
             model.addAttribute("statoLead",           STATO_LEAD);
-            model.addAttribute("statoSelezionato",    stato);
-            model.addAttribute("direzioneSelezionata", direzione);
+            model.addAttribute("statoSelezionato",    statoFinal);
+            model.addAttribute("direzioneSelezionata", dirFinal);
             model.addAttribute("config",              config);
         } catch (Exception e) {
-            log.error("Errore elencoRegistroLead", e);
+            log.error("Errore elencoRegistroLead pulito", e);
         }
 
         return ViewUtils.resolveProtectedTemplate("crm/sezioni/elencoRegistroLead");
@@ -237,6 +247,7 @@ public class RegistroLeadController {
         if (!config.isLogged()) return "redirect:/login";
 
         try {
+            log.info("idutente ricevuto dal form: {}", registroLead.getIdutente());
             String now      = LocalDateTime.now().format(DF);
             String operatore = config.getAmministratore().getNome()
                     + " " + config.getAmministratore().getCognome();
@@ -248,6 +259,10 @@ public class RegistroLeadController {
             boolean isNew = registroLead.getId() == null || registroLead.getId() == -1;
 
             if (isNew) {
+                if (registroLead.getIdutente() > 0) {
+                    registroLead.setUtente(
+                            registroLeadService.findUtenteBase(registroLead.getIdutente()));
+                }
                 String statoText = STATO_LEAD[Integer.parseInt(registroLead.getStato())];
                 registroLead.setLog(buildLog(now, operatore, registroLead,
                         statoText, "Inserimento nuovo lead da"));

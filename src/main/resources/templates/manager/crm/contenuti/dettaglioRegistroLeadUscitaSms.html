@@ -15,7 +15,7 @@
           class="form-bordered">
 
         <input type="hidden" name="id"               th:value="${registroLead.id}"/>
-        <input type="hidden" name="idutente"         th:value="${registroLead.idutente}" id="idutente"/>
+        <input type="hidden" name="idutente" th:value="${registroLead.idutente}" id="idUtenteLead"/>
         <input type="hidden" name="idleadstore"      th:value="${registroLead.idleadstore}"/>
         <input type="hidden" name="idamministratore" th:value="${registroLead.idamministratore}"/>
         <input type="hidden" name="store"            th:value="${registroLead.store}"/>
@@ -247,16 +247,6 @@
             form.classList.add('was-validated');
             form.submit();
             return true;
-        }
-
-        function resetAnagraficaLeadCRM() {
-            if (confirm('Confermi la pulizia dei campi?')) {
-                document.getElementById('idutente').value = '0';
-                ['utentenome','utentecognome','utenteemail','utentetelefono','utentetelefono2','utenteid'].forEach(function(id) {
-                    var el = document.getElementById(id);
-                    if (el) el.value = '';
-                });
-            }
         }
     </script>
 

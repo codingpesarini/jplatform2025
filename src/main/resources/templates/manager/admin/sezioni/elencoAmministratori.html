@@ -37,7 +37,7 @@
               <div class="col-lg-12">
                 <a th:href="@{/admin/amministratori/new}"
                    class="mb-1 mt-1 mr-1 btn btn-primary btn-lg btn-block">
-                  <i class="fas fa-file-medical"></i> Nuova anagrafica
+                  <i class="fas fa-file-medical"></i> <span class="btn-text">Nuova Anagrafica</span>
                 </a>
               </div>
               <div class="col-lg-6">
@@ -105,7 +105,7 @@
             <a href="javascript:void(0);"
                class="btn btn-primary rounded-pill px-3 shadow-sm"
                onclick="CancellaAmministratoriMultiplaAjax(); return false;">
-              <i class="fas fa-trash-alt"></i> Cancella selezionati
+              <i class="fas fa-trash-alt"></i> <span class="btn-text">Cancella Selezionati</span>
             </a>
           </div>
 
@@ -116,7 +116,7 @@
                 <input type="checkbox" class="chSel_all inpt_c2">
               </th>
               <th>Cognome</th>
-              <th>Contatti</th>
+              <th class="d-none d-lg-table-cell">Contatti</th>
               <th>Azioni</th>
             </tr>
             </thead>
@@ -136,7 +136,7 @@
                   <span th:text="${row.nome}">-</span>
                 </a>
               </td>
-              <td>
+              <td class="d-none d-lg-table-cell">
                 <span th:text="${row.email}">-</span> -
                 <span th:text="${row.telefono}">-</span> -
                 <span th:text="${row.pec}">-</span>

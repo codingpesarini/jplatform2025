@@ -7,7 +7,7 @@
 <div layout:fragment="content">
 
   <div class="row">
-    <div class="col-md-3">
+    <div class="col-12 col-md-3">
       <section class="card card-danger" style="border-radius: 15px; overflow: hidden; border: none;">
         <header class="card-header" style="background-color: #DC2626; border-bottom: none; padding: 15px 20px;">
           <div class="card-actions">
@@ -23,7 +23,7 @@
       </section>
     </div>
 
-    <div class="col-md-9">
+    <div class="col-12 col-md-9 mt-3 mt-md-0">
       <section class="card card-danger" style="border-radius: 15px; overflow: hidden; border: none;">
         <header class="card-header" style="background-color: #DC2626; border-bottom: none; padding: 15px 20px;">
           <div class="card-actions">
@@ -36,31 +36,23 @@
 
           <div class="right-wrapper text-right mb-3">
             <a th:href="@{/admin/tipologia-documenti/new}" class="btn btn-danger">
-              <i class="fas fa-file-medical"></i> Crea nuovo
+              <i class="fas fa-file-medical"></i> <span class="btn-text">Crea nuovo</span>
             </a>
             <a href="javascript:void(0);" onclick="cancellaMultiplo()" class="btn btn-danger">
-              <i class="fas fa-trash-alt"></i> <span class="d-none d-md-inline">Cancella selezionati</span>
+              <i class="fas fa-trash-alt"></i> <span class="btn-text">Cancella Selezionati</span>
             </a>
           </div>
 
           <div style="overflow-x: auto;">
-            <table class="table table-bordered table-striped mb-0" style="table-layout: fixed; width: 100%;">
-              <colgroup>
-                <col style="width: 40px;"/>
-                <col style="width: 160px;"/>
-                <col style="width: 180px;"/>
-                <col style="width: 220px;"/>
-                <col style="width: 220px;"/>
-                <col style="width: 80px;"/>
-              </colgroup>
+            <table class="table table-bordered table-striped mb-0">
               <thead>
               <tr>
-                <th><input type="checkbox" id="selAll"/></th>
+                <th style="width:40px;"><input type="checkbox" id="selAll"/></th>
                 <th>Nome</th>
-                <th>Descrizione</th>
-                <th>Dettaglio Admin</th>
-                <th>Dettaglio Pubblico</th>
-                <th>Azioni</th>
+                <th class="d-none d-lg-table-cell">Descrizione</th>
+                <th class="d-none d-lg-table-cell">Dettaglio Admin</th>
+                <th class="d-none d-lg-table-cell">Dettaglio Pubblico</th>
+                <th style="width:80px;">Azioni</th>
               </tr>
               </thead>
               <tbody>
@@ -72,15 +64,14 @@
                   <a th:href="@{/admin/tipologia-documenti/{id}/open(id=${st.id})}"
                      th:text="${st.type}" th:title="${st.type}"></a>
                 </td>
-                <td class="text-truncate"
+                <td class="text-truncate d-none d-lg-table-cell"
                     th:text="${st.id + ' - ' + (st.description != null ? st.description : '')}"
                     th:title="${st.id + ' - ' + (st.description != null ? st.description : '')}"></td>
-                <td class="text-truncate"
+                <td class="text-truncate d-none d-lg-table-cell"
                     th:utext="|${st.page1 ?: ''} - <br/> ${st.page2 ?: ''}|"
                     th:title="|${st.page1 ?: ''} - ${st.page2 ?: ''}|">
                 </td>
-
-                <td class="text-truncate"
+                <td class="text-truncate d-none d-lg-table-cell"
                     th:utext="|${st.page3 ?: ''} - <br/> ${st.page4 ?: ''}|"
                     th:title="|${st.page3 ?: ''} - ${st.page4 ?: ''}|">
                 </td>

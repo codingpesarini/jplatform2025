@@ -9,7 +9,7 @@
 
   <div class="row">
 
-    <div class="col-md-3">
+    <div class="col-12 col-md-3">
       <section class="card card-info" style="border-radius: 15px; overflow: hidden; border: none;">
         <header class="card-header" style="background-color: #3EC9D6; border-bottom: none; padding: 15px 20px;">
           <div class="card-actions">
@@ -24,7 +24,7 @@
       </section>
     </div>
 
-    <div class="col-md-9">
+    <div class="col-12 col-md-9 mt-3 mt-md-0">
       <section class="card card-info" style="border-radius: 15px; overflow: hidden; border: none;">
         <header class="card-header" style="background-color: #3EC9D6; border-bottom: none; padding: 15px 20px;">
           <div class="card-actions">
@@ -37,10 +37,10 @@
 
           <div class="right-wrapper text-right mb-3">
             <a th:href="@{/admin/account/new}" class="btn btn-info" rel="highslide-iframe">
-              <i class="fas fa-file-medical"></i> Crea nuovo
+              <i class="fas fa-file-medical"></i> <span class="btn-text">Crea nuovo</span>
             </a>
             <a href="javascript:void(0);" class="btn btn-info" onclick="CancellaAccountMultiplaAjax()">
-              <i class="fas fa-trash-alt"></i> Cancella selezionati
+              <i class="fas fa-trash-alt"></i> <span class="btn-text">Cancella selezionati</span>
             </a>
           </div>
 
@@ -52,7 +52,7 @@
                   <input type="checkbox" class="chSel_all inpt_c2"/>
                 </th>
                 <th>Descrizione</th>
-                <th>Tipologia</th>
+                <th class="d-none d-lg-table-cell">Tipologia</th>
                 <th>Azioni</th>
               </tr>
               </thead>
@@ -76,7 +76,7 @@
                          th:id="${'row_' + account.id}"
                          th:value="${account.id}"/>
                 </td>
-                <td th:text="${account.tipoAccount}">EMAIL</td>
+                <td class="d-none d-lg-table-cell" th:text="${account.tipoAccount}">EMAIL</td>
                 <td>
                   <a title="Modifica"
                      th:href="@{/admin/account/{id}(id=${account.id})}"

@@ -7,7 +7,7 @@
 <div layout:fragment="content">
 
   <div class="row">
-    <div class="col-md-3">
+    <div class="col-12 col-md-3">
       <section class="card card-success" style="border-radius: 15px; overflow: hidden; border: none;">
         <header class="card-header" style="background-color: #2CA87F; border-bottom: none; padding: 15px 20px;">
           <div class="card-actions">
@@ -23,7 +23,7 @@
       </section>
     </div>
 
-    <div class="col-md-9">
+    <div class="col-12 col-md-9 mt-3 mt-md-0">
       <section class="card card-success" style="border-radius: 15px; overflow: hidden; border: none;">
         <header class="card-header" style="background-color: #2CA87F; border-bottom: none; padding: 15px 20px;">
           <div class="card-actions">
@@ -36,21 +36,21 @@
 
           <div class="right-wrapper text-right mb-3">
             <a th:href="@{/admin/impostazioni/gruppi/new}" class="btn btn-success">
-              <i class="fas fa-file-medical"></i> Crea nuovo
+              <i class="fas fa-file-medical"></i> <span class="btn-text">Crea nuovo</span>
             </a>
             <a href="javascript:void(0);" onclick="cancellaMultiplo()" class="btn btn-success">
-              <i class="fas fa-trash-alt"></i> Cancella selezionati
+              <i class="fas fa-trash-alt"></i> <span class="btn-text">Cancella selezionati</span>
             </a>
           </div>
 
-          <table class="table table-responsive-lg table-bordered table-striped mb-0">
+          <table id="elencoGruppi" class="table table-responsive-lg table-bordered table-striped mb-0">
             <thead>
             <tr>
               <th style="width:5%;"><input type="checkbox" id="selAll"/></th>
               <th>Nome gruppo</th>
-              <th>Accesso pubblico</th>
-              <th>Data modifica</th>
-              <th>Iscritti</th>
+              <th class="d-none d-lg-table-cell">Accesso pubblico</th>
+              <th class="d-none d-lg-table-cell">Data modifica</th>
+              <th class="d-none d-lg-table-cell">Iscritti</th>
               <th>Azioni</th>
             </tr>
             </thead>
@@ -64,13 +64,13 @@
                   <span th:text="${gruppo.nome + ' - ID: ' + gruppo.id}"></span>
                 </a>
               </td>
-              <td>
+              <td class="d-none d-lg-table-cell">
                 <span th:if="${'1'.equals(gruppo.l1)}" style="color: black; font-weight: bold;">Attivo</span>
                 <span th:if="${'0'.equals(gruppo.l1)}" style="color: black;">Disattivo</span>
                 <span th:if="${gruppo.l1 == null or gruppo.l1.isEmpty()}" style="color: #666; font-style: italic;">Indefinito</span>
               </td>
-              <td th:text="${gruppo.datamodifica}"></td>
-              <td th:text="${gruppo.iscritti}"></td>
+              <td class="d-none d-lg-table-cell" th:text="${gruppo.datamodifica}"></td>
+              <td class="d-none d-lg-table-cell" th:text="${gruppo.iscritti}"></td>
               <td>
                 <a th:href="@{/admin/impostazioni/gruppi/{id}/open(id=${gruppo.id})}" title="Modifica">
                   <i class="fas fa-pencil-alt"></i>
