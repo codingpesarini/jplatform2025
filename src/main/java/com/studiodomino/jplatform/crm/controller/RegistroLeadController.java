@@ -24,7 +24,6 @@ import java.time.format.DateTimeFormatter;
  * Conversione da GestioneRegistroLead.java (Struts) a Spring MVC.
  *
  * Mapping URL:
- *   GET  /admin/crm/lead                        → elencoRegistroLead
  *   GET  /admin/crm/lead/new/{store}            → nuovoLead (entrata diretta)
  *   GET  /admin/crm/lead/new/uscita/{tipologia} → nuovoLeadUscita (uscita diretta)
  *   GET  /admin/crm/lead/{id}                   → openRegistroLead (entrata esistente)
@@ -63,6 +62,49 @@ public class RegistroLeadController {
     // =====================================================================
 
     @GetMapping({"", "/filtro/{direzione}/{stato}"})
+    public String elencoCommentiUtente(
+            @PathVariable(required = false) String direzione,
+            @PathVariable(required = false) String stato,
+            HttpServletRequest request, Model model) {
+
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+        if (!config.isLogged()) return "redirect:/login";
+
+        String dirFinal = (direzione != null) ? direzione : "e";
+        String statoFinal = (stato != null) ? stato : "0";
+
+        try {
+            var leads = registroLeadService.findAllByStore(dirFinal, statoFinal, "commenti");
+            leads.forEach(lead -> {
+                if (lead.getIdutente() > 0) {
+                    lead.setUtente(registroLeadService.findUtenteBase(lead.getIdutente()));
+                }
+                if (lead.getIdamministratore() > 0) {
+                    lead.setAmministratore(registroLeadService.findAmministratoreById(
+                            String.valueOf(lead.getIdamministratore())));
+                }
+            });
+
+            model.addAttribute("elencoCommentiUtente",  leads);
+            model.addAttribute("statoLead",             STATO_LEAD);
+            model.addAttribute("statoSelezionato",      statoFinal);
+            model.addAttribute("direzioneSelezionata",  dirFinal);
+            model.addAttribute("config",                config);
+        } catch (Exception e) {
+            log.error("Errore elencoCommentiUtente pulito", e);
+        }
+
+        return ViewUtils.resolveProtectedTemplate("crm/sezioni/elencoCommentiUtente");
+    }
+
+    // =====================================================================
+// ELENCO REGISTRO LEAD (BOZZA)
+// GET /admin/crm/registrolead
+// GET /admin/crm/registrolead/filtro/{direzione}/{stato}
+// =====================================================================
+
+    @GetMapping({"/registrolead", "/registrolead/filtro/{direzione}/{stato}"})
     public String elencoRegistroLead(
             @PathVariable(required = false) String direzione,
             @PathVariable(required = false) String stato,
@@ -72,20 +114,28 @@ public class RegistroLeadController {
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
-        // Gestione valori di default se l'URL è quello base (/admin/crm/lead)
         String dirFinal = (direzione != null) ? direzione : "e";
         String statoFinal = (stato != null) ? stato : "0";
 
         try {
-            model.addAttribute("elencoRegistroLead",
-                    registroLeadService.findAll(dirFinal, statoFinal));
+            var leads = registroLeadService.findAll(dirFinal, statoFinal);
+            leads.forEach(lead -> {
+                if (lead.getIdutente() > 0) {
+                    lead.setUtente(registroLeadService.findUtenteBase(lead.getIdutente()));
+                }
+                if (lead.getIdamministratore() > 0) {
+                    lead.setAmministratore(registroLeadService.findAmministratoreById(
+                            String.valueOf(lead.getIdamministratore())));
+                }
+            });
 
-            model.addAttribute("statoLead",           STATO_LEAD);
-            model.addAttribute("statoSelezionato",    statoFinal);
-            model.addAttribute("direzioneSelezionata", dirFinal);
-            model.addAttribute("config",              config);
+            model.addAttribute("elencoRegistroLead",    leads);
+            model.addAttribute("statoLead",             STATO_LEAD);
+            model.addAttribute("statoSelezionato",      statoFinal);
+            model.addAttribute("direzioneSelezionata",  dirFinal);
+            model.addAttribute("config",                config);
         } catch (Exception e) {
-            log.error("Errore elencoRegistroLead pulito", e);
+            log.error("Errore elencoRegistroLead", e);
         }
 
         return ViewUtils.resolveProtectedTemplate("crm/sezioni/elencoRegistroLead");

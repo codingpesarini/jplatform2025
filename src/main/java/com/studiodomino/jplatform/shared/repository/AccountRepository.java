@@ -12,4 +12,6 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
     List<Account> findAllByOrderByDescrizioneAsc();
 
     List<Account> findByTipoAccountOrderByDescrizioneAsc(String tipoAccount);
+
+    Account findFirstByTipoAccountOrderByIdAsc(String tipoAccount);
 }

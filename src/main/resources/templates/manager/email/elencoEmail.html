@@ -3,180 +3,478 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{manager/layout/template}">
-<body>
+<head>
+  <title>Mailbox</title>
+  <style>
+    .mail-wrapper {
+      display: flex;
+      height: calc(100vh - 160px);
+      min-height: 500px;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+    }
 
+    /* ── Sidebar ── */
+    .mail-sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: #f8f9fa;
+      border-right: 1px solid #e9ecef;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+    }
+
+    .mail-compose-btn {
+      margin: 0 16px 20px;
+      background: #0088cc;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .mail-compose-btn:hover { background: #006ba3; color: #fff; }
+
+    .mail-nav-section {
+      padding: 0 8px;
+      margin-bottom: 16px;
+    }
+    .mail-nav-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #adb5bd;
+      padding: 0 8px;
+      margin-bottom: 4px;
+    }
+    .mail-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      color: #495057;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .mail-nav-item:hover { background: #e9ecef; color: #212529; text-decoration: none; }
+    .mail-nav-item.active { background: #e7f3fb; color: #0088cc; font-weight: 600; }
+    .mail-nav-item i { width: 16px; text-align: center; font-size: 14px; }
+    .mail-nav-badge {
+      margin-left: auto;
+      background: #0088cc;
+      color: #fff;
+      border-radius: 10px;
+      padding: 1px 7px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* ── Main ── */
+    .mail-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .mail-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e9ecef;
+      background: #fff;
+    }
+    .mail-toolbar-btn {
+      background: none;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      color: #6c757d;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    .mail-toolbar-btn:hover { background: #f8f9fa; color: #212529; border-color: #adb5bd; text-decoration: none; }
+    .mail-toolbar-btn.danger:hover { background: #fff5f5; color: #dc3545; border-color: #dc3545; }
+
+    .mail-search {
+      margin-left: auto;
+      position: relative;
+    }
+    .mail-search input {
+      border: 1px solid #dee2e6;
+      border-radius: 20px;
+      padding: 5px 12px 5px 32px;
+      font-size: 13px;
+      width: 200px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .mail-search input:focus { border-color: #0088cc; }
+    .mail-search i {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #adb5bd;
+      font-size: 13px;
+    }
+
+    /* ── Alert errore ── */
+    .mail-alert {
+      margin: 12px 16px 0;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      font-size: 13px;
+      color: #664d03;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── Lista email ── */
+    .mail-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .mail-list-header {
+      display: flex;
+      align-items: center;
+      padding: 8px 16px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 12px;
+      color: #6c757d;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .mail-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f3f5;
+      cursor: pointer;
+      transition: background 0.12s;
+      position: relative;
+    }
+    .mail-item:hover { background: #f8f9fa; }
+    .mail-item.unread { background: #f0f7fd; }
+    .mail-item.unread:hover { background: #e4f0fa; }
+
+    .mail-item-check {
+      flex-shrink: 0;
+    }
+    .mail-item-check input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+      accent-color: #0088cc;
+    }
+
+    .mail-item-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .mail-item-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .mail-item-sender {
+      font-size: 13px;
+      font-weight: 600;
+      color: #212529;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .mail-item.unread .mail-item-sender { color: #0088cc; }
+    .mail-item-subject {
+      font-size: 12px;
+      color: #6c757d;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+
+    .mail-item-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .mail-item-date {
+      font-size: 11px;
+      color: #adb5bd;
+      white-space: nowrap;
+    }
+    .mail-item-icons {
+      display: flex;
+      gap: 4px;
+      color: #adb5bd;
+      font-size: 12px;
+    }
+    .mail-unread-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #0088cc;
+      flex-shrink: 0;
+    }
+
+    /* ── Mailbox list ── */
+    .mail-account-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      color: #495057;
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .mail-account-item:hover { background: #e9ecef; color: #212529; text-decoration: none; }
+
+    /* ── Empty state ── */
+    .mail-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      color: #adb5bd;
+    }
+    .mail-empty i { font-size: 48px; margin-bottom: 12px; }
+    .mail-empty p { font-size: 14px; margin: 0; }
+
+    /* Colori avatar */
+    .av-blue { background: #0088cc; }
+    .av-green { background: #2ca87f; }
+    .av-orange { background: #f39c12; }
+    .av-red { background: #e74c3c; }
+    .av-purple { background: #9b59b6; }
+    .av-teal { background: #1abc9c; }
+
+    @media (max-width: 767px) {
+      .mail-sidebar { display: none; }
+      .mail-search input { width: 140px; }
+    }
+  </style>
+</head>
+<body>
 <div layout:fragment="content">
 
-  <div class="row">
-    <!-- Sidebar -->
-    <div class="col-12 col-xxl-3 mb-4">
-      <div class="card">
-        <div class="card-body">
+  <script th:inline="javascript">
+    var currentMailboxId = /*[[${config.actualMailboxId}]]*/ '0';
+  </script>
 
-          <div class="d-grid gap-2 mb-3">
-            <a th:href="@{/admin/email/inbox/{id}(id=${config.actualMailboxId})}"
-               class="btn btn-primary">
-              <i class="ti ti-refresh me-1"></i> Aggiorna
-            </a>
+  <div class="mail-wrapper">
 
-            <a th:href="@{/admin/email/componi/{id}(id=${config.actualMailboxId})}"
-               class="btn btn-primary">
-              <i class="ti ti-mail me-1"></i> Scrivi
-            </a>
+    <!-- ═══ SIDEBAR ═══ -->
+    <div class="mail-sidebar">
 
-            <a href="javascript:void(0)"
-               th:attr="onclick=|CancellaEmailMultiplaAjax('${config.actualMailboxId}')|"
-               class="btn btn-primary">
-              <i class="ti ti-trash me-1"></i> Cancella
-            </a>
-          </div>
+      <a th:href="@{/admin/email/componi/{id}(id=${config.actualMailboxId})}"
+         class="mail-compose-btn">
+        <i class="ti ti-pencil"></i> Scrivi
+      </a>
 
-          <hr>
-
-          <h5 class="mb-3">Le tue Mailbox</h5>
-
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item px-0">
-              <a th:href="@{/admin/email/inbox/{id}(id=${config.amministratore.idaccountemail})}"
-                 class="text-decoration-none"
-                 th:text="${config.amministratore.email}">
-                account@example.com
-              </a>
-            </li>
-          </ul>
-
-        </div>
+      <div class="mail-nav-section">
+        <div class="mail-nav-label">Cartelle</div>
+        <a th:href="@{/admin/email/{id}/cartella/inbox(id=${config.actualMailboxId})}"
+           th:classappend="${folderAttivo == 'inbox'} ? 'active' : ''"
+           class="mail-nav-item">
+          <i class="ti ti-inbox"></i> Inbox
+        </a>
+        <a th:href="@{/admin/email/{id}/cartella/sent(id=${config.actualMailboxId})}"
+           th:classappend="${folderAttivo == 'sent'} ? 'active' : ''"
+           class="mail-nav-item">
+          <i class="ti ti-send"></i> Inviati
+        </a>
+        <a th:href="@{/admin/email/{id}/cartella/drafts(id=${config.actualMailboxId})}"
+           th:classappend="${folderAttivo == 'drafts'} ? 'active' : ''"
+           class="mail-nav-item">
+          <i class="ti ti-file"></i> Bozze
+        </a>
+        <a th:href="@{/admin/email/{id}/cartella/trash(id=${config.actualMailboxId})}"
+           th:classappend="${folderAttivo == 'trash'} ? 'active' : ''"
+           class="mail-nav-item">
+          <i class="ti ti-trash"></i> Cestino
+        </a>
       </div>
+
+      <div class="mail-nav-section">
+        <div class="mail-nav-label">Le tue Mailbox</div>
+      </div>
+
     </div>
 
-    <!-- Content -->
-    <div class="col-12 col-xxl-9">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-          <h3 class="mb-0">Inbox</h3>
+    <!-- ═══ MAIN ═══ -->
+    <div class="mail-main">
+
+      <!-- Toolbar -->
+      <div class="mail-toolbar">
+        <input type="checkbox" class="form-check-input chSel_all inpt_c2"
+               style="width:15px;height:15px;accent-color:#0088cc;cursor:pointer"/>
+
+        <a th:href="@{/admin/email/inbox/{id}(id=${config.actualMailboxId})}"
+           class="mail-toolbar-btn">
+          <i class="ti ti-refresh"></i> Aggiorna
+        </a>
+
+        <a href="javascript:void(0)"
+           th:attr="onclick=|CancellaEmailMultiplaAjax('${config.actualMailboxId}')|"
+           class="mail-toolbar-btn danger">
+          <i class="ti ti-trash"></i> Elimina
+        </a>
+
+        <div class="mail-search">
+          <i class="ti ti-search"></i>
+          <input type="text" id="searchEmail" placeholder="Cerca email...">
+        </div>
+      </div>
+
+      <!-- Errore mailer -->
+      <div th:if="${erroreMailer != null}" class="mail-alert">
+        <i class="ti ti-alert-triangle"></i>
+        <span th:switch="${erroreMailer}">
+          <span th:case="'configurazione_assente'">Nessun account email configurato.</span>
+          <span th:case="'parametri_errati'">Parametri account email incompleti o errati.</span>
+          <span th:case="'autenticazione_fallita'">Autenticazione fallita.</span>
+          <span th:case="'errore_connessione'">Impossibile connettersi al server email.</span>
+          <span th:case="*">Errore nella lettura delle email.</span>
+        </span>
+      </div>
+
+      <!-- Header lista -->
+      <div class="mail-list-header">
+        <span style="margin-left:27px">Mittente</span>
+        <span style="margin-left:auto;margin-right:8px">Data</span>
+      </div>
+
+      <!-- Lista email -->
+      <div class="mail-list" id="mailList">
+
+        <div th:if="${#lists.isEmpty(listaEmailArrivo)}" class="mail-empty">
+          <i class="ti ti-mail-opened"></i>
+          <p>Nessun messaggio in arrivo</p>
         </div>
 
-        <div class="card-body">
+        <div th:each="msg : ${listaEmailArrivo}"
+             th:classappend="${!msg.letto} ? 'unread' : ''"
+             class="mail-item"
+             th:attr="data-id=${msg.id}">
 
-          <div th:if="${erroreMailer != null}" class="alert alert-warning">
-            <i class="ti ti-alert-triangle me-2"></i>
-            <span th:switch="${erroreMailer}">
-                            <span th:case="'configurazione_assente'">Nessun account email configurato.</span>
-                            <span th:case="'parametri_errati'">Parametri account email incompleti o errati.</span>
-                            <span th:case="'autenticazione_fallita'">Autenticazione fallita. Verificare username e password.</span>
-                            <span th:case="'errore_connessione'">Impossibile connettersi al server email.</span>
-                            <span th:case="'provider_non_disponibile'">Provider email non disponibile. Verificare la configurazione del server.</span>
-                            <span th:case="*">Errore generico nella lettura delle email.</span>
-                        </span>
+          <div class="mail-item-check">
+            <input type="checkbox" name="row_sel"
+                   th:id="${'AnagRow' + msg.id}"
+                   class="form-check-input inpt_c2"
+                   th:value="${msg.id}"/>
           </div>
 
-          <div class="table-responsive">
-            <table class="table table-hover align-middle" id="tabellaEmail">
-              <thead>
-              <tr>
-                <th style="width:40px;">
-                  <input type="checkbox" class="form-check-input chSel_all inpt_c2"/>
-                </th>
-                <th style="width:70px;">Email</th>
-                <th>Data arrivo</th>
-                <th>Oggetto</th>
-                <th>Mittente</th>
-                <th>Dim. Kb</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr th:if="${#lists.isEmpty(listaEmailArrivo)}">
-                <td colspan="6" class="text-center text-muted">Nessun messaggio in arrivo.</td>
-              </tr>
-
-              <tr th:each="msg : ${listaEmailArrivo}"
-                  th:classappend="${!msg.letto} ? 'fw-bold' : ''">
-                <td>
-                  <input type="checkbox"
-                         name="row_sel"
-                         th:id="${'AnagRow' + msg.id}"
-                         class="form-check-input inpt_c2"
-                         th:value="${msg.id}"/>
-                </td>
-
-                <td>
-                  <a th:href="@{/admin/email/open/{id}/{acc}(id=${msg.id},acc=${config.actualMailboxId})}"
-                     title="Apri messaggio">
-                    <img th:src="@{'/manager/assets/img/icons/' + ${msg.letto ? 'trueEmail' : 'falseEmail'} + '.png'}"
-                         width="28" height="28" alt="mail"/>
-                  </a>
-                </td>
-
-                <td th:text="${msg.data}">01/01/2025</td>
-
-                <td>
-                  <a th:href="@{/admin/email/open/{id}/{acc}(id=${msg.id},acc=${config.actualMailboxId})}"
-                     th:text="${msg.oggetto}"
-                     class="text-decoration-none">
-                    Oggetto
-                  </a>
-                </td>
-
-                <td th:text="${msg.mittente}">mittente@example.com</td>
-                <td th:text="${msg.size}">0</td>
-              </tr>
-              </tbody>
-            </table>
+          <!-- Avatar con iniziale -->
+          <div class="mail-item-avatar"
+               th:classappend="${msg.letto} ? 'av-blue' : 'av-orange'">
+            <span th:text="${#strings.substring(msg.mittente, 0, 1).toUpperCase()}">M</span>
           </div>
+
+          <!-- Body -->
+          <a th:href="@{/admin/email/open/{id}/{acc}(id=${msg.id},acc=${config.actualMailboxId})}"
+             class="mail-item-body text-decoration-none">
+            <div class="mail-item-sender" th:text="${msg.mittente}">mittente</div>
+            <div class="mail-item-subject" th:text="${msg.oggetto}">oggetto</div>
+          </a>
+
+          <!-- Meta -->
+          <div class="mail-item-meta">
+            <span class="mail-item-date" th:text="${msg.data}">01/01/2025</span>
+            <div class="mail-item-icons">
+              <i class="ti ti-paperclip" th:if="${msg.allegati != null and !#lists.isEmpty(msg.allegati)}"></i>
+            </div>
+          </div>
+
+          <div class="mail-unread-dot" th:if="${!msg.letto}"></div>
 
         </div>
       </div>
+
     </div>
   </div>
+
   <script th:inline="javascript">
-    // Gestione "Seleziona Tutti"
+    // Seleziona tutti
     document.addEventListener('change', function(e) {
-        if (e.target.classList.contains('chSel_all')) {
-            const checkboxes = document.querySelectorAll('input[name="row_sel"]');
-            checkboxes.forEach(cb => cb.checked = e.target.checked);
-        }
+      if (e.target.classList.contains('chSel_all')) {
+        document.querySelectorAll('input[name="row_sel"]').forEach(cb => cb.checked = e.target.checked);
+      }
+    });
+
+    // Ricerca
+    document.getElementById('searchEmail')?.addEventListener('input', function() {
+      var q = this.value.toLowerCase();
+      document.querySelectorAll('.mail-item').forEach(function(item) {
+        var text = item.textContent.toLowerCase();
+        item.style.display = text.includes(q) ? '' : 'none';
+      });
     });
 
     function CancellaEmailMultiplaAjax(mailboxId) {
-        // Recuperiamo gli ID delle email selezionate
-        const selezionati = Array.from(document.querySelectorAll('input[name="row_sel"]:checked'))
-                                 .map(cb => cb.value);
-
-        if (selezionati.length === 0) {
-            // Avviso se non c'è selezione
-            confirmAction('Seleziona almeno un messaggio da cancellare.', function() {});
-            setTimeout(() => {
-                const btnAnnulla = document.querySelector('.modal-footer button:not(.btn-danger):not(.btn-primary)');
-                if (btnAnnulla) btnAnnulla.style.display = 'none';
-            }, 100);
-            return;
-        }
-
-        // Conferma grafica
-        confirmAction('Vuoi spostare nel cestino ' + selezionati.length + ' messaggi?', function() {
-            const formData = new URLSearchParams();
-            selezionati.forEach(id => formData.append('ids[]', id));
-
-            // Chiamata al controller (aggiungendo l'ID dell'account nel path come richiesto solitamente dai mailer)
-            fetch('/admin/email/eliminaMultipla/' + mailboxId, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData.toString()
-            })
-            .then(response => response.text())
-            .then(result => {
-                // Controllo flessibile sul messaggio di ritorno
-                if (result.trim() === "OK" || result.includes("completata") || result.includes("success")) {
-                    location.reload();
-                } else {
-                    alert("Errore durante la cancellazione: " + result);
-                }
-            })
-            .catch(error => {
-                console.error('Errore tecnico:', error);
-                alert("Si è verificato un errore di connessione.");
-            });
+      const selezionati = Array.from(document.querySelectorAll('input[name="row_sel"]:checked')).map(cb => cb.value);
+      if (selezionati.length === 0) {
+        showToast('Attenzione', 'Seleziona almeno un messaggio.', 'danger');
+        return;
+      }
+      confirmAction('Eliminare ' + selezionati.length + ' messaggi?', function() {
+        const formData = new URLSearchParams();
+        selezionati.forEach(id => formData.append('ids[]', id));
+        fetch('/admin/email/eliminaMultipla/' + mailboxId, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: formData.toString()
+        }).then(r => r.text()).then(res => {
+          if (res.includes('OK') || res.includes('completata')) location.reload();
+          else showToast('Errore', 'Errore durante la cancellazione.', 'danger');
         });
+      });
     }
   </script>
 

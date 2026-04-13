@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -28,10 +29,11 @@ public class EmailController {
     private final ConfigurazioneService configurazioneService;
     private final EmailSenderService emailSenderService;
 
-    @GetMapping({"", "/inbox", "/inbox/{idAccount}"})
+    @GetMapping({"", "/inbox", "/inbox/{idAccount}", "/{idAccount}/cartella/{folder}"})
     public String inbox(
             @PathVariable(value = "idAccount", required = false) String idAccount,
-            @RequestParam(value = "folder", defaultValue = "INBOX") String folder,
+            @PathVariable(value = "folder", required = false) String folderPath,
+            @RequestParam(value = "folder", defaultValue = "INBOX") String folderParam,
             HttpServletRequest request,
             Model model) {
 
@@ -39,13 +41,18 @@ public class EmailController {
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
+        String folder = (folderPath != null) ? folderPath : folderParam;
+
         try {
+            // TODO: implementare lettura IMAP reale con folder
             model.addAttribute("listaEmailArrivo", Collections.emptyList());
             model.addAttribute("erroreMailer", null);
+            model.addAttribute("folderAttivo", folder);
         } catch (Exception e) {
             log.error("Errore caricamento inbox account={} folder={}", idAccount, folder, e);
             model.addAttribute("listaEmailArrivo", Collections.emptyList());
             model.addAttribute("erroreMailer", "errore_generico");
+            model.addAttribute("folderAttivo", folder);
         }
 
         model.addAttribute("config", config);
@@ -114,6 +121,7 @@ public class EmailController {
             @RequestParam(value = "cc", required = false) String cc,
             @RequestParam("oggetto") String oggetto,
             @RequestParam("testo") String testo,
+            @RequestParam(value = "file_upload", required = false) List<MultipartFile> allegati,
             HttpServletRequest request,
             Model model) {
 

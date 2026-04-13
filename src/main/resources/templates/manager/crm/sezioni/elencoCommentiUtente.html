@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="it"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{manager/layout/template}">
+<body>
+<th:block layout:fragment="content">
+
+  <div class="row">
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <div class="col-md-3">
+      <section class="card card-success" style="border-radius: 15px; overflow: hidden; border: none;">
+        <header class="card-header" style="background-color: #2CA87F; border-bottom: none; padding: 15px 20px;">
+          <div class="card-actions">
+            <a href="#" class="card-action card-action-toggle" data-card-toggle="" style="color: #fff;"></a>
+          </div>
+          <h2 class="card-title" style="color: #fff; font-weight: bold;">Gestione Messaggi Web</h2>
+          <p class="card-subtitle" style="color: rgba(255, 255, 255, 0.9);">Informazioni e parametri</p>
+        </header>
+        <div class="card-body" style="background: #fff; padding: 20px;">
+          <p>In questa sezione sono visualizzati tutti i messaggi diretti utenti (LEAD) inviati tramite web-forms o altri canali diretti di comunicazione quali landing page. I messaggi email non sono riportati in questa sezione ma nella gestione web-mail del CRM.</p>
+          <p>È possibile visualizzare i commenti/messaggi non ancora visualizzati o quelli già completati.</p>
+          <a th:href="@{/admin/crm/lead/filtro/e/0}"
+             class="btn btn-success btn-block shadow-sm mb-2">
+            <i class="fas fa-play mr-2"></i> Da iniziare
+          </a>
+
+          <a th:href="@{/admin/crm/lead/filtro/e/4}"
+             class="btn btn-success btn-block shadow-sm mb-2">
+            <i class="fas fa-check-double mr-2"></i> Completati
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <!-- ═══ TABELLA ═══ -->
+    <div class="col-md-9">
+      <section class="card card-success" style="border-radius: 15px; overflow: hidden; border: none;">
+        <header class="card-header" style="background-color: #2CA87F; border-bottom: none; padding: 15px 20px;">
+          <div class="card-actions">
+            <a href="#" class="card-action card-action-toggle" data-card-toggle style="color: #fff;"></a>
+          </div>
+          <h2 class="card-title" style="color: #fff; font-weight: bold;">Elenco</h2>
+          <p class="card-subtitle" style="color: rgba(255, 255, 255, 0.9);">I dati possono essere creati, modificati e cancellati.</p>
+        </header>
+        <div class="card-body">
+          <div class="right-wrapper text-right">
+            <a href="javascript:void(0);"
+               class="btn btn-success rounded-pill px-3 shadow-sm"
+               style="background-color: #2CA87F; border: none; font-weight: bold;"
+               onclick="CancellaAnagraficaMultiplaAjax(); return false;">
+              <i class="fas fa-trash-alt"></i> Cancella selezionati
+            </a>
+          </div>
+          <br>
+          <table class="table table-responsive-lg table-bordered table-striped mb-0">
+            <thead>
+            <tr>
+              <th style="width:5%;">
+                <input type="checkbox" class="chSel_all inpt_c2">
+              </th>
+              <th>#</th>
+              <th>Data</th>
+              <th>Mittente</th>
+              <th>Email</th>
+              <th>Azioni</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="row : ${elencoCommentiUtente}">
+              <td class="check">
+                <input type="checkbox" name="row_sel"
+                       th:id="${'AnagRow' + row.id}"
+                       class="inpt_c2" th:value="${row.id}">
+              </td>
+              <td>
+                <a> - </a>
+              </td>
+              <td th:text="${row.data}">-</td>
+              <td>
+                <a th:if="${row.utente != null}"
+                   th:href="@{/admin/crm/utenti/{id}(id=${row.utente.id})}"
+                   th:text="${(row.utente.nome != null ? row.utente.nome : '') + ' ' + (row.utente.cognome != null ? row.utente.cognome : '')}">
+                </a>
+              </td>
+              <td th:text="${row.utente != null ? row.utente.email : '-'}">-</td>
+              <td>
+                <a th:href="@{/admin/crm/lead/{id}(id=${row.id})}" title="Modifica">
+                  <i class="fas fa-pencil-alt"></i>
+                </a>
+                &nbsp;&nbsp;
+                <a href="javascript:void(0);"
+                   th:data-id="${row.id}"
+                   onclick="CancellaCommentoUtente(this.getAttribute('data-id'))"
+                   class="delete-row" title="Cancella">
+                  <i class="far fa-trash-alt"></i>
+                </a>
+              </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(elencoCommentiUtente)}">
+              <td colspan="6" class="text-center">Nessun messaggio trovato.</td>
+            </tr>
+            </tbody>
+          </table>
+
+        </div>
+      </section>
+    </div>
+
+  </div>
+
+  <script>
+    // 1. CANCELLAZIONE SINGOLA (Cestino nella tabella)
+    function CancellaCommentoUtente(id) {
+        confirmAction('Sei sicuro di voler eliminare questo messaggio?', function() {
+            eseguiCancellazioneMessaggiAjax([id]);
+        });
+    }
+
+    // 2. CANCELLAZIONE MULTIPLA (Pulsante verde)
+    function CancellaAnagraficaMultiplaAjax() {
+        // Cerchiamo i checkbox selezionati con name="row_sel"
+        const checkboxes = document.querySelectorAll('input[name="row_sel"]:checked');
+        const ids = Array.from(checkboxes).map(cb => cb.value);
+
+        if (ids.length === 0) {
+            // CASO 1: Nessuno selezionato -> MOSTRA SOLO OK
+            confirmAction('Nessun messaggio selezionato. Seleziona almeno una riga per procedere.', function() {});
+
+            setTimeout(() => {
+                const buttons = document.querySelectorAll('.modal-footer button');
+                if (buttons.length > 1) buttons[0].style.display = 'none'; // Nasconde "Annulla"
+            }, 100);
+        } else {
+            // CASO 2: Selezionati -> MOSTRA ANNULLA E CONFERMA
+            confirmAction('Sei sicuro di voler eliminare i ' + ids.length + ' messaggi selezionati?', function() {
+                eseguiCancellazioneMessaggiAjax(ids);
+            });
+        }
+    }
+
+    // 3. FUNZIONE AJAX
+    function eseguiCancellazioneMessaggiAjax(ids) {
+    Promise.all(ids.map(id =>
+        fetch('/admin/crm/lead/' + id + '/delete', { method: 'POST' })
+    )).then(() => location.reload());
+}
+}
+
+    // 4. GESTIONE SELEZIONA TUTTI
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('chSel_all')) {
+            const checkboxes = document.querySelectorAll('input[name="row_sel"]');
+            checkboxes.forEach(cb => cb.checked = e.target.checked);
+        }
+    });
+  </script>
+
+</th:block>
+</body>
+</html>

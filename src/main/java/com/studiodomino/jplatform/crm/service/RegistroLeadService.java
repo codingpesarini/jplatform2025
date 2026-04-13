@@ -76,6 +76,13 @@ public class RegistroLeadService {
         return null;
     }
 
+    public List<RegistroLead> findAllByStore(String direzione, String stato, String store) {
+        if ("4".equals(stato)) {
+            return registroLeadRepository.findByDirezioneAndStoreOrderByIdDesc(direzione, store);
+        }
+        return registroLeadRepository.findByDirezioneAndStatoAndStoreOrderByIdDesc(direzione, stato, store);
+    }
+
     // =====================================================================
     // CREA
     // =====================================================================

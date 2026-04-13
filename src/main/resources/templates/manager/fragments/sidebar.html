@@ -224,36 +224,41 @@
     </div>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // 1. Prendi l'URL attuale del browser
-        var currentUrl = window.location.pathname;
+    var currentUrl = window.location.pathname;
 
-        // 2. Cerca tutti i link della sidebar
-        var menuLinks = document.querySelectorAll(".pc-sidebar .pc-link");
-
-        menuLinks.forEach(function(link) {
-            var href = link.getAttribute("href");
-
-            // Se l'URL della pagina contiene il link (gestisce anche i "dettagli/open")
-            if (href && href !== "javascript:void(0)" && currentUrl.includes(href)) {
-
-                // Aggiunge la classe active al link corrente
-                link.parentElement.classList.add("active");
-
-                // Risale al menu padre (es. Impostazioni o CRM)
-                var parentMenu = link.closest(".pc-hasmenu");
-                if (parentMenu) {
-                    parentMenu.classList.add("pc-trigger");
-                    parentMenu.classList.add("active");
-
-                    // Forza l'apertura visiva del sottomenu
-                    var submenu = parentMenu.querySelector(".pc-submenu");
-                    if (submenu) {
-                        submenu.style.display = "block";
-                    }
-                }
+    // Se siamo su una pagina "new" o "save", attiva il dashboard CRM
+    if (currentUrl.includes('/new/') || currentUrl.includes('/save')) {
+        var dashboardLink = document.querySelector('#sb051 .pc-link');
+        if (dashboardLink) {
+            dashboardLink.parentElement.classList.add('active');
+            var parentMenu = dashboardLink.closest('.pc-hasmenu');
+            if (parentMenu) {
+                parentMenu.classList.add('pc-trigger', 'active');
+                var submenu = parentMenu.querySelector('.pc-submenu');
+                if (submenu) submenu.style.display = 'block';
             }
-        });
+        }
+        return;
+    }
+
+    var menuLinks = document.querySelectorAll(".pc-sidebar .pc-link");
+    menuLinks.forEach(function(link) {
+        var href = link.getAttribute("href");
+        if (!href || href === "javascript:void(0)") return;
+
+        var isActive = currentUrl === href || currentUrl.startsWith(href + "/");
+
+        if (isActive) {
+            link.parentElement.classList.add("active");
+            var parentMenu = link.closest(".pc-hasmenu");
+            if (parentMenu) {
+                parentMenu.classList.add("pc-trigger", "active");
+                var submenu = parentMenu.querySelector(".pc-submenu");
+                if (submenu) submenu.style.display = "block";
+            }
+        }
     });
+});
 </script>
 </nav>
 </body>

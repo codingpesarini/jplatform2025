@@ -30,6 +30,9 @@ public interface RegistroLeadRepository extends JpaRepository<RegistroLead, Long
      */
     List<RegistroLead> findByDirezioneAndStatoOrderByIdDesc(String direzione, String stato);
 
+    List<RegistroLead> findByDirezioneAndStatoAndStoreOrderByIdDesc(String direzione, String stato, String store);
+
+    List<RegistroLead> findByDirezioneAndStoreOrderByIdDesc(String direzione, String store);
     /**
      * Todo lead aperti — tutti gli amministratori.
      * Vecchio: getRegistroLeadUtenteSQL("stato !=4 AND stato!=5")

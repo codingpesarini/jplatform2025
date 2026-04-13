@@ -3,219 +3,348 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{manager/layout/template}">
-<body>
+<head>
+  <title>Componi Email</title>
+  <style>
+    .compose-wrapper {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+      overflow: hidden;
+      max-width: 900px;
+      margin: 0 auto;
+    }
 
+    .compose-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid #e9ecef;
+      background: #fff;
+    }
+    .compose-header-left h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+      color: #212529;
+    }
+    .compose-header-left small {
+      color: #adb5bd;
+      font-size: 12px;
+    }
+    .compose-header-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .compose-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .compose-btn-primary {
+      background: #0088cc;
+      color: #fff;
+    }
+    .compose-btn-primary:hover { background: #006ba3; color: #fff; }
+    .compose-btn-secondary {
+      background: #f8f9fa;
+      color: #495057;
+      border: 1px solid #dee2e6;
+    }
+    .compose-btn-secondary:hover { background: #e9ecef; color: #212529; text-decoration: none; }
+    .compose-btn-success {
+      background: #2ca87f;
+      color: #fff;
+    }
+
+    .compose-body {
+      padding: 0;
+    }
+
+    .compose-field {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #f1f3f5;
+      padding: 0 20px;
+    }
+    .compose-field-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #adb5bd;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      width: 40px;
+      flex-shrink: 0;
+    }
+    .compose-field input {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 12px 0;
+      font-size: 14px;
+      color: #212529;
+      background: transparent;
+    }
+    .compose-field input::placeholder { color: #dee2e6; }
+
+    .compose-editor-area {
+      padding: 16px 20px;
+      min-height: 350px;
+    }
+    .compose-editor-area textarea {
+      width: 100%;
+      border: none;
+      outline: none;
+      resize: none;
+      font-size: 14px;
+      color: #212529;
+      min-height: 320px;
+      background: transparent;
+      line-height: 1.6;
+    }
+
+    .compose-attachments {
+      border-top: 1px solid #f1f3f5;
+      padding: 16px 20px;
+    }
+    .compose-attachments h6 {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #adb5bd;
+      margin-bottom: 12px;
+    }
+
+    .compose-attach-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+    .compose-attach-item img { width: 20px; height: 20px; }
+    .compose-attach-del {
+      margin-left: auto;
+      cursor: pointer;
+      color: #adb5bd;
+      transition: color 0.15s;
+    }
+    .compose-attach-del:hover { color: #dc3545; }
+
+    .compose-upload-area {
+      border: 2px dashed #dee2e6;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      color: #adb5bd;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .compose-upload-area:hover { border-color: #0088cc; color: #0088cc; background: #f0f7fd; }
+
+    .compose-success-banner {
+      background: #d1fae5;
+      border: 1px solid #6ee7b7;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #065f46;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 767px) {
+      .compose-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+      .compose-btn span { display: none; }
+    }
+  </style>
+</head>
+<body>
 <div layout:fragment="content">
 
-  <form th:action="@{/admin/email/invia}"
-        method="post"
-        id="messaggioEmail"
-        class="needs-validation"
-        novalidate>
+  <div class="compose-wrapper">
 
-    <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <div>
-          <h3 class="mb-0">Componi messaggio</h3>
-          <small class="text-muted">
-            Mailbox /
-            <span th:text="${config.amministratore.email}">account@example.com</span>
-          </small>
+    <form th:action="@{/admin/email/invia}" method="post" id="messaggioEmail">
+
+      <!-- Header -->
+      <div class="compose-header">
+        <div class="compose-header-left">
+          <h4>Nuovo messaggio</h4>
         </div>
+        <div class="compose-header-actions">
 
-        <div class="d-flex gap-2 flex-wrap">
-          <button type="button" id="btnInviaEmail" class="btn btn-primary">
-            <i class="ti ti-send me-1"></i> Invia
+          <span th:if="${messaggioEmail != null and messaggioEmail.lettoDaDestinatario}"
+                class="compose-btn compose-btn-success">
+            <i class="ti ti-circle-check"></i>
+            <span>Inviato</span>
+          </span>
+
+          <button type="button" id="btnInviaEmail" class="compose-btn compose-btn-primary">
+            <i class="ti ti-send"></i> <span>Invia</span>
           </button>
 
-          <a href="javascript:void(0)" onclick="scroll_to('uploaderEmailAttach')" class="btn btn-primary">
-            <i class="ti ti-paperclip me-1"></i> Allegati
+          <a th:href="@{/admin/email}" class="compose-btn compose-btn-secondary">
+            <i class="ti ti-x"></i> <span>Chiudi</span>
           </a>
-
-          <a th:href="@{/admin/email}" onclick="CloseComponiEmail()" class="btn btn-outline-secondary">
-            <i class="ti ti-x me-1"></i> Chiudi
-          </a>
-
-          <span th:if="${messaggioEmail.lettoDaDestinatario}" class="btn btn-success disabled">
-                        <i class="ti ti-circle-check me-1"></i> Messaggio inviato correttamente
-                    </span>
         </div>
       </div>
 
-      <div class="card-body">
+      <!-- Banner successo -->
+      <div th:if="${messaggioEmail != null and messaggioEmail.lettoDaDestinatario}"
+           class="compose-success-banner">
+        <i class="ti ti-circle-check" style="font-size:18px"></i>
+        Il messaggio è stato inviato correttamente!
+      </div>
 
-        <div class="row g-3 mb-4">
-          <div class="col-12">
-            <label for="tags-inputTO" class="form-label">To</label>
-            <input type="text"
-                   name="to"
-                   id="tags-inputTO"
-                   data-role="tagsinput"
-                   data-tag-class="badge badge-primary"
-                   class="form-control"
-                   th:value="${messaggioEmail.emailMittente}">
-          </div>
+      <!-- Campi -->
+      <div class="compose-body">
 
-          <div class="col-12">
-            <label for="tags-inputCC" class="form-label">CC</label>
-            <input type="text"
-                   name="cc"
-                   id="tags-inputCC"
-                   data-role="tagsinput"
-                   data-tag-class="badge badge-primary"
-                   class="form-control">
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <label for="oggetto" class="form-label">Oggetto</label>
+        <div class="compose-field">
+          <span class="compose-field-label">A</span>
           <input type="text"
-                 name="oggetto"
-                 id="oggetto"
-                 class="form-control"
-                 th:value="${messaggioEmail.oggetto}"
+                 name="to"
+                 id="tags-inputTO"
+                 placeholder="Destinatario..."
+                 th:value="${messaggioEmail != null ? messaggioEmail.emailMittente : ''}"
                  required>
         </div>
 
-        <div class="mb-4">
-          <label for="compose-field" class="form-label">Messaggio</label>
-          <textarea name="testo"
-                    id="compose-field"
-                    class="compose-control form-control"
-                    rows="14"
-                    th:text="${messaggioEmail.messaggio}"></textarea>
+        <div class="compose-field">
+          <span class="compose-field-label">CC</span>
+          <input type="text" name="cc" id="tags-inputCC" placeholder="Copia carbone...">
         </div>
 
-        <div class="row g-4">
-          <div class="col-lg-9">
-            <div class="card">
-              <div class="card-header">
-                <h5 class="mb-0">Allegati inseriti</h5>
-              </div>
-              <div class="card-body">
-                <div id="boxallegati">
-                  <ul id="sortableAllegato" class="list-unstyled mb-0">
-                    <li th:each="allegato : ${messaggioEmail.allegati}"
-                        th:attr="id=${allegato.iddocallegati}"
-                        class="mb-3">
-                      <div th:attr="id=${'boxallegato_' + allegato.id}"
-                           class="d-flex align-items-center gap-2 flex-wrap">
-                        <img th:src="@{/manager/assets/img/icons/trashcan.png}"
-                             alt="Cancella allegato"
-                             title="Cancella allegato"
-                             style="cursor:pointer"
-                             th:data-id="${allegato.id}"
-                             onclick="CancellaAllegatoInseritoEmail(this.getAttribute('data-id'))">
+        <div class="compose-field">
+          <span class="compose-field-label">Ogg</span>
+          <input type="text"
+                 name="oggetto"
+                 id="oggetto"
+                 placeholder="Oggetto del messaggio..."
+                 th:value="${messaggioEmail != null ? messaggioEmail.oggetto : ''}"
+                 required>
+        </div>
 
-                        <a target="_blank"
-                           th:href="@{/admin/email/allegato-sessione(id=${allegato.id})}"
-                           class="text-decoration-none d-flex align-items-center gap-2">
-                          <img th:src="@{'/manager/assets/img/filetypes/32/' + ${allegato.type} + '.png'}"
-                               alt=""
-                               width="32"
-                               height="32">
-                          <span th:text="${allegato.nome}">file.pdf</span>
-                        </a>
-                      </div>
-                    </li>
-
-                    <li th:if="${#lists.isEmpty(messaggioEmail.allegati)}"
-                        class="text-muted small">
-                      Nessun allegato.
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-3">
-            <div class="card" id="uploaderEmailAttach">
-              <div class="card-header">
-                <h5 class="mb-0">Carica allegato</h5>
-              </div>
-              <div class="card-body">
-                <input type="file" name="file_upload" id="upload" class="form-control">
-              </div>
-            </div>
-          </div>
+        <div class="compose-editor-area">
+          <textarea name="testo"
+                    id="compose-field"
+                    placeholder="Scrivi il tuo messaggio..."
+                    th:text="${messaggioEmail != null ? messaggioEmail.messaggio : ''}"></textarea>
         </div>
 
       </div>
-    </div>
 
-  </form>
+      <!-- Allegati -->
+      <div class="compose-attachments">
+        <h6>Allegati</h6>
 
-  <th:block th:if="${messaggioEmail.lettoDaDestinatario}">
-    <script>
-      $(document).ready(function () {
-          new PNotify({
-              title: 'Notifica invio messaggio',
-              text: 'Il messaggio email è stato inviato correttamente!',
-              type: 'success',
-              width: "100%"
-          });
-      });
-    </script>
-  </th:block>
+        <div id="boxallegati">
+          <ul id="sortableAllegato" class="list-unstyled mb-2">
+            <li th:each="allegato : ${messaggioEmail != null ? messaggioEmail.allegati : {}}"
+                th:attr="id=${allegato.iddocallegati}"
+                class="compose-attach-item">
+              <img th:src="@{'/manager/assets/img/filetypes/32/' + ${allegato.type} + '.png'}" alt="">
+              <a target="_blank"
+                 th:href="@{/admin/email/allegato-sessione(id=${allegato.id})}"
+                 class="text-decoration-none text-dark"
+                 th:text="${allegato.nome}">file.pdf</a>
+              <span class="compose-attach-del"
+                    th:attr="onclick=|CancellaAllegatoInseritoEmail('${allegato.id}')|">
+                <i class="ti ti-x"></i>
+              </span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="compose-upload-area" onclick="document.getElementById('upload').click()">
+          <i class="ti ti-paperclip" style="font-size:18px;display:block;margin-bottom:4px"></i>
+          Clicca per allegare un file
+          <input type="file" name="file_upload" id="upload" multiple style="display:none">
+        </div>
+      </div>
+
+    </form>
+  </div>
 
   <script>
     function inviaMessaggioEmail() {
-        var form = document.getElementById('messaggioEmail');
-
-        if (!form) {
-            new PNotify({
-                title: 'Errore',
-                text: 'Form "messaggioEmail" non trovato.',
-                type: 'error'
-            });
-            return false;
-        }
-
-        var toField = document.getElementById('tags-inputTO');
-        var toValue = toField ? toField.value.trim() : '';
-
-        if (toValue === '') {
-            new PNotify({
-                title: 'Attenzione!',
-                text: 'Deve essere specificato almeno un destinatario!',
-                type: 'error'
-            });
-            return false;
-        }
-
-        if (!form.checkValidity()) {
-            form.classList.add('was-validated');
-            new PNotify({
-                title: 'Attenzione!',
-                text: 'Controlla i campi obbligatori del modulo.',
-                type: 'error'
-            });
-            return false;
-        }
-
+      var form = document.getElementById('messaggioEmail');
+      var to = document.getElementById('tags-inputTO').value.trim();
+      if (!to) {
+        showToast('Attenzione', 'Inserisci almeno un destinatario.', 'danger');
+        return false;
+      }
+      if (!form.checkValidity()) {
         form.classList.add('was-validated');
-        form.submit();
-        return true;
+        showToast('Attenzione', 'Controlla i campi obbligatori.', 'danger');
+        return false;
+      }
+      form.submit();
+      return true;
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        var btnInvia = document.getElementById('btnInviaEmail');
-        if (btnInvia) {
-            btnInvia.addEventListener('click', function (e) {
-                e.preventDefault();
-                inviaMessaggioEmail();
-            });
-        }
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('btnInviaEmail')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        inviaMessaggioEmail();
+      });
     });
 
-    if (window.parent && parent.hs && parent.hs.Expander) {
-        parent.hs.Expander.prototype.onBeforeClose = function () {
-            if (typeof AjaxCall === 'function') {
-                AjaxCall('/admin/email/cancella-sessione');
-            }
-        };
-    }
+    document.getElementById('upload').addEventListener('change', function() {
+    var files = this.files;
+    var lista = document.getElementById('sortableAllegato');
+
+    // Rimuovi messaggio "nessun allegato" se presente
+    var vuoto = lista.querySelector('.text-muted');
+    if (vuoto) vuoto.remove();
+
+    Array.from(files).forEach(function(file) {
+        // Controlla se già presente
+        var esistente = Array.from(lista.querySelectorAll('.attach-nome'))
+                             .find(el => el.textContent === file.name);
+        if (esistente) return;
+
+        // Determina icona in base all'estensione
+        var ext = file.name.split('.').pop().toLowerCase();
+        var iconMap = { pdf: 'pdf', doc: 'doc', docx: 'doc', xls: 'xls',
+                        xlsx: 'xls', jpg: 'jpg', jpeg: 'jpg', png: 'png',
+                        zip: 'zip', txt: 'txt' };
+        var icon = iconMap[ext] || 'generic';
+
+        var li = document.createElement('li');
+li.className = 'compose-attach-item';
+li.innerHTML = `
+    <i class="ti ti-file" style="font-size:20px;color:#6c757d;flex-shrink:0"></i>
+    <span class="attach-nome">${file.name}</span>
+    <span class="text-muted small ms-1">(${(file.size/1024).toFixed(1)} KB)</span>
+    <span class="compose-attach-del" onclick="this.closest('li').remove()">
+        <i class="ti ti-x"></i>
+    </span>
+`;
+        lista.appendChild(li);
+    });
+
+    // Reset input per permettere di selezionare di nuovo lo stesso file
+    this.value = '';
+});
   </script>
 
 </div>
