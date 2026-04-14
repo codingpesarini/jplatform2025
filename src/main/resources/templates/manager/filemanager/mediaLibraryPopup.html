@@ -58,6 +58,28 @@
     .pop-drag-over .pop-thumb-box { border-color:#0d6efd !important; background:#e7f1ff !important; }
     #popGriglia.dragging [draggable="true"] * { pointer-events: none; }
 
+    /* Selezione multipla */
+    .pop-selected .pop-thumb-box {
+      border-color:#0d6efd !important;
+      background:#e7f1ff !important;
+    }
+    .pop-check {
+      display:none;
+      position:absolute;
+      top:4px; left:4px;
+      background:#0d6efd;
+      color:#fff;
+      border-radius:50%;
+      width:18px; height:18px;
+      font-size:11px;
+      align-items:center;
+      justify-content:center;
+      font-weight:bold;
+      z-index:5;
+      pointer-events:none;
+    }
+    .pop-selected .pop-check { display:flex; }
+
     /* Vista lista */
     #popGriglia.pop-view-list { display:block; }
     #popGriglia.pop-view-list .pop-thumb {
@@ -116,6 +138,13 @@
     </button>
     <input type="text" id="popSearchInput" class="form-control form-control-sm pop-search"
            placeholder="Cerca..." oninput="popFiltra(this.value)">
+
+    <!-- Pulsante inserisci selezionati -->
+    <button class="btn btn-sm btn-primary" id="btnInserisciSelezionati"
+            style="display:none" onclick="popInserisciSelezionati()">
+      <i class="fas fa-check me-1"></i> Inserisci (<span id="popCountSelezionati">0</span>)
+    </button>
+
     <!-- Switcher vista -->
     <div class="d-flex gap-1 ms-auto">
       <button class="btn btn-sm btn-outline-secondary active" id="popViewGrid"
@@ -246,11 +275,12 @@
               </a>
             </div>
           </div>
+          <span class="pop-check">✓</span>
           <div class="pop-thumb-box"
                th:data-src="${config.imagesRepositoryWeb + imm.fullpath}"
                th:data-id="${imm.id}"
                th:data-nome="${imm.name}"
-               onclick="popSelezionaImmagine(this.dataset.src, this.dataset.id, this.dataset.nome)">
+               onclick="popToggleSelect(this, 'image')">
             <img th:src="${config.imagesRepositoryWeb + imm.fullpath}"
                  style="max-width:100%;max-height:90px;object-fit:cover"
                  onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
@@ -285,11 +315,12 @@
               </a>
             </div>
           </div>
+          <span class="pop-check">✓</span>
           <div class="pop-thumb-box"
                th:data-id="${all.id}"
                th:data-l1="${all.l1}"
                th:data-type="${all.type}"
-               onclick="popSelezionaAllegato(this.dataset.id, this.dataset.l1, this.dataset.l2, this.dataset.type)">
+               onclick="popToggleSelect(this, 'file')">
             <i class="fas fa-file fa-2x text-secondary"></i>
           </div>
           <div class="pop-thumb-name" th:text="${all.l1}">nome</div>
@@ -362,6 +393,7 @@
   <script>
     var _popSpostaId   = null;
     var _popSpostaTipo = null;
+    var _popSelezionati = {};
 
     function apriModalSpostaPopup(id, nome, tipo) {
         _popSpostaId   = id;
@@ -434,18 +466,54 @@
         btn.classList.toggle('open', !isOpen);
     }
 
-    function popSelezionaImmagine(src, id, nome) {
-        if (typeof window.InserisciImmagineLibreria === 'function') {
-            window.InserisciImmagineLibreria(src, id, '');
+    // Selezione multipla
+    function popToggleSelect(box, tipo) {
+        var thumb = box.closest('.pop-thumb');
+        if (!thumb) return;
+        var id = thumb.getAttribute('data-id');
+
+        if (_popSelezionati[id]) {
+            delete _popSelezionati[id];
+            thumb.classList.remove('pop-selected');
+        } else {
+            var entry = { tipo: tipo };
+            if (tipo === 'image') {
+                entry.src  = box.getAttribute('data-src');
+                entry.nome = box.getAttribute('data-nome') || '';
+            } else {
+                entry.l1   = box.getAttribute('data-l1')  || '';
+                entry.type = box.getAttribute('data-type') || '';
+            }
+            _popSelezionati[id] = entry;
+            thumb.classList.add('pop-selected');
         }
-        bootstrap.Modal.getInstance(document.getElementById('modalAccount')).hide();
+
+        var count = Object.keys(_popSelezionati).length;
+        var btn   = document.getElementById('btnInserisciSelezionati');
+        var lbl   = document.getElementById('popCountSelezionati');
+        if (btn) btn.style.display = count > 0 ? '' : 'none';
+        if (lbl) lbl.textContent   = count;
     }
 
-    function popSelezionaAllegato(id, l1, l2, type) {
-        if (typeof window.CollegaAllegatoDaLibreria === 'function') {
-            window.CollegaAllegatoDaLibreria(id, l1, type);
-        }
+    function popInserisciSelezionati() {
+        Object.keys(_popSelezionati).forEach(function(id) {
+            var item = _popSelezionati[id];
+            if (item.tipo === 'image') {
+                if (typeof window.InserisciImmagineLibreria === 'function') {
+                    window.InserisciImmagineLibreria(item.src, id, '');
+                }
+            } else {
+                if (typeof window.CollegaAllegatoDaLibreria === 'function') {
+                    window.CollegaAllegatoDaLibreria(id, item.l1, item.type);
+                }
+            }
+        });
+
+        _popSelezionati = {};
         bootstrap.Modal.getInstance(document.getElementById('modalAccount')).hide();
+        if (typeof showToast === 'function') {
+            showToast('Aggiunto', 'Elementi aggiunti. Salva la sezione per confermare.');
+        }
     }
 
     // Drag & Drop

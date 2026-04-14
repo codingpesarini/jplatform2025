@@ -4,10 +4,14 @@ import com.studiodomino.jplatform.shared.entity.Account;
 import com.studiodomino.jplatform.shared.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 @Service
@@ -17,36 +21,49 @@ public class EmailSenderService {
 
     private final AccountRepository accountRepository;
 
-    public void inviaEmail(String to, String cc, String oggetto, String testo) {
-        // Usa il primo account EMAIL disponibile
+    public void inviaEmail(String to, String cc, String oggetto, String testo,
+                           List<MultipartFile> allegati) {
         Account account = accountRepository.findFirstByTipoAccountOrderByIdAsc("EMAIL");
-        if (account == null) {
-            log.error("Nessun account EMAIL configurato nel DB");
-            throw new RuntimeException("Nessun account EMAIL configurato");
-        }
-        inviaEmailConAccount(account, to, cc, oggetto, testo);
+        if (account == null) throw new RuntimeException("Nessun account EMAIL configurato");
+        inviaEmailConAccount(account, to, cc, oggetto, testo, allegati);
     }
 
-    public void inviaEmailConAccount(Account account, String to, String cc, String oggetto, String testo) {
+    // Mantieni il vecchio per compatibilità con chi lo chiama senza allegati
+    public void inviaEmail(String to, String cc, String oggetto, String testo) {
+        inviaEmail(to, cc, oggetto, testo, null);
+    }
+
+    public void inviaEmailConAccount(Account account, String to, String cc,
+                                     String oggetto, String testo,
+                                     List<MultipartFile> allegati) {
         try {
             JavaMailSenderImpl mailSender = creaMailSender(account);
-
             var message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setFrom(account.getEmailAccount());
             helper.setTo(to);
-            if (cc != null && !cc.isBlank()) {
-                helper.setCc(cc);
-            }
+            if (cc != null && !cc.isBlank()) helper.setCc(cc);
             helper.setSubject(oggetto);
-            helper.setText(testo, true); // true = HTML
+            helper.setText(testo, true);
+
+            if (allegati != null) {
+                for (MultipartFile allegato : allegati) {
+                    if (allegato != null && !allegato.isEmpty()) {
+                        helper.addAttachment(
+                                Objects.requireNonNull(allegato.getOriginalFilename()),
+                                new ByteArrayResource(allegato.getBytes())
+                        );
+                    }
+                }
+            }
 
             mailSender.send(message);
-            log.info("Email inviata a: {} con account: {}", to, account.getEmailAccount());
+            log.info("Email inviata a: {} allegati: {}", to,
+                    allegati != null ? allegati.stream().filter(a -> !a.isEmpty()).count() : 0);
 
         } catch (Exception e) {
-            log.error("Errore invio email a {}: {}", to, e.getMessage());
+            log.error("Errore invio email a {}: {}", to, e.getMessage(), e);
             throw new RuntimeException("Errore invio email: " + e.getMessage(), e);
         }
     }

@@ -348,7 +348,42 @@ public class SezioniController {
             parseDataVisualizzata(db);
 
             Section saved = contentService.saveSection(db);
-            return "redirect:/admin/sezioni/" + saved.getId() + "?success=saved";
+            String allegatoString = request.getParameter("allegatoString");
+            log.info("allegatoString ricevuto: '{}'", allegatoString);
+            if (allegatoString != null && !allegatoString.isBlank()) {
+                for (String part : allegatoString.split(";")) {
+                    part = part.trim().replaceAll("[()]", "");
+                    if (!part.isEmpty()) {
+                        try {
+                            Integer idAllegato = Integer.parseInt(part);
+                            allegatoService.collegaAllegato(
+                                    saved.getId(),
+                                    idAllegato,
+                                    operatore,
+                                    config.getAmministratore().getId().toString()
+                            );
+                        } catch (NumberFormatException e) {
+                            log.warn("allegatoString: id non valido '{}'", part);
+                        }
+                    }
+                }
+            }
+
+            String scollegaString = request.getParameter("scollegaString");
+            if (scollegaString != null && !scollegaString.isBlank()) {
+                for (String part : scollegaString.split(";")) {
+                    part = part.trim().replaceAll("[()]", "");
+                    if (!part.isEmpty()) {
+                        try {
+                            allegatoService.scollegaAllegato(Integer.parseInt(part));
+                        } catch (NumberFormatException e) {
+                            log.warn("scollegaString: id non valido '{}'", part);
+                        }
+                    }
+                }
+            }
+
+            return "redirect:/admin/sezioni/" + saved.getId();
 
         } catch (Exception e) {
             log.error("Errore save sezione", e);

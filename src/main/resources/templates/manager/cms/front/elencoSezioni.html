@@ -9,7 +9,7 @@
     <div class="row">
 
         <!-- LEFT: SIDEBAR -->
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-3">
 
             <section class="card bg-light mb-4">
                 <div class="card" style="border-top: 3px solid #d9534f;">
@@ -81,7 +81,7 @@
         </div>
 
         <!-- RIGHT: TABS -->
-        <div class="col-12 col-lg-8 mt-3 mt-lg-0">
+        <div class="col-12 col-lg-9 mt-3 mt-lg-0">
             <ul class="nav nav-tabs mb-0" id="elencoSezioni" role="tablist" style="border-bottom: 1px solid #0088cc;">
                 <li class="nav-item">
                     <a class="nav-link active text-uppercase" id="welcomeCMS" data-bs-toggle="tab" href="#IDwelcomeCMS" role="tab" aria-controls="welcomeCMS" aria-selected="true">
@@ -273,8 +273,6 @@
             </div>
         </div>
 
-    </div>
-
 <script th:inline="javascript">
     function confermaEliminaSezione(id) {
         confirmAction('Sei sicuro di voler eliminare questa sezione e tutte le sue sottosezioni?', function() {
@@ -286,10 +284,32 @@
         });
     }
 
-    // Gestione selezione multipla (se vuoi implementarla anche qui)
     document.querySelector('.chSel_all')?.addEventListener('change', function() {
         document.querySelectorAll('input[name="row_sel"]').forEach(cb => cb.checked = this.checked);
     });
 </script>
+</div>
+<th:block layout:fragment="extra-js">
+    <script>
+        var s = document.createElement('style');
+       s.innerHTML = '@keyframes float { 0% { transform: translateY(0px) rotate(0deg); } 25% { transform: translateY(-10px) rotate(2deg); } 75% { transform: translateY(5px) rotate(-1deg); } 100% { transform: translateY(0px) rotate(0deg); } }';
+        document.head.appendChild(s);
+
+        function scuotiImmagini() {
+            console.log('scuotiImmagini: ' + document.querySelectorAll('#IDwelcomeCMS img:not(.no-animate)').length);
+            document.querySelectorAll('#IDwelcomeCMS img:not(.no-animate)').forEach(function(img, i) {
+                img.style.animation = 'none';
+                void img.offsetWidth;
+                img.style.animation = 'float 0.8s ease-in-out ' + (i * 0.2) + 's 2';
+            });
+        }
+
+        setTimeout(scuotiImmagini, 500);
+
+        document.getElementById('welcomeCMS')?.addEventListener('shown.bs.tab', function() {
+            setTimeout(scuotiImmagini, 100);
+        });
+    </script>
+</th:block>
 </body>
 </html>

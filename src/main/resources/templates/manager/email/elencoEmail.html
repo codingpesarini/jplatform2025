@@ -26,7 +26,6 @@
       flex-direction: column;
       padding: 20px 0;
     }
-
     .mail-compose-btn {
       margin: 0 16px 20px;
       background: #0088cc;
@@ -45,10 +44,7 @@
     }
     .mail-compose-btn:hover { background: #006ba3; color: #fff; }
 
-    .mail-nav-section {
-      padding: 0 8px;
-      margin-bottom: 16px;
-    }
+    .mail-nav-section { padding: 0 8px; margin-bottom: 16px; }
     .mail-nav-label {
       font-size: 10px;
       font-weight: 700;
@@ -82,6 +78,21 @@
       font-size: 11px;
       font-weight: 600;
     }
+    .mail-account-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      color: #495057;
+      font-size: 12px;
+      text-decoration: none;
+      transition: background 0.15s;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .mail-account-item:hover { background: #e9ecef; color: #212529; text-decoration: none; }
 
     /* ── Main ── */
     .mail-main {
@@ -91,11 +102,37 @@
       min-width: 0;
     }
 
+    /* ── Top bar mobile ── */
+    .mail-mobile-topbar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid #e9ecef;
+      background: #fff;
+    }
+    .mail-mobile-folder-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid #dee2e6;
+      color: #6c757d;
+      font-size: 16px;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .mail-mobile-folder-btn:hover { background: #f8f9fa; color: #212529; text-decoration: none; }
+    .mail-mobile-folder-btn.active { background: #e7f3fb; border-color: #0088cc; color: #0088cc; }
+
+    /* ── Toolbar ── */
     .mail-toolbar {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 12px 16px;
+      padding: 10px 16px;
       border-bottom: 1px solid #e9ecef;
       background: #fff;
     }
@@ -112,6 +149,7 @@
       gap: 5px;
       transition: all 0.15s;
       text-decoration: none;
+      white-space: nowrap;
     }
     .mail-toolbar-btn:hover { background: #f8f9fa; color: #212529; border-color: #adb5bd; text-decoration: none; }
     .mail-toolbar-btn.danger:hover { background: #fff5f5; color: #dc3545; border-color: #dc3545; }
@@ -139,7 +177,7 @@
       font-size: 13px;
     }
 
-    /* ── Alert errore ── */
+    /* ── Alert ── */
     .mail-alert {
       margin: 12px 16px 0;
       padding: 10px 14px;
@@ -154,11 +192,7 @@
     }
 
     /* ── Lista email ── */
-    .mail-list {
-      flex: 1;
-      overflow-y: auto;
-    }
-
+    .mail-list { flex: 1; overflow-y: auto; }
     .mail-list-header {
       display: flex;
       align-items: center;
@@ -171,7 +205,6 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-
     .mail-item {
       display: flex;
       align-items: center;
@@ -180,139 +213,75 @@
       border-bottom: 1px solid #f1f3f5;
       cursor: pointer;
       transition: background 0.12s;
-      position: relative;
     }
     .mail-item:hover { background: #f8f9fa; }
     .mail-item.unread { background: #f0f7fd; }
     .mail-item.unread:hover { background: #e4f0fa; }
 
-    .mail-item-check {
-      flex-shrink: 0;
-    }
     .mail-item-check input[type="checkbox"] {
-      width: 15px;
-      height: 15px;
-      cursor: pointer;
-      accent-color: #0088cc;
+      width: 15px; height: 15px; cursor: pointer; accent-color: #0088cc;
     }
-
     .mail-item-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 700;
-      color: #fff;
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: #fff;
     }
+    .av-blue   { background: #0088cc; }
+    .av-orange { background: #f39c12; }
 
-    .mail-item-body {
-      flex: 1;
-      min-width: 0;
-    }
+    .mail-item-body { flex: 1; min-width: 0; }
     .mail-item-sender {
-      font-size: 13px;
-      font-weight: 600;
-      color: #212529;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 13px; font-weight: 600; color: #212529;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .mail-item.unread .mail-item-sender { color: #0088cc; }
     .mail-item-subject {
-      font-size: 12px;
-      color: #6c757d;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-top: 2px;
+      font-size: 12px; color: #6c757d;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;
     }
-
     .mail-item-meta {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 4px;
-      flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0;
     }
-    .mail-item-date {
-      font-size: 11px;
-      color: #adb5bd;
-      white-space: nowrap;
-    }
-    .mail-item-icons {
-      display: flex;
-      gap: 4px;
-      color: #adb5bd;
-      font-size: 12px;
-    }
+    .mail-item-date { font-size: 11px; color: #adb5bd; white-space: nowrap; }
     .mail-unread-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #0088cc;
-      flex-shrink: 0;
+      width: 8px; height: 8px; border-radius: 50%; background: #0088cc; flex-shrink: 0;
     }
 
-    /* ── Mailbox list ── */
-    .mail-account-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 10px;
-      border-radius: 6px;
-      color: #495057;
-      font-size: 12px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.15s;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .mail-account-item:hover { background: #e9ecef; color: #212529; text-decoration: none; }
-
-    /* ── Empty state ── */
+    /* ── Empty ── */
     .mail-empty {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 60px 20px;
-      color: #adb5bd;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 60px 20px; color: #adb5bd;
     }
     .mail-empty i { font-size: 48px; margin-bottom: 12px; }
     .mail-empty p { font-size: 14px; margin: 0; }
 
-    /* Colori avatar */
-    .av-blue { background: #0088cc; }
-    .av-green { background: #2ca87f; }
-    .av-orange { background: #f39c12; }
-    .av-red { background: #e74c3c; }
-    .av-purple { background: #9b59b6; }
-    .av-teal { background: #1abc9c; }
-
+    /* ── RESPONSIVE ── */
     @media (max-width: 767px) {
+      .mail-wrapper {
+        height: auto;
+        min-height: auto;
+        border-radius: 8px;
+        flex-direction: column;
+      }
       .mail-sidebar { display: none; }
-      .mail-search input { width: 140px; }
+      .mail-mobile-topbar { display: flex; }
+      .mail-toolbar { padding: 8px 12px; }
+      .mail-search { margin-left: 0; flex: 1; }
+      .mail-search input { width: 100%; }
+      .mail-item-meta { display: none; }
+      .mail-unread-dot { display: none; }
+      .mail-item { padding: 10px 12px; gap: 8px; }
+      .mail-item-avatar { width: 30px; height: 30px; font-size: 12px; }
     }
   </style>
 </head>
 <body>
 <div layout:fragment="content">
 
-  <script th:inline="javascript">
-    var currentMailboxId = /*[[${config.actualMailboxId}]]*/ '0';
-  </script>
-
   <div class="mail-wrapper">
 
-    <!-- ═══ SIDEBAR ═══ -->
+    <!-- ═══ SIDEBAR (desktop) ═══ -->
     <div class="mail-sidebar">
-
       <a th:href="@{/admin/email/componi/{id}(id=${config.actualMailboxId})}"
          class="mail-compose-btn">
         <i class="ti ti-pencil"></i> Scrivi
@@ -320,23 +289,26 @@
 
       <div class="mail-nav-section">
         <div class="mail-nav-label">Cartelle</div>
-        <a th:href="@{/admin/email/{id}/cartella/inbox(id=${config.actualMailboxId})}"
-           th:classappend="${folderAttivo == 'inbox'} ? 'active' : ''"
+        <a th:href="@{/admin/email/{id}/cartella/INBOX(id=${config.actualMailboxId})}"
+           th:classappend="${folderAttivo == 'INBOX' or folderAttivo == null} ? ' active' : ''"
            class="mail-nav-item">
           <i class="ti ti-inbox"></i> Inbox
+          <span class="mail-nav-badge"
+                th:if="${config.numeroEmail != null and config.numeroEmail > 0}"
+                th:text="${config.numeroEmail}">0</span>
         </a>
-        <a th:href="@{/admin/email/{id}/cartella/sent(id=${config.actualMailboxId})}"
-           th:classappend="${folderAttivo == 'sent'} ? 'active' : ''"
+        <a th:href="@{/admin/email/{id}/cartella/SENT(id=${config.actualMailboxId})}"
+           th:classappend="${folderAttivo == 'SENT'} ? ' active' : ''"
            class="mail-nav-item">
           <i class="ti ti-send"></i> Inviati
         </a>
-        <a th:href="@{/admin/email/{id}/cartella/drafts(id=${config.actualMailboxId})}"
-           th:classappend="${folderAttivo == 'drafts'} ? 'active' : ''"
+        <a th:href="@{/admin/email/{id}/cartella/DRAFTS(id=${config.actualMailboxId})}"
+           th:classappend="${folderAttivo == 'DRAFTS'} ? ' active' : ''"
            class="mail-nav-item">
           <i class="ti ti-file"></i> Bozze
         </a>
-        <a th:href="@{/admin/email/{id}/cartella/trash(id=${config.actualMailboxId})}"
-           th:classappend="${folderAttivo == 'trash'} ? 'active' : ''"
+        <a th:href="@{/admin/email/{id}/cartella/TRASH(id=${config.actualMailboxId})}"
+           th:classappend="${folderAttivo == 'TRASH'} ? ' active' : ''"
            class="mail-nav-item">
           <i class="ti ti-trash"></i> Cestino
         </a>
@@ -344,12 +316,44 @@
 
       <div class="mail-nav-section">
         <div class="mail-nav-label">Le tue Mailbox</div>
+        <a th:href="@{/admin/email/inbox/{id}(id=${config.amministratore.idaccountemail})}"
+           class="mail-account-item">
+        </a>
       </div>
-
     </div>
 
     <!-- ═══ MAIN ═══ -->
     <div class="mail-main">
+
+      <!-- Top bar mobile -->
+      <div class="mail-mobile-topbar">
+        <a th:href="@{/admin/email/componi/{id}(id=${config.actualMailboxId})}"
+           class="btn btn-primary btn-sm">
+          <i class="ti ti-pencil me-1"></i> Scrivi
+        </a>
+        <div class="d-flex gap-2">
+          <a th:href="@{/admin/email/{id}/cartella/INBOX(id=${config.actualMailboxId})}"
+             th:classappend="${folderAttivo == 'INBOX' or folderAttivo == null} ? ' active' : ''"
+             class="mail-mobile-folder-btn" title="Inbox">
+            <i class="ti ti-inbox"></i>
+          </a>
+          <a th:href="@{/admin/email/{id}/cartella/SENT(id=${config.actualMailboxId})}"
+             th:classappend="${folderAttivo == 'SENT'} ? ' active' : ''"
+             class="mail-mobile-folder-btn" title="Inviati">
+            <i class="ti ti-send"></i>
+          </a>
+          <a th:href="@{/admin/email/{id}/cartella/DRAFTS(id=${config.actualMailboxId})}"
+             th:classappend="${folderAttivo == 'DRAFTS'} ? ' active' : ''"
+             class="mail-mobile-folder-btn" title="Bozze">
+            <i class="ti ti-file"></i>
+          </a>
+          <a th:href="@{/admin/email/{id}/cartella/TRASH(id=${config.actualMailboxId})}"
+             th:classappend="${folderAttivo == 'TRASH'} ? ' active' : ''"
+             class="mail-mobile-folder-btn" title="Cestino">
+            <i class="ti ti-trash"></i>
+          </a>
+        </div>
+      </div>
 
       <!-- Toolbar -->
       <div class="mail-toolbar">
@@ -358,13 +362,13 @@
 
         <a th:href="@{/admin/email/inbox/{id}(id=${config.actualMailboxId})}"
            class="mail-toolbar-btn">
-          <i class="ti ti-refresh"></i> Aggiorna
+          <i class="ti ti-refresh"></i> <span class="btn-text">Aggiorna</span>
         </a>
 
         <a href="javascript:void(0)"
            th:attr="onclick=|CancellaEmailMultiplaAjax('${config.actualMailboxId}')|"
            class="mail-toolbar-btn danger">
-          <i class="ti ti-trash"></i> Elimina
+          <i class="ti ti-trash"></i> <span class="btn-text">Elimina</span>
         </a>
 
         <div class="mail-search">
@@ -400,9 +404,8 @@
         </div>
 
         <div th:each="msg : ${listaEmailArrivo}"
-             th:classappend="${!msg.letto} ? 'unread' : ''"
-             class="mail-item"
-             th:attr="data-id=${msg.id}">
+             th:classappend="${!msg.letto} ? ' unread' : ''"
+             class="mail-item">
 
           <div class="mail-item-check">
             <input type="checkbox" name="row_sel"
@@ -411,25 +414,19 @@
                    th:value="${msg.id}"/>
           </div>
 
-          <!-- Avatar con iniziale -->
           <div class="mail-item-avatar"
-               th:classappend="${msg.letto} ? 'av-blue' : 'av-orange'">
+               th:classappend="${msg.letto} ? ' av-blue' : ' av-orange'">
             <span th:text="${#strings.substring(msg.mittente, 0, 1).toUpperCase()}">M</span>
           </div>
 
-          <!-- Body -->
           <a th:href="@{/admin/email/open/{id}/{acc}(id=${msg.id},acc=${config.actualMailboxId})}"
              class="mail-item-body text-decoration-none">
             <div class="mail-item-sender" th:text="${msg.mittente}">mittente</div>
             <div class="mail-item-subject" th:text="${msg.oggetto}">oggetto</div>
           </a>
 
-          <!-- Meta -->
           <div class="mail-item-meta">
             <span class="mail-item-date" th:text="${msg.data}">01/01/2025</span>
-            <div class="mail-item-icons">
-              <i class="ti ti-paperclip" th:if="${msg.allegati != null and !#lists.isEmpty(msg.allegati)}"></i>
-            </div>
           </div>
 
           <div class="mail-unread-dot" th:if="${!msg.letto}"></div>
@@ -440,32 +437,29 @@
     </div>
   </div>
 
-  <script th:inline="javascript">
-    // Seleziona tutti
+  <script>
     document.addEventListener('change', function(e) {
       if (e.target.classList.contains('chSel_all')) {
         document.querySelectorAll('input[name="row_sel"]').forEach(cb => cb.checked = e.target.checked);
       }
     });
 
-    // Ricerca
     document.getElementById('searchEmail')?.addEventListener('input', function() {
       var q = this.value.toLowerCase();
       document.querySelectorAll('.mail-item').forEach(function(item) {
-        var text = item.textContent.toLowerCase();
-        item.style.display = text.includes(q) ? '' : 'none';
+        item.style.display = item.textContent.toLowerCase().includes(q) ? '' : 'none';
       });
     });
 
     function CancellaEmailMultiplaAjax(mailboxId) {
-      const selezionati = Array.from(document.querySelectorAll('input[name="row_sel"]:checked')).map(cb => cb.value);
-      if (selezionati.length === 0) {
+      const ids = Array.from(document.querySelectorAll('input[name="row_sel"]:checked')).map(cb => cb.value);
+      if (ids.length === 0) {
         showToast('Attenzione', 'Seleziona almeno un messaggio.', 'danger');
         return;
       }
-      confirmAction('Eliminare ' + selezionati.length + ' messaggi?', function() {
+      confirmAction('Eliminare ' + ids.length + ' messaggi?', function() {
         const formData = new URLSearchParams();
-        selezionati.forEach(id => formData.append('ids[]', id));
+        ids.forEach(id => formData.append('ids[]', id));
         fetch('/admin/email/eliminaMultipla/' + mailboxId, {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

@@ -135,23 +135,19 @@ public class EmailController {
         messaggio.setOggetto(oggetto);
 
         try {
-            log.info("Invio email reale a={} cc={} oggetto={}", to, cc, oggetto);
+            log.info("Invio email reale a={} cc={} oggetto={} allegati={}", to, cc, oggetto,
+                    allegati != null ? allegati.size() : 0);
 
-            emailSenderService.inviaEmail(to, cc, oggetto, testo);
-
-            model.addAttribute("esito", "ok");
-            model.addAttribute("successMessage", "Messaggio email inviato correttamente.");
+            emailSenderService.inviaEmail(to, cc, oggetto, testo, allegati);
 
             log.info("Email inviata con successo a={}", to);
-
             model.addAttribute("messaggioEmail", new MessaggioUtente());
+            model.addAttribute("esito", "ok");
 
         } catch (Exception e) {
             log.error("Errore invio email a={}", to, e);
-
             model.addAttribute("esito", "errore");
-            model.addAttribute("errorMessage", "Errore durante l'invio dell'email: " + e.getMessage());
-
+            model.addAttribute("errorMessage", "Errore: " + e.getMessage());
             model.addAttribute("messaggioEmail", messaggio);
         }
 

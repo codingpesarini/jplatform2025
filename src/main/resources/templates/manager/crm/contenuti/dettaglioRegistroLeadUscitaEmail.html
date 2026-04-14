@@ -220,16 +220,36 @@
   </form>
 
   <script th:inline="javascript">
-    // Usa le tue funzioni globali esistenti
     document.addEventListener('DOMContentLoaded', function () {
-        // Forza l'apertura immediata usando la TUA funzione initTinyMCE
         if (typeof initTinyMCE === 'function') {
-            // Rimuoviamo eventuali istanze appese prima di inizializzare
             if (typeof tinymce !== 'undefined' && tinymce.get('notalead')) {
                 tinymce.get('notalead').remove();
             }
-            // Avviamo l'editor sulla tua textarea
-            initTinyMCE('#notalead');
+            initTinyMCE('#notalead', false);
+        }
+
+        // Allegati
+        var upload = document.getElementById('uploadCrm');
+        if (upload) {
+            upload.addEventListener('change', function () {
+                var lista = document.getElementById('sortableAllegato');
+                Array.from(this.files).forEach(function (file) {
+                    var div = document.createElement('div');
+                    div.className = 'd-flex align-items-center gap-2 p-2 mb-2 bg-light rounded';
+                    div.innerHTML =
+                        '<i class="ti ti-file" style="font-size:18px;color:#6c757d;flex-shrink:0"></i>' +
+                        '<span>' + file.name + '</span>' +
+                        '<span class="text-muted small ms-1">(' + (file.size / 1024).toFixed(1) + ' KB)</span>' +
+                        '<span style="margin-left:auto;cursor:pointer;color:#adb5bd" ' +
+                              'onmouseover="this.style.color=\'#dc3545\'" ' +
+                              'onmouseout="this.style.color=\'#adb5bd\'" ' +
+                              'onclick="this.closest(\'div\').remove()">' +
+                            '<i class="ti ti-x"></i>' +
+                        '</span>';
+                    lista.appendChild(div);
+                });
+                this.value = '';
+            });
         }
     });
 
@@ -241,7 +261,6 @@
 
         var form = document.getElementById('registrolead');
 
-        // Sincronizzazione sicura TinyMCE (la tua logica originale)
         if (typeof tinymce !== 'undefined') {
             try {
                 if (typeof tinymce.triggerSave === 'function') {

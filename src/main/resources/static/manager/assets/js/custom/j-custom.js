@@ -358,7 +358,6 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================================
 function initTinyMCE(selector) {
     if (typeof tinymce === 'undefined') return;
-    // Evita doppia inizializzazione
     var id = selector.replace('#', '');
     if (tinymce.get(id)) return;
 
@@ -375,6 +374,9 @@ function initTinyMCE(selector) {
         toolbar: 'undo redo | formatselect | bold italic underline | ' +
                  'forecolor backcolor | alignleft aligncenter alignright alignjustify | ' +
                  'bullist numlist outdent indent | link image table | code fullscreen',
+        automatic_uploads: true,
+        images_upload_url: '/admin/filemanager/upload-tinymce',
+        image_advtab: true,
         setup: function(editor) {
             editor.on('change', function() {
                 editor.save();
@@ -862,24 +864,6 @@ window.ApplicaExtraTagContenuti = function() {
     }
 };
 
-// Bootstrap Multiselect
-if (typeof $.fn.multiselect === 'function') {
-    $('select.multiselect').multiselect({
-        includeSelectAllOption: true,
-        selectAllText: 'Seleziona tutti',
-        nonSelectedText: 'None selected',
-        nSelectedText: ' selezionati',
-        allSelectedText: 'Tutti selezionati',
-        numberDisplayed: 0,
-        buttonClass: 'btn btn-default',
-        templates: {
-            button: '<button type="button" class="multiselect dropdown-toggle btn btn-default" data-bs-toggle="dropdown" style="width:100%"><span class="multiselect-selected-text"></span></button>'
-        }
-    });
-}
-// ============================================================
-// GALLERY IMMAGINI - Inserimento da Media Library
-// ============================================================
 window.InserisciImmagineLibreria = function(src, id, didascalia) {
     var galleryInput = document.getElementById('galleryString');
     var divGallery = document.getElementById('divgallery');
@@ -910,22 +894,49 @@ function cancellaImmagineInserita(id) {
     var el = document.getElementById(id);
     if (el) el.remove();
 }
+
+// Bootstrap Multiselect
+if (typeof $.fn.multiselect === 'function') {
+    $('select.multiselect').multiselect({
+        includeSelectAllOption: true,
+        selectAllText: 'Seleziona tutti',
+        nonSelectedText: 'None selected',
+        nSelectedText: ' selezionati',
+        allSelectedText: 'Tutti selezionati',
+        numberDisplayed: 0,
+        buttonClass: 'btn btn-default',
+        templates: {
+            button: '<button type="button" class="multiselect dropdown-toggle btn btn-default" data-bs-toggle="dropdown" style="width:100%"><span class="multiselect-selected-text"></span></button>'
+        }
+    });
+}
 window.InserisciAllegatoInPagina = function(data) {
     var lista = document.getElementById('sortableAllegato');
+    var allegatoInput = document.getElementById('allegatoString');
     if (!lista) return;
 
     var id = data.id;
     if (document.getElementById('li_allegato_' + id)) return; // evita duplicati
 
+    // Aggiorna allegatoString (come galleryString per le immagini)
+    if (allegatoInput) {
+        var current = allegatoInput.value || '';
+        if (current.indexOf('(' + id + ');') === -1) {
+            allegatoInput.value = current + '(' + id + ');';
+        }
+    }
+
     var oggi = new Date();
-    var dataFormattata = ('0'+oggi.getDate()).slice(-2) + '/' +
-                         ('0'+(oggi.getMonth()+1)).slice(-2) + '/' +
+    var dataFormattata = ('0' + oggi.getDate()).slice(-2) + '/' +
+                         ('0' + (oggi.getMonth() + 1)).slice(-2) + '/' +
                          oggi.getFullYear() + ' - ' +
-                         ('0'+oggi.getHours()).slice(-2) + ':' +
-                         ('0'+oggi.getMinutes()).slice(-2);
+                         ('0' + oggi.getHours()).slice(-2) + ':' +
+                         ('0' + oggi.getMinutes()).slice(-2);
 
     var li = document.createElement('li');
     li.id = 'li_allegato_' + id;
+    // data-allegato-id usato da scollegaErimuovi al momento del submit/rimozione
+    li.setAttribute('data-allegato-id', id);
     li.innerHTML =
         '<div id="boxallegato_' + id + '">' +
         '<a href="javascript:void(0);" ' +
@@ -941,60 +952,42 @@ window.InserisciAllegatoInPagina = function(data) {
     lista.appendChild(li);
 };
 
-/**
- * Rimuove l'allegato dal DOM e dalla stringa degli ID
- * (Logica identica a cancellaImmagineInserita)
- */
+// SOSTITUISCE window.cancellaAllegatoInserito
+// Non fa più chiamate al server — rimuove solo dal DOM e da allegatoString
 window.cancellaAllegatoInserito = function(id) {
-    confirmAction('Rimuovere l\'allegato dalla sezione?', function() {
-        var docId = document.getElementById('id') ? document.getElementById('id').value : '0';
-        // Cerca il record docallegati per questo allegato+documento e scollega
-        fetch('/admin/filemanager/files/scollegaByAllegato', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idAllegato: id, idDocumento: docId })
-        }).then(function() {
-            var el = document.getElementById('li_allegato_' + id);
-            if (el) el.remove();
-            showToast('Completato', 'Allegato rimosso.');
-        });
-    });
+    var allegatoInput = document.getElementById('allegatoString');
+    if (allegatoInput) {
+        allegatoInput.value = allegatoInput.value.replace('(' + id + ');', '');
+    }
+    var el = document.getElementById('li_allegato_' + id);
+    if (el) el.remove();
 };
 
+// SOSTITUISCE window.CollegaAllegatoDaLibreria
+// Ora si comporta come InserisciImmagineLibreria: lazy, nessun fetch immediato
 window.CollegaAllegatoDaLibreria = function(idAllegato, l1, type) {
-    var docId = document.getElementById('id') ? document.getElementById('id').value : '0';
-    if (!docId || docId === '0') {
-        showToast('Attenzione', 'Salva prima la sezione prima di collegare allegati.', 'danger');
-        return;
-    }
-    fetch('/admin/filemanager/files/collega', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idAllegato: idAllegato, idDocumento: docId })
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-        if (data.success) {
-            window.InserisciAllegatoInPagina({ id: idAllegato, l1: l1, type: type });
-            showToast('Completato', 'Allegato collegato.');
-        } else {
-            showToast('Errore', 'Errore nel collegamento.', 'danger');
-        }
-    });
+    window.InserisciAllegatoInPagina({ id: idAllegato, l1: l1, type: type });
+    // Chiudi il popup
+    var modalEl = document.getElementById('modalAccount');
+    if (modalEl) bootstrap.Modal.getInstance(modalEl).hide();
+    if (typeof showToast === 'function') showToast('Aggiunto', 'Allegato aggiunto. Salva la sezione per confermare.');
 };
+
+// scollegaErimuovi rimane per gli allegati GIÀ SALVATI nel DB (presenti al caricamento pagina)
+// NON viene usato per quelli aggiunti dinamicamente (quelli usano cancellaAllegatoInserito)
 function scollegaErimuovi(idDocAllegati, idAllegato) {
-    confirmAction('Rimuovere l\'allegato dalla sezione?', function() {
-        fetch('/admin/filemanager/files/' + idDocAllegati + '/scollega', { method: 'POST' })
-            .then(function() {
-                // Rimuovi dal DOM — cerca sia il formato DB che quello dinamico
-                var elDb = document.getElementById('boxallegato_' + idDocAllegati);
-                if (elDb) elDb.closest('li').remove();
-                var elDyn = document.getElementById('li_allegato_' + idAllegato);
-                if (elDyn) elDyn.remove();
-                showToast('Completato', 'Allegato rimosso.');
-            });
-    });
+    // Aggiunge a scollegaString e rimuove solo dal DOM
+    var input = document.getElementById('scollegaString');
+    if (input) {
+        var current = input.value || '';
+        if (current.indexOf('(' + idDocAllegati + ');') === -1) {
+            input.value = current + '(' + idDocAllegati + ');';
+        }
+    }
+    var elDb = document.getElementById('boxallegato_' + idDocAllegati);
+    if (elDb) elDb.closest('li').remove();
 }
+
 
 document.addEventListener('DOMContentLoaded', function() {
     var griglia = document.getElementById('griglia');
