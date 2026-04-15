@@ -7,29 +7,39 @@
 
 <div layout:fragment="content">
 
+    <div class="page-header">
+        <div class="page-block">
+            <div class="row align-items-center">
+                <div class="col-md-12">
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a th:href="@{/admin}">Home</a></li>
+                        <li class="breadcrumb-item"><a th:href="@{/admin/email}">Mailbox</a></li>
+                        <li class="breadcrumb-item active">Dettaglio Email</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div>
-                <h3 class="mb-0">Dettaglio E-Mail</h3>
-                <small class="text-muted">
-                    Mailbox /
-                    <span th:text="${messaggioEmail.nomeAccount}">account</span>
-                </small>
+            <div class="d-flex align-items-center gap-2">
+                <a th:href="@{/admin/email/inbox/{acc}(acc=${config.amministratore.idaccountemail})}"
+                   class="btn btn-sm btn-outline-secondary">
+                    <i class="ti ti-arrow-left"></i>
+                </a>
+                <div>
+                    <h5 class="mb-0" th:text="${messaggioEmail.oggetto}">Oggetto</h5>
+                    <small class="text-muted" th:text="${messaggioEmail.nomeAccount}">account</small>
+                </div>
             </div>
-
             <div class="d-flex gap-2 flex-wrap">
-                <a th:href="@{/admin/email/open/{id}/{acc}(id=${messaggioEmail.id},acc=${config.actualMailboxId},rispondi=true)}"
-                   class="btn btn-primary">
+                <a th:href="@{/admin/email/rispondi/{id}/{acc}(id=${messaggioEmail.id},acc=${config.amministratore.idaccountemail})}"
+                   class="btn btn-sm btn-primary">
                     <i class="ti ti-arrow-back-up me-1"></i> Rispondi
                 </a>
-
-                <a th:href="@{/admin/email/open/{id}/{acc}(id=${messaggioEmail.id},acc=${config.actualMailboxId},rispondiTutti=true)}"
-                   class="btn btn-primary">
-                    <i class="ti ti-arrows-double-ne-sw me-1"></i> Rispondi a tutti
-                </a>
-
-                <a th:href="@{/admin/email/open/{id}/{acc}(id=${messaggioEmail.id},acc=${config.actualMailboxId},inoltra=true)}"
-                   class="btn btn-primary">
+                <a th:href="@{/admin/email/inoltra/{id}/{acc}(id=${messaggioEmail.id},acc=${config.amministratore.idaccountemail})}"
+                   class="btn btn-sm btn-outline-secondary">
                     <i class="ti ti-send me-1"></i> Inoltra
                 </a>
             </div>
@@ -37,121 +47,104 @@
 
         <div class="card-body">
 
-            <div class="mb-4">
-                <h4 class="mb-2" th:text="${messaggioEmail.oggetto}">Oggetto</h4>
-
-                <p class="mb-1">
-                    da
-                    <span th:if="${messaggioEmail.mittenteNoto}">
-                        <a th:href="@{/admin/crm/utenti/{id}(id=${messaggioEmail.idMittenteNoto})}"
-                           class="text-decoration-none">
-                            <i class="ti ti-user-check me-1"></i>
-                            <span th:text="${messaggioEmail.mittente}">Mittente</span>
+            <!-- HEADER MITTENTE -->
+            <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="avtar avtar-m bg-light-primary rounded-circle">
+                        <i class="ti ti-user f-20"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0" th:text="${messaggioEmail.mittente}">Mittente</h6>
+                        <small class="text-muted">
+                            From: <span th:text="${messaggioEmail.indirizzoMittente}">email@example.com</span>
+                        </small>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <small class="text-muted" th:text="${messaggioEmail.date}">01/01/2025</small>
+                    <div class="dropdown">
+                        <a href="#" class="avtar avtar-s btn-link-secondary" data-bs-toggle="dropdown">
+                            <i class="ti ti-dots-vertical f-18"></i>
                         </a>
-                    </span>
-                    <span th:if="${!messaggioEmail.mittenteNoto}"
-                          th:text="${messaggioEmail.mittente}">Mittente</span>
-                    |
-                    <span th:text="${messaggioEmail.indirizzoMittente}">email@example.com</span>,
-                    in data
-                    <span th:text="${messaggioEmail.date}">01/01/2025</span>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" th:href="@{/admin/email/rispondi/{id}/{acc}(id=${messaggioEmail.id},acc=${config.amministratore.idaccountemail})}">
+                                    <i class="ti ti-arrow-back-up me-2"></i>Rispondi
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" th:href="@{/admin/email/inoltra/{id}/{acc}(id=${messaggioEmail.id},acc=${config.amministratore.idaccountemail})}">
+                                    <i class="ti ti-send me-2"></i>Inoltra
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li th:if="${!messaggioEmail.mittenteNoto}">
+                                <a class="dropdown-item text-primary"
+                                   th:href="@{/admin/crm/lead/open(id=-1,idutente=0,idleadstore=${messaggioEmail.id},store='emailstore')}">
+                                    <i class="ti ti-user-plus me-2"></i>Profila come LEAD
+                                </a>
+                            </li>
+                            <li th:if="${messaggioEmail.mittenteNoto}">
+                                <a class="dropdown-item text-primary"
+                                   th:href="@{/admin/crm/lead/open(id=-1,idutente=${messaggioEmail.idMittenteNoto},idleadstore=${messaggioEmail.id},store='emailstore')}">
+                                    <i class="ti ti-user-check me-2"></i>Profila LEAD per utente
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CORPO EMAIL -->
+            <div class="mb-4" style="min-height:300px">
+                <iframe width="100%" id="myframe" frameborder="0" style="min-height:400px;width:100%"></iframe>
+                <textarea id="textmail" name="content" rows="1"
+                          style="visibility:hidden;height:0"
+                          th:text="${messaggioEmail.messaggio}"></textarea>
+            </div>
+
+            <!-- ALLEGATI -->
+            <div th:if="${!#lists.isEmpty(messaggioEmail.allegati)}" class="mt-4 pt-3 border-top">
+                <p class="mb-3">
+                    <i class="ti ti-paperclip me-1"></i>
+                    <strong th:text="${#lists.size(messaggioEmail.allegati) + ' Allegati'}">Allegati</strong>
                 </p>
-
-                <p class="text-muted mb-0">
-                    Altri destinatari:
-                    <span th:text="${messaggioEmail.indirizziTO}"></span>
-                    <span th:text="${messaggioEmail.indirizziCC}"></span>
-                </p>
-            </div>
-
-            <div class="text-end mb-4">
-                <button th:if="${messaggioEmail.salvato}"
-                        class="btn btn-success"
-                        type="button">
-                    Email già registrata nel CRM
-                </button>
-
-                <th:block th:if="${!messaggioEmail.salvato}">
-                    <a th:if="${messaggioEmail.mittenteNoto}"
-                       th:href="@{/admin/crm/lead/open(id=-1,idutente=${messaggioEmail.idMittenteNoto},idleadstore=${messaggioEmail.id},store='emailstore')}"
-                       class="btn btn-primary">
-                        <i class="ti ti-user-check me-1"></i> Profila LEAD per utente
-                    </a>
-
-                    <a th:if="${!messaggioEmail.mittenteNoto}"
-                       th:href="@{/admin/crm/lead/open(id=-1,idutente=0,idleadstore=${messaggioEmail.id},store='emailstore')}"
-                       class="btn btn-primary">
-                        <i class="ti ti-user-plus me-1"></i> Profila LEAD per nuovo utente
-                    </a>
-                </th:block>
-            </div>
-
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Messaggio email</h5>
+                <div class="row g-2">
+                    <div th:each="allegato : ${messaggioEmail.allegati}" class="col-auto">
+                        <a th:href="@{/admin/email/allegato/{id}/{filename}/{acc}(id=${messaggioEmail.id},filename=${allegato.id},acc=${config.amministratore.idaccountemail})}"
+                           target="_blank"
+                           class="card border text-decoration-none p-2 d-flex flex-row align-items-center gap-2"
+                           style="min-width:150px">
+                            <i class="ti ti-file f-20 text-primary"></i>
+                            <div>
+                                <p class="mb-0 small fw-medium" th:text="${allegato.nome}">file.pdf</p>
+                            </div>
+                            <i class="ti ti-download ms-auto text-muted"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <iframe width="100%" height="500" id="myframe" frameborder="0"></iframe>
-                    <textarea id="textmail"
-                              name="content"
-                              rows="1"
-                              style="visibility:hidden"
-                              th:text="${messaggioEmail.testo}"></textarea>
-                </div>
-                <div class="card-footer">
-                    <small th:text="${messaggioEmail.date}">01/01/2025</small>
-                </div>
-            </div>
-
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Allegati</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-unstyled mb-0">
-                        <li th:each="allegato : ${messaggioEmail.allegati}" class="mb-2">
-                            <a th:href="@{/admin/email/allegato/{id}/{filename}/{acc}(id=${messaggioEmail.id},filename=${allegato.id},acc=${config.actualMailboxId})}"
-                               target="_blank"
-                               class="text-decoration-none">
-                                <img th:src="@{'/manager/assets/img/filetypes/32/' + ${allegato.type} + '.png'}"
-                                     alt=""
-                                     width="25"
-                                     height="25"
-                                     class="me-2">
-                                <span th:text="${allegato.nome}">file.pdf</span>
-                                <span th:text="${allegato.idorigine}" class="text-muted ms-1"></span>
-                            </a>
-                        </li>
-
-                        <li th:if="${#lists.isEmpty(messaggioEmail.allegati)}"
-                            class="text-muted">
-                            Nessun allegato.
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="alert alert-light border">
-                <small class="text-muted">
-                    Lead: potenziale acquirente di un dato prodotto o servizio. Si genera un lead quando,
-                    attraverso un'iniziativa di marketing, un'impresa ottiene dall'utente informazioni utili
-                    a stabilire un contatto commerciale, da utilizzare in un secondo momento per generare
-                    un'opportunità di vendita.
-                </small>
             </div>
 
         </div>
     </div>
 
     <script>
-        $(document).ready(function () {
-            var myFrame = $("#myframe").contents().find('body');
-            var textareaValue = $("#textmail").val();
-            myFrame.html(textareaValue);
+        window.addEventListener('load', function() {
+            var textArea = window.parent ?
+                window.parent.document.getElementById('textmail') :
+                document.getElementById('textmail');
+
+            if (!textArea) textArea = document.getElementById('textmail');
 
             var iFrame = document.getElementById('myframe');
-            if (iFrame && iFrame.contentWindow && iFrame.contentWindow.document && iFrame.contentWindow.document.documentElement) {
-                iFrame.style.height = iFrame.contentWindow.document.documentElement.scrollHeight + 'px';
+            if (iFrame && textArea) {
+                var doc = iFrame.contentWindow.document;
+                doc.open();
+                doc.write(textArea.value);
+                doc.close();
+                setTimeout(function() {
+                    iFrame.style.height = (doc.documentElement.scrollHeight + 30) + 'px';
+                }, 300);
             }
         });
     </script>

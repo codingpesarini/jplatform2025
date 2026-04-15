@@ -200,6 +200,36 @@ public class MessaggioUtente implements Serializable {
     @Transient
     private UtenteEsterno utente;
 
+    @Transient
+    private String nomeAccount = "";
+
+    @Transient
+    private String mittente = "";
+
+    @Transient
+    private String indirizzoMittente = "";
+
+    @Transient
+    private String indirizziTO = "";
+
+    @Transient
+    private String indirizziCC = "";
+
+    @Transient
+    private String date = "";
+
+    @Transient
+    private String testo = "";
+
+    @Transient
+    private boolean salvato = false;
+
+    @Transient
+    private boolean mittenteNoto = false;
+
+    @Transient
+    private Integer idMittenteNoto = 0;
+
     /**
      * Allegati associati al messaggio/email
      */

@@ -607,24 +607,31 @@
     const hiddenId = (tipo === 'EMAIL') ? 'idaccountemail' : 'idaccountpec';
     const rowId = (tipo === 'EMAIL' ? 'rowEMAIL_' : 'rowPEC_') + id;
 
-    // 1. Imposta l'ID pulito (sovrascrive tutto)
+    // Evita duplicati
     const hidden = document.getElementById(hiddenId);
-    hidden.value = id;
+    const current = hidden.value ? hidden.value.split(',').filter(v => v !== '') : [];
+    if (current.includes(String(id))) {
+        bootstrap.Modal.getInstance(document.getElementById('modalAccount')).hide();
+        return;
+    }
 
-    // 2. Svuota visivamente la tabella precedente (ne ammettiamo solo uno)
-    const tbody = document.querySelector('#' + targetTableId + ' tbody');
-    tbody.innerHTML = '';
+    // Aggiunge l'id alla lista
+    current.push(String(id));
+    hidden.value = current.join(',');
 
-    // 3. Aggiunge la riga visiva
-    tbody.insertAdjacentHTML('beforeend', `
-        <tr id="${rowId}">
-            <td>${descrizione}</td>
-            <td class="text-center">
-                <a href="javascript:void(0);" onclick="disassociaAccount('${hiddenId}','${id}','${rowId}')">
-                    <i class="fas fa-trash-alt text-danger"></i>
-                </a>
-            </td>
-        </tr>`);
+    // Aggiunge la riga visiva
+    if (!document.getElementById(rowId)) {
+        const tbody = document.querySelector('#' + targetTableId + ' tbody');
+        tbody.insertAdjacentHTML('beforeend', `
+            <tr id="${rowId}">
+                <td>${descrizione}</td>
+                <td class="text-center">
+                    <a href="javascript:void(0);" onclick="disassociaAccount('${hiddenId}','${id}','${rowId}')">
+                        <i class="fas fa-trash-alt text-danger"></i>
+                    </a>
+                </td>
+            </tr>`);
+    }
 
     bootstrap.Modal.getInstance(document.getElementById('modalAccount')).hide();
 }

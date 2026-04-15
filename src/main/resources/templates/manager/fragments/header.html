@@ -64,6 +64,27 @@
                     </div>
                 </li>
 
+                <!-- Notifiche Email -->
+                <li class="dropdown pc-h-item" id="emailNotifyItem" style="display:none">
+                    <a class="pc-head-link dropdown-toggle arrow-none me-0 position-relative"
+                       data-bs-toggle="dropdown" href="javascript:void(0)" role="button">
+                        <i class="ti ti-mail" style="font-size:20px"></i>
+                        <span id="emailBadge"
+                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                              style="display:none;font-size:10px"></span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end pc-h-dropdown" style="min-width:260px">
+                        <div class="dropdown-header fw-bold px-3 py-2 border-bottom">
+                            <i class="ti ti-mail me-1"></i> Caselle di posta
+                        </div>
+                        <div id="emailDropdownBody">
+                            <div class="text-center p-3 text-muted" style="font-size:12px">
+                                <div class="spinner-border spinner-border-sm"></div> Caricamento...
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
                 <!-- User Profile -->
                 <li class="dropdown pc-h-item header-user-profile">
                     <a class="pc-head-link dropdown-toggle arrow-none me-0"
@@ -113,7 +134,61 @@
 
             </ul>
         </div>
+        <script>
+            (function() {
+                function caricaNotificheEmail() {
+                    fetch('/admin/email/api/nonletti')
+                        .then(function(r) { return r.json(); })
+                        .then(function(lista) {
+                            if (!lista || lista.length === 0) return;
 
+                            var totaleNonLetti = lista.reduce(function(s, a) { return s + (a.nonLetti || 0); }, 0);
+                            var badge  = document.getElementById('emailBadge');
+                            var item   = document.getElementById('emailNotifyItem');
+                            var body   = document.getElementById('emailDropdownBody');
+
+                            // Mostra l'icona solo se ci sono account associati
+                            if (item) item.style.display = '';
+
+                            // Badge totale
+                            if (badge) {
+                                if (totaleNonLetti > 0) {
+                                    badge.textContent = totaleNonLetti > 99 ? '99+' : totaleNonLetti;
+                                    badge.style.display = '';
+                                } else {
+                                    badge.style.display = 'none';
+                                }
+                            }
+
+                            // Dropdown con un link per account
+                            if (body) {
+                                var html = '';
+                                lista.forEach(function(acc) {
+                                    var label = acc.nonLetti > 0
+                                        ? '<span class="badge bg-danger ms-auto">' + acc.nonLetti + '</span>'
+                                        : '<span class="badge bg-secondary ms-auto">0</span>';
+                                    html += '<a href="/admin/email/inbox/' + acc.id + '" class="dropdown-item d-flex align-items-center gap-2 py-2">' +
+                                        '<i class="ti ti-' + (acc.tipo === 'PEC' ? 'shield-check' : 'mail') + ' text-muted"></i>' +
+                                        '<span class="flex-grow-1" style="font-size:13px">' + acc.descrizione + '</span>' +
+                                        label +
+                                        '</a>';
+                                });
+                                body.innerHTML = html;
+                            }
+                        })
+                        .catch(function() {
+                            // Silenzioso — non blocca l'UI se il server mail non risponde
+                        });
+                }
+
+                // Carica subito al DOMContentLoaded
+                document.addEventListener('DOMContentLoaded', function() {
+                    caricaNotificheEmail();
+                    // Ricarica ogni 2 minuti
+                    setInterval(caricaNotificheEmail, 2 * 60 * 1000);
+                });
+            })();
+        </script>
     </div>
 </header>
 

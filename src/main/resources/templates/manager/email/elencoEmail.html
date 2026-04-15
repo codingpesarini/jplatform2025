@@ -316,11 +316,22 @@
 
       <div class="mail-nav-section">
         <div class="mail-nav-label">Le tue Mailbox</div>
-        <a th:href="${config.amministratore.idaccountemail != null and !config.amministratore.idaccountemail.isEmpty() ? '/admin/email/inbox/' + config.amministratore.idaccountemail : '/admin/email/inbox'}"
-           class="mail-account-item">
-          <i class="ti ti-mail me-2"></i>
-          <span th:text="${config.amministratore.email}">Email</span>
-        </a>
+
+        <th:block th:each="acc : ${listaAccountAssociati}">
+          <a th:href="@{'/admin/email/inbox/' + ${acc.id}}"
+             class="mail-account-item"
+             th:classappend="${currentAccountId == acc.id.toString()} ? 'active' : ''">
+            <i class="ti ti-mail me-2"></i>
+
+            <span th:text="${acc.emailAccount != null && !acc.emailAccount.isEmpty() ? acc.emailAccount : acc.pecAccount}">
+                Email
+            </span>
+          </a>
+        </th:block>
+
+        <div th:if="${#lists.isEmpty(listaAccountAssociati)}" class="ps-3 small text-muted">
+          Nessun account collegato
+        </div>
       </div>
     </div>
 
@@ -462,7 +473,7 @@
       confirmAction('Eliminare ' + ids.length + ' messaggi?', function() {
         const formData = new URLSearchParams();
         ids.forEach(id => formData.append('ids[]', id));
-        fetch('/admin/email/eliminaMultipla/' + mailboxId, {
+        fetch('/admin/email/eliminaMultiplo/' + mailboxId, {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: formData.toString()
