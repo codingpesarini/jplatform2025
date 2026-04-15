@@ -316,8 +316,10 @@
 
       <div class="mail-nav-section">
         <div class="mail-nav-label">Le tue Mailbox</div>
-        <a th:href="@{/admin/email/inbox/{id}(id=${config.amministratore.idaccountemail})}"
+        <a th:href="${config.amministratore.idaccountemail != null and !config.amministratore.idaccountemail.isEmpty() ? '/admin/email/inbox/' + config.amministratore.idaccountemail : '/admin/email/inbox'}"
            class="mail-account-item">
+          <i class="ti ti-mail me-2"></i>
+          <span th:text="${config.amministratore.email}">Email</span>
         </a>
       </div>
     </div>

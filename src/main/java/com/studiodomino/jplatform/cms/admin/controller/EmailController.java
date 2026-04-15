@@ -4,6 +4,7 @@ import com.studiodomino.jplatform.cms.admin.service.EmailSenderService;
 import com.studiodomino.jplatform.shared.config.Configurazione;
 import com.studiodomino.jplatform.shared.entity.MessaggioUtente;
 import com.studiodomino.jplatform.shared.service.ConfigurazioneService;
+import com.studiodomino.jplatform.shared.service.ImapService;
 import com.studiodomino.jplatform.shared.util.ViewUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin/email")
@@ -28,6 +30,7 @@ public class EmailController {
 
     private final ConfigurazioneService configurazioneService;
     private final EmailSenderService emailSenderService;
+    private final ImapService imapService;
 
     @GetMapping({"", "/inbox", "/inbox/{idAccount}", "/{idAccount}/cartella/{folder}"})
     public String inbox(
@@ -44,8 +47,11 @@ public class EmailController {
         String folder = (folderPath != null) ? folderPath : folderParam;
 
         try {
-            // TODO: implementare lettura IMAP reale con folder
-            model.addAttribute("listaEmailArrivo", Collections.emptyList());
+            List<Map<String, Object>> emails = Collections.emptyList();
+            if (idAccount != null && !idAccount.isBlank()) {
+                emails = imapService.leggiInbox(Integer.parseInt(idAccount), folder);
+            }
+            model.addAttribute("listaEmailArrivo", emails);
             model.addAttribute("erroreMailer", null);
             model.addAttribute("folderAttivo", folder);
         } catch (Exception e) {
