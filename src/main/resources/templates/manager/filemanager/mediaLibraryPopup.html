@@ -350,9 +350,6 @@
         <div class="modal-body">
           <select id="popSpostaSelect" class="form-select form-select-sm">
             <option value="">-- Seleziona cartella --</option>
-            <option th:each="f : ${allFolders}"
-                    th:value="${f.id}"
-                    th:text="${f.nome}">Cartella</option>
           </select>
         </div>
         <div class="modal-footer py-2">
@@ -396,12 +393,25 @@
     var _popSelezionati = {};
 
     function apriModalSpostaPopup(id, nome, tipo) {
-        _popSpostaId   = id;
-        _popSpostaTipo = tipo;
-        document.getElementById('popSpostaNome').textContent = nome;
-        document.getElementById('popSpostaSelect').value = '';
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalSpostaPopup')).show();
-    }
+    _popSpostaId   = id;
+    _popSpostaTipo = tipo;
+    document.getElementById('popSpostaNome').textContent = nome;
+
+    fetch('/admin/filemanager/api/folders/all')
+        .then(function(r) { return r.json(); })
+        .then(function(folders) {
+            var select = document.getElementById('popSpostaSelect');
+            select.innerHTML = '<option value="">-- Seleziona cartella --</option>';
+            folders.forEach(function(f) {
+                var opt = document.createElement('option');
+                opt.value = f.id;
+                opt.textContent = f.nome;
+                select.appendChild(opt);
+            });
+        });
+
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalSpostaPopup')).show();
+}
 
     function confermaSpostaPopup() {
         var targetId = document.getElementById('popSpostaSelect').value;

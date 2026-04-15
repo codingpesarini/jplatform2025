@@ -519,9 +519,6 @@
           <p>Seleziona la cartella di destinazione per <strong id="modalSpostaNome"></strong>:</p>
           <select id="modalSpostaSelect" class="form-select">
             <option value="">-- Seleziona cartella --</option>
-            <option th:each="f : ${allFolders}"
-                    th:value="${f.id}"
-                    th:text="${f.nome}">Cartella</option>
           </select>
         </div>
         <div class="modal-footer">

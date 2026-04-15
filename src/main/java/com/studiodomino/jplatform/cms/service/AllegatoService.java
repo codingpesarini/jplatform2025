@@ -82,21 +82,12 @@ public class AllegatoService {
      * Sposta una cartella sotto un nuovo genitore
      */
     @Transactional
-    public void moveAllegato(String folderId, String targetFolderId) {
-        // 1. Recupero la cartella da spostare
-        Folder folder = folderRepository.findById(Integer.parseInt(folderId))
-                .orElseThrow(() -> new RuntimeException("Cartella sorgente non trovata"));
+    public void moveAllegato(String allegatoId, String targetFolderId) {
+        Allegato allegato = allegatoRepository.findById(Integer.parseInt(allegatoId))
+                .orElseThrow(() -> new RuntimeException("Allegato non trovato"));
 
-        // 2. Controllo di sicurezza: non spostare una cartella dentro se stessa
-        if (folderId.equals(targetFolderId)) {
-            throw new IllegalArgumentException("Impossibile spostare una cartella dentro se stessa");
-        }
-
-        // 3. Aggiorno il riferimento al padre (idfolder)
-        folder.setIdfolder(targetFolderId);
-
-        // 4. Salvo la modifica
-        folderRepository.save(folder);
+        allegato.setIdFolder(Integer.parseInt(targetFolderId));
+        allegatoRepository.save(allegato);
     }
 
     // ========================================

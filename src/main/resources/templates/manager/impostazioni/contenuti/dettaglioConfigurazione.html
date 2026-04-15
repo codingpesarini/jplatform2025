@@ -641,7 +641,7 @@
         if (ids.length === 0) return;
 
         // Recupera la lista completa dal server per trovare le descrizioni
-        fetch('/admin/account/popup?tipo=' + tipo)
+        fetch('/admin/account/popup/' + tipo)
             .then(r => r.json())
             .then(lista => {
                 ids.forEach(id => {
@@ -674,7 +674,7 @@
         const body = document.getElementById('modalAccountBody');
         body.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-info"></div></div>';
 
-        fetch('/admin/account/popup?tipo=' + tipo)
+        fetch('/admin/account/popup/' + tipo)
             .then(r => r.json())
             .then(lista => {
                 let html = '<div class="p-3"><table class="table table-sm table-bordered table-striped">';

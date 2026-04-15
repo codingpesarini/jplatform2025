@@ -1125,7 +1125,21 @@ function apriModalSposta(id, nome, tipo) {
     _spostaElementoId   = id;
     _spostaElementoTipo = tipo;
     document.getElementById('modalSpostaNome').textContent = nome;
-    document.getElementById('modalSpostaSelect').value = '';
+
+    // Carica TUTTE le cartelle via API
+    fetch('/admin/filemanager/api/folders/all')
+        .then(function(r) { return r.json(); })
+        .then(function(folders) {
+            var select = document.getElementById('modalSpostaSelect');
+            select.innerHTML = '<option value="">-- Seleziona cartella --</option>';
+            folders.forEach(function(f) {
+                var opt = document.createElement('option');
+                opt.value = f.id;
+                opt.textContent = f.nome;
+                select.appendChild(opt);
+            });
+        });
+
     bootstrap.Modal.getOrCreateInstance(document.getElementById('modalSposta')).show();
 }
 

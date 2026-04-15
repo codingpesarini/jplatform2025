@@ -202,11 +202,11 @@ public class MailAccountController {
             return "KO";
         }
     }
-    
-    @GetMapping("/popup")
+
+    @GetMapping("/popup/{tipo}")
     @ResponseBody
     public ResponseEntity<List<Account>> popup(
-            @RequestParam(required = false) String tipo,
+            @PathVariable String tipo,
             HttpServletRequest request) {
 
         HttpSession session = request.getSession();

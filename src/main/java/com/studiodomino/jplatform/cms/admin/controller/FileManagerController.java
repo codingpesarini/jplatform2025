@@ -251,6 +251,7 @@ public class FileManagerController {
         if (!config.isLogged()) return "redirect:/login";
 
         caricaModelBase(idfolder, model, config);
+        model.addAttribute("allFolders", folderService.getAllFolders());
         model.addAttribute("tipo", tipo);
         return ViewUtils.resolveProtectedTemplate("filemanager/mediaLibraryPopup");
     }
@@ -911,6 +912,22 @@ public class FileManagerController {
             m.put("nome", f.getNome());
             m.put("idfolder", f.getIdfolder());
             m.put("hasSubfolders", f.hasSubfolders());
+            return m;
+        }).toList();
+    }
+
+    @GetMapping("/api/folders/all")
+    @ResponseBody
+    public List<Map<String, Object>> apiFoldersAll(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+        if (!config.isLogged()) return List.of();
+
+        return folderService.getAllFolders().stream().map(f -> {
+            Map<String, Object> m = new HashMap<>();
+            m.put("id", f.getId());
+            m.put("nome", f.getNome());
+            m.put("idfolder", f.getIdfolder());
             return m;
         }).toList();
     }

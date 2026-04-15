@@ -3,6 +3,7 @@ package com.studiodomino.jplatform.cms.admin.controller;
 import com.studiodomino.jplatform.shared.config.Configurazione;
 import com.studiodomino.jplatform.shared.entity.Gruppo;
 import com.studiodomino.jplatform.shared.entity.Utente;
+import com.studiodomino.jplatform.shared.repository.AccountRepository;
 import com.studiodomino.jplatform.shared.repository.GruppoRepository;
 import com.studiodomino.jplatform.shared.repository.UtenteRepository;
 import com.studiodomino.jplatform.shared.service.ConfigurazioneService;
@@ -31,6 +32,7 @@ public class AmministratoriController {
     private final UtenteRepository utenteRepository;
     private final ConfigurazioneService configurazioneService;
     private final GruppoRepository gruppoRepository;
+    private final AccountRepository mailAccountRepository;
 
     // ─── ELENCO ──────────────────────────────────────────────────────────────
     @GetMapping
@@ -123,6 +125,8 @@ public class AmministratoriController {
         Utente utente = utenteRepository.findById(id).orElse(null);
         if (utente == null) return "redirect:/admin/amministratori";
 
+        popolaAccountTransient(utente);
+
         log.info("=== AMMINISTRATORI OPEN === id: {}", id);
 
         utente.setRuoliA1(parseRuoliString(utente.getRuoli1String()));
@@ -141,6 +145,30 @@ public class AmministratoriController {
         model.addAttribute("listaGruppi", tuttiGruppi);
 
         return ViewUtils.resolveProtectedTemplate("admin/contenuti/dettaglioAmministratore");
+    }
+
+    private void popolaAccountTransient(Utente utente) {
+        if (utente == null) return;
+
+        // Gestione Email Ordinaria
+        if (utente.getIdaccountemail() != null && !utente.getIdaccountemail().isEmpty()) {
+            try {
+                mailAccountRepository.findById(Integer.parseInt(utente.getIdaccountemail()))
+                        .ifPresent(acc -> utente.setAccountEmail(List.of(acc)));
+            } catch (Exception e) {
+                log.warn("Impossibile caricare account email ID {}: {}", utente.getIdaccountemail(), e.getMessage());
+            }
+        }
+
+        // Gestione PEC
+        if (utente.getIdaccountpec() != null && !utente.getIdaccountpec().isEmpty()) {
+            try {
+                mailAccountRepository.findById(Integer.parseInt(utente.getIdaccountpec()))
+                        .ifPresent(acc -> utente.setAccountPec(List.of(acc)));
+            } catch (Exception e) {
+                log.warn("Impossibile caricare account PEC ID {}: {}", utente.getIdaccountpec(), e.getMessage());
+            }
+        }
     }
 
     private String[] parseRuoliString(String s) {
@@ -341,6 +369,7 @@ public class AmministratoriController {
 
         try {
             Utente salvato = utenteRepository.save(utenteDaSalvare);
+            popolaAccountTransient(salvato);
             log.info("=== SAVE SUCCESS === id: {}", salvato.getId());
 
             salvato.setRuoliA1(parseRuoliString(salvato.getRuoli1String()));
