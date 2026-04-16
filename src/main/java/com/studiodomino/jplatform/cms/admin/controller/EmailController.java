@@ -155,6 +155,42 @@ public class EmailController {
         return risultato;
     }
 
+    @GetMapping("/inbox/{idAccount}/nonletti")
+    public String inboxNonLetti(
+            @PathVariable String idAccount,
+            HttpServletRequest request,
+            Model model) {
+
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+        if (!config.isLogged()) return "redirect:/login";
+
+        try {
+            config.setActualMailboxId(idAccount);
+            config.setActualMailboxFolderName("INBOX");
+            configurazioneService.saveConfig(session, config);
+
+            List<Map<String, Object>> tutte = imapService.leggiInbox(Integer.parseInt(idAccount), "INBOX");
+            List<Map<String, Object>> nonLette = tutte.stream()
+                    .filter(e -> Boolean.FALSE.equals(e.get("letto")) || "false".equalsIgnoreCase(String.valueOf(e.get("letto"))))
+                    .collect(java.util.stream.Collectors.toList());
+
+            model.addAttribute("listaEmailArrivo", nonLette);
+            model.addAttribute("filtroNonLetti", true);
+            model.addAttribute("folderAttivo", "INBOX");
+            model.addAttribute("currentAccountId", idAccount);
+            model.addAttribute("erroreMailer", null);
+        } catch (Exception e) {
+            log.error("Errore inboxNonLetti account={}", idAccount, e);
+            model.addAttribute("listaEmailArrivo", Collections.emptyList());
+            model.addAttribute("erroreMailer", "errore_generico");
+            model.addAttribute("folderAttivo", "INBOX");
+        }
+
+        model.addAttribute("config", config);
+        return ViewUtils.resolveProtectedTemplate("email/elencoEmail");
+    }
+
 
     @GetMapping({"/open/{id}", "/open/{id}/{idAccount}"})
     public String openEmail(
@@ -213,6 +249,10 @@ public class EmailController {
         try {
             String accId = (idAccount != null && !idAccount.isBlank() && !"0".equals(idAccount))
                     ? idAccount : config.getActualMailboxId();
+// Prende solo il primo se multipli (es. "13,3" → "13")
+            if (accId != null && accId.contains(",")) {
+                accId = accId.split(",")[0].trim();
+            }
 
             if (accId != null && !"0".equals(accId)) {
                 Map<String, Object> emailData = imapService.leggiMessaggio(
@@ -247,6 +287,10 @@ public class EmailController {
         try {
             String accId = (idAccount != null && !idAccount.isBlank() && !"0".equals(idAccount))
                     ? idAccount : config.getActualMailboxId();
+// Prende solo il primo se multipli (es. "13,3" → "13")
+            if (accId != null && accId.contains(",")) {
+                accId = accId.split(",")[0].trim();
+            }
 
             if (accId != null && !"0".equals(accId)) {
                 Map<String, Object> emailData = imapService.leggiMessaggio(

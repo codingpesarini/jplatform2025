@@ -65,13 +65,23 @@
                 </li>
 
                 <!-- Notifiche Email -->
-                <li class="dropdown pc-h-item" id="emailNotifyItem" style="display:none">
-                    <a class="pc-head-link dropdown-toggle arrow-none me-0 position-relative"
+                <li class="dropdown pc-h-item" id="emailNotifyItem" style="display:none; position:relative;">
+                    <a class="pc-head-link dropdown-toggle arrow-none me-0"
                        data-bs-toggle="dropdown" href="javascript:void(0)" role="button">
                         <i class="ti ti-mail" style="font-size:20px"></i>
                         <span id="emailBadge"
-                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                              style="display:none;font-size:10px"></span>
+                              class="badge bg-danger"
+                              style="display:none;
+                     position:absolute;
+                     top:2px;
+                     right:2px;
+                     font-size:10px;
+                     min-width:16px;
+                     height:16px;
+                     padding:2px 4px;
+                     border-radius:8px;
+                     line-height:12px">
+        </span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end pc-h-dropdown" style="min-width:260px">
                         <div class="dropdown-header fw-bold px-3 py-2 border-bottom">
@@ -167,11 +177,11 @@
                                     var label = acc.nonLetti > 0
                                         ? '<span class="badge bg-danger ms-auto">' + acc.nonLetti + '</span>'
                                         : '<span class="badge bg-secondary ms-auto">0</span>';
-                                    html += '<a href="/admin/email/inbox/' + acc.id + '" class="dropdown-item d-flex align-items-center gap-2 py-2">' +
-                                        '<i class="ti ti-' + (acc.tipo === 'PEC' ? 'shield-check' : 'mail') + ' text-muted"></i>' +
-                                        '<span class="flex-grow-1" style="font-size:13px">' + acc.descrizione + '</span>' +
-                                        label +
-                                        '</a>';
+                                    html += '<a href="/admin/email/inbox/' + acc.id + '/nonletti" ' +
+    'class="dropdown-item d-flex align-items-center justify-content-between py-2 px-3">' +
+    '<span style="font-size:13px">' + acc.descrizione + '</span>' +
+    label +
+    '</a>';
                                 });
                                 body.innerHTML = html;
                             }
