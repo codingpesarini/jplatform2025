@@ -520,6 +520,9 @@ public int getNumberInt10() {
  * Ritorna numeratore1 formattato con 8 cifre (00000000)
  */
 public String getNumeratore1() {
+    if (numeratore1 == null || numeratore1 == 0L) {
+        return id != null ? String.format("%08d", Long.parseLong(id)) : "00000000";
+    }
     DecimalFormat formatter = new DecimalFormat("00000000");
     return formatter.format(numeratore1);
 }

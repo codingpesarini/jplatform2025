@@ -282,14 +282,14 @@
 
     <!-- ═══ SIDEBAR (desktop) ═══ -->
     <div class="mail-sidebar">
-      <a th:href="@{/admin/email/componi/{id}(id=${config.actualMailboxId})}"
+      <a th:href="@{/admin/email/componi/{id}(id=${currentAccountId})}"
          class="mail-compose-btn">
         <i class="ti ti-pencil"></i> Scrivi
       </a>
 
       <div class="mail-nav-section">
         <div class="mail-nav-label">Cartelle</div>
-        <a th:href="@{/admin/email/{id}/cartella/INBOX(id=${config.actualMailboxId})}"
+        <a th:href="@{/admin/email/{id}/cartella/INBOX(id=${currentAccountId})}"
            th:classappend="${folderAttivo == 'INBOX' or folderAttivo == null} ? ' active' : ''"
            class="mail-nav-item">
           <i class="ti ti-inbox"></i> Inbox
@@ -297,17 +297,17 @@
                 th:if="${config.numeroEmail != null and config.numeroEmail > 0}"
                 th:text="${config.numeroEmail}">0</span>
         </a>
-        <a th:href="@{/admin/email/{id}/cartella/SENT(id=${config.actualMailboxId})}"
+        <a th:href="@{/admin/email/{id}/cartella/SENT(id=${currentAccountId})}"
            th:classappend="${folderAttivo == 'SENT'} ? ' active' : ''"
            class="mail-nav-item">
           <i class="ti ti-send"></i> Inviati
         </a>
-        <a th:href="@{/admin/email/{id}/cartella/DRAFTS(id=${config.actualMailboxId})}"
+        <a th:href="@{/admin/email/{id}/cartella/DRAFTS(id=${currentAccountId})}"
            th:classappend="${folderAttivo == 'DRAFTS'} ? ' active' : ''"
            class="mail-nav-item">
           <i class="ti ti-file"></i> Bozze
         </a>
-        <a th:href="@{/admin/email/{id}/cartella/TRASH(id=${config.actualMailboxId})}"
+        <a th:href="@{/admin/email/{id}/cartella/TRASH(id=${currentAccountId})}"
            th:classappend="${folderAttivo == 'TRASH'} ? ' active' : ''"
            class="mail-nav-item">
           <i class="ti ti-trash"></i> Cestino
@@ -322,9 +322,8 @@
              class="mail-account-item"
              th:classappend="${currentAccountId == acc.id.toString()} ? 'active' : ''">
             <i class="ti ti-mail me-2"></i>
-
             <span th:text="${acc.emailAccount != null && !acc.emailAccount.isEmpty() ? acc.emailAccount : acc.pecAccount}">
-                Email
+              Email
             </span>
           </a>
         </th:block>
@@ -340,27 +339,27 @@
 
       <!-- Top bar mobile -->
       <div class="mail-mobile-topbar">
-        <a th:href="@{/admin/email/componi/{id}(id=${config.actualMailboxId})}"
+        <a th:href="@{/admin/email/componi/{id}(id=${currentAccountId})}"
            class="btn btn-primary btn-sm">
           <i class="ti ti-pencil me-1"></i> Scrivi
         </a>
         <div class="d-flex gap-2">
-          <a th:href="@{/admin/email/{id}/cartella/INBOX(id=${config.actualMailboxId})}"
+          <a th:href="@{/admin/email/{id}/cartella/INBOX(id=${currentAccountId})}"
              th:classappend="${folderAttivo == 'INBOX' or folderAttivo == null} ? ' active' : ''"
              class="mail-mobile-folder-btn" title="Inbox">
             <i class="ti ti-inbox"></i>
           </a>
-          <a th:href="@{/admin/email/{id}/cartella/SENT(id=${config.actualMailboxId})}"
+          <a th:href="@{/admin/email/{id}/cartella/SENT(id=${currentAccountId})}"
              th:classappend="${folderAttivo == 'SENT'} ? ' active' : ''"
              class="mail-mobile-folder-btn" title="Inviati">
             <i class="ti ti-send"></i>
           </a>
-          <a th:href="@{/admin/email/{id}/cartella/DRAFTS(id=${config.actualMailboxId})}"
+          <a th:href="@{/admin/email/{id}/cartella/DRAFTS(id=${currentAccountId})}"
              th:classappend="${folderAttivo == 'DRAFTS'} ? ' active' : ''"
              class="mail-mobile-folder-btn" title="Bozze">
             <i class="ti ti-file"></i>
           </a>
-          <a th:href="@{/admin/email/{id}/cartella/TRASH(id=${config.actualMailboxId})}"
+          <a th:href="@{/admin/email/{id}/cartella/TRASH(id=${currentAccountId})}"
              th:classappend="${folderAttivo == 'TRASH'} ? ' active' : ''"
              class="mail-mobile-folder-btn" title="Cestino">
             <i class="ti ti-trash"></i>
@@ -373,13 +372,13 @@
         <input type="checkbox" class="form-check-input chSel_all inpt_c2"
                style="width:15px;height:15px;accent-color:#0088cc;cursor:pointer"/>
 
-        <a th:href="@{/admin/email/inbox/{id}(id=${config.actualMailboxId})}"
+        <a th:href="@{/admin/email/inbox/{id}(id=${currentAccountId})}"
            class="mail-toolbar-btn">
           <i class="ti ti-refresh"></i> <span class="btn-text">Aggiorna</span>
         </a>
 
         <a href="javascript:void(0)"
-           th:attr="onclick=|CancellaEmailMultiplaAjax('${config.actualMailboxId}')|"
+           th:attr="onclick=|CancellaEmailMultiplaAjax('${currentAccountId}')|"
            class="mail-toolbar-btn danger">
           <i class="ti ti-trash"></i> <span class="btn-text">Elimina</span>
         </a>
@@ -432,7 +431,7 @@
             <span th:text="${#strings.substring(msg.mittente, 0, 1).toUpperCase()}">M</span>
           </div>
 
-          <a th:href="@{/admin/email/open/{id}/{acc}(id=${msg.id},acc=${config.actualMailboxId})}"
+          <a th:href="@{/admin/email/open/{id}/{acc}(id=${msg.id},acc=${currentAccountId})}"
              class="mail-item-body text-decoration-none">
             <div class="mail-item-sender" th:text="${msg.mittente}">mittente</div>
             <div class="mail-item-subject" th:text="${msg.oggetto}">oggetto</div>

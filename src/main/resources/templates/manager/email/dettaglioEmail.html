@@ -24,7 +24,7 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div class="d-flex align-items-center gap-2">
-                <a th:href="@{/admin/email/inbox/{acc}(acc=${config.amministratore.idaccountemail})}"
+                <a th:href="@{/admin/email/inbox/{acc}(acc=${config.actualMailboxId})}"
                    class="btn btn-sm btn-outline-secondary">
                     <i class="ti ti-arrow-left"></i>
                 </a>
@@ -34,11 +34,11 @@
                 </div>
             </div>
             <div class="d-flex gap-2 flex-wrap">
-                <a th:href="@{/admin/email/rispondi/{id}/{acc}(id=${messaggioEmail.id},acc=${config.amministratore.idaccountemail})}"
+                <a th:href="@{/admin/email/rispondi/{id}(id=${messaggioEmail.id})}"
                    class="btn btn-sm btn-primary">
                     <i class="ti ti-arrow-back-up me-1"></i> Rispondi
                 </a>
-                <a th:href="@{/admin/email/inoltra/{id}/{acc}(id=${messaggioEmail.id},acc=${config.amministratore.idaccountemail})}"
+                <a th:href="@{/admin/email/inoltra/{id}(id=${messaggioEmail.id})}"
                    class="btn btn-sm btn-outline-secondary">
                     <i class="ti ti-send me-1"></i> Inoltra
                 </a>
@@ -68,12 +68,12 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <a class="dropdown-item" th:href="@{/admin/email/rispondi/{id}/{acc}(id=${messaggioEmail.id},acc=${config.amministratore.idaccountemail})}">
+                                <a class="dropdown-item" th:href="@{/admin/email/rispondi/{id}(id=${messaggioEmail.id})}">
                                     <i class="ti ti-arrow-back-up me-2"></i>Rispondi
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" th:href="@{/admin/email/inoltra/{id}/{acc}(id=${messaggioEmail.id},acc=${config.amministratore.idaccountemail})}">
+                                <a class="dropdown-item" th:href="@{/admin/email/inoltra/{id}(id=${messaggioEmail.id})}">
                                     <i class="ti ti-send me-2"></i>Inoltra
                                 </a>
                             </li>
@@ -111,7 +111,7 @@
                 </p>
                 <div class="row g-2">
                     <div th:each="allegato : ${messaggioEmail.allegati}" class="col-auto">
-                        <a th:href="@{/admin/email/allegato/{id}/{filename}/{acc}(id=${messaggioEmail.id},filename=${allegato.id},acc=${config.amministratore.idaccountemail})}"
+                        <a th:href="@{/admin/email/allegato/{id}/{filename}(id=${messaggioEmail.id},filename=${allegato.id})}"
                            target="_blank"
                            class="card border text-decoration-none p-2 d-flex flex-row align-items-center gap-2"
                            style="min-width:150px">

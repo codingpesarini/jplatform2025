@@ -19,6 +19,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -150,24 +151,36 @@ public class AmministratoriController {
     private void popolaAccountTransient(Utente utente) {
         if (utente == null) return;
 
-        // Gestione Email Ordinaria
+        // Email — gestisce multipli separati da virgola
         if (utente.getIdaccountemail() != null && !utente.getIdaccountemail().isEmpty()) {
-            try {
-                mailAccountRepository.findById(Integer.parseInt(utente.getIdaccountemail()))
-                        .ifPresent(acc -> utente.setAccountEmail(List.of(acc)));
-            } catch (Exception e) {
-                log.warn("Impossibile caricare account email ID {}: {}", utente.getIdaccountemail(), e.getMessage());
+            List<com.studiodomino.jplatform.shared.entity.Account> listaEmail = new ArrayList<>();
+            for (String idStr : utente.getIdaccountemail().split(",")) {
+                String t = idStr.trim();
+                if (t.isEmpty() || "0".equals(t)) continue;
+                try {
+                    mailAccountRepository.findById(Integer.parseInt(t))
+                            .ifPresent(listaEmail::add);
+                } catch (Exception e) {
+                    log.warn("Impossibile caricare account email ID {}: {}", t, e.getMessage());
+                }
             }
+            utente.setAccountEmail(listaEmail);
         }
 
-        // Gestione PEC
+        // PEC — gestisce multipli separati da virgola
         if (utente.getIdaccountpec() != null && !utente.getIdaccountpec().isEmpty()) {
-            try {
-                mailAccountRepository.findById(Integer.parseInt(utente.getIdaccountpec()))
-                        .ifPresent(acc -> utente.setAccountPec(List.of(acc)));
-            } catch (Exception e) {
-                log.warn("Impossibile caricare account PEC ID {}: {}", utente.getIdaccountpec(), e.getMessage());
+            List<com.studiodomino.jplatform.shared.entity.Account> listaPec = new ArrayList<>();
+            for (String idStr : utente.getIdaccountpec().split(",")) {
+                String t = idStr.trim();
+                if (t.isEmpty() || "0".equals(t)) continue;
+                try {
+                    mailAccountRepository.findById(Integer.parseInt(t))
+                            .ifPresent(listaPec::add);
+                } catch (Exception e) {
+                    log.warn("Impossibile caricare account PEC ID {}: {}", t, e.getMessage());
+                }
             }
+            utente.setAccountPec(listaPec);
         }
     }
 

@@ -31,7 +31,7 @@ $(document).ready(function(){
     // Elenco sezioni principale (tab attiva, sortable attivo)
     if ($('#elencoSezioniPrincipale').length > 0) {
         initDataTable('#elencoSezioniPrincipale', {
-            ordering: false  // disabilitato perché c'è il sortable drag&drop
+            ordering: false
         });
     }
 
@@ -51,9 +51,22 @@ $(document).ready(function(){
 
             if (target === '#tab_03') {
                 initDataTable('#elencoContenuti', {
-                    order: [[1, 'asc']],
+                    order: [[3, 'desc']],
                     columnDefs: [
-                        { orderable: false, targets: [0, 5] }
+                        { orderable: false, targets: [0, 5] },
+                        { targets: [1, 3, 4], className: 'd-none d-lg-table-cell' },
+                        {
+                            targets: [3],
+                            render: function(data, type, row) {
+                                if (type === 'sort' && data) {
+                                    var parts = data.split('-');
+                                    if (parts.length === 3) {
+                                        return parts[2] + '-' + parts[1] + '-' + parts[0];
+                                    }
+                                }
+                                return data;
+                            }
+                        }
                     ]
                 });
             }
@@ -155,10 +168,6 @@ $(document).ready(function(){
         });
     });
 
-    // -------------------------------------------------------
-    // Misc
-    // -------------------------------------------------------
-
 });
 
 // -------------------------------------------------------
@@ -180,7 +189,7 @@ function showToast(title, message, type = 'success') {
         </div>`;
     $('#toast-container').append(toastHtml);
     const toastEl = document.getElementById(toastId);
-    const toast = new bootstrap.Toast(toastEl, { delay: 5000 }); // 5s per leggere i campi
+    const toast = new bootstrap.Toast(toastEl, { delay: 5000 });
     toast.show();
     toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
 }
@@ -204,7 +213,7 @@ function showToastPop(title, message, type = 'success') {
         </div>`;
     $('#toast-container-pop').append(toastHtml);
     const toastEl = document.getElementById(toastId);
-    const toast = new bootstrap.Toast(toastEl, { delay: 5000 }); // 5s per leggere i campi
+    const toast = new bootstrap.Toast(toastEl, { delay: 5000 });
     toast.show();
     toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
 }
@@ -233,7 +242,7 @@ function confirmAction(message, onConfirm, btnLabel = 'Conferma', btnClass = 'bt
 }
 
 // -------------------------------------------------------
-// Confirm modal
+// Confirm modal POP
 // -------------------------------------------------------
 function confirmActionPop(message, onConfirm, btnLabel = 'Conferma', btnClass = 'btn-danger') {
     const modal = document.getElementById('confirmModal-pop');
@@ -338,7 +347,7 @@ function cancellaContenutiSelezionati() {
 
 function AttivaExtraTag() {
     var el = document.getElementById('regolaExtraTag1');
-    if (el) { // <--- Questo controllo salva tutto
+    if (el) {
         const val = el.value;
         const show = val === '1';
         ['ZonaExtraTagOrdine_maxEl','ZonaExtraTagOrdine','SpazioEreditaExtraTag','ZonaExtraTag']
@@ -351,7 +360,6 @@ function AttivaExtraTag() {
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(AttivaExtraTag, 100);
 });
-
 
 // ============================================================
 // TINYMCE - configurazione globale
@@ -386,42 +394,35 @@ function initTinyMCE(selector) {
 }
 
 function toggleEditor(id) {
-
     if (tinymce.get(id)) {
-        tinymce.get(id).remove(); // chiude editor
+        tinymce.get(id).remove();
     } else {
-        initTinyMCE('#' + id); // riapre editor
+        initTinyMCE('#' + id);
     }
-
 }
 
 // ============================================================
 // INVIAFORM - validazione + submit
 // ============================================================
 function InviaForm(formId) {
-
-    // Sincronizza TinyMCE in modo sicuro (compatibile con tutte le versioni)
-        if (typeof tinymce !== 'undefined') {
-            try {
-                // TinyMCE 4.x: triggerSave()
-                // TinyMCE 5.x/6.x: editors è un array ma può essere vuoto
-                if (typeof tinymce.triggerSave === 'function') {
-                    tinymce.triggerSave();
-                } else if (tinymce.editors && tinymce.editors.length > 0) {
-                    tinymce.editors.forEach(function(editor) { editor.save(); });
-                } else if (typeof tinymce.get === 'function') {
-                    // fallback: salva tutti gli editor tramite tinymce.get()
-                    var allEditors = tinymce.editors;
-                    for (var id in allEditors) {
-                        if (allEditors.hasOwnProperty(id)) {
-                            allEditors[id].save();
-                        }
+    if (typeof tinymce !== 'undefined') {
+        try {
+            if (typeof tinymce.triggerSave === 'function') {
+                tinymce.triggerSave();
+            } else if (tinymce.editors && tinymce.editors.length > 0) {
+                tinymce.editors.forEach(function(editor) { editor.save(); });
+            } else if (typeof tinymce.get === 'function') {
+                var allEditors = tinymce.editors;
+                for (var id in allEditors) {
+                    if (allEditors.hasOwnProperty(id)) {
+                        allEditors[id].save();
                     }
                 }
-            } catch(e) {
-                console.warn('TinyMCE save error:', e);
             }
+        } catch(e) {
+            console.warn('TinyMCE save error:', e);
         }
+    }
 
     var form = document.getElementById(formId);
     if (!form) {
@@ -461,58 +462,60 @@ function InviaForm(formId) {
 }
 
 // ============================================================
-// DOCUMENT READY
+// DOCUMENT READY 2
 // ============================================================
 $(document).ready(function() {
 
     // TinyMCE - Tab 02 Abstract e Tab 03 Contenuto
-    if ($('#testo').length)     initTinyMCE('#testo');
+    if ($('#testo').length) initTinyMCE('#testo');
 
-   var localeIT = {
-       firstDayOfWeek: 1,
-       weekdays: {
-           shorthand: ["Dom","Lun","Mar","Mer","Gio","Ven","Sab"],
-           longhand:  ["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"]
-       },
-       months: {
-           shorthand: ["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"],
-           longhand:  ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno",
-                       "Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"]
-       }
-   };
+    var localeIT = {
+        firstDayOfWeek: 1,
+        weekdays: {
+            shorthand: ["Dom","Lun","Mar","Mer","Gio","Ven","Sab"],
+            longhand:  ["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"]
+        },
+        months: {
+            shorthand: ["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"],
+            longhand:  ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno",
+                        "Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"]
+        }
+    };
 
-   function aggiungiBtnOggi(fp) {
-       var btn = document.createElement("button");
-       btn.textContent = "Oggi";
-       btn.type = "button";
-       btn.className = "flatpickr-oggi";
-       btn.style.cssText = "width:100%;padding:6px;background:#1a73e8;color:#fff;border:none;cursor:pointer;font-size:13px;";
-       btn.addEventListener("click", function() {
-           fp.setDate(new Date(), true);
-           fp.close();
-       });
-       fp.calendarContainer.appendChild(btn);
-   }
+    // CORRETTO: aggiunto controllo null su fp.calendarContainer
+    function aggiungiBtnOggi(fp) {
+        if (!fp || !fp.calendarContainer) return;
+        var btn = document.createElement("button");
+        btn.textContent = "Oggi";
+        btn.type = "button";
+        btn.className = "flatpickr-oggi";
+        btn.style.cssText = "width:100%;padding:6px;background:#1a73e8;color:#fff;border:none;cursor:pointer;font-size:13px;";
+        btn.addEventListener("click", function() {
+            fp.setDate(new Date(), true);
+            fp.close();
+        });
+        fp.calendarContainer.appendChild(btn);
+    }
 
-   // Data visualizzata — formato: 25 Marzo, 2021
-   flatpickr(".dataVisualizzata", {
-       dateFormat: "j F, Y",
-       allowInput: true,
-       locale: localeIT,
-       onReady: function(selectedDates, dateStr, fp) {
-           aggiungiBtnOggi(fp);
-       }
-   });
+    // Data visualizzata — formato: 25 Marzo, 2021
+    flatpickr(".dataVisualizzata", {
+        dateFormat: "j F, Y",
+        allowInput: true,
+        locale: localeIT,
+        onReady: function(selectedDates, dateStr, fp) {
+            aggiungiBtnOggi(fp);
+        }
+    });
 
-   // Data riferimento — formato: 25-03-2021
-   flatpickr(".dataBase", {
-       dateFormat: "d-m-Y",
-       allowInput: true,
-       locale: localeIT,
-       onReady: function(selectedDates, dateStr, fp) {
-           aggiungiBtnOggi(fp);
-       }
-   });
+    // Data riferimento — formato: 25-03-2021
+    flatpickr(".dataBase", {
+        dateFormat: "d-m-Y",
+        allowInput: true,
+        locale: localeIT,
+        onReady: function(selectedDates, dateStr, fp) {
+            aggiungiBtnOggi(fp);
+        }
+    });
 
     // TinyMCE - Tab 07 Text1-10: lazy init all'apertura del tab
     document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(function(tabBtn) {
@@ -531,102 +534,106 @@ $(document).ready(function() {
         if (target) toggleEditor(target);
     });
 
-    // Genera AUTHCODE per Google Authenticator
-    window.GeneraAuthCodeGoogleAuthenticatorUtente = function (msg) {
-        if (msg && !confirmAction(msg)) return;
-
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-        let secret = "";
-        for (let i = 0; i < 32; i++) {
-            secret += chars[Math.floor(Math.random() * chars.length)];
+    // CORRETTO: GeneraAuthCode usa confirmAction con callback
+    window.GeneraAuthCodeGoogleAuthenticatorUtente = function(msg) {
+        function genera() {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+            let secret = "";
+            for (let i = 0; i < 32; i++) {
+                secret += chars[Math.floor(Math.random() * chars.length)];
+            }
+            const input = document.getElementById("role20");
+            if (input) input.value = secret;
+            const qr = document.getElementById("qrImg");
+            if (qr && qr.getAttribute("data-src")) {
+                qr.src = qr.getAttribute("data-src") + "&_=" + Date.now();
+                qr.style.display = "";
+            }
         }
-
-        const input = document.getElementById("role20");
-        if (input) input.value = secret;
-
-        // opzionale: aggiorna QR se presente
-        const qr = document.getElementById("qrImg");
-        if (qr && qr.getAttribute("data-src")) {
-            qr.src = qr.getAttribute("data-src") + "&_=" + Date.now();
-            qr.style.display = "";
+        if (msg) {
+            confirmAction(msg, function() { genera(); });
+        } else {
+            genera();
         }
     };
-});
 
-// -------------------------------------------------------
-// Autocomplete generico per .js-autocomplete
-// -------------------------------------------------------
-$('.js-autocomplete').each(function() {
-    var $input = $(this);
-    var url = $input.data('url');
-    if (!url) return;
+    // -------------------------------------------------------
+    // Autocomplete generico per .js-autocomplete
+    // CORRETTO: wrappato in document.ready per evitare $ is not defined
+    // -------------------------------------------------------
+    $('.js-autocomplete').each(function() {
+        var $input = $(this);
+        var url = $input.data('url');
+        if (!url) return;
 
-    $input.autocomplete({
-        source: function(request, response) {
-            $.ajax({
-                url: url,
-                type: 'GET',
-                dataType: 'json',
-                data: { term: request.term },
-                success: function(data) {
-                    if (!data || data.length === 0) { response([]); return; }
-                    response($.map(data, function(item) {
-                        if (!item) return null;
-                        return {
-                            label: [item.nome, item.cognome, item.email].filter(Boolean).join(' '),
-                            value: [item.nome, item.cognome].filter(Boolean).join(' '),
-                            obj: item
-                        };
-                    }).filter(Boolean));
-                },
-                error: function() { response([]); }
-            });
-        },
-        minLength: 2,
-        select: function(event, ui) {
-            if (!ui || !ui.item || !ui.item.obj) return false;
-            var d = ui.item.obj;
+        $input.autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    dataType: 'json',
+                    data: { term: request.term },
+                    success: function(data) {
+                        if (!data || data.length === 0) { response([]); return; }
+                        response($.map(data, function(item) {
+                            if (!item) return null;
+                            return {
+                                label: [item.nome, item.cognome, item.email].filter(Boolean).join(' '),
+                                value: [item.nome, item.cognome].filter(Boolean).join(' '),
+                                obj: item
+                            };
+                        }).filter(Boolean));
+                    },
+                    error: function() { response([]); }
+                });
+            },
+            minLength: 2,
+            select: function(event, ui) {
+                if (!ui || !ui.item || !ui.item.obj) return false;
+                var d = ui.item.obj;
 
-            // Caso CRM Lead
-            if ($('#idUtenteLead').length) {
-                $('#idUtenteLead').val(d.id || '');
-                $('#utenteid').val(d.id || '');
-                $('#utentenome').val(d.nome || '');
-                $('#utentecognome').val(d.cognome || '');
-                $('#utenteemail').val(d.email || '');
-                $('#utentetelefono').val(d.telefono && d.telefono.trim() !== '' ? d.telefono : (d.telefono2 || ''));
-                showToast('Caricato', 'Anagrafica di ' + (d.cognome || 'utente') + ' inserita.');
-                return false;
-            }
-
-            // Caso Sezione — aggiunge a utentiAssociatiString
-            var $hidden = $('#utentiAssociatiString');
-            if ($hidden.length) {
-                var id = d.id;
-                var nomeCompleto = [d.nome, d.cognome].filter(Boolean).join(' ');
-                if ($hidden.val().indexOf('(' + id + ');') === -1) {
-                    $hidden.val($hidden.val() + '(' + id + ');');
-                    $('#utenti').append(
-                        '<div id="user-badge-' + id + '" class="badge bg-secondary m-1 p-2 d-inline-flex align-items-center">' +
-                        '<span>' + nomeCompleto + '</span>' +
-                        '<i class="fas fa-times ms-2" style="cursor:pointer" onclick="RimuoviUtenteAssociato(' + id + ')" title="Rimuovi"></i>' +
-                        '</div>'
-                    );
-                    showToast('Aggiunto', nomeCompleto + ' aggiunto.');
+                // Caso CRM Lead
+                if ($('#idUtenteLead').length) {
+                    $('#idUtenteLead').val(d.id || '');
+                    $('#utenteid').val(d.id || '');
+                    $('#utentenome').val(d.nome || '');
+                    $('#utentecognome').val(d.cognome || '');
+                    $('#utenteemail').val(d.email || '');
+                    $('#utentetelefono').val(d.telefono && d.telefono.trim() !== '' ? d.telefono : (d.telefono2 || ''));
+                    showToast('Caricato', 'Anagrafica di ' + (d.cognome || 'utente') + ' inserita.');
+                    return false;
                 }
-                $(this).val('');
+
+                // Caso Sezione — aggiunge a utentiAssociatiString
+                var $hidden = $('#utentiAssociatiString');
+                if ($hidden.length) {
+                    var id = d.id;
+                    var nomeCompleto = [d.nome, d.cognome].filter(Boolean).join(' ');
+                    if ($hidden.val().indexOf('(' + id + ');') === -1) {
+                        $hidden.val($hidden.val() + '(' + id + ');');
+                        $('#utenti').append(
+                            '<div id="user-badge-' + id + '" class="badge bg-secondary m-1 p-2 d-inline-flex align-items-center">' +
+                            '<span>' + nomeCompleto + '</span>' +
+                            '<i class="fas fa-times ms-2" style="cursor:pointer" onclick="RimuoviUtenteAssociato(' + id + ')" title="Rimuovi"></i>' +
+                            '</div>'
+                        );
+                        showToast('Aggiunto', nomeCompleto + ' aggiunto.');
+                    }
+                    $(this).val('');
+                    return false;
+                }
+
                 return false;
             }
+        });
 
-            return false;
-        }
+        $input.data('ui-autocomplete')._renderItem = function(ul, item) {
+            return $('<li>').append(
+                "<div style='color:#333!important;padding:10px;background:#fff;border-bottom:1px solid #ddd;cursor:pointer;'>" + item.label + "</div>"
+            ).appendTo(ul);
+        };
     });
 
-    $input.data('ui-autocomplete')._renderItem = function(ul, item) {
-        return $('<li>').append(
-            "<div style='color:#333!important;padding:10px;background:#fff;border-bottom:1px solid #ddd;cursor:pointer;'>" + item.label + "</div>"
-        ).appendTo(ul);
-    };
 });
 
 window.FileManager = {
@@ -655,9 +662,8 @@ window.FileManager = {
         var modalInstance = bootstrap.Modal.getInstance(modalEl);
         if (modalInstance) modalInstance.hide();
         showToast('Completato', 'Operazione eseguita.');
-        // NON ricaricare se siamo in una sezione/contenuto
         if (document.getElementById('divgallery') || document.getElementById('galleryString')) {
-            return; // siamo in una pagina con gallery, non navigare
+            return;
         }
         setTimeout(function() {
             if (typeof window.ricaricaLibreria === 'function') {
@@ -777,48 +783,38 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function filtraGriglia(tipo) {
-    // Toggle: se già attivo, mostra tutto
     var card = document.getElementById('filterCard-' + tipo);
     var isActive = card && card.classList.contains('filter-active');
 
-    // Reset tutte le card
     ['allegato', 'immagine', 'folder'].forEach(function(t) {
         var c = document.getElementById('filterCard-' + t);
         if (c) c.classList.remove('filter-active');
     });
 
     if (isActive) {
-        // Deseleziona — mostra tutto
         document.querySelectorAll('[data-tipo]').forEach(function(el) {
             el.style.display = '';
         });
         return;
     }
 
-    // Attiva filtro
     if (card) card.classList.add('filter-active');
 
     document.querySelectorAll('[data-tipo]').forEach(function(el) {
         el.style.display = el.getAttribute('data-tipo') === tipo ? '' : 'none';
     });
-
 }
 
 function RimuoviTutteImmagine() {
     confirmAction("Sei sicuro di voler rimuovere tutte le immagini associate?", function() {
-        // 1. Svuota il contenitore visivo (il div con le anteprime)
         const divGallery = document.getElementById('divgallery');
         if (divGallery) {
             divGallery.innerHTML = '';
         }
-
-        // 2. Svuota il campo nascosto che salva i dati nel DB
         const inputGallery = document.getElementById('galleryString');
         if (inputGallery) {
             inputGallery.value = '';
         }
-
-        // 3. Notifica opzionale per l'utente
         console.log("Galleria svuotata. Ricordati di cliccare su Salva per confermare.");
     });
 }
@@ -831,35 +827,23 @@ function apriLightbox(src, nome) {
     bootstrap.Modal.getOrCreateInstance(modalEl).show();
 }
 
-// Funzione chiamata dall'onblur nell'HTML
 function ControlloCampoTag(elemento) {
     if (!elemento) return;
-
     var $campo = $(elemento);
     var valore = $campo.val().trim();
-
-    // Se il campo non è vuoto e l'ultimo carattere non è una virgola
     if (valore.length > 0 && valore.slice(-1) !== ',') {
         $campo.val(valore + ',');
     }
 }
 
-// La definiamo come funzione globale attaccandola a window
 window.ApplicaExtraTagContenuti = function() {
-    // Cerchiamo gli elementi usando ID puri, senza il $ di jQuery
     var trigger = document.getElementById("temp1_trigger");
     var form = document.getElementById("documento");
-
     if (trigger && form) {
-        // Impostiamo il valore
         trigger.value = "1";
-
         console.log("Procedo con invio massivo...");
-
-        // Invio diretto del form
         form.submit();
     } else {
-        // Se non li trova, almeno sappiamo perché
         console.error("Errore: trigger o form non trovati nel DOM.");
     }
 };
@@ -910,15 +894,15 @@ if (typeof $.fn.multiselect === 'function') {
         }
     });
 }
+
 window.InserisciAllegatoInPagina = function(data) {
     var lista = document.getElementById('sortableAllegato');
     var allegatoInput = document.getElementById('allegatoString');
     if (!lista) return;
 
     var id = data.id;
-    if (document.getElementById('li_allegato_' + id)) return; // evita duplicati
+    if (document.getElementById('li_allegato_' + id)) return;
 
-    // Aggiorna allegatoString (come galleryString per le immagini)
     if (allegatoInput) {
         var current = allegatoInput.value || '';
         if (current.indexOf('(' + id + ');') === -1) {
@@ -935,7 +919,6 @@ window.InserisciAllegatoInPagina = function(data) {
 
     var li = document.createElement('li');
     li.id = 'li_allegato_' + id;
-    // data-allegato-id usato da scollegaErimuovi al momento del submit/rimozione
     li.setAttribute('data-allegato-id', id);
     li.innerHTML =
         '<div id="boxallegato_' + id + '">' +
@@ -952,8 +935,6 @@ window.InserisciAllegatoInPagina = function(data) {
     lista.appendChild(li);
 };
 
-// SOSTITUISCE window.cancellaAllegatoInserito
-// Non fa più chiamate al server — rimuove solo dal DOM e da allegatoString
 window.cancellaAllegatoInserito = function(id) {
     var allegatoInput = document.getElementById('allegatoString');
     if (allegatoInput) {
@@ -963,20 +944,14 @@ window.cancellaAllegatoInserito = function(id) {
     if (el) el.remove();
 };
 
-// SOSTITUISCE window.CollegaAllegatoDaLibreria
-// Ora si comporta come InserisciImmagineLibreria: lazy, nessun fetch immediato
 window.CollegaAllegatoDaLibreria = function(idAllegato, l1, type) {
     window.InserisciAllegatoInPagina({ id: idAllegato, l1: l1, type: type });
-    // Chiudi il popup
     var modalEl = document.getElementById('modalAccount');
     if (modalEl) bootstrap.Modal.getInstance(modalEl).hide();
     if (typeof showToast === 'function') showToast('Aggiunto', 'Allegato aggiunto. Salva la sezione per confermare.');
 };
 
-// scollegaErimuovi rimane per gli allegati GIÀ SALVATI nel DB (presenti al caricamento pagina)
-// NON viene usato per quelli aggiunti dinamicamente (quelli usano cancellaAllegatoInserito)
 function scollegaErimuovi(idDocAllegati, idAllegato) {
-    // Aggiunge a scollegaString e rimuove solo dal DOM
     var input = document.getElementById('scollegaString');
     if (input) {
         var current = input.value || '';
@@ -987,7 +962,6 @@ function scollegaErimuovi(idDocAllegati, idAllegato) {
     var elDb = document.getElementById('boxallegato_' + idDocAllegati);
     if (elDb) elDb.closest('li').remove();
 }
-
 
 document.addEventListener('DOMContentLoaded', function() {
     var griglia = document.getElementById('griglia');
@@ -1038,13 +1012,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: params
             }).then(function(res) {
-                if (res.ok)
-                {document.querySelector('[data-id="' + draggingId  + '"][data-tipo="image"]')?.remove();
-                showToast('Completato', 'elemento spostato.');
+                if (res.ok) {
+                    document.querySelector('[data-id="' + draggingId + '"][data-tipo="image"]')?.remove();
+                    showToast('Completato', 'elemento spostato.');
+                } else {
+                    showToast('Errore', 'Errore durante lo spostamento.', 'danger');
                 }
-
-                else
-                showToast('Errore', 'Errore durante lo spostamento.', 'danger');
             });
         });
     });
@@ -1126,7 +1099,6 @@ function apriModalSposta(id, nome, tipo) {
     _spostaElementoTipo = tipo;
     document.getElementById('modalSpostaNome').textContent = nome;
 
-    // Carica TUTTE le cartelle via API
     fetch('/admin/filemanager/api/folders/all')
         .then(function(r) { return r.json(); })
         .then(function(folders) {
@@ -1183,7 +1155,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     header.addEventListener('mousedown', function(e) {
         if (e.target.classList.contains('btn-close')) return;
-        // Calcola posizione attuale del dialog
         var rect = dialog.getBoundingClientRect();
         dialog.style.position = 'fixed';
         dialog.style.margin = '0';

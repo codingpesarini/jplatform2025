@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin/email")
@@ -35,10 +36,11 @@ public class EmailController {
     private final AccountRepository accountRepository;
     private final MessaggioUtenteRepository messaggioUtenteRepository;
 
-    // ============================================================
-// 1. FIX inbox() — gestisce idAccount multiplo "13,3"
-//    Sostituisci il metodo esistente con questo
-// ============================================================
+    // Helper: prende solo il primo ID se multipli (es. "13,3" → "13")
+    private String pulisciAccountId(String id) {
+        if (id == null || id.isBlank()) return null;
+        return id.contains(",") ? id.split(",")[0].trim() : id.trim();
+    }
 
     @GetMapping({"", "/inbox", "/inbox/{idAccount}", "/{idAccount}/cartella/{folder}"})
     public String inbox(
@@ -54,31 +56,27 @@ public class EmailController {
 
         String folder = (folderPath != null) ? folderPath : folderParam;
 
-        // --- NUOVA LOGICA PER LISTA ACCOUNT ASSOCIATI ---
+        // Lista account associati per sidebar
         List<Account> associati = new ArrayList<>();
         String idEmailRaw = config.getAmministratore().getIdaccountemail();
-        String idPecRaw = config.getAmministratore().getIdaccountpec();
-        String tuttiIds = (idEmailRaw != null ? idEmailRaw : "") + "," + (idPecRaw != null ? idPecRaw : "");
+        String idPecRaw   = config.getAmministratore().getIdaccountpec();
+        String tuttiIds   = (idEmailRaw != null ? idEmailRaw : "") + "," + (idPecRaw != null ? idPecRaw : "");
 
         Set<Integer> setIds = new HashSet<>();
         for (String s : tuttiIds.split(",")) {
-            if (!s.trim().isEmpty()) setIds.add(Integer.parseInt(s.trim()));
+            String t = s.trim();
+            if (!t.isEmpty() && !"0".equals(t)) {
+                try { setIds.add(Integer.parseInt(t)); } catch (NumberFormatException ignored) {}
+            }
         }
-        if (!setIds.isEmpty()) {
-            associati = accountRepository.findAllById(setIds);
-        }
+        if (!setIds.isEmpty()) associati = accountRepository.findAllById(setIds);
         model.addAttribute("listaAccountAssociati", associati);
-        // ------------------------------------------------
 
-        // Se idAccount contiene virgola (es. "13,3"), prendi solo il primo per caricare le mail
-        String accountDaCaricare = idAccount;
-        if (accountDaCaricare != null && accountDaCaricare.contains(",")) {
-            accountDaCaricare = accountDaCaricare.split(",")[0].trim();
-        }
+        String accountDaCaricare = pulisciAccountId(idAccount);
 
         try {
             List<Map<String, Object>> emails = Collections.emptyList();
-            if (accountDaCaricare != null && !accountDaCaricare.isBlank() && !"0".equals(accountDaCaricare)) {
+            if (accountDaCaricare != null && !"0".equals(accountDaCaricare)) {
                 config.setActualMailboxId(accountDaCaricare);
                 config.setActualMailboxFolderName(folder);
                 configurazioneService.saveConfig(session, config);
@@ -87,72 +85,16 @@ public class EmailController {
             model.addAttribute("listaEmailArrivo", emails);
             model.addAttribute("folderAttivo", folder);
             model.addAttribute("currentAccountId", accountDaCaricare);
+            model.addAttribute("erroreMailer", null);
         } catch (Exception e) {
             log.error("Errore caricamento inbox account={} folder={}", accountDaCaricare, folder, e);
             model.addAttribute("listaEmailArrivo", Collections.emptyList());
             model.addAttribute("folderAttivo", folder);
+            model.addAttribute("erroreMailer", "errore_generico");
         }
 
         model.addAttribute("config", config);
         return ViewUtils.resolveProtectedTemplate("email/elencoEmail");
-    }
-
-
-// ============================================================
-// 2. NUOVO endpoint — conta non letti per tutti gli account
-//    dell'utente loggato. Chiamato via fetch dall'header.
-//    Restituisce: [ { id, descrizione, nonLetti }, ... ]
-// ============================================================
-
-    @GetMapping("/api/nonletti")
-    @ResponseBody
-    public List<Map<String, Object>> nonLetti(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        Configurazione config = configurazioneService.getConfig(session);
-        if (!config.isLogged()) return Collections.emptyList();
-
-        List<Map<String, Object>> risultato = new ArrayList<>();
-
-        // Prendiamo gli ID separati da virgola
-        String idEmailRaw = config.getAmministratore().getIdaccountemail();
-        String idPecRaw = config.getAmministratore().getIdaccountpec();
-        String tuttiIds = (idEmailRaw != null ? idEmailRaw : "") + "," + (idPecRaw != null ? idPecRaw : "");
-
-        // Usiamo un Set per evitare duplicati ed evitare l'ID "0"
-        Set<String> setIds = new HashSet<>();
-        for (String s : tuttiIds.split(",")) {
-            String trim = s.trim();
-            if (!trim.isEmpty() && !"0".equals(trim)) setIds.add(trim);
-        }
-
-        for (String idStr : setIds) {
-            try {
-                int idAcc = Integer.parseInt(idStr);
-                Account acc = accountRepository.findById(idAcc).orElse(null);
-
-                if (acc != null) {
-                    // Chiamata IMAP per contare i messaggi non letti sul server
-                    int conteggio = imapService.contaMessaggiNonLetti(idAcc);
-
-                    Map<String, Object> m = new HashMap<>();
-                    m.put("id", idAcc);
-                    m.put("descrizione", acc.getDescrizione());
-
-                    // Usiamo emailAccount se presente, altrimenti pecAccount
-                    String emailVisualizzata = (acc.getEmailAccount() != null && !acc.getEmailAccount().isEmpty())
-                            ? acc.getEmailAccount() : acc.getPecAccount();
-                    m.put("email", emailVisualizzata);
-
-                    m.put("nonLetti", conteggio);
-                    m.put("tipo", (acc.getPecAccount() != null && !acc.getPecAccount().isEmpty()) ? "PEC" : "EMAIL");
-
-                    risultato.add(m);
-                }
-            } catch (Exception e) {
-                log.warn("Errore recupero account o conteggio per ID {}: {}", idStr, e.getMessage());
-            }
-        }
-        return risultato;
     }
 
     @GetMapping("/inbox/{idAccount}/nonletti")
@@ -165,23 +107,40 @@ public class EmailController {
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
+        String accountDaCaricare = pulisciAccountId(idAccount);
+
+        // Lista account associati per sidebar
+        List<Account> associati = new ArrayList<>();
+        String idEmailRaw = config.getAmministratore().getIdaccountemail();
+        String idPecRaw   = config.getAmministratore().getIdaccountpec();
+        String tuttiIds   = (idEmailRaw != null ? idEmailRaw : "") + "," + (idPecRaw != null ? idPecRaw : "");
+        Set<Integer> setIds = new HashSet<>();
+        for (String s : tuttiIds.split(",")) {
+            String t = s.trim();
+            if (!t.isEmpty() && !"0".equals(t)) {
+                try { setIds.add(Integer.parseInt(t)); } catch (NumberFormatException ignored) {}
+            }
+        }
+        if (!setIds.isEmpty()) associati = accountRepository.findAllById(setIds);
+        model.addAttribute("listaAccountAssociati", associati);
+
         try {
-            config.setActualMailboxId(idAccount);
+            config.setActualMailboxId(accountDaCaricare);
             config.setActualMailboxFolderName("INBOX");
             configurazioneService.saveConfig(session, config);
 
-            List<Map<String, Object>> tutte = imapService.leggiInbox(Integer.parseInt(idAccount), "INBOX");
+            List<Map<String, Object>> tutte = imapService.leggiInbox(Integer.parseInt(accountDaCaricare), "INBOX");
             List<Map<String, Object>> nonLette = tutte.stream()
                     .filter(e -> Boolean.FALSE.equals(e.get("letto")) || "false".equalsIgnoreCase(String.valueOf(e.get("letto"))))
-                    .collect(java.util.stream.Collectors.toList());
+                    .collect(Collectors.toList());
 
             model.addAttribute("listaEmailArrivo", nonLette);
             model.addAttribute("filtroNonLetti", true);
             model.addAttribute("folderAttivo", "INBOX");
-            model.addAttribute("currentAccountId", idAccount);
+            model.addAttribute("currentAccountId", accountDaCaricare);
             model.addAttribute("erroreMailer", null);
         } catch (Exception e) {
-            log.error("Errore inboxNonLetti account={}", idAccount, e);
+            log.error("Errore inboxNonLetti account={}", accountDaCaricare, e);
             model.addAttribute("listaEmailArrivo", Collections.emptyList());
             model.addAttribute("erroreMailer", "errore_generico");
             model.addAttribute("folderAttivo", "INBOX");
@@ -191,6 +150,48 @@ public class EmailController {
         return ViewUtils.resolveProtectedTemplate("email/elencoEmail");
     }
 
+    @GetMapping("/api/nonletti")
+    @ResponseBody
+    public List<Map<String, Object>> nonLetti(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+        if (!config.isLogged()) return Collections.emptyList();
+
+        List<Map<String, Object>> risultato = new ArrayList<>();
+
+        String idEmailRaw = config.getAmministratore().getIdaccountemail();
+        String idPecRaw   = config.getAmministratore().getIdaccountpec();
+        String tuttiIds   = (idEmailRaw != null ? idEmailRaw : "") + "," + (idPecRaw != null ? idPecRaw : "");
+
+        Set<String> setIds = new LinkedHashSet<>();
+        for (String s : tuttiIds.split(",")) {
+            String t = s.trim();
+            if (!t.isEmpty() && !"0".equals(t)) setIds.add(t);
+        }
+
+        for (String idStr : setIds) {
+            try {
+                int idAcc = Integer.parseInt(idStr);
+                Account acc = accountRepository.findById(idAcc).orElse(null);
+                if (acc == null) continue;
+
+                int conteggio = imapService.contaMessaggiNonLetti(idAcc);
+                String emailVis = (acc.getEmailAccount() != null && !acc.getEmailAccount().isEmpty())
+                        ? acc.getEmailAccount() : acc.getPecAccount();
+
+                Map<String, Object> m = new HashMap<>();
+                m.put("id", idAcc);
+                m.put("descrizione", acc.getDescrizione());
+                m.put("email", emailVis);
+                m.put("nonLetti", conteggio);
+                m.put("tipo", (acc.getPecAccount() != null && !acc.getPecAccount().isEmpty()) ? "PEC" : "EMAIL");
+                risultato.add(m);
+            } catch (Exception e) {
+                log.warn("Errore recupero account ID {}: {}", idStr, e.getMessage());
+            }
+        }
+        return risultato;
+    }
 
     @GetMapping({"/open/{id}", "/open/{id}/{idAccount}"})
     public String openEmail(
@@ -206,8 +207,10 @@ public class EmailController {
 
         MessaggioUtente messaggio = new MessaggioUtente();
         try {
-            String accId = (idAccount != null && !idAccount.isBlank() && !"0".equals(idAccount))
-                    ? idAccount : config.getActualMailboxId();
+            String accId = pulisciAccountId(
+                    (idAccount != null && !idAccount.isBlank() && !"0".equals(idAccount))
+                            ? idAccount : config.getActualMailboxId()
+            );
 
             if (accId != null && !"0".equals(accId)) {
                 Map<String, Object> emailData = imapService.leggiMessaggio(
@@ -247,12 +250,10 @@ public class EmailController {
 
         MessaggioUtente messaggio = new MessaggioUtente();
         try {
-            String accId = (idAccount != null && !idAccount.isBlank() && !"0".equals(idAccount))
-                    ? idAccount : config.getActualMailboxId();
-// Prende solo il primo se multipli (es. "13,3" → "13")
-            if (accId != null && accId.contains(",")) {
-                accId = accId.split(",")[0].trim();
-            }
+            String accId = pulisciAccountId(
+                    (idAccount != null && !idAccount.isBlank() && !"0".equals(idAccount))
+                            ? idAccount : config.getActualMailboxId()
+            );
 
             if (accId != null && !"0".equals(accId)) {
                 Map<String, Object> emailData = imapService.leggiMessaggio(
@@ -285,12 +286,10 @@ public class EmailController {
 
         MessaggioUtente messaggio = new MessaggioUtente();
         try {
-            String accId = (idAccount != null && !idAccount.isBlank() && !"0".equals(idAccount))
-                    ? idAccount : config.getActualMailboxId();
-// Prende solo il primo se multipli (es. "13,3" → "13")
-            if (accId != null && accId.contains(",")) {
-                accId = accId.split(",")[0].trim();
-            }
+            String accId = pulisciAccountId(
+                    (idAccount != null && !idAccount.isBlank() && !"0".equals(idAccount))
+                            ? idAccount : config.getActualMailboxId()
+            );
 
             if (accId != null && !"0".equals(accId)) {
                 Map<String, Object> emailData = imapService.leggiMessaggio(
@@ -372,30 +371,22 @@ public class EmailController {
         }
 
         try {
-            log.info("Inizio eliminazione totale per account {}: ids {}", idAccount, ids);
-
-            Account account = accountRepository.findById(Integer.parseInt(idAccount))
+            String accId = pulisciAccountId(idAccount);
+            Account account = accountRepository.findById(Integer.parseInt(accId))
                     .orElseThrow(() -> new RuntimeException("Account non trovato"));
 
-            // 1. ELIMINAZIONE FISICA DAL SERVER MAIL (Outlook/Cellulari)
             imapService.cancellaMessaggiDalServer(account, ids);
 
-            // 2. ELIMINAZIONE DAL DATABASE LOCALE
             for (String idStr : ids) {
-                // Qui devi decidere: se cancelli fisicamente dal server,
-                // devi cancellare anche la riga dal tuo DB
                 try {
-                    Integer dbId = Integer.parseInt(idStr);
-                    messaggioUtenteRepository.deleteById(dbId);
+                    messaggioUtenteRepository.deleteById(Integer.parseInt(idStr));
                 } catch (Exception ex) {
-                    log.warn("Errore durante la rimozione dal DB dell'id {}", idStr);
+                    log.warn("Errore rimozione dal DB id={}", idStr);
                 }
             }
-
-            return ResponseEntity.ok("Cancellazione completata su server e database");
-
+            return ResponseEntity.ok("Cancellazione completata");
         } catch (Exception e) {
-            log.error("Errore critico durante l'eliminazione", e);
+            log.error("Errore eliminazione multipla", e);
             return ResponseEntity.internalServerError().body("Errore: " + e.getMessage());
         }
     }
@@ -410,10 +401,7 @@ public class EmailController {
 
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
-        if (!config.isLogged()) {
-            response.sendError(403);
-            return;
-        }
+        if (!config.isLogged()) { response.sendError(403); return; }
 
         try {
             log.info("Download allegato emailId={} index={} account={}", id, allegatoIndex, idAccount);

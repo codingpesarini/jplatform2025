@@ -574,32 +574,41 @@
         var _avatarUtenteId = /*[[${amministratoriUtente.id}]]*/ 0;
 
         function apriPopupAccount(tipo, targetTable) {
-            _popupTipo = tipo;
-            _popupTargetTable = targetTable;
-            document.getElementById('modalAccountTitle').innerText = 'Associa account ' + tipo;
-            const body = document.getElementById('modalAccountBody');
-            body.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-info"></div></div>';
-            fetch('/admin/account/popup/' + tipo)
-                .then(r => r.json())
-                .then(lista => {
-                    let html = '<div class="p-3"><table class="table table-sm table-bordered table-striped">';
-                    html += '<thead><tr><th>Descrizione</th><th style="width:80px" class="text-center">Associa</th></tr></thead><tbody>';
-                    if (lista.length === 0) {
-                        html += '<tr><td colspan="2" class="text-center text-muted">Nessun account disponibile</td></tr>';
-                    } else {
-                        lista.forEach(acc => {
-                            html += `<tr><td>${acc.descrizione}</td><td class="text-center">
-                                <button type="button" class="btn btn-sm btn-primary"
-                                    onclick="associaAccountDinamico('${acc.id}', '${acc.descrizione.replace(/'/g, "\\'")}')">
-                                    <i class="fas fa-plus"></i></button></td></tr>`;
-                        });
-                    }
-                    html += '</tbody></table></div>';
-                    body.innerHTML = html;
-                })
-                .catch(() => { body.innerHTML = '<div class="alert alert-danger m-3">Errore nel caricamento.</div>'; });
-            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAccount')).show();
-        }
+    _popupTipo = tipo;
+    _popupTargetTable = targetTable;
+    document.getElementById('modalAccountTitle').innerText = 'Associa account ' + tipo;
+    const body = document.getElementById('modalAccountBody');
+    body.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-info"></div></div>';
+    fetch('/admin/account/popup/' + tipo)
+        .then(r => r.json())
+        .then(lista => {
+            let html = '<div class="p-2">';
+            if (lista.length === 0) {
+                html += '<div class="text-center text-muted p-4"><i class="fas fa-inbox fa-2x mb-2"></i><br>Nessun account disponibile</div>';
+            } else {
+                lista.forEach(acc => {
+                    const email = acc.emailAccount || acc.pecAccount || '';
+                    html += `
+                    <div class="d-flex align-items-center justify-content-between p-3 border-bottom gap-2">
+                        <div style="min-width:0;flex:1">
+                            <div class="fw-semibold text-truncate" style="font-size:14px">${acc.descrizione}</div>
+                            <small class="text-muted text-truncate d-block">${email}</small>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-primary flex-shrink-0"
+                            onclick="associaAccountDinamico('${acc.id}', '${acc.descrizione.replace(/'/g, "\\'")}')">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>`;
+                });
+            }
+            html += '</div>';
+            body.innerHTML = html;
+        })
+        .catch(() => {
+            body.innerHTML = '<div class="alert alert-danger m-3">Errore nel caricamento.</div>';
+        });
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAccount')).show();
+}
 
        function associaAccountDinamico(id, descrizione) {
     const tipo = _popupTipo;

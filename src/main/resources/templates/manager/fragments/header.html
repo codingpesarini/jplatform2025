@@ -191,12 +191,21 @@
                         });
                 }
 
-                // Carica subito al DOMContentLoaded
                 document.addEventListener('DOMContentLoaded', function() {
-                    caricaNotificheEmail();
-                    // Ricarica ogni 2 minuti
-                    setInterval(caricaNotificheEmail, 2 * 60 * 1000);
-                });
+    caricaNotificheEmail();
+
+    setInterval(function() {
+        if (!document.hidden) {
+            caricaNotificheEmail();
+        }
+    }, 2 * 60 * 1000);
+
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            caricaNotificheEmail();
+        }
+    });
+});
             })();
         </script>
     </div>

@@ -416,7 +416,7 @@
                                           <input type="checkbox" class="form-check-input chSel_all" data-bs-target="inpt_c2"/>
                                       </th>
                                       <th class="d-none d-lg-table-cell">Numero</th>
-                                      <th>Titolo</th>
+                                      <th style="max-width: 300px; min-width: 150px;">Titolo</th>
                                       <th style="width:100px;" class="d-none d-lg-table-cell">Data</th>
                                       <th style="width:100px;" class="d-none d-lg-table-cell">Stato</th>
                                       <th style="width:60px;">Azioni</th>
@@ -431,7 +431,7 @@
                                                  th:value="${c.id}"/>
                                       </td>
                                       <td class="d-none d-lg-table-cell" th:text="${c.numeratore1}">0</td>
-                                      <td>
+                                      <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                           <a th:href="@{/admin/contenuti/{id}(id=${c.id})}"
                                              th:text="${c.titolo + ' - ' + c.id}"></a>
                                       </td>
@@ -441,7 +441,7 @@
                                           th:classappend="${c.stato == '1'} ? 'bg-success' : 'bg-secondary'"
                                           th:text="${c.statoText}"></span>
                                       </td>
-                                      <td>
+                                      <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                           <button type="button"
                                                   class="btn btn-outline-danger btn-sm btn-confirm-delete-cont"
                                                   th:data-id="${c.id}"
