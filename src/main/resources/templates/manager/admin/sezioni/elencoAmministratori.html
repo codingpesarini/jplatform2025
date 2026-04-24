@@ -29,9 +29,10 @@
         </header>
 
         <form th:action="@{/admin/amministratori/ricerca}"
-              method="get"
+              method="post"
               id="ricercaamministratoriUtente"
               class="notAutocomplete">
+
           <div class="card-body">
             <div class="row form-group">
               <div class="col-lg-12">
@@ -43,39 +44,39 @@
               <div class="col-lg-6">
                 <label class="col-form-label" for="email">Email</label>
                 <input type="text" name="email" id="email"
-                       th:value="${param.email}" class="form-control">
+                       th:value="${ricercaEmail}" class="form-control">
               </div>
               <div class="col-lg-6">
                 <label class="col-form-label" for="nome">Nome</label>
                 <input type="text" name="nome" id="nome"
-                       th:value="${param.nome}" class="form-control">
+                       th:value="${ricercaNome}" class="form-control">
               </div>
               <div class="col-lg-6">
                 <label class="col-form-label" for="cognome">Cognome</label>
                 <input type="text" name="cognome" id="cognome"
-                       th:value="${param.cognome}" class="form-control">
+                       th:value="${ricercaCognome}" class="form-control">
               </div>
               <div class="col-lg-6">
                 <label class="col-form-label" for="username">Username</label>
                 <input type="text" name="username" id="username"
-                       th:value="${param.username}" class="form-control">
+                       th:value="${ricercaUsername}" class="form-control">
               </div>
             </div>
             <div class="row form-group">
               <div class="col-lg-6">
                 <label class="col-form-label" for="telefono">Telefono/Cellulare</label>
                 <input type="text" name="telefono" id="telefono"
-                       th:value="${param.telefono}" class="form-control">
+                       th:value="${ricercaTelefono}" class="form-control">
               </div>
               <div class="col-lg-6">
                 <label class="col-form-label" for="indirizzo">Indirizzo</label>
                 <input type="text" name="indirizzo" id="indirizzo"
-                       th:value="${param.indirizzo}" class="form-control">
+                       th:value="${ricercaIndirizzo}" class="form-control">
               </div>
               <div class="col-lg-6">
                 <label class="col-form-label" for="pec">PEC</label>
                 <input type="text" name="pec" id="pec"
-                       th:value="${param.pec}" class="form-control">
+                       th:value="${ricercaPec}" class="form-control">
               </div>
             </div>
           </div>

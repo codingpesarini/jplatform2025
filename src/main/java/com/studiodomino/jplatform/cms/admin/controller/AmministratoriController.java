@@ -54,7 +54,7 @@ public class AmministratoriController {
     }
 
     // ─── RICERCA ─────────────────────────────────────────────────────────────
-    @GetMapping("/ricerca")
+    @PostMapping("/ricerca")
     public String ricerca(
             @RequestParam(defaultValue = "") String cognome,
             @RequestParam(defaultValue = "") String nome,
@@ -69,17 +69,14 @@ public class AmministratoriController {
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
-        log.info("=== AMMINISTRATORI RICERCA ===");
-
-        // Filtro in memoria su findAll() — evita query JPQL custom
         List<Utente> elenco = utenteRepository.findAll().stream()
-                .filter(u -> cognome.isEmpty()  || contains(u.getCognome(), cognome))
-                .filter(u -> nome.isEmpty()     || contains(u.getNome(), nome))
-                .filter(u -> username.isEmpty() || contains(u.getUsername(), username))
-                .filter(u -> telefono.isEmpty() || contains(u.getTelefono(), telefono))
-                .filter(u -> email.isEmpty()    || contains(u.getEmail(), email))
-                .filter(u -> pec.isEmpty()      || contains(u.getPec(), pec))
-                .filter(u -> indirizzo.isEmpty()|| contains(u.getIndirizzo(), indirizzo))
+                .filter(u -> cognome.isEmpty()   || contains(u.getCognome(), cognome))
+                .filter(u -> nome.isEmpty()      || contains(u.getNome(), nome))
+                .filter(u -> username.isEmpty()  || contains(u.getUsername(), username))
+                .filter(u -> telefono.isEmpty()  || contains(u.getTelefono(), telefono))
+                .filter(u -> email.isEmpty()     || contains(u.getEmail(), email))
+                .filter(u -> pec.isEmpty()       || contains(u.getPec(), pec))
+                .filter(u -> indirizzo.isEmpty() || contains(u.getIndirizzo(), indirizzo))
                 .sorted((a, b) -> {
                     String ca = a.getCognome() != null ? a.getCognome() : "";
                     String cb = b.getCognome() != null ? b.getCognome() : "";
@@ -89,6 +86,13 @@ public class AmministratoriController {
 
         model.addAttribute("config", config);
         model.addAttribute("elencoAnagrafico", elenco);
+        model.addAttribute("ricercaEmail", email);
+        model.addAttribute("ricercaNome", nome);
+        model.addAttribute("ricercaCognome", cognome);
+        model.addAttribute("ricercaUsername", username);
+        model.addAttribute("ricercaTelefono", telefono);
+        model.addAttribute("ricercaIndirizzo", indirizzo);
+        model.addAttribute("ricercaPec", pec);
 
         return ViewUtils.resolveProtectedTemplate("admin/sezioni/elencoAmministratori");
     }
