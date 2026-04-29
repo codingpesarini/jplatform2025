@@ -1,6 +1,7 @@
 package com.studiodomino.jplatform.cms.admin.controller;
 
 import com.studiodomino.jplatform.shared.config.Configurazione;
+import com.studiodomino.jplatform.shared.entity.Account;
 import com.studiodomino.jplatform.shared.entity.Gruppo;
 import com.studiodomino.jplatform.shared.entity.Utente;
 import com.studiodomino.jplatform.shared.repository.AccountRepository;
@@ -157,7 +158,7 @@ public class AmministratoriController {
 
         // Email — gestisce multipli separati da virgola
         if (utente.getIdaccountemail() != null && !utente.getIdaccountemail().isEmpty()) {
-            List<com.studiodomino.jplatform.shared.entity.Account> listaEmail = new ArrayList<>();
+            List<Account> listaEmail = new ArrayList<>();
             for (String idStr : utente.getIdaccountemail().split(",")) {
                 String t = idStr.trim();
                 if (t.isEmpty() || "0".equals(t)) continue;
@@ -173,7 +174,7 @@ public class AmministratoriController {
 
         // PEC — gestisce multipli separati da virgola
         if (utente.getIdaccountpec() != null && !utente.getIdaccountpec().isEmpty()) {
-            List<com.studiodomino.jplatform.shared.entity.Account> listaPec = new ArrayList<>();
+            List<Account> listaPec = new ArrayList<>();
             for (String idStr : utente.getIdaccountpec().split(",")) {
                 String t = idStr.trim();
                 if (t.isEmpty() || "0".equals(t)) continue;
