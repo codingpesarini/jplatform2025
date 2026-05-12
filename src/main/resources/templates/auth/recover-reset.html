@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="it">
+<head>
+    <title>Recupero Password | J-Platform Studiodomino</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" th:href="@{/manager/assets/img/logos/favicon.ico}" type="image/x-icon" />
+    <link rel="stylesheet" th:href="@{/manager/assets/fonts/inter/inter.css}" />
+    <link rel="stylesheet" th:href="@{/manager/assets/fonts/tabler-icons.min.css}" />
+    <link rel="stylesheet" th:href="@{/manager/assets/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/manager/assets/css/style-preset.css}" />
+    <style>
+        .step-hidden { display: none !important; }
+    </style>
+</head>
+<body data-pc-preset="preset-1" data-pc-theme="light">
+
+<div class="loader-bg">
+    <div class="loader-track"><div class="loader-fill"></div></div>
+</div>
+
+<div class="auth-main">
+    <div class="auth-wrapper v1">
+        <div class="auth-form">
+            <div class="card my-5">
+                <div class="card-body">
+
+                    <div class="text-center">
+                        <a th:href="@{/}">
+                            <img th:src="@{/manager/assets/img/logos/logo.png}"
+                                 alt="J-Platform" width="253" height="81" />
+                        </a>
+                    </div>
+                    <br>
+                    <h4 class="text-center f-w-500 my-4">Reimposta Password</h4>
+
+                    <!-- Step 1: Nuova password (visibile di default) -->
+                    <div id="stepPassword">
+                        <p class="text-muted small mb-3">
+                            Inserisci la nuova password. Ti invieremo un codice OTP via email per confermare.
+                        </p>
+                        <div class="mb-3">
+                            <label class="form-label">Nuova password</label>
+                            <input type="password" id="nuovaPassword" class="form-control"
+                                   placeholder="Nuova password" autocomplete="off" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ripeti password</label>
+                            <input type="password" id="confermaPassword" class="form-control"
+                                   placeholder="Ripeti la password" autocomplete="off" />
+                        </div>
+                        <div id="msgPassword" class="alert step-hidden mb-3"></div>
+                        <div class="d-grid mt-3">
+                            <button type="button" id="btnVerificaPassword" class="btn btn-primary">
+                                <i class="ti ti-send me-1"></i> Continua
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: OTP (nascosto di default) -->
+                    <div id="stepOtp" class="step-hidden">
+                        <p class="text-muted small mb-3">
+                            Abbiamo inviato un codice OTP alla tua email. Inseriscilo per completare il cambio password.
+                        </p>
+                        <div class="mb-3">
+                            <label class="form-label">Codice OTP</label>
+                            <input type="text" id="otp" class="form-control"
+                                   placeholder="000000" maxlength="6" autocomplete="off" />
+                        </div>
+                        <div id="msgOtp" class="alert step-hidden mb-3"></div>
+                        <div class="d-flex gap-2 mt-3">
+                            <button type="button" id="btnIndietro" class="btn btn-outline-secondary">
+                                <i class="ti ti-arrow-left me-1"></i> Indietro
+                            </button>
+                            <button type="button" id="btnConferma" class="btn btn-success flex-grow-1">
+                                <i class="ti ti-check me-1"></i> Conferma
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Successo (nascosto di default) -->
+                    <div id="stepSuccesso" class="step-hidden text-center py-4">
+                        <i class="ti ti-circle-check text-success" style="font-size:3rem;"></i>
+                        <h5 class="mt-3 mb-2">Password aggiornata!</h5>
+                        <p class="text-muted small">Ora puoi accedere con le nuove credenziali.</p>
+                        <a th:href="@{/login}" class="btn btn-primary mt-2">
+                            <i class="ti ti-login me-1"></i> Vai al login
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/manager/assets/js/plugins/popper.min.js}"></script>
+<script th:src="@{/manager/assets/js/plugins/bootstrap.min.js}"></script>
+
+<script>
+    window.addEventListener('load', function () {
+        var loader = document.querySelector('.loader-bg');
+        if (loader) loader.style.display = 'none';
+    });
+
+    var token = '[[${token}]]';
+
+    function mostra(id) {
+        document.getElementById(id).classList.remove('step-hidden');
+    }
+    function nascondiEl(id) {
+        document.getElementById(id).classList.add('step-hidden');
+    }
+    function mostraMsg(id, tipo, testo) {
+        var el = document.getElementById(id);
+        el.className = 'alert alert-' + tipo + ' mb-3';
+        el.textContent = testo;
+    }
+    function nascondiMsg(id) {
+        var el = document.getElementById(id);
+        el.className = 'alert step-hidden mb-3';
+        el.textContent = '';
+    }
+    function loading(btn, stato, testo) {
+        btn.disabled = stato;
+        btn.innerHTML = stato
+            ? '<span class="spinner-border spinner-border-sm me-1"></span>' + testo
+            : testo;
+    }
+
+    document.getElementById('btnVerificaPassword').addEventListener('click', function () {
+        var nuova    = document.getElementById('nuovaPassword').value;
+        var conferma = document.getElementById('confermaPassword').value;
+
+        if (!nuova || !conferma) { mostraMsg('msgPassword','warning','Compila tutti i campi.'); return; }
+        if (nuova !== conferma)  { mostraMsg('msgPassword','danger','Le password non coincidono.'); return; }
+        if (nuova.length < 6)   { mostraMsg('msgPassword','danger','La password deve avere almeno 6 caratteri.'); return; }
+
+        var btn = this;
+        loading(btn, true, 'Invio OTP...');
+
+        fetch('/recover-password/reset/' + token + '/verifica-password', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'nuovaPassword=' + encodeURIComponent(nuova)
+                + '&confermaPassword=' + encodeURIComponent(conferma)
+        })
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+            if (data.esito === 'OK') {
+                nascondiEl('stepPassword');
+                mostra('stepOtp');
+                nascondiMsg('msgOtp');
+            } else {
+                mostraMsg('msgPassword','danger', data.messaggio);
+            }
+        })
+        .catch(function(){ mostraMsg('msgPassword','danger','Errore di connessione. Riprova.'); })
+        .finally(function(){ loading(btn, false, '<i class="ti ti-send me-1"></i> Continua'); });
+    });
+
+    document.getElementById('btnIndietro').addEventListener('click', function () {
+        nascondiEl('stepOtp');
+        mostra('stepPassword');
+        nascondiMsg('msgPassword');
+    });
+
+    document.getElementById('btnConferma').addEventListener('click', function () {
+        var otp = document.getElementById('otp').value.trim();
+        if (!otp) { mostraMsg('msgOtp','warning','Inserisci il codice OTP.'); return; }
+
+        var btn = this;
+        loading(btn, true, 'Verifica...');
+
+        fetch('/recover-password/reset/' + token + '/conferma', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'otp=' + encodeURIComponent(otp)
+        })
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+            if (data.esito === 'OK') {
+                nascondiEl('stepOtp');
+                mostra('stepSuccesso');
+            } else {
+                mostraMsg('msgOtp','danger', data.messaggio);
+            }
+        })
+        .catch(function(){ mostraMsg('msgOtp','danger','Errore di connessione. Riprova.'); })
+        .finally(function(){ loading(btn, false, '<i class="ti ti-check me-1"></i> Conferma'); });
+    });
+</script>
+
+</body>
+</html>

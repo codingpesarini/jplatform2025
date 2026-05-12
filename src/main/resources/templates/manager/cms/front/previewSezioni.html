@@ -7,496 +7,631 @@
 
 <div layout:fragment="content">
 
-  <!-- equivalente di <bean:define id="sezione" name="previewSezione"/> -->
-  <input type="hidden" name="BaseSectID" id="BaseSectID"
-         th:value="${previewSezione != null ? previewSezione.id : 0}"
-         value="0"/>
+    <input type="hidden" name="BaseSectID" id="BaseSectID"
+           th:value="${previewSezione != null ? previewSezione.id : 0}"
+           value="0"/>
 
-  <div class="row">
+    <div class="row">
 
-    <!-- LEFT: SIDEBAR -->
-      <div class="col-12 col-md-4">
-      <section class="card card-featured card-featured-danger mb-4">
-            <div class="card" style="border-top: 3px solid #d9534f;">
-                <div class="card-header bg-white">
-                    <h2 class="card-title" style="color: #d9534f; font-size: 1.5rem; margin-bottom: 0;">
-                        Titolario di classificazione
-                    </h2>
-                    <p class="card-subtitle text-muted" style="font-size: 0.9rem;">
-                        Elenco dei contenuti del CMS
-                    </p>
+        <!-- LEFT: SIDEBAR -->
+        <div class="col-12 col-md-4">
+            <section class="card card-featured card-featured-danger mb-4">
+                <div class="card" style="border-top: 3px solid #d9534f;">
+                    <div class="card-header bg-white">
+                        <h2 class="card-title" style="color: #d9534f; font-size: 1.5rem; margin-bottom: 0;">
+                            Titolario di classificazione
+                        </h2>
+                        <p class="card-subtitle text-muted" style="font-size: 0.9rem;">
+                            Elenco dei contenuti del CMS
+                        </p>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="sidebar">
+                        <div id="sidetreecontrol">
+                            <a href="?#">Compatta</a> | <a href="?#">Espandi</a>
+                        </div>
+                        <ul id="tree">
+                            <li th:each="aoo : ${elencoSezioni}">
+                                <a th:if="${previewSezione == null or aoo.id != previewSezione.id}"
+                                   th:href="@{/admin/sezioni/{id}/preview(id=${aoo.id})}"
+                                   th:text="${aoo.titolo}"></a>
+                                <a th:if="${previewSezione != null and aoo.id == previewSezione.id}"
+                                   class="clicked"
+                                   th:href="@{/admin/sezioni/{id}/preview(id=${aoo.id})}"
+                                   th:text="${aoo.titolo}"></a>
+                                <ul th:if="${aoo.emptySubsection == false}">
+                                    <li th:each="subaoo : ${aoo.subsection}">
+                                        <a th:if="${previewSezione == null or subaoo.id != previewSezione.id}"
+                                           th:href="@{/admin/sezioni/{id}/preview(id=${subaoo.id})}"
+                                           th:text="${subaoo.titolo}"></a>
+                                        <a th:if="${previewSezione != null and subaoo.id == previewSezione.id}"
+                                           class="clicked"
+                                           th:href="@{/admin/sezioni/{id}/preview(id=${subaoo.id})}"
+                                           th:text="${subaoo.titolo}"></a>
+                                        <ul th:if="${subaoo.emptySubsection == false}">
+                                            <li th:each="subsubaoo : ${subaoo.subsection}">
+                                                <a th:if="${previewSezione == null or subsubaoo.id != previewSezione.id}"
+                                                   th:href="@{/admin/sezioni/{id}/preview(id=${subsubaoo.id})}"
+                                                   th:text="${subsubaoo.titolo}"></a>
+                                                <a th:if="${previewSezione != null and subsubaoo.id == previewSezione.id}"
+                                                   class="clicked"
+                                                   th:href="@{/admin/sezioni/{id}/preview(id=${subsubaoo.id})}"
+                                                   th:text="${subsubaoo.titolo}"></a>
+                                                <ul th:if="${subsubaoo.emptySubsection == false}">
+                                                    <li th:each="subsubsubaoo : ${subsubaoo.subsection}">
+                                                        <a th:if="${previewSezione == null or subsubsubaoo.id != previewSezione.id}"
+                                                           th:href="@{/admin/sezioni/{id}/preview(id=${subsubsubaoo.id})}"
+                                                           th:text="${subsubsubaoo.titolo}"></a>
+                                                        <a th:if="${previewSezione != null and subsubsubaoo.id == previewSezione.id}"
+                                                           class="clicked"
+                                                           th:href="@{/admin/sezioni/{id}/preview(id=${subsubsubaoo.id})}"
+                                                           th:text="${subsubsubaoo.titolo}"></a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- RIGHT: TABS -->
+        <div class="col-12 col-lg-8 mt-3 mt-lg-0">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" id="mytabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="tab-definizione"
+                                    data-bs-toggle="tab" data-bs-target="#tab_01"
+                                    type="button" role="tab">
+                                <i class="ti ti-settings me-1"></i> Definizione
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tab-sottosezioni"
+                                    data-bs-toggle="tab" data-bs-target="#tab_02"
+                                    type="button" role="tab">
+                                <i class="ti ti-layout-list me-1"></i> Sottosezioni
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tab-contenuti"
+                                    data-bs-toggle="tab" data-bs-target="#tab_03"
+                                    type="button" role="tab">
+                                <i class="ti ti-file-text me-1"></i> Contenuti
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card-body">
+                    <div class="tab-content">
+
+                        <!-- TAB 01: Definizione -->
+                        <div id="tab_01" class="tab-pane fade show active" role="tabpanel">
+
+                            <input type="hidden" name="ordineBaseSect" id="ordineBaseSect"/>
+                            <input type="hidden" name="ordineSect" id="ordineSect"/>
+                            <input type="hidden" name="BaseSectID" id="BaseSectID2"
+                                   th:value="${previewSezione != null ? previewSezione.id : 0}"/>
+
+                            <!-- Toolbar azioni -->
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <a th:href="@{/admin/sezioni/new}" class="btn btn-outline-primary btn-sm">
+                                    <i class="ti ti-file-plus me-1"></i> Nuova sezione
+                                </a>
+
+                                <form th:if="${previewSezione != null}"
+                                      th:action="@{/admin/sezioni/{id}/duplicate(id=${previewSezione.id})}"
+                                      method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm">
+                                        <i class="ti ti-copy me-1"></i> Duplica
+                                    </button>
+                                </form>
+
+                                <a th:if="${previewSezione != null}"
+                                   th:href="@{/admin/sezioni/{id}(id=${previewSezione.id})}"
+                                   class="btn btn-outline-warning btn-sm">
+                                    <i class="ti ti-pencil me-1"></i> Modifica
+                                </a>
+
+                                <button th:if="${previewSezione != null}"
+                                        type="button"
+                                        class="btn btn-outline-info btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalRiclassifica">
+                                    <i class="ti ti-list me-1"></i> Riclassifica
+                                </button>
+
+                                <form th:if="${previewSezione != null}"
+                                      th:action="@{/admin/sezioni/{id}/delete(id=${previewSezione.id})}"
+                                      method="post" style="display:inline;"
+                                      id="formDeleteSezione">
+                                    <button type="submit"
+                                            class="btn btn-outline-danger btn-sm btn-confirm-delete-main"
+                                            th:data-titolo="${previewSezione.titolo}">
+                                        <i class="ti ti-trash me-1"></i> Cancella
+                                    </button>
+                                </form>
+
+                                <a th:if="${previewSezione != null and previewSezione.idParent != null and previewSezione.idParent != '0'}"
+                                   th:href="@{/admin/sezioni/{id}/preview(id=${previewSezione.idParent})}"
+                                   class="btn btn-outline-secondary btn-sm">
+                                    <i class="ti ti-arrow-up me-1"></i> Categoria superiore
+                                </a>
+                            </div>
+
+                            <h5 class="mb-3">
+                                Titolo sezione:
+                                <strong th:text="${previewSezione != null ? previewSezione.titolo : ''}"></strong>
+                            </h5>
+
+                            <form th:if="${previewSezione != null}"
+                                  th:action="@{/admin/sezioni/save}"
+                                  method="post"
+                                  enctype="multipart/form-data"
+                                  id="sezione">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover mb-0">
+                                        <tbody>
+                                        <tr>
+                                            <th class="table-light" style="width:15%">
+                                                ID: <span th:text="${previewSezione.id}"></span><br/>Titolo
+                                            </th>
+                                            <td>
+                                                <input type="text" name="titolo" id="titolo"
+                                                       class="form-control"
+                                                       th:value="${previewSezione.titolo}"/>
+                                            </td>
+                                            <th class="table-light" style="width:15%">Data pubblicazione</th>
+                                            <td>
+                                                <input type="text" name="data" id="data"
+                                                       class="form-control"
+                                                       th:value="${previewSezione.data}"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="table-light">Stato pubblicazione</th>
+                                            <td>
+                                                <select name="stato" id="stato" class="form-select">
+                                                    <option value="">----- Seleziona lo stato -----</option>
+                                                    <option value="0" th:selected="${previewSezione.stato == '0'}">Bozza</option>
+                                                    <option value="1" th:selected="${previewSezione.stato == '1'}">Pubblicato</option>
+                                                    <option value="2" th:selected="${previewSezione.stato == '2'}">Archiviato</option>
+                                                    <option value="3" th:selected="${previewSezione.stato == '3'}">In revisione</option>
+                                                    <option value="4" th:selected="${previewSezione.stato == '4'}">Altro</option>
+                                                </select>
+                                            </td>
+                                            <th class="table-light">Tipo sezione</th>
+                                            <td>
+                                                <select name="idType" id="id_type" class="form-select">
+                                                    <option value="">----- Seleziona tipologia -----</option>
+                                                    <option th:each="t : ${sectionTypes}"
+                                                            th:value="${t.id}"
+                                                            th:text="${t.description}"
+                                                            th:selected="${previewSezione.idType != null and t.id == previewSezione.idType}">
+                                                    </option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="table-light">Autorizzazione</th>
+                                            <td th:text="${previewSezione.privato}">-</td>
+                                            <th class="table-light">Pubblicato dal - al</th>
+                                            <td>
+                                                <span th:text="${previewSezione.s3}"></span>
+                                                | <span th:text="${previewSezione.s1}"></span>
+                                                - <span th:text="${previewSezione.s2}"></span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="table-light">Inserito da</th>
+                                            <td>
+                                                <span th:text="${previewSezione.creatoDa}"></span>
+                                                <small class="text-muted ms-1" th:text="${previewSezione.creato}"></small>
+                                            </td>
+                                            <th class="table-light">Ultima modifica</th>
+                                            <td>
+                                                <span th:text="${previewSezione.modificatoDa}"></span>
+                                                <small class="text-muted ms-1" th:text="${previewSezione.modificato}"></small>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <input type="hidden" name="id" th:value="${previewSezione.id}"/>
+                                <input type="hidden" name="riassunto" th:value="${previewSezione.riassunto}"/>
+                            </form>
+                        </div>
+
+                        <!-- TAB 02: Sottosezioni -->
+                        <div id="tab_02" class="tab-pane fade" role="tabpanel">
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <a th:if="${previewSezione != null}"
+                                   th:href="@{/admin/sezioni/new(id_parent=${previewSezione.id})}"
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="ti ti-file-plus me-1"></i> Nuova sottosezione
+                                </a>
+                                <button th:if="${previewSezione != null}"
+                                        type="button"
+                                        class="btn btn-outline-info btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalRiclassifica"
+                                        th:data-id="${previewSezione.id}"
+                                        th:data-titolo="${previewSezione.titolo}"
+                                        onclick="apriRiclassificaSottosezioneBtn(this)">
+                                    <i class="ti ti-list me-1"></i> Riclassifica
+                                </button>
+                                <button type="button" class="btn btn-outline-danger btn-sm"
+                                        onclick="cancellaSezioniSelezionate()">
+                                    <i class="ti ti-trash me-1"></i> Cancella selezionata
+                                </button>
+                            </div>
+                            <h5 class="mb-3">
+                                Sottosezioni di
+                                <strong th:text="${previewSezione != null ? previewSezione.titolo : ''}"></strong>
+                            </h5>
+                            <div class="table-responsive">
+                                <table id="elencoSottosezioni" class="table table-hover table-bordered mb-0 dt-table">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th style="width:40px;">
+                                            <input type="checkbox" class="form-check-input chSel_all" data-bs-target="inpt_c1"/>
+                                        </th>
+                                        <th>Pos</th>
+                                        <th>Titolo</th>
+                                        <th>Data</th>
+                                        <th>Stato</th>
+                                        <th style="width:60px;">Azioni</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="s : ${previewSezione.subsection}">
+                                        <td>
+                                            <input type="checkbox" name="row_sel"
+                                                   class="form-check-input inpt_c1"
+                                                   th:id="${'sectRow' + s.id}"
+                                                   th:value="${s.id}"/>
+                                        </td>
+                                        <td th:text="${s.position}">0</td>
+                                        <td>
+                                            <a th:href="@{/admin/sezioni/{id}(id=${s.id})}"
+                                               th:text="${s.titolo + ' (' + s.id + ')'}"></a>
+                                        </td>
+                                        <td th:text="${s.data}">-</td>
+                                        <td>
+                      <span class="badge"
+                            th:classappend="${s.stato == '1'} ? 'bg-success' : 'bg-secondary'"
+                            th:text="${s.statoText}"></span>
+                                        </td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="dropdown">
+                                                    <i class="ti ti-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <a class="dropdown-item" th:href="@{/admin/sezioni/{id}(id=${s.id})}">
+                                                            <i class="ti ti-pencil me-1"></i> Modifica
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" th:href="@{/admin/sezioni/{id}/preview(id=${s.id})}">
+                                                            <i class="ti ti-layout me-1"></i> Struttura
+                                                        </a>
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <form th:action="@{/admin/sezioni/{id}/delete(id=${s.id})}" method="post">
+                                                            <button type="submit"
+                                                                    class="dropdown-item text-danger btn-confirm-delete-sez"
+                                                                    th:data-titolo="${s.titolo}">
+                                                                <i class="ti ti-trash me-1"></i> Cancella
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- TAB 03: Contenuti -->
+                        <div id="tab_03" class="tab-pane fade" role="tabpanel">
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <a th:if="${previewSezione != null}"
+                                   th:href="@{/admin/contenuti/new/{idRoot}(idRoot=${previewSezione.id})}"
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="ti ti-file-plus me-1"></i> <span class="btn-text">Nuovo contenuto</span>
+                                </a>
+                                <button th:if="${previewSezione != null}"
+                                        type="button"
+                                        class="btn btn-outline-info btn-sm"
+                                        th:data-id="${previewSezione.id}"
+                                        th:data-titolo="${previewSezione.titolo}"
+                                        onclick="apriRiclassificaSottosezioneBtn(this)">
+                                    <i class="ti ti-list me-1"></i> <span class="btn-text">Riclassifica</span>
+                                </button>
+                                <button type="button" class="btn btn-outline-danger btn-sm"
+                                        onclick="cancellaContenutiSelezionati()">
+                                    <i class="ti ti-trash me-1"></i> <span class="btn-text">Cancella selezionati</span>
+                                </button>
+                            </div>
+                            <h5 class="mb-3">
+                                Contenuti di
+                                <strong th:text="${previewSezione != null ? previewSezione.titolo : ''}"></strong>
+                            </h5>
+                            <div class="table-responsive">
+                                <table id="elencoContenuti" class="table table-hover table-bordered mb-0 dt-table">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th style="width:40px;">
+                                            <input type="checkbox" class="form-check-input chSel_all" data-bs-target="inpt_c2"/>
+                                        </th>
+                                        <th class="d-none d-lg-table-cell">Numero</th>
+                                        <th style="max-width: 300px; min-width: 150px;">Titolo</th>
+                                        <th style="width:100px;" class="d-none d-lg-table-cell">Data</th>
+                                        <th style="width:100px;" class="d-none d-lg-table-cell">Stato</th>
+                                        <th style="width:60px;">Azioni</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="c : ${previewSezione.contenuti}">
+                                        <td>
+                                            <input type="checkbox" name="row_sel"
+                                                   class="form-check-input inpt_c2"
+                                                   th:id="${'contRow' + c.id}"
+                                                   th:value="${c.id}"/>
+                                        </td>
+                                        <td class="d-none d-lg-table-cell" th:text="${c.numeratore1}">0</td>
+                                        <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                                            <a th:href="@{/admin/contenuti/{id}(id=${c.id})}"
+                                               th:text="${c.titolo + ' - ' + c.id}"></a>
+                                        </td>
+                                        <td class="d-none d-lg-table-cell" th:text="${c.data}">-</td>
+                                        <td class="d-none d-lg-table-cell">
+                      <span class="badge"
+                            th:classappend="${c.stato == '1'} ? 'bg-success' : 'bg-secondary'"
+                            th:text="${c.statoText}"></span>
+                                        </td>
+                                        <td>
+                                            <button type="button"
+                                                    class="btn btn-outline-danger btn-sm btn-confirm-delete-cont"
+                                                    th:data-id="${c.id}"
+                                                    th:data-titolo="${c.titolo}">
+                                                <i class="ti ti-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
-
-        <div class="card-body">
-
-          <div id="sidebar">
-            <div id="sidetreecontrol">
-              <a href="?#">Compatta</a> | <a href="?#">Espandi</a>
-            </div>
-
-            <ul id="tree">
-
-              <!-- ROOT -->
-              <li th:each="aoo : ${elencoSezioni}">
-
-                <!-- link NON selezionato -->
-                <a th:if="${previewSezione == null or aoo.id != previewSezione.id}"
-                   th:href="@{/admin/sezioni/{id}/preview(id=${aoo.id})}"
-                   th:text="${aoo.titolo}">
-                </a>
-
-                <!-- link selezionato -->
-                <a th:if="${previewSezione != null and aoo.id == previewSezione.id}"
-                   class="clicked"
-                   th:href="@{/admin/sezioni/{id}/preview(id=${aoo.id})}"
-                   th:text="${aoo.titolo}">
-                </a>
-
-                <!-- livello 1 -->
-                <ul th:if="${aoo.emptySubsection == false}">
-                  <li th:each="subaoo : ${aoo.subsection}">
-
-                    <a th:if="${previewSezione == null or subaoo.id != previewSezione.id}"
-                       th:href="@{/admin/sezioni/{id}/preview(id=${subaoo.id})}"
-                       th:text="${subaoo.titolo}">
-                    </a>
-
-                    <a th:if="${previewSezione != null and subaoo.id == previewSezione.id}"
-                       class="clicked"
-                       th:href="@{/admin/sezioni/{id}/preview(id=${subaoo.id})}"
-                       th:text="${subaoo.titolo}">
-                    </a>
-
-                    <!-- livello 2 -->
-                    <ul th:if="${subaoo.emptySubsection == false}">
-                      <li th:each="subsubaoo : ${subaoo.subsection}">
-
-                        <a th:if="${previewSezione == null or subsubaoo.id != previewSezione.id}"
-                           th:href="@{/admin/sezioni/{id}/preview(id=${subsubaoo.id})}"
-                           th:text="${subsubaoo.titolo}">
-                        </a>
-
-                        <a th:if="${previewSezione != null and subsubaoo.id == previewSezione.id}"
-                           class="clicked"
-                           th:href="@{/admin/sezioni/{id}/preview(id=${subsubaoo.id})}"
-                           th:text="${subsubaoo.titolo}">
-                        </a>
-
-                        <!-- livello 3 -->
-                        <ul th:if="${subsubaoo.emptySubsection == false}">
-                          <li th:each="subsubsubaoo : ${subsubaoo.subsection}">
-
-                            <a th:if="${previewSezione == null or subsubsubaoo.id != previewSezione.id}"
-                               th:href="@{/admin/sezioni/{id}/preview(id=${subsubsubaoo.id})}"
-                               th:text="${subsubsubaoo.titolo}">
-                            </a>
-
-                            <a th:if="${previewSezione != null and subsubsubaoo.id == previewSezione.id}"
-                               class="clicked"
-                               th:href="@{/admin/sezioni/{id}/preview(id=${subsubsubaoo.id})}"
-                               th:text="${subsubsubaoo.titolo}">
-                            </a>
-
-                          </li>
-                        </ul>
-
-                      </li>
-                    </ul>
-
-                  </li>
-                </ul>
-
-              </li>
-            </ul>
-          </div>
-
         </div>
-      </section>
+
     </div>
 
-    <!-- RIGHT: TABS -->
-      <div class="col-12 col-lg-8 mt-3 mt-lg-0">
-          <div class="card">
-              <div class="card-header">
-                  <ul class="nav nav-tabs card-header-tabs" id="mytabs" role="tablist">
-                      <li class="nav-item" role="presentation">
-                          <button class="nav-link active" id="tab-definizione"
-                                  data-bs-toggle="tab" data-bs-target="#tab_01"
-                                  type="button" role="tab">
-                              <i class="ti ti-settings me-1"></i> Definizione
-                          </button>
-                      </li>
-                      <li class="nav-item" role="presentation">
-                          <button class="nav-link" id="tab-sottosezioni"
-                                  data-bs-toggle="tab" data-bs-target="#tab_02"
-                                  type="button" role="tab">
-                              <i class="ti ti-layout-list me-1"></i> Sottosezioni
-                          </button>
-                      </li>
-                      <li class="nav-item" role="presentation">
-                          <button class="nav-link" id="tab-contenuti"
-                                  data-bs-toggle="tab" data-bs-target="#tab_03"
-                                  type="button" role="tab">
-                              <i class="ti ti-file-text me-1"></i> Contenuti
-                          </button>
-                      </li>
-                  </ul>
-              </div>
+    <!-- ══ MODAL RICLASSIFICA ══ -->
+    <div class="modal fade" id="modalRiclassifica" tabindex="-1"
+         aria-labelledby="modalRiclassificaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="border-top: 3px solid #d9534f;">
+                    <h5 class="modal-title" id="modalRiclassificaLabel">
+                        <i class="ti ti-list me-2"></i> Riclassifica sezione:
+                        <strong th:text="${previewSezione != null ? previewSezione.titolo : ''}"></strong>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">
+                        <i class="ti ti-info-circle me-1"></i>
+                        Fai <strong>doppio click</strong> sulla categoria di destinazione per spostare l'elemento selezionato.
+                    </p>
 
-              <div class="card-body">
-                  <div class="tab-content">
+                    <!-- Albero riclassificatore -->
+                    <ul id="ricRoot" class="list-unstyled">
 
-                      <!-- ================================================ -->
-                      <!-- TAB 01: Definizione -->
-                      <!-- ================================================ -->
-                      <div id="tab_01" class="tab-pane fade show active" role="tabpanel">
+                        <!-- Principale (root) -->
+                        <li class="mb-1">
+                            <span class="me-1 text-muted" style="cursor:pointer;" onclick="toggleRicChild('ric_0')">▶</span>
+                            <a href="javascript:void(0);"
+                               class="text-decoration-none fw-bold"
+                               ondblclick="confermaRiclassifica('0')">
+                                📁 Principale (radice)
+                            </a>
+                        </li>
 
-                          <input type="hidden" name="ordineBaseSect" id="ordineBaseSect"/>
-                          <input type="hidden" name="ordineSect" id="ordineSect"/>
-                          <input type="hidden" name="BaseSectID" id="BaseSectID2"
-                                 th:value="${previewSezione != null ? previewSezione.id : 0}"/>
+                        <!-- Sezioni root -->
+                        <li th:each="aoo : ${elencoSezioni}" class="ms-3 mb-1">
+              <span class="me-1 text-muted"
+                    style="cursor:pointer;"
+                    th:onclick="|toggleRicChild('ric_${aoo.id}')|"
+                    th:if="${aoo.emptySubsection == false}">▶</span>
+                            <span class="me-1 text-muted" th:if="${aoo.emptySubsection == true}">—</span>
+                            <a href="javascript:void(0);"
+                               class="text-decoration-none"
+                               th:ondblclick="|confermaRiclassifica('${aoo.id}')|"
+                               th:text="${aoo.titolo}"
+                               th:title="${'ID: ' + aoo.id}"></a>
 
-                          <!-- Toolbar azioni -->
-                          <div class="d-flex flex-wrap gap-2 mb-3">
-                              <a th:href="@{/admin/sezioni/new}" class="btn btn-outline-primary btn-sm">
-                                  <i class="ti ti-file-plus me-1"></i> Nuova sezione
-                              </a>
+                            <!-- Livello 1 -->
+                            <ul th:if="${aoo.emptySubsection == false}"
+                                th:id="|ric_${aoo.id}|"
+                                class="list-unstyled ms-3 mt-1"
+                                style="display:none;">
+                                <li th:each="subaoo : ${aoo.subsection}" class="mb-1">
+                  <span class="me-1 text-muted"
+                        style="cursor:pointer;"
+                        th:onclick="|toggleRicChild('ric_${subaoo.id}')|"
+                        th:if="${subaoo.emptySubsection == false}">▶</span>
+                                    <span class="me-1 text-muted" th:if="${subaoo.emptySubsection == true}">—</span>
+                                    <a href="javascript:void(0);"
+                                       class="text-decoration-none"
+                                       th:ondblclick="|confermaRiclassifica('${subaoo.id}')|"
+                                       th:text="${subaoo.titolo}"
+                                       th:title="${'ID: ' + subaoo.id}"></a>
 
-                              <form th:if="${previewSezione != null}"
-                                    th:action="@{/admin/sezioni/{id}/duplicate(id=${previewSezione.id})}"
-                                    method="post" style="display:inline;">
-                                  <button type="submit" class="btn btn-outline-secondary btn-sm">
-                                      <i class="ti ti-copy me-1"></i> Duplica
-                                  </button>
-                              </form>
+                                    <!-- Livello 2 -->
+                                    <ul th:if="${subaoo.emptySubsection == false}"
+                                        th:id="|ric_${subaoo.id}|"
+                                        class="list-unstyled ms-3 mt-1"
+                                        style="display:none;">
+                                        <li th:each="subsubaoo : ${subaoo.subsection}" class="mb-1">
+                                            <span class="me-1 text-muted">—</span>
+                                            <a href="javascript:void(0);"
+                                               class="text-decoration-none"
+                                               th:ondblclick="|confermaRiclassifica('${subsubaoo.id}')|"
+                                               th:text="${subsubaoo.titolo}"
+                                               th:title="${'ID: ' + subsubaoo.id}"></a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
 
-                              <a th:if="${previewSezione != null}"
-                                 th:href="@{/admin/sezioni/{id}(id=${previewSezione.id})}"
-                                 class="btn btn-outline-warning btn-sm">
-                                  <i class="ti ti-pencil me-1"></i> Modifica
-                              </a>
+                    </ul>
 
-                              <a th:if="${previewSezione != null}"
-                                 href="javascript:void(0);"
-                                 class="btn btn-outline-info btn-sm"
-                                 onclick="openRiclassifica()">
-                                  <i class="ti ti-list me-1"></i> Riclassifica
-                              </a>
+                    <div id="ricMsg" class="alert mt-3" style="display:none;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                              <form th:if="${previewSezione != null}"
-                                    th:action="@{/admin/sezioni/{id}/delete(id=${previewSezione.id})}"
-                                    method="post" style="display:inline;"
-                                    id="formDeleteSezione">
-                                  <button type="submit"
-                                          class="btn btn-outline-danger btn-sm btn-confirm-delete-main"
-                                          th:data-titolo="${previewSezione.titolo}">
-                                      <i class="ti ti-trash me-1"></i> Cancella
-                                  </button>
-                              </form>
+    <script>
+        document.getElementById('modalRiclassifica').addEventListener('hidden.bs.modal', function () {
+          document.body.classList.remove('modal-open');
+          document.body.style.removeProperty('overflow');
+          document.body.style.removeProperty('padding-right');
+          var backdrops = document.querySelectorAll('.modal-backdrop');
+          backdrops.forEach(function(b){ b.remove(); });
+        });
+    </script>
 
-                              <a th:if="${previewSezione != null and previewSezione.idParent != null and previewSezione.idParent != '0'}"
-                                 th:href="@{/admin/sezioni/{id}/preview(id=${previewSezione.idParent})}"
-                                 class="btn btn-outline-secondary btn-sm">
-                                  <i class="ti ti-arrow-up me-1"></i> Categoria superiore
-                              </a>
-                          </div>
+    <script th:inline="javascript">
+        var sezioneCorrenteId = /*[[${previewSezione != null ? previewSezione.id : 0}]]*/ 0;
+        var riclassificaTargetId = sezioneCorrenteId;
+        var riclassificaTargetType = 'sezione'; // 'sezione' o 'contenuto'
 
-                          <!-- Info sezione -->
-                          <h5 class="mb-3">
-                              Titolo sezione:
-                              <strong th:text="${previewSezione != null ? previewSezione.titolo : ''}"></strong>
-                          </h5>
+        function apriRiclassificaSottosezioneBtn(btn) {
+          apriRiclassificaSottosezione(btn.getAttribute('data-id'), btn.getAttribute('data-titolo'));
+        }
 
-                          <form th:if="${previewSezione != null}"
-                                th:action="@{/admin/sezioni/save}"
-                                method="post"
-                                enctype="multipart/form-data"
-                                id="sezione">
+        function apriRiclassificaContenutoBtn(btn) {
+          apriRiclassificaContenuto(btn.getAttribute('data-id'), btn.getAttribute('data-titolo'));
+        }
 
-                              <div class="table-responsive">
-                                  <table class="table table-bordered table-hover mb-0">
-                                      <tbody>
-                                      <tr>
-                                          <th class="table-light" style="width:15%">
-                                              ID: <span th:text="${previewSezione.id}"></span><br/>Titolo
-                                          </th>
-                                          <td>
-                                              <input type="text" name="titolo" id="titolo"
-                                                     class="form-control"
-                                                     th:value="${previewSezione.titolo}"/>
-                                          </td>
-                                          <th class="table-light" style="width:15%">Data pubblicazione</th>
-                                          <td>
-                                              <input type="text" name="data" id="data"
-                                                     class="form-control"
-                                                     th:value="${previewSezione.data}"/>
-                                          </td>
-                                      </tr>
+        function apriRiclassificaSottosezione(id, titolo) {
+          riclassificaTargetId = id;
+          riclassificaTargetType = 'sezione';
+          document.getElementById('ricMsg').style.display = 'none';
+          document.querySelector('#modalRiclassifica .modal-title').innerHTML =
+            '<i class="ti ti-list me-2"></i> Riclassifica sezione: <strong>' + titolo + '</strong>';
+          new bootstrap.Modal(document.getElementById('modalRiclassifica')).show();
+        }
 
-                                      <tr>
-                                          <th class="table-light">Stato pubblicazione</th>
-                                          <td>
-                                              <select name="stato" id="stato" class="form-select">
-                                                  <option value="">----- Seleziona lo stato -----</option>
-                                                  <option value="0" th:selected="${previewSezione.stato == '0'}">Bozza</option>
-                                                  <option value="1" th:selected="${previewSezione.stato == '1'}">Pubblicato</option>
-                                                  <option value="2" th:selected="${previewSezione.stato == '2'}">Archiviato</option>
-                                                  <option value="3" th:selected="${previewSezione.stato == '3'}">In revisione</option>
-                                                  <option value="4" th:selected="${previewSezione.stato == '4'}">Altro</option>
-                                              </select>
-                                          </td>
-                                          <th class="table-light">Tipo sezione</th>
-                                          <td>
-                                              <select name="idType" id="id_type" class="form-select">
-                                                  <option value="">----- Seleziona tipologia -----</option>
-                                                  <option th:each="t : ${sectionTypes}"
-                                                          th:value="${t.id}"
-                                                          th:text="${t.description}"
-                                                          th:selected="${previewSezione.idType != null and t.id == previewSezione.idType}">
-                                                  </option>
-                                              </select>
-                                          </td>
-                                      </tr>
+        function apriRiclassificaContenuto(id, titolo) {
+          riclassificaTargetId = id;
+          riclassificaTargetType = 'contenuto';
+          document.getElementById('ricMsg').style.display = 'none';
+          document.querySelector('#modalRiclassifica .modal-title').innerHTML =
+            '<i class="ti ti-list me-2"></i> Riclassifica contenuto: <strong>' + titolo + '</strong>';
+          new bootstrap.Modal(document.getElementById('modalRiclassifica')).show();
+        }
 
-                                      <tr>
-                                          <th class="table-light">Autorizzazione</th>
-                                          <td th:text="${previewSezione.privato}">-</td>
-                                          <th class="table-light">Pubblicato dal - al</th>
-                                          <td>
-                                              <span th:text="${previewSezione.s3}"></span>
-                                              | <span th:text="${previewSezione.s1}"></span>
-                                              - <span th:text="${previewSezione.s2}"></span>
-                                          </td>
-                                      </tr>
+        function toggleRicChild(id) {
+          var el = document.getElementById(id);
+          if (!el) return;
+          // troviamo lo span con onclick che contiene questo id
+          var spans = document.querySelectorAll('[onclick*="' + id + '"]');
+          var btn = spans.length > 0 ? spans[0] : null;
+          if (el.style.display === 'none') {
+            el.style.display = 'block';
+            if (btn) btn.textContent = '▼';
+          } else {
+            el.style.display = 'none';
+            if (btn) btn.textContent = '▶';
+          }
+        }
 
-                                      <tr>
-                                          <th class="table-light">Inserito da</th>
-                                          <td>
-                                              <span th:text="${previewSezione.creatoDa}"></span>
-                                              <small class="text-muted ms-1" th:text="${previewSezione.creato}"></small>
-                                          </td>
-                                          <th class="table-light">Ultima modifica</th>
-                                          <td>
-                                              <span th:text="${previewSezione.modificatoDa}"></span>
-                                              <small class="text-muted ms-1" th:text="${previewSezione.modificato}"></small>
-                                          </td>
-                                      </tr>
-                                      </tbody>
-                                  </table>
-                              </div>
+        function confermaRiclassifica(nuovoParentId) {
+          if (!riclassificaTargetId || riclassificaTargetId == 0) return;
 
-                              <input type="hidden" name="id" th:value="${previewSezione.id}"/>
-                              <input type="hidden" name="riassunto" th:value="${previewSezione.riassunto}"/>
-                          </form>
-                      </div>
+          var url, body;
+          if (riclassificaTargetType === 'contenuto') {
+            url = '/admin/contenuti/' + riclassificaTargetId + '/riclassifica';
+            body = 'nuovoRootId=' + encodeURIComponent(nuovoParentId);
+          } else {
+            if (String(nuovoParentId) === String(riclassificaTargetId)) {
+              mostraRicMsg('warning', 'Non puoi spostare la sezione in se stessa.');
+              return;
+            }
+            url = '/admin/sezioni/' + riclassificaTargetId + '/riclassifica';
+            body = 'nuovoParentId=' + encodeURIComponent(nuovoParentId);
+          }
 
-                      <!-- ================================================ -->
-                      <!-- TAB 02: Sottosezioni -->
-                      <!-- ================================================ -->
-                      <div id="tab_02" class="tab-pane fade" role="tabpanel">
+          fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: body
+          })
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (data.esito === 'OK') {
+              mostraRicMsg('success', 'Spostato con successo! Ricarico...');
+              setTimeout(function() {
+                window.location.href = '/admin/sezioni/' + sezioneCorrenteId + '/preview';
+              }, 1000);
+            } else {
+              mostraRicMsg('danger', data.messaggio || 'Errore durante lo spostamento.');
+            }
+          })
+          .catch(function() {
+            mostraRicMsg('danger', 'Errore di connessione. Riprova.');
+          });
+        }
 
-                          <div class="d-flex flex-wrap gap-2 mb-3">
-                              <a th:if="${previewSezione != null}"
-                                 th:href="@{/admin/sezioni/new(id_parent=${previewSezione.id})}"
-                                 class="btn btn-outline-primary btn-sm">
-                                  <i class="ti ti-file-plus me-1"></i> Nuova sottosezione
-                              </a>
-                              <button type="button" class="btn btn-outline-danger btn-sm"
-                                      onclick="cancellaSezioniSelezionate()">
-                                  <i class="ti ti-trash me-1"></i> Cancella selezionata
-                              </button>
-                          </div>
+        function mostraRicMsg(tipo, testo) {
+          var el = document.getElementById('ricMsg');
+          el.className = 'alert alert-' + tipo + ' mt-3';
+          el.textContent = testo;
+          el.style.display = 'block';
+        }
+    </script>
 
-                          <h5 class="mb-3">
-                              Sottosezioni di
-                              <strong th:text="${previewSezione != null ? previewSezione.titolo : ''}"></strong>
-                          </h5>
-
-                          <div class="table-responsive">
-                              <table id="elencoSottosezioni" class="table table-hover table-bordered mb-0 dt-table">
-
-                              <thead class="table-light">
-                                  <tr>
-                                      <th style="width:40px;">
-                                          <input type="checkbox" class="form-check-input chSel_all" data-bs-target="inpt_c1"/>
-                                      </th>
-                                      <th>Pos</th>
-                                      <th>Titolo</th>
-                                      <th>Data</th>
-                                      <th>Stato</th>
-                                      <th style="width:60px;">Azioni</th>
-                                  </tr>
-                                  </thead>
-                                  <tbody>
-                                  <tr th:each="s : ${previewSezione.subsection}">
-                                      <td>
-                                          <input type="checkbox" name="row_sel"
-                                                 class="form-check-input inpt_c1"
-                                                 th:id="${'sectRow' + s.id}"
-                                                 th:value="${s.id}"/>
-                                      </td>
-                                      <td th:text="${s.position}">0</td>
-                                      <td>
-                                          <a th:href="@{/admin/sezioni/{id}(id=${s.id})}"
-                                             th:text="${s.titolo + ' (' + s.id + ')'}"></a>
-                                      </td>
-                                      <td th:text="${s.data}">-</td>
-                                      <td>
-                                    <span class="badge"
-                                          th:classappend="${s.stato == '1'} ? 'bg-success' : 'bg-secondary'"
-                                          th:text="${s.statoText}"></span>
-                                      </td>
-                                      <td>
-                                          <div class="dropdown">
-                                              <button class="btn btn-outline-secondary btn-sm"
-                                                      data-bs-toggle="dropdown">
-                                                  <i class="ti ti-dots-vertical"></i>
-                                              </button>
-                                              <ul class="dropdown-menu dropdown-menu-end">
-                                                  <li>
-                                                      <a class="dropdown-item"
-                                                         th:href="@{/admin/sezioni/{id}(id=${s.id})}">
-                                                          <i class="ti ti-pencil me-1"></i> Modifica
-                                                      </a>
-                                                  </li>
-                                                  <li>
-                                                      <a class="dropdown-item"
-                                                         th:href="@{/admin/sezioni/{id}/preview(id=${s.id})}">
-                                                          <i class="ti ti-layout me-1"></i> Struttura
-                                                      </a>
-                                                  </li>
-                                                  <li><hr class="dropdown-divider"></li>
-                                                  <li>
-                                                      <form th:action="@{/admin/sezioni/{id}/delete(id=${s.id})}"
-                                                            method="post">
-                                                          <button type="submit"
-                                                                  class="dropdown-item text-danger btn-confirm-delete-sez"
-                                                                  th:data-titolo="${s.titolo}">
-                                                              <i class="ti ti-trash me-1"></i> Cancella
-                                                          </button>
-                                                      </form>
-                                                  </li>
-                                              </ul>
-                                          </div>
-                                      </td>
-                                  </tr>
-                                  </tbody>
-                              </table>
-                          </div>
-                      </div>
-
-                      <!-- ================================================ -->
-                      <!-- TAB 03: Contenuti -->
-                      <!-- ================================================ -->
-                      <div id="tab_03" class="tab-pane fade" role="tabpanel">
-
-                          <div class="d-flex flex-wrap gap-2 mb-3">
-                              <a th:if="${previewSezione != null}"
-                                 th:href="@{/admin/contenuti/new/{idRoot}(idRoot=${previewSezione.id})}"
-                                 class="btn btn-outline-primary btn-sm">
-                                  <i class="ti ti-file-plus me-1"></i> <span class="btn-text">Nuovo contenuto</span>
-                              </a>
-                              <button type="button" class="btn btn-outline-danger btn-sm"
-                                      onclick="cancellaContenutiSelezionati()">
-                                  <i class="ti ti-trash me-1"></i> <span class="btn-text">Cancella selezionati</span>
-                              </button>
-                          </div>
-
-                          <h5 class="mb-3">
-                              Contenuti di
-                              <strong th:text="${previewSezione != null ? previewSezione.titolo : ''}"></strong>
-                          </h5>
-
-                          <div class="table-responsive">
-                              <table id="elencoContenuti" class="table table-hover table-bordered mb-0 dt-table">
-                              <thead class="table-light">
-                                  <tr>
-                                      <th style="width:40px;">
-                                          <input type="checkbox" class="form-check-input chSel_all" data-bs-target="inpt_c2"/>
-                                      </th>
-                                      <th class="d-none d-lg-table-cell">Numero</th>
-                                      <th style="max-width: 300px; min-width: 150px;">Titolo</th>
-                                      <th style="width:100px;" class="d-none d-lg-table-cell">Data</th>
-                                      <th style="width:100px;" class="d-none d-lg-table-cell">Stato</th>
-                                      <th style="width:60px;">Azioni</th>
-                                  </tr>
-                                  </thead>
-                                  <tbody>
-                                  <tr th:each="c : ${previewSezione.contenuti}">
-                                      <td>
-                                          <input type="checkbox" name="row_sel"
-                                                 class="form-check-input inpt_c2"
-                                                 th:id="${'contRow' + c.id}"
-                                                 th:value="${c.id}"/>
-                                      </td>
-                                      <td class="d-none d-lg-table-cell" th:text="${c.numeratore1}">0</td>
-                                      <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                          <a th:href="@{/admin/contenuti/{id}(id=${c.id})}"
-                                             th:text="${c.titolo + ' - ' + c.id}"></a>
-                                      </td>
-                                      <td class="d-none d-lg-table-cell" th:text="${c.data}">-</td>
-                                      <td class="d-none d-lg-table-cell">
-                                    <span class="badge"
-                                          th:classappend="${c.stato == '1'} ? 'bg-success' : 'bg-secondary'"
-                                          th:text="${c.statoText}"></span>
-                                      </td>
-                                      <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                          <button type="button"
-                                                  class="btn btn-outline-danger btn-sm btn-confirm-delete-cont"
-                                                  th:data-id="${c.id}"
-                                                  th:data-titolo="${c.titolo}">
-                                              <i class="ti ti-trash"></i>
-                                          </button>
-                                      </td>
-                                  </tr>
-                                  </tbody>
-                              </table>
-                          </div>
-                      </div>
-
-                  </div>
-              </div>
-          </div>
-      </div>
-
-  </div>
-
-
-<script>
-    if (typeof $ !== 'undefined' && typeof $.fn.autoSaveForm !== 'undefined') {
-        $(function () {
+    <script>
+        if (typeof $ !== 'undefined' && typeof $.fn.autoSaveForm !== 'undefined') {
+          $(function () {
             var $form = $('form');
             var $formStatusHolder = $('.notifyZone');
-
             $form.autoSaveForm();
-
             $form.on('beforeSave.autoSaveForm', function (ev, $form, xhr) {
-                var formx = $("#sezione");
-                if (formx.length && formx[0].checkValidity() === false) {
-                  new PNotify({
-                    title: 'Attenzione!',
-                    text: 'Alcuni campi obbligatori del modulo richiedono un tuo intervento!',
-                    type: 'error'
-                  });
-                  return false;
-                }
+              var formx = $("#sezione");
+              if (formx.length && formx[0].checkValidity() === false) {
+                new PNotify({title: 'Attenzione!', text: 'Alcuni campi obbligatori richiedono un tuo intervento!', type: 'error'});
+                return false;
+              }
             });
-
-            $form.on('saveError.autoSaveForm', function () {
-                $formStatusHolder.html('Errore nel salvataggio automatico.');
-            });
-
-            $form.on('saveSuccess.autoSaveForm', function () {
-                new PNotify({
-                title: 'Ho fatto!',
-                text: 'Ho memorizzato le modifiche effettuate!',
-                type: 'success'
-            });
+            $form.on('saveError.autoSaveForm', function () { $formStatusHolder.html('Errore nel salvataggio automatico.'); });
+            $form.on('saveSuccess.autoSaveForm', function () { new PNotify({title: 'Ho fatto!', text: 'Modifiche memorizzate!', type: 'success'}); });
           });
-        });
-    }
-</script>
+        }
+    </script>
 
 </div>
 </body>
