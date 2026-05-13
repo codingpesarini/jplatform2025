@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin/contenuti")
@@ -572,6 +573,41 @@ public class ContenutoController {
             log.error("Errore ordinaDocumenti", e);
             return ResponseEntity.ok("KO");
         }
+    }
+
+    @PostMapping("/{id}/riclassifica")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> riclassifica(
+            @PathVariable Integer id,
+            @RequestParam String nuovoRootId,
+            HttpServletRequest request) {
+
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+
+        Map<String, String> result = new java.util.HashMap<>();
+
+        if (!config.isLogged()) {
+            result.put("esito", "KO");
+            result.put("messaggio", "Sessione scaduta.");
+            return ResponseEntity.ok(result);
+        }
+
+        try {
+            // Aggiorna id_root del contenuto
+            contentService.updateContentRoot(id, String.valueOf(nuovoRootId));
+
+            log.info("Contenuto {} spostato sotto root {}", id, nuovoRootId);
+            result.put("esito", "OK");
+            result.put("messaggio", "Contenuto spostato con successo.");
+
+        } catch (Exception e) {
+            log.error("Errore riclassifica contenuto id={} nuovoRoot={}", id, nuovoRootId, e);
+            result.put("esito", "KO");
+            result.put("messaggio", "Errore durante lo spostamento: " + e.getMessage());
+        }
+
+        return ResponseEntity.ok(result);
     }
 
     // =====================================================================

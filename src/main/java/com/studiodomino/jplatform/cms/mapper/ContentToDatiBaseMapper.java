@@ -468,4 +468,19 @@ public class ContentToDatiBaseMapper {
 
         return content;
     }
+
+    public List<DatiBase> toDatiBaseListAll(List<Content> contents) {
+        if (contents == null) {
+            return new ArrayList<>();
+        }
+        return contents.stream()
+                .map(c -> {
+                    if (c.isSection()) {
+                        // Per le sezioni forza idRoot a 0 per evitare l'eccezione
+                        c.setIdRoot(0);
+                    }
+                    return toDatiBase(c);
+                })
+                .collect(Collectors.toList());
+    }
 }

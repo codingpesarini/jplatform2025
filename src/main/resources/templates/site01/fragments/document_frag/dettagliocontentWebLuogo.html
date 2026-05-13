@@ -6,7 +6,7 @@
     <div class="title-img"
          th:if="${post.galleryCheck}"
          th:with="img=${#lists.isEmpty(post.gallery) ? null : post.gallery[0]}"
-         th:style="${img != null} ? 'background-image: url(' + config.imagesRepositoryWeb + img.fullpath + ');' : null">
+         th:style="${img != null ? 'background-image: url(' + config.imagesRepositoryWeb + img.fullpath + ')' : ''}">
     </div>
 
     <div class="container">

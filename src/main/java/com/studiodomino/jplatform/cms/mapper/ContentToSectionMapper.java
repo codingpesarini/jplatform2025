@@ -247,7 +247,6 @@ public class ContentToSectionMapper {
         // ========== ORDINAMENTO ==========
         section.setOrdineContenuti(content.getOrdineContenuti());
         section.setOrdineSottosezioni(content.getOrdineSottosezioni());
-        section.setMaxOrdineContenuti(content.getMaxOrdineContenuti());
         section.setMaxOrdineSottosezioni(content.getMaxOrdineSottosezioni());
 
         // ========== RELAZIONI ==========
@@ -503,7 +502,6 @@ public class ContentToSectionMapper {
         // ========== ORDINAMENTO ==========
         content.setOrdineContenuti(section.getOrdineContenuti());
         content.setOrdineSottosezioni(section.getOrdineSottosezioni());
-        content.setMaxOrdineContenuti(section.getMaxOrdineContenuti());
         content.setMaxOrdineSottosezioni(section.getMaxOrdineSottosezioni());
 
         // ========== UTENTI ASSOCIATI ==========

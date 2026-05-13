@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin/sezioni")
@@ -428,6 +429,48 @@ public class SezioniController {
             log.error("Errore cancellazione multipla sezioni", e);
             return ResponseEntity.internalServerError().body("Errore durante la cancellazione");
         }
+    }
+
+    @PostMapping("/{id}/riclassifica")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> riclassifica(
+            @PathVariable Integer id,
+            @RequestParam String nuovoParentId,
+            HttpServletRequest request) {
+
+        HttpSession session = request.getSession();
+        Configurazione config = configurazioneService.getConfig(session);
+
+        Map<String, String> result = new java.util.HashMap<>();
+
+        if (!config.isLogged()) {
+            result.put("esito", "KO");
+            result.put("messaggio", "Sessione scaduta.");
+            return ResponseEntity.ok(result);
+        }
+
+        try {
+            String idSite = String.valueOf(config.getIdSito());
+
+            Section sezione = contentService.findSectionById(id, idSite)
+                    .orElseThrow(() -> new RuntimeException("Sezione non trovata: " + id));
+
+            // Aggiorna il parent
+            sezione.setIdParent(nuovoParentId);
+
+            contentService.saveSection(sezione);
+
+            log.info("Sezione {} spostata sotto parent {}", id, nuovoParentId);
+            result.put("esito", "OK");
+            result.put("messaggio", "Sezione spostata con successo.");
+
+        } catch (Exception e) {
+            log.error("Errore riclassifica sezione id={} nuovoParent={}", id, nuovoParentId, e);
+            result.put("esito", "KO");
+            result.put("messaggio", "Errore durante lo spostamento: " + e.getMessage());
+        }
+
+        return ResponseEntity.ok(result);
     }
 
     private void populateDetailModel(Model model, Configurazione config, String idSite) {

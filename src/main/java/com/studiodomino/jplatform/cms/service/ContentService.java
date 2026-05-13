@@ -418,7 +418,7 @@ public class ContentService {
     public List<DatiBase> searchFullText(String idSite, String searchTerm) {
         log.debug("Searching full text: {} for site: {}", searchTerm, idSite);
         List<Content> contents = contentRepository.searchFullText(idSite, searchTerm);
-        return datiBaseMapper.toDatiBaseList(contents);
+        return datiBaseMapper.toDatiBaseListAll(contents);
     }
 
     // ========================================
@@ -1019,5 +1019,12 @@ public class ContentService {
     public SectionType getSectionTypeById(Integer id) {
         log.debug("Finding SectionType by id: {}", id);
         return sectionTypeRepository.findById(id).orElse(null);
+    }
+
+    public void updateContentRoot(Integer id, String nuovoRootId) {
+        Content content = contentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Contenuto non trovato: " + id));
+        content.setIdRoot(Integer.parseInt(nuovoRootId));
+        contentRepository.save(content);
     }
 }

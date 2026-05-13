@@ -3,7 +3,6 @@
     <!-- HERO -->
     <section class="section bg-redbrown bg-red-gradient py-5 position-relative d-flex align-items-center overflow-hidden">
         <div class="people-red-forms"></div>
-
         <div class="container">
             <div class="row variable-gutters">
                 <div class="col-md-5">
@@ -16,12 +15,7 @@
         </div>
     </section>
 
-    <!-- =========================
-         CASO menu5 == 0
-         ========================= -->
-    <!-- =========================
-     CASO menu5 == 0
-     ========================= -->
+    <!-- CASO menu5 == 0 -->
     <div class="container py-lg-5"
          th:if="${section != null and (section.menu5 == 0 or section.menu5 == '0')}">
         <div class="row">
@@ -31,95 +25,70 @@
                 <div data-bs-toggle="sticky" data-bs-stackable="true">
                     <nav class="navbar it-navscroll-wrapper navbar-expand-lg it-bottom-navscroll it-right-side"
                          data-bs-scrollPadding="50" data-bs-navscroll>
-
                         <button class="custom-navbar-toggler" type="button"
                                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"
                                 data-bs-toggle="navbarcollapsible" data-bs-target="#navbarNav">
                         </button>
-
                         <div class="progress custom-navbar-progressbar">
                             <div class="progress-bar it-navscroll-progressbar" role="progressbar"
                                  aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
-
                         <div class="navbar-collapsable" id="navbarNav">
                             <div class="overlay"></div>
-
                             <a class="it-back-button" href="#" role="button">
                                 <svg class="icon icon-sm icon-primary align-top">
                                     <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-chevron-left|}"></use>
                                 </svg>
                                 <span>Indietro</span>
                             </a>
-
                             <div class="menu-wrapper">
                                 <div class="link-list-wrapper">
                                     <h3>Indice della pagina</h3>
-
                                     <div class="progress">
                                         <div class="progress-bar it-navscroll-progressbar" role="progressbar"
                                              aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
-
                                     <ul class="link-list">
-
                                         <li class="nav-item" th:if="${section.testo != null and section.testo != ''}">
                                             <a class="nav-link active" th:href="${section.url + '#art-par-01'}">
                                                 <span>Cosa fa</span>
                                             </a>
                                         </li>
-
                                         <li class="nav-item" th:if="${section.subsection != null and !section.subsection.isEmpty()}">
                                             <a class="nav-link" th:href="${section.url + '#art-par-06'}">
                                                 <span>Struttura</span>
                                             </a>
                                         </li>
-
-                                        <li class="nav-item" th:if="${section.text3 != null and section.text3 != ''}">
+                                        <li class="nav-item">
                                             <a class="nav-link" th:href="${section.url + '#art-par-03'}">
                                                 <span>Organizzazione e contatti</span>
                                             </a>
                                         </li>
-
                                         <li class="nav-item" th:if="${section.text2 != null and section.text2 != ''}">
                                             <a class="nav-link" th:href="${section.url + '#art-par-05'}">
                                                 <span>Sede Principale</span>
                                             </a>
                                         </li>
-
                                         <li class="nav-item" th:if="${section.allegatiCheck == true}">
                                             <a class="nav-link" th:href="${section.url + '#art-par-doc'}">
                                                 <span>Documenti</span>
                                             </a>
                                         </li>
-
                                         <li class="nav-item" th:if="${section.text5 != null and section.text5 != ''}">
                                             <a class="nav-link" th:href="${section.url + '#art-par-04'}">
                                                 <span>Ulteriori Informazioni</span>
                                             </a>
                                         </li>
-
                                         <li class="nav-item"
                                             th:if="${section.galleryCheck == true and section.logo2 != null and section.logo2 != 'nofoto.jpg'}">
                                             <a class="nav-link" th:href="${section.url + '#art-par-07'}">
                                                 <span>Galleria fotografica</span>
                                             </a>
                                         </li>
-
-                                        <!-- (se vuoi il link al footer come nel vecchio codice, riattivalo)
-                                        <li class="nav-item">
-                                          <a class="nav-link" th:href="@{|${section.url}#art-par-footer|}">
-                                            <span>Info pagina</span>
-                                          </a>
-                                        </li>
-                                        -->
-
                                     </ul>
-
                                 </div>
                             </div>
-
-                        </div><!-- /navbar-collapsable -->
+                        </div>
                     </nav>
                 </div>
             </div>
@@ -162,14 +131,116 @@
                     </div>
                 </th:block>
 
-                <!-- ... (il resto identico al tuo: tag 05/03/04, contatti, sede, documenti, ulteriori info) ... -->
+                <!-- Organizzazione e contatti -->
+                <h4 id="art-par-03">Organizzazione e contatti</h4>
 
-                <!-- ✅ FOOTER -->
+                <th:block th:if="${config.contenutiExtraTag05 != null and !config.contenutiExtraTag05.isEmpty()}">
+                    <th:block th:each="item : ${config.contenutiExtraTag05}">
+                        <div class="card card-teaser rounded shadow m-2">
+                            <a th:href="${item.url}">
+                                <div class="card-body">
+                                    <p>
+                                        <svg class="icon icon-primary me-2">
+                                            <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-user|}"></use>
+                                        </svg>
+                                        <span th:text="${item.titolo}"></span> <small>Sindaco</small>
+                                    </p>
+                                </div>
+                            </a>
+                        </div>
+                    </th:block>
+                </th:block>
+
+                <th:block th:if="${config.contenutiExtraTag03 != null and !config.contenutiExtraTag03.isEmpty()}">
+                    <th:block th:each="item : ${config.contenutiExtraTag03}">
+                        <div class="card card-teaser rounded shadow m-2">
+                            <a th:href="${item.url}">
+                                <div class="card-body">
+                                    <p>
+                                        <svg class="icon icon-primary me-2">
+                                            <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-user|}"></use>
+                                        </svg>
+                                        <span th:text="${item.titolo}"></span>
+                                    </p>
+                                </div>
+                            </a>
+                        </div>
+                    </th:block>
+                </th:block>
+
+                <th:block th:if="${config.contenutiExtraTag04 != null and !config.contenutiExtraTag04.isEmpty()}">
+                    <th:block th:each="item : ${config.contenutiExtraTag04}">
+                        <div class="card card-teaser rounded shadow m-2">
+                            <a th:href="${item.url}">
+                                <div class="card-body">
+                                    <p>
+                                        <svg class="icon icon-primary me-2">
+                                            <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-info-circle|}"></use>
+                                        </svg>
+                                        <span th:text="${item.titolo}"></span>
+                                        <small th:text="${item.text1}"></small>
+                                    </p>
+                                </div>
+                            </a>
+                        </div>
+                    </th:block>
+                </th:block>
+
+                <!-- Contatti -->
+                <th:block th:if="${section.text3 != null and section.text3 != ''}">
+                    <h6>Contatti</h6>
+                    <div class="row variable-gutters mb-5">
+                        <div class="col-lg-12">
+                            <div class="card card-bg rounded">
+                                <div class="card-body pb-1" th:utext="${section.text3}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
+
+                <!-- Sede Principale -->
+                <th:block th:if="${section.text2 != null and section.text2 != ''}">
+                    <h4 id="art-par-05" class="mb-4">Sede Principale</h4>
+                    <div class="row variable-gutters mb-2">
+                        <div class="col-lg-12" th:utext="${section.text2}"></div>
+                    </div>
+                </th:block>
+
+                <!-- Documenti -->
+                <th:block th:if="${section.allegatiCheck == true}">
+                    <h4 id="art-par-doc">Documenti</h4>
+                    <div class="row variable-gutters mb-4">
+                        <div class="col-12 col-md-6">
+                            <th:block th:each="allegato : ${section.allegati}">
+                                <div class="card card-teaser rounded shadow m-2">
+                                    <a th:href="@{'/iccastellabate/filesId/' + ${allegato.id} + '/' + ${allegato.l2} + '/' + ${#strings.replace(allegato.l1,' ','_')} + '.' + ${allegato.type}}"
+                                       target="_blank">
+                                        <div class="card-body">
+                                            <p>
+                                                <img th:src="@{|/${config.sito.path2}/jsp/icons/32/${allegato.typeIcon}.png|}"
+                                                     class="icon" alt="Icona Documento">
+                                                <strong th:text="${allegato.l1} + ' (' + ${allegato.type} + ')'"></strong>
+                                            </p>
+                                            <small th:text="${allegato.size} + ' Kb'"></small>
+                                        </div>
+                                    </a>
+                                </div>
+                            </th:block>
+                        </div>
+                    </div>
+                </th:block>
+
+                <!-- Ulteriori informazioni -->
+                <th:block th:if="${section.text5 != null and section.text5 != ''}">
+                    <h4 id="art-par-04" class="mb-4">Ulteriori informazioni</h4>
+                    <div class="row variable-gutters mb-2">
+                        <div class="col-lg-12" th:utext="${section.text5}"></div>
+                    </div>
+                </th:block>
+
+                <!-- Footer -->
                 <div class="row variable-gutters mt-5" id="art-par-footer">
                     <div class="col-lg-12">
-                        <!-- DEBUG: se vedi questo, sei arrivato al footer -->
-                        <!-- <div style="border:2px solid red; padding:10px;">DEBUG footer ok</div> -->
-
                         <blockquote class="blockquote text-end">
                             <footer class="blockquote-footer">
                                 <strong>Pubblicato:</strong> <span th:text="${section.creato}"></span>
@@ -186,16 +257,12 @@
         </div><!-- /row -->
     </div><!-- /container -->
 
-    <!-- =========================
-         CASO menu5 != 0 (1 o 2)
-         ========================= -->
+    <!-- CASO menu5 != 0 -->
     <div class="section section-muted py-5"
          th:if="${section != null and (section.menu5 != 0 and section.menu5 != '0')}">
         <div class="container">
-
             <div class="row variable-gutters">
 
-                <!-- menu5 == 2: subsection -->
                 <th:block th:if="${section.menu5 == 2 or section.menu5 == '2'}">
                     <th:block th:if="${section.subsection != null and !section.subsection.isEmpty()}">
                         <div class="col-lg-4 mb-3 mb-lg-4" th:each="item : ${section.subsection}">
@@ -215,7 +282,6 @@
                     </th:block>
                 </th:block>
 
-                <!-- menu5 == 1: contenuti -->
                 <th:block th:if="${section.menu5 == 1 or section.menu5 == '1'}">
                     <th:block th:if="${section.contenuti != null and !section.contenuti.isEmpty()}">
                         <div class="col-lg-4 mb-3 mb-lg-4" th:each="item : ${section.contenuti}">
@@ -235,7 +301,6 @@
                     </th:block>
                 </th:block>
 
-                <!-- Footer -->
                 <div class="offset-md-1 col-md-12">
                     <div class="row">
                         <blockquote class="blockquote text-end">
@@ -246,8 +311,8 @@
                     </div>
                 </div>
 
-            </div><!-- /row -->
-        </div><!-- /container -->
-    </div><!-- /section -->
+            </div>
+        </div>
+    </div>
 
 </th:block>
