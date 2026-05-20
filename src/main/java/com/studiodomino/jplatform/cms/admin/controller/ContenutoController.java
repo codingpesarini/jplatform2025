@@ -155,6 +155,8 @@ public class ContenutoController {
             sezione = normalizzaSezione(sezione, idRoot);
 
             documento.setSection(sezione);
+            log.info("PRIMA caricaDocumentiCorrelati: sezione.id={}, l15={}, l11={}",
+                    sezione.getId(), sezione.getL15(), sezione.getL11());
             caricaDocumentiCorrelati(documento, sezione, idSite);
 
             List<Section> elencoSezioni = contentService.findAllSections(idSite);
@@ -230,6 +232,9 @@ public class ContenutoController {
                 documento.setIdSite(idSite);
                 documento.setCreato(now);
                 documento.setCreatoDa(operatore);
+                if (documento.getPrivato() == null || documento.getPrivato().isBlank()) {
+                    documento.setPrivato("0");  // default pubblico
+                }
                 parseDataVisualizzata(documento);
 
                 DatiBase saved = contentService.saveContent(documento);
@@ -632,18 +637,21 @@ public class ContenutoController {
 
     private void caricaDocumentiCorrelati(DatiBase documento, Section sezione, String idSite) {
         try {
-            String l15 = sezione.getL(15);
-            if (l15 != null && !l15.isEmpty()) {
-                Integer idRootCorrelati = parseIntSafe(l15);
-                if (idRootCorrelati != null) {
+            String l15 = sezione.getL15();
+            if (l15 != null && !l15.isBlank()) {
+                // Prende solo il primo ID (prima della virgola)
+                String firstId = l15.split(",")[0].trim();
+                Integer idRootCorrelati = parseIntSafe(firstId);
+                if (idRootCorrelati != null && idRootCorrelati > 0) {
                     documento.setDocCorrelati1(
                             contentService.findContentsBySection(idSite, idRootCorrelati));
                 }
             }
-            String l11 = sezione.getL(11);
-            if (l11 != null && !l11.isEmpty()) {
-                Integer idRootCorrelati2 = parseIntSafe(l11);
-                if (idRootCorrelati2 != null) {
+            String l11 = sezione.getL11();
+            if (l11 != null && !l11.isBlank()) {
+                String firstId = l11.split(",")[0].trim();
+                Integer idRootCorrelati2 = parseIntSafe(firstId);
+                if (idRootCorrelati2 != null && idRootCorrelati2 > 0) {
                     documento.setDocCorrelati2(
                             contentService.findContentsBySection(idSite, idRootCorrelati2));
                 }

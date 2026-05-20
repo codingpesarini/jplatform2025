@@ -55,9 +55,21 @@ public class ContentService {
         return sectionMapper.toSectionList(contents);
     }
 
+    /**
+     * FRONTEND: carica solo sottosezioni pubblicate (stato=1)
+     */
     public List<Section> findSubsections(String idSite, String idParent) {
-        log.debug("Finding subsections for site: {} and parent: {}", idSite, idParent);
+        log.debug("Finding subsections (frontend) for site: {} and parent: {}", idSite, idParent);
         List<Content> contents = contentRepository.findSubsectionsByParent(idSite, idParent);
+        return sectionMapper.toSectionList(contents);
+    }
+
+    /**
+     * BACKOFFICE: carica tutte le sottosezioni, qualunque stato
+     */
+    public List<Section> findAllSubsections(String idSite, String idParent) {
+        log.debug("Finding all subsections (admin) for site: {} and parent: {}", idSite, idParent);
+        List<Content> contents = contentRepository.findAllSubsectionsByParent(idSite, idParent);
         return sectionMapper.toSectionList(contents);
     }
 
@@ -87,18 +99,44 @@ public class ContentService {
         return sectionMapper.toSectionList(contents);
     }
 
+    /**
+     * FRONTEND: carica sezione completa con solo sottosezioni pubblicate
+     */
     public Optional<Section> findSectionComplete(Integer id, String idSite) {
-        log.debug("Finding complete section by id: {} and site: {}", id, idSite);
+        log.debug("Finding complete section (frontend) by id: {} and site: {}", id, idSite);
 
         Optional<Section> sectionOpt = findSectionById(id, idSite);
         if (sectionOpt.isEmpty()) return Optional.empty();
 
         Section section = sectionOpt.get();
 
-        // Carica sotto-sezioni
+        // Frontend: solo sottosezioni pubblicate
         section.setSubsection(findSubsections(idSite, id.toString()));
 
         // Carica contenuti della sezione
+        section.setContenuti(findContentsBySection(idSite, id));
+
+        // Carica catena dei parent (per breadcrumb)
+        section.setParentSection(buildParentChain(section, idSite));
+
+        return Optional.of(section);
+    }
+
+    /**
+     * BACKOFFICE: carica sezione completa con TUTTE le sottosezioni (incluse bozze)
+     */
+    public Optional<Section> findSectionCompleteAdmin(Integer id, String idSite) {
+        log.debug("Finding complete section (admin) by id: {} and site: {}", id, idSite);
+
+        Optional<Section> sectionOpt = findSectionById(id, idSite);
+        if (sectionOpt.isEmpty()) return Optional.empty();
+
+        Section section = sectionOpt.get();
+
+        // Backoffice: tutte le sottosezioni, qualunque stato
+        section.setSubsection(findAllSubsections(idSite, id.toString()));
+
+        // Carica contenuti della sezione (tutti, non solo pubblicati)
         section.setContenuti(findContentsBySection(idSite, id));
 
         // Carica catena dei parent (per breadcrumb)
@@ -135,23 +173,16 @@ public class ContentService {
         Breadcrumb breadcrumb = new Breadcrumb();
         if (section == null) return breadcrumb;
 
-        // parent chain (Home > ... > Parent)
         List<Section> chain = buildParentChain(section, idSite);
 
-        // aggiungo i parent
         for (Section s : chain) {
-            // getUrl() deve già restituire qualcosa tipo: /front/1547/slug
             String url = s.getUrl();
-
-            // (opzionale) se per qualche motivo url è null/vuoto, fallback a /front/{id}
             if (url == null || url.isEmpty()) {
                 url = "/front/" + s.getId();
             }
-
             breadcrumb.add(s.getTitolo(), url, String.valueOf(s.getId()));
         }
 
-        // item corrente (non linkato)
         String currentUrl = section.getUrl();
         if (currentUrl == null || currentUrl.isEmpty()) {
             currentUrl = "/front/" + section.getId();
@@ -165,7 +196,6 @@ public class ContentService {
         Breadcrumb breadcrumb = new Breadcrumb();
         if (post == null) return breadcrumb;
 
-        // sezione padre = idRoot
         Integer idRootInt = safeInt(post.getIdRoot());
         if (idRootInt != null && idRootInt > 0) {
             Optional<Section> secOpt = findSectionById(idRootInt, idSite);
@@ -173,7 +203,6 @@ public class ContentService {
                 Section section = secOpt.get();
                 List<Section> chain = buildParentChain(section, idSite);
 
-                // parent chain
                 for (Section s : chain) {
                     String url = s.getUrl();
                     if (url == null || url.isEmpty()) {
@@ -182,7 +211,6 @@ public class ContentService {
                     breadcrumb.add(s.getTitolo(), url, String.valueOf(s.getId()));
                 }
 
-                // aggiungo anche la sezione stessa prima del documento
                 String secUrl = section.getUrl();
                 if (secUrl == null || secUrl.isEmpty()) {
                     secUrl = "/front/" + section.getId();
@@ -191,10 +219,8 @@ public class ContentService {
             }
         }
 
-        // item corrente = documento
-        String postUrl = post.getUrl();   // deve essere: /front/{id}/{slug}
+        String postUrl = post.getUrl();
         if (postUrl == null || postUrl.isEmpty()) {
-            // fallback: almeno /front/{id}
             postUrl = "/front/" + post.getId();
         }
 
@@ -237,6 +263,10 @@ public class ContentService {
         return datiBaseMapper.toDatiBaseList(contents);
     }
 
+    /**
+     * FRONTEND: carica contenuti filtrando per stato dal whereCondition.
+     * Default: solo pubblicati (stato=1) e in evidenza (stato=3).
+     */
     public List<DatiBase> findContentsBySection(
             Integer idSito,
             Integer idRoot,
@@ -244,11 +274,32 @@ public class ContentService {
             String orderBy,
             Integer limit) {
 
-        log.debug("Finding contents for section {} with custom filters", idRoot);
+        log.debug("Finding contents for section {} with whereCondition: {}", idRoot, whereCondition);
 
-        List<Content> contents = contentRepository.findPublishedContentsBySection(
-                idSito.toString(), idRoot
-        );
+        List<Content> contents;
+
+        // Estrai stato dal whereCondition se presente
+        if (whereCondition != null && whereCondition.matches(".*AND stato='(\\d)'.*")) {
+            java.util.regex.Matcher matcher = java.util.regex.Pattern
+                    .compile("AND stato='(\\d)'")
+                    .matcher(whereCondition);
+            if (matcher.find()) {
+                String stato = matcher.group(1);
+                log.debug("Filtro stato esplicito: {}", stato);
+                contents = contentRepository.findContentsBySectionAndStato(
+                        idSito.toString(), idRoot, stato
+                );
+            } else {
+                contents = contentRepository.findVisibleContentsBySection(
+                        idSito.toString(), idRoot
+                );
+            }
+        } else {
+            // Nessun filtro stato esplicito → mostra solo pubblicati e in evidenza
+            contents = contentRepository.findVisibleContentsBySection(
+                    idSito.toString(), idRoot
+            );
+        }
 
         contents = sortContents(contents, orderBy);
 
@@ -480,7 +531,6 @@ public class ContentService {
     @Transactional
     public void ordinaContenuti(Integer idSito) {
         log.debug("Ordinamento contenuti per sito: {}", idSito);
-        // TODO
     }
 
     public Section getSezioneHome(Integer idSito) {
@@ -524,6 +574,7 @@ public class ContentService {
     }
 
     private void loadSubsectionsRecursive(Section section, String idSito) {
+        // Frontend: usa findSubsections che filtra stato=1
         List<Section> subsections = findSubsections(idSito, section.getId().toString());
         section.setSubsection(subsections);
 
@@ -567,20 +618,13 @@ public class ContentService {
         return "tag-weight-" + calculateTagWeight(occorrenze);
     }
 
-    /**
-     * Ottieni contenuti front-end con filtri avanzati
-     *
-     * FIX IMPORTANTE:
-     * - prima accettava solo id_root singolo (parseInt(valueFilter))
-     * - ora supporta anche liste tipo "346,364,367"
-     */
     public List<DatiBase> getContenutiFront(
             Integer idSito,
-            String fieldFilter,     // es: "id_root", "id"
-            String valueFilter,     // es: "5" oppure "10,20,30"
-            String extraCondition,  // es: " or l2='1' "
-            String orderBy,         // es: "data desc", "id asc"
-            String maxResults) {    // es: "12"
+            String fieldFilter,
+            String valueFilter,
+            String extraCondition,
+            String orderBy,
+            String maxResults) {
 
         log.debug("Caricamento contenuti front: sito={}, field={}, value={}, order={}, max={}",
                 idSito, fieldFilter, valueFilter, orderBy, maxResults);
@@ -592,15 +636,12 @@ public class ContentService {
         List<Content> contents;
 
         if ("id_root".equalsIgnoreCase(fieldFilter)) {
-
-            // Supporta sia "562" che "562,563,561"
             contents = new ArrayList<>();
             if (valueFilter != null && !valueFilter.trim().isEmpty()) {
                 String[] parts = valueFilter.split(",");
                 for (String p : parts) {
                     String t = (p != null ? p.trim() : "");
                     if (t.isEmpty()) continue;
-
                     try {
                         Integer idRoot = Integer.parseInt(t);
                         List<Content> one = contentRepository.findPublishedContentsBySection(
@@ -612,9 +653,7 @@ public class ContentService {
                     }
                 }
             }
-
         } else if ("id".equalsIgnoreCase(fieldFilter)) {
-
             contents = new ArrayList<>();
             if (valueFilter != null && !valueFilter.trim().isEmpty()) {
                 String[] ids = valueFilter.split(",");
@@ -628,20 +667,13 @@ public class ContentService {
                     }
                 }
             }
-
         } else {
             contents = contentRepository.findPublicContents(idSito.toString());
         }
 
-        // TODO: extraCondition (ignorata come prima)
-
-        // Ordina
         contents = sortContents(contents, orderBy);
-
-        // Deduplica (se id_root multipli possono portare lo stesso contenuto più volte)
         contents = dedupeById(contents);
 
-        // Limita risultati
         if (maxResults != null && !maxResults.isEmpty()) {
             try {
                 int max = Integer.parseInt(maxResults);
@@ -672,11 +704,11 @@ public class ContentService {
         return contents.stream()
                 .sorted((c1, c2) -> switch (ob) {
                     case "titolo" -> compareStrings(c1.getTitolo(), c2.getTitolo());
-                    case "data" -> compareStrings(c2.getData(), c1.getData()); // desc
+                    case "data" -> compareStrings(c2.getData(), c1.getData());
                     case "data desc" -> compareStrings(c2.getData(), c1.getData());
                     case "data asc" -> compareStrings(c1.getData(), c2.getData());
                     case "position" -> compareIntegers(c1.getPosition(), c2.getPosition());
-                    case "id" -> compareIntegers(c2.getId(), c1.getId()); // desc
+                    case "id" -> compareIntegers(c2.getId(), c1.getId());
                     case "id desc" -> compareIntegers(c2.getId(), c1.getId());
                     case "id asc" -> compareIntegers(c1.getId(), c2.getId());
                     default -> 0;
@@ -719,7 +751,6 @@ public class ContentService {
             LocalDate today = LocalDate.now();
 
             for (Content content : rootContents) {
-
                 if ("1".equals(content.getS(3))) {
                     try {
                         LocalDate startDate = this.parseScheduleDate(content.getS(1));
@@ -731,8 +762,6 @@ public class ContentService {
                                         content.getId(), startDate, endDate);
                                 continue;
                             }
-                            log.debug("Sezione {} inclusa: nel periodo pubblicazione [{} - {}]",
-                                    content.getId(), startDate, endDate);
                         }
                     } catch (Exception e) {
                         log.warn("Errore parsing date pubblicazione per sezione root {}: {}",
@@ -842,7 +871,6 @@ public class ContentService {
             LocalDate today = LocalDate.now();
 
             for (Content content : subsectionContents) {
-
                 if ("1".equals(content.getS(3))) {
                     try {
                         LocalDate startDate = parseScheduleDate(content.getS(1));

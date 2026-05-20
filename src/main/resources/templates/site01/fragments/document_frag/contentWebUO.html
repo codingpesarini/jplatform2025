@@ -206,8 +206,8 @@
         </th:block>
 
         <!-- ExtraTag06 -->
-        <th:block th:if="${config.contenutiExtraTag06 != null and !config.contenutiExtraTag06.isEmpty()}">
-          <th:block th:each="item : ${config.contenutiExtraTag06}">
+        <th:block th:if="${post.extratag.contenutiExtraTag06 != null and !post.extratag.contenutiExtraTag06.isEmpty()}">
+          <th:block th:each="item : ${post.extratag.contenutiExtraTag06}">
             <div class="col-lg-8 mb-3 mb-lg-8">
               <div class="card card-teaser card-bg">
                 <a th:href="${item.url}" class="rounded mt-0 p-3">
@@ -226,11 +226,10 @@
           </th:block>
         </th:block>
 
-        <!-- Organizzazione e contatti -->
         <h4 class="it-page-section" id="art-par-06">Organizzazione e contatti</h4>
 
-        <th:block th:if="${config.contenutiExtraTag01 != null and !config.contenutiExtraTag01.isEmpty()}">
-          <th:block th:each="item : ${config.contenutiExtraTag01}">
+        <th:block th:if="${post.extratag.contenutiExtraTag01 != null and !post.extratag.contenutiExtraTag01.isEmpty()}">
+          <th:block th:each="item : ${post.extratag.contenutiExtraTag01}">
             <div class="col-lg-4 mb-3 mb-lg-4">
               <div class="card card-bg card-avatar rounded">
                 <a th:href="${item.url}">
@@ -250,8 +249,8 @@
           </th:block>
         </th:block>
 
-        <th:block th:if="${config.contenutiExtraTag02 != null and !config.contenutiExtraTag02.isEmpty()}">
-          <th:block th:each="item : ${config.contenutiExtraTag02}">
+        <th:block th:if="${post.extratag.contenutiExtraTag02 != null and !post.extratag.contenutiExtraTag02.isEmpty()}">
+          <th:block th:each="item : ${post.extratag.contenutiExtraTag02}">
             <div class="col-lg-4 mb-3 mb-lg-4">
               <div class="card card-bg card-avatar rounded">
                 <a th:href="${item.url}">
@@ -271,8 +270,8 @@
           </th:block>
         </th:block>
 
-        <th:block th:if="${config.contenutiExtraTag03 != null and !config.contenutiExtraTag03.isEmpty()}">
-          <th:block th:each="item : ${config.contenutiExtraTag03}">
+        <th:block th:if="${post.extratag.contenutiExtraTag03 != null and !post.extratag.contenutiExtraTag03.isEmpty()}">
+          <th:block th:each="item : ${post.extratag.contenutiExtraTag03}">
             <div class="col-lg-4 mb-3 mb-lg-4">
               <div class="card card-bg card-avatar rounded">
                 <a th:href="${item.url}">
@@ -292,8 +291,8 @@
           </th:block>
         </th:block>
 
-        <th:block th:if="${config.contenutiExtraTag04 != null and !config.contenutiExtraTag04.isEmpty()}">
-          <th:block th:each="item : ${config.contenutiExtraTag04}">
+        <th:block th:if="${post.extratag.contenutiExtraTag04 != null and !post.extratag.contenutiExtraTag04.isEmpty()}">
+          <th:block th:each="item : ${post.extratag.contenutiExtraTag04}">
             <div class="col-lg-4 mb-3 mb-lg-4">
               <div class="card card-bg card-avatar rounded">
                 <a th:href="${item.url}">
@@ -313,8 +312,8 @@
           </th:block>
         </th:block>
 
-        <th:block th:if="${config.contenutiExtraTag05 != null and !config.contenutiExtraTag05.isEmpty()}">
-          <th:block th:each="item : ${config.contenutiExtraTag05}">
+        <th:block th:if="${post.extratag.contenutiExtraTag05 != null and !post.extratag.contenutiExtraTag05.isEmpty()}">
+          <th:block th:each="item : ${post.extratag.contenutiExtraTag05}">
             <div class="col-lg-4 mb-3 mb-lg-4">
               <div class="card card-bg card-avatar rounded">
                 <a th:href="${item.url}">
@@ -326,6 +325,26 @@
                     </div>
                     <div class="card-avatar-content">
                       <p th:text="${item.titolo}"></p>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </th:block>
+        </th:block>
+
+        <th:block th:if="${post.extratag.contenutiExtraTag06 != null and !post.extratag.contenutiExtraTag06.isEmpty()}">
+          <th:block th:each="item : ${post.extratag.contenutiExtraTag06}">
+            <div class="col-lg-8 mb-3 mb-lg-8">
+              <div class="card card-teaser card-bg">
+                <a th:href="${item.url}" class="rounded mt-0 p-3">
+                  <div class="avatar size-lg">
+                    <svg class="icon icon-primary">
+                      <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-pa|}"></use>
+                    </svg>
+                    <div class="card-icon-content mb-3">
+                      <p class="ms-3"><strong th:text="${item.titolo}"></strong></p>
+                      <small th:text="${item.riassunto}"></small>
                     </div>
                   </div>
                 </a>

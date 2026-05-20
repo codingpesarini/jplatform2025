@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -65,9 +66,9 @@ public class SezioniController {
         return ViewUtils.resolveProtectedTemplate("cms/front/elencoSezioni");
     }
 
-    @GetMapping("/new")
+    @GetMapping({"/new", "/new/{idParent}"})
     public String newForm(
-            @RequestParam(value = "id_parent", defaultValue = "0") String idParent,
+            @PathVariable(required = false) String idParent,
             @RequestParam(value = "groupid", defaultValue = "0") String groupId,
             HttpServletRequest request, Model model) {
 
@@ -81,11 +82,10 @@ public class SezioniController {
 
             Section section = new Section();
             section.setId(null);
-            section.setIdParent(idParent);
+            section.setIdParent(idParent != null ? idParent : "0");
             section.setIdGruppo(groupId);
             section.setData(today);
 
-            // FIX: Inizializziamo un SectionType vuoto per evitare NullPointerException nel template
             section.setSectionType(new SectionType());
 
             model.addAttribute("section", section);
@@ -100,7 +100,8 @@ public class SezioniController {
 
     @GetMapping("/{id}")
     public String open(@PathVariable Integer id,
-                       HttpServletRequest request, Model model) {
+                       HttpServletRequest request, Model model,
+                       RedirectAttributes redirectAttributes) {
 
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
@@ -122,25 +123,26 @@ public class SezioniController {
             model.addAttribute("section", section);
             populateDetailModel(model, config, idSite);
 
-            // Popola gallery dalla galleryString
             String galleryString = section.getGalleryString();
+            log.info("galleryString sezione {}: '{}'", section.getId(), galleryString);
             if (galleryString != null && !galleryString.isEmpty()) {
                 List<Images> gallery = new ArrayList<>();
-                // formato: (106);(128);
                 String[] parts = galleryString.split(";");
                 for (String part : parts) {
                     part = part.trim().replace("(", "").replace(")", "");
                     if (!part.isEmpty()) {
                         try {
                             Integer imgId = Integer.parseInt(part);
-                            imagesService.findById(imgId).ifPresent(gallery::add);
+                            imagesService.findById(imgId).ifPresent(img -> {
+                                log.info("Immagine trovata: id={}, path={}", img.getId(), img.getFullpath());
+                                gallery.add(img);
+                            });
                         } catch (NumberFormatException ignored) {}
                     }
                 }
                 section.setGallery(gallery);
             }
 
-            // Popola allegati dalla sezione
             if (section.getId() != null) {
                 List<Allegato> allegati = allegatoService.findAllegatiByDocumento(section.getId());
                 section.setAllegati(allegati);
@@ -148,7 +150,8 @@ public class SezioniController {
 
         } catch (Exception e) {
             log.error("Errore open sezione id={}", id, e);
-            return "redirect:/admin/sezioni?error=notfound";
+            redirectAttributes.addFlashAttribute("errorMessage", "Sezione non trovata");
+            return "redirect:/admin/sezioni";
         }
 
         return ViewUtils.resolveProtectedTemplate("cms/dettaglioSezioneTemplate");
@@ -237,7 +240,8 @@ public class SezioniController {
     @GetMapping("/{id}/preview")
     public String preview(@PathVariable Integer id,
                           HttpServletRequest request,
-                          Model model) {
+                          Model model,
+                          RedirectAttributes redirectAttributes) {
 
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
@@ -246,16 +250,13 @@ public class SezioniController {
         try {
             String idSite = String.valueOf(config.getIdSito());
 
-            // carico la sezione COMPLETA (subsection + contenuti ecc)
-            Section previewSezione = contentService.findSectionComplete(id, idSite)
+            Section previewSezione = contentService.findSectionCompleteAdmin(id, idSite)
                     .orElseThrow(() -> new RuntimeException("Sezione non trovata: " + id));
 
-            // se per qualche motivo manca il tipo, evito NPE nei template
             if (previewSezione.getSectionType() == null) {
                 previewSezione.setSectionType(new SectionType());
             }
 
-            // sidebar: elenco sezioni (con eventuale filtro gruppi come fai in elencoSezioni)
             String userGroups = getSelettoreGruppo(config);
             List<Section> elencoSezioni = loadRootSectionsComplete(idSite);
             if (!userGroups.isEmpty()) {
@@ -269,7 +270,8 @@ public class SezioniController {
 
         } catch (Exception e) {
             log.error("Errore preview sezione id={}", id, e);
-            return "redirect:/admin/sezioni?error=preview";
+            redirectAttributes.addFlashAttribute("errorMessage", "Sezione non trovata o errore nel caricamento");
+            return "redirect:/admin/sezioni";
         }
 
         return ViewUtils.resolveProtectedTemplate("cms/front/previewSezioni");
@@ -337,6 +339,8 @@ public class SezioniController {
                 db.setMenu3(form.getMenu3()); db.setMenu4(form.getMenu4());
                 db.setMenu5(form.getMenu5());
                 db.setS1(form.getS1()); db.setS2(form.getS2()); db.setS3(form.getS3());
+                db.setL11(form.getL11());
+                db.setL15(form.getL15());
 
                 db.setModificato(now);
                 db.setModificatoDa(operatore);
@@ -349,6 +353,7 @@ public class SezioniController {
             parseDataVisualizzata(db);
 
             Section saved = contentService.saveSection(db);
+            log.info("Sezione salvata con id: {}", saved.getId());
             String allegatoString = request.getParameter("allegatoString");
             log.info("allegatoString ricevuto: '{}'", allegatoString);
             if (allegatoString != null && !allegatoString.isBlank()) {
@@ -396,17 +401,20 @@ public class SezioniController {
     }
 
     @PostMapping("/{id}/delete")
-    public String delete(@PathVariable Integer id, HttpServletRequest request) {
+    public String delete(@PathVariable Integer id, HttpServletRequest request,
+                         RedirectAttributes redirectAttributes) {
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
         try {
             contentService.deleteSection(id);
-            return "redirect:/admin/sezioni?success=deleted";
+            redirectAttributes.addFlashAttribute("successMessage", "Sezione eliminata con successo");
+            return "redirect:/admin/sezioni";
         } catch (Exception e) {
             log.error("Errore durante la cancellazione della sezione id={}", id, e);
-            return "redirect:/admin/sezioni?error=delete_failed";
+            redirectAttributes.addFlashAttribute("errorMessage", "Errore durante la cancellazione");
+            return "redirect:/admin/sezioni";
         }
     }
 
@@ -502,7 +510,7 @@ public class SezioniController {
         List<Section> complete = new ArrayList<>();
         for (Section r : root) {
             try {
-                Section full = contentService.findSectionComplete(r.getId(), idSite).orElse(r);
+                Section full = contentService.findSectionCompleteAdmin(r.getId(), idSite).orElse(r);
                 complete.add(full);
             } catch (Exception ex) {
                 complete.add(r);

@@ -39,8 +39,18 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
      * Trova sotto-sezioni di una sezione parent
      */
     @Query("SELECT c FROM Content c WHERE c.idSite = :idSite AND c.idRoot = -1 " +
-            "AND c.idParent = :idParent ORDER BY c.position ASC")
+            "AND c.idParent = :idParent AND c.stato = '1' ORDER BY c.position ASC")
     List<Content> findSubsectionsByParent(
+            @Param("idSite") String idSite,
+            @Param("idParent") String idParent
+    );
+
+    /**
+     * Trova TUTTE le sottosezioni (incluse bozze) - per backoffice
+     */
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite AND c.idRoot = -1 " +
+            "AND c.idParent = :idParent ORDER BY c.position ASC")
+    List<Content> findAllSubsectionsByParent(
             @Param("idSite") String idSite,
             @Param("idParent") String idParent
     );
@@ -53,6 +63,27 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
     Optional<Content> findSectionByLabel(
             @Param("idSite") String idSite,
             @Param("label") String label
+    );
+
+    /**
+     * Trova contenuti di una sezione filtrati per stato specifico
+     */
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite AND c.idRoot = :idRoot " +
+            "AND c.stato = :stato ORDER BY c.position ASC")
+    List<Content> findContentsBySectionAndStato(
+            @Param("idSite") String idSite,
+            @Param("idRoot") Integer idRoot,
+            @Param("stato") String stato
+    );
+
+    /**
+     * Trova contenuti visibili (stato=1 o stato=3) di una sezione - per frontend
+     */
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite AND c.idRoot = :idRoot " +
+            "AND c.stato = '1' AND c.privato = '0' ORDER BY c.position ASC")
+    List<Content> findVisibleContentsBySection(
+            @Param("idSite") String idSite,
+            @Param("idRoot") Integer idRoot
     );
 
     /**

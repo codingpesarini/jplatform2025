@@ -3,7 +3,6 @@
     <!-- Header con background rosso -->
     <section class="section bg-redbrown bg-red-gradient py-5 position-relative d-flex align-items-center overflow-hidden">
         <div class="people-red-forms">
-            <!-- SVG background (mantenuto identico) -->
             <svg width="100%" height="100%" viewBox="0 0 312 311" version="1.1" xmlns="http://www.w3.org/2000/svg">
                 <!-- ... SVG path mantenu... -->
             </svg>
@@ -26,7 +25,6 @@
             <div class="container container-border-top">
                 <div class="row variable-gutters">
 
-                    <!-- Sidebar indice -->
                     <div class="col-lg-3 col-md-4 aside-border px-0 d-print-none">
                         <aside class="aside-main aside-sticky">
                             <div class="aside-title">
@@ -40,34 +38,22 @@
                             </div>
                             <div id="lista-paragrafi" class="link-list-wrapper collapse show">
                                 <ul class="link-list">
-                                    <li>
-                                        <a class="list-item scroll-anchor-offset" href="#art-par-01">Cosa fa</a>
-                                    </li>
+                                    <li><a class="list-item scroll-anchor-offset" href="#art-par-01">Cosa fa</a></li>
                                     <li th:if="${section.subsection != null and !section.subsection.isEmpty()}">
                                         <a class="list-item scroll-anchor-offset" href="#art-par-06">Struttura</a>
                                     </li>
-                                    <li>
-                                        <a class="list-item scroll-anchor-offset" href="#art-par-02">Servizi</a>
-                                    </li>
-                                    <li>
-                                        <a class="list-item scroll-anchor-offset" href="#art-par-03">Organizzazione e contatti</a>
-                                    </li>
-                                    <li>
-                                        <a class="list-item scroll-anchor-offset" href="#art-par-04">Sedi informazioni</a>
-                                    </li>
-                                    <li>
-                                        <a class="list-item scroll-anchor-offset" href="#art-par-05">Ulteriori informazioni</a>
-                                    </li>
+                                    <li><a class="list-item scroll-anchor-offset" href="#art-par-02">Servizi</a></li>
+                                    <li><a class="list-item scroll-anchor-offset" href="#art-par-03">Organizzazione e contatti</a></li>
+                                    <li><a class="list-item scroll-anchor-offset" href="#art-par-04">Sedi informazioni</a></li>
+                                    <li><a class="list-item scroll-anchor-offset" href="#art-par-05">Ulteriori informazioni</a></li>
                                 </ul>
                             </div>
                         </aside>
                     </div>
 
-                    <!-- Contenuto principale -->
                     <div class="col-lg-9 col-md-8">
                         <article class="article-wrapper pt-4">
 
-                            <!-- Cosa fa -->
                             <h4 id="art-par-01">Cosa fa</h4>
                             <div class="row variable-gutters">
                                 <div class="col-lg-12" th:utext="${section.text1}">Contenuto</div>
@@ -79,7 +65,33 @@
                                 <div class="row variable-gutters mb-4">
                                     <div class="col-lg-4 mb-3 mb-lg-4" th:each="item : ${section.subsection}">
                                         <div class="card card-bg card-icon h-100 rounded shadow">
-                                            <a th:href="${item.url}" class="text-decoration-none">
+                                            <!-- link esterno -->
+                                            <a th:if="${item.menu2 == '2'}" th:href="${item.menu3}" target="_blank" class="text-decoration-none">
+                                                <div class="card-body">
+                                                    <svg class="icon svg-service">
+                                                        <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#svg-service|}"></use>
+                                                    </svg>
+                                                    <div class="card-icon-content">
+                                                        <p><strong th:text="${item.titolo}">Titolo</strong></p>
+                                                        <small th:text="${item.riassunto}">Riassunto</small>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <!-- non linkabile -->
+                                            <div th:if="${item.menu2 == '1'}" class="text-decoration-none">
+                                                <div class="card-body">
+                                                    <svg class="icon svg-service">
+                                                        <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#svg-service|}"></use>
+                                                    </svg>
+                                                    <div class="card-icon-content">
+                                                        <p><strong th:text="${item.titolo}">Titolo</strong></p>
+                                                        <small th:text="${item.riassunto}">Riassunto</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- link interno -->
+                                            <a th:if="${item.menu2 == '0' or item.menu2 == null or item.menu2 == ''}"
+                                               th:href="${item.url}" class="text-decoration-none">
                                                 <div class="card-body">
                                                     <svg class="icon svg-service">
                                                         <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#svg-service|}"></use>
@@ -95,18 +107,14 @@
                                 </div>
                             </th:block>
 
-                            <!-- Servizi -->
                             <h4 id="art-par-02">Servizi</h4>
                             <h6>Servizi di cui la struttura è responsabile</h6>
                             <div class="row variable-gutters mb-4">
                                 <div class="col-lg-12">
-                                    <div class="card-deck card-deck-spaced">
-                                        <!-- Contenuto servizi esempio -->
-                                    </div>
+                                    <div class="card-deck card-deck-spaced"></div>
                                 </div>
                             </div>
 
-                            <!-- Organizzazione e contatti -->
                             <h4 id="art-par-03">Organizzazione e contatti</h4>
                             <h6>Contatti</h6>
                             <div class="row variable-gutters mb-5">
@@ -117,7 +125,6 @@
                                 </div>
                             </div>
 
-                            <!-- Sede -->
                             <h4 id="art-par-04">Sede</h4>
                             <div class="row variable-gutters mb-5">
                                 <div class="col-lg-12">
@@ -135,13 +142,37 @@
                                 <div class="col-lg-12" th:utext="${section.text4}">Info sede</div>
                             </div>
 
-                            <!-- Ulteriori informazioni -->
                             <h4 id="art-par-05" class="mb-4">Ulteriori informazioni</h4>
                             <div class="row variable-gutters">
                                 <div class="col-lg-12" th:utext="${section.text5}">Info</div>
                             </div>
 
-                            <!-- Footer -->
+                            <!-- Galleria fotografica -->
+                            <th:block th:if="${section.galleryCheck == true and section.logo2 != null and section.logo2 != 'nofoto.jpg'}">
+                                <h4 id="art-par-07" class="mb-4">Galleria fotografica</h4>
+                                <div class="row variable-gutters mb-4">
+                                    <div class="col-12">
+                                        <div class="it-carousel-wrapper it-carousel-landscape-abstract-three-cols splide popup-gallery" data-bs-carousel-splide>
+                                            <div class="splide__track">
+                                                <ul class="splide__list it-carousel-all">
+                                                    <th:block th:each="immagine, iterStat : ${section.gallery}" th:if="${iterStat.index > 0}">
+                                                        <li class="splide__slide">
+                                                            <div class="it-single-slide-wrapper">
+                                                                <a th:href="@{|${config.imagesRepositoryWeb}${immagine.fullpath}|}">
+                                                                    <img class="img-fluid"
+                                                                         th:src="@{|${config.imagesRepositoryWeb}${immagine.fullpath}|}"
+                                                                         th:alt="${immagine.didascalia}">
+                                                                </a>
+                                                            </div>
+                                                        </li>
+                                                    </th:block>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </th:block>
+
                             <div class="row variable-gutters">
                                 <div class="col-lg-12">
                                     <blockquote class="blockquote text-end">
@@ -172,7 +203,33 @@
                     <th:block th:if="${section.menu5 == '2' and section.subsection != null and !section.subsection.isEmpty()}">
                         <div class="col-lg-4 mb-3 mb-lg-4" th:each="item : ${section.subsection}">
                             <div class="card card-bg card-icon h-100 rounded shadow">
-                                <a th:href="${item.url}" class="text-decoration-none">
+                                <!-- link esterno -->
+                                <a th:if="${item.menu2 == '2'}" th:href="${item.menu3}" target="_blank" class="text-decoration-none">
+                                    <div class="card-body">
+                                        <svg class="icon icon-primary">
+                                            <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-folder|}"></use>
+                                        </svg>
+                                        <div class="card-icon-content">
+                                            <p><strong th:text="${item.titolo}">Titolo</strong></p>
+                                            <small th:text="${item.riassunto}">Riassunto</small>
+                                        </div>
+                                    </div>
+                                </a>
+                                <!-- non linkabile -->
+                                <div th:if="${item.menu2 == '1'}">
+                                    <div class="card-body">
+                                        <svg class="icon icon-primary">
+                                            <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-folder|}"></use>
+                                        </svg>
+                                        <div class="card-icon-content">
+                                            <p><strong th:text="${item.titolo}">Titolo</strong></p>
+                                            <small th:text="${item.riassunto}">Riassunto</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- link interno -->
+                                <a th:if="${item.menu2 == '0' or item.menu2 == null or item.menu2 == ''}"
+                                   th:href="${item.url}" class="text-decoration-none">
                                     <div class="card-body">
                                         <svg class="icon icon-primary">
                                             <use th:href="@{|/${config.sito.path2}/svg/sprites.svg#it-folder|}"></use>
@@ -206,7 +263,6 @@
                         </div>
                     </th:block>
 
-                    <!-- Footer data aggiornamento -->
                     <div class="offset-md-1 col-md-12">
                         <div class="row">
                             <blockquote class="blockquote text-end">

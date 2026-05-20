@@ -148,7 +148,7 @@ public class FrontController {
             cookieService.updateNavigationProfile(request, response, pid, config);
 
             // ===== 7. VERIFICA ACCESSIBILITÀ CONTENUTO =====
-            if (!dispatchService.isPublished(contentBase, stato)) {
+            if (!dispatchService.isPublished(contentBase, stato) || !dispatchService.isInPeriodoPubblicazione(contentBase)) {
                 log.warn("Contenuto non accessibile: pid={}, stato={}",
                         pid, contentBase.getStato());
                 model.addAttribute("config", config);

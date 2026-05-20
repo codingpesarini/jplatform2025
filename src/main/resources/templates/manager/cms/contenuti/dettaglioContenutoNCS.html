@@ -6,6 +6,7 @@
     <form th:action="@{/admin/contenuti/save}"
           method="post"
           id="documento"
+          name="documento"
           class="form-bordered">
 
         <header class="page-header mb-2">
@@ -135,8 +136,8 @@
                         <div id="tab_02" class="tab-pane" role="tabpanel">
                             <div class="row form-group">
                                 <div class="col-lg-6">
-                                    <label for="varchar1" class="col-form-label">Tipologia organizzazione *</label>
-                                    <select name="varchar1" id="varchar1" class="form-control obbligatorio" required>
+                                    <label for="varchar1" class="col-form-label">Tipologia organizzazione</label>
+                                    <select name="varchar1" id="varchar1" class="form-control obbligatorio">
                                         <option value="">----- Seleziona Tipologia organizzazione -----</option>
                                         <option value="Politica"        th:selected="${post.varchar1 == 'Politica'}">Politica</option>
                                         <option value="Amministrativa"  th:selected="${post.varchar1 == 'Amministrativa'}">Amministrativa</option>
@@ -534,7 +535,7 @@
         <input type="hidden" name="log2"        th:value="${post.log2}">
         <input type="hidden" name="log3"        th:value="${post.log3}">
         <input type="hidden" name="idParent"    id="idparent" th:value="${post.idParent}">
-
+        <input type="hidden" name="privato" th:value="${post.privato}">
         <input type="hidden" name="idRoot"      th:value="${post.idRoot}">
         <input type="hidden" name="idType"      th:value="${post.idType}">
         <input type="hidden" name="l2"          value="0">
@@ -573,117 +574,56 @@
 
     </form>
 
-    <script th:inline="javascript">
+    <script>
+        (function waitForJQ() {
+            if (typeof $ === 'undefined') { setTimeout(waitForJQ, 50); return; }
 
-        // ── AGGIUNTE ────────────────────────────────────────────────────────────
-
-        function AttivaDataPubblicazione() {
-            if ($('#s3').val() === '1') {
-                $('#datePubblicazione').slideDown();
-            } else {
-                $('#datePubblicazione').slideUp();
-            }
-        }
-
-        // ── INVARIATO ───────────────────────────────────────────────────────────
-
-        function InviaForm() {
-            const $form = $("#documento");
-
-            if ($form[0].checkValidity() === false) {
-                if (typeof PNotify !== 'undefined') {
-                    new PNotify({
-                        title: 'Attenzione!',
-                        text: 'Alcuni campi obbligatori richiedono un tuo intervento!',
-                        type: 'error',
-                        styling: 'bootstrap3'
-                    });
+            window.AttivaDataPubblicazione = function() { if ($('#s3').val() === '1') { $('#datePubblicazione').slideDown(); } else { $('#datePubblicazione').slideUp(); } };
+            window.AttivaLinkEsterno = function() { if ($('#menu2').val() === '2') { $('#linkEsterno').slideDown(); } else { $('#linkEsterno').slideUp(); } };
+            window.AttivaExtraTag = function() {
+                if ($('#regolaExtraTag1').val() === '1') { $('#ZonaExtraTag').slideDown(); $('#ZonaExtraTagOrdine').slideDown(); }
+                else { $('#ZonaExtraTag').slideUp(); $('#ZonaExtraTagOrdine').slideUp(); }
+            };
+            window.InviaForm = function() {
+                var $form = $("#documento");
+                if ($form[0].checkValidity() === false) {
+                    if (typeof PNotify !== 'undefined') { new PNotify({ title: 'Attenzione!', text: 'Alcuni campi obbligatori richiedono un tuo intervento!', type: 'error', styling: 'bootstrap3' }); }
+                    $form.addClass('was-validated'); return false;
                 }
-                $form.addClass('was-validated');
-                return false;
-            }
+                $form.addClass('was-validated'); document.documento.submit();
+            };
+            window.AttivaAutorizzazioniUtente = function() {
+                var valore = $('#privato').val();
+                if (valore === "1") { $('#GruppiAbilitati').fadeIn().css('display', 'flex'); $('#PermessiPersonalizzati').hide(); }
+                else if (valore === "2") { $('#GruppiAbilitati').hide(); $('#PermessiPersonalizzati').fadeIn().css('display', 'flex'); }
+                else { $('#GruppiAbilitati').hide(); $('#PermessiPersonalizzati').hide(); }
+            };
+            window.RimuoviUtenteAssociato = function(id) {
+                var $input = $("#utentiAssociatiString");
+                $input.val($input.val().replace("(" + id + ");", ""));
+                $("#" + id + ", #user-badge-" + id).fadeOut(300, function() { $(this).remove(); });
+            };
 
-            $form.addClass('was-validated');
-            document.documento.submit();
-        }
+            AttivaAutorizzazioniUtente(); AttivaDataPubblicazione(); AttivaLinkEsterno(); AttivaExtraTag();
+            $('#privato').on('change', AttivaAutorizzazioniUtente); $('#s3').on('change', AttivaDataPubblicazione);
+            $('#menu2').on('change', AttivaLinkEsterno); $('#regolaExtraTag1').on('change', AttivaExtraTag);
+            $("#EreditaExtraTag").on('click', function(e) { e.preventDefault(); if (typeof ApplicaExtraTagContenuti === "function") ApplicaExtraTagContenuti(); });
 
-        function AttivaAutorizzazioniUtente() {
-            const valore = $('#privato').val();
-            const $divGruppi = $('#GruppiAbilitati');
-            const $divPersonalizzati = $('#PermessiPersonalizzati');
-
-            if (valore === "1") {
-                $divGruppi.fadeIn().css('display', 'flex');
-                $divPersonalizzati.hide();
-            } else if (valore === "2") {
-                $divGruppi.hide();
-                $divPersonalizzati.fadeIn().css('display', 'flex');
-            } else {
-                $divGruppi.hide();
-                $divPersonalizzati.hide();
-            }
-        }
-
-        function RimuoviUtenteAssociato(id) {
-            const $input = $("#utentiAssociatiString");
-            let stringa = $input.val();
-            const ids = "(" + id + ");";
-
-            $input.val(stringa.replace(ids, ""));
-
-            $("#" + id + ", #user-badge-" + id).fadeOut(300, function() {
-                $(this).remove();
-            });
-        }
-
-        $(document).ready(function() {
-            AttivaAutorizzazioniUtente();
-
-            // AGGIUNTA: chiamate dirette ora che le funzioni sono definite sopra
-            AttivaDataPubblicazione();
-            AttivaLinkEsterno();
-            AttivaExtraTag();
-
-            // AGGIUNTA: binding on change
-            $('#privato').on('change', AttivaAutorizzazioniUtente);
-            $('#s3').on('change', AttivaDataPubblicazione);
-            $('#menu2').on('change', AttivaLinkEsterno);
-            $('#regolaExtraTag1').on('change', AttivaExtraTag);
-
-            $("#EreditaExtraTag").on('click', function(e) {
-                e.preventDefault();
-                if (typeof ApplicaExtraTagContenuti === "function") ApplicaExtraTagContenuti();
-                return false;
-            });
-
-            const $form = $('#documento');
-            const $statusHolder = $('.notifyZone');
-
+            var $form = $('#documento'), $statusHolder = $('.notifyZone');
             if (typeof $form.autoSaveForm === "function") {
                 $form.autoSaveForm();
-
                 $form.on('beforeSave.autoSaveForm', function () {
                     if ($("#autosave").prop("checked") === false) return false;
-
-                    if ($form[0].checkValidity() === false) {
-                        $statusHolder.html('<small class="text-danger">Salvataggio bloccato: campi obbligatori mancanti</small>');
-                        return false;
-                    }
-
+                    if ($form[0].checkValidity() === false) { $statusHolder.html('<small class="text-danger">Salvataggio bloccato: campi obbligatori mancanti</small>'); return false; }
                     $statusHolder.html('<span class="text-primary small"><i class="fas fa-sync fa-spin me-1"></i> Salvataggio automatico in corso...</span>');
                 });
-
-                $form.on('saveError.autoSaveForm', function () {
-                    $statusHolder.html('<span class="text-danger small"><i class="fas fa-exclamation-triangle me-1"></i> Errore nel salvataggio.</span>');
-                });
-
+                $form.on('saveError.autoSaveForm', function () { $statusHolder.html('<span class="text-danger small"><i class="fas fa-exclamation-triangle me-1"></i> Errore nel salvataggio.</span>'); });
                 $form.on('saveSuccess.autoSaveForm', function () {
-                    const d = new Date();
-                    const ora = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    var ora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                     $statusHolder.html('<span class="text-success small"><i class="fas fa-check-circle me-1"></i> Sincronizzato alle ' + ora + '</span>');
                 });
             }
-        });
+        })();
     </script>
 
 </th:block>

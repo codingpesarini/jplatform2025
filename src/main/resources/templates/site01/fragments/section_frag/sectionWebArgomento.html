@@ -155,7 +155,27 @@
                                 <th:block th:each="item : ${section.subsection}">
                                     <div class="col-lg-4 mb-3 mb-lg-4">
                                         <div class="card card-bg card-icon h-100 rounded">
-                                            <a th:href="${item.url}">
+                                            <!-- link esterno -->
+                                            <a th:if="${item.menu2 == '2'}" th:href="${item.menu3}" target="_blank">
+                                                <div class="card-body">
+                                                    <div class="card-icon-content">
+                                                        <p><strong th:text="${item.titolo}">Titolo</strong></p>
+                                                        <small th:text="${item.riassunto}">Riassunto</small>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <!-- non linkabile -->
+                                            <div th:if="${item.menu2 == '1'}">
+                                                <div class="card-body">
+                                                    <div class="card-icon-content">
+                                                        <p><strong th:text="${item.titolo}">Titolo</strong></p>
+                                                        <small th:text="${item.riassunto}">Riassunto</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- link interno -->
+                                            <a th:if="${item.menu2 == '0' or item.menu2 == null or item.menu2 == ''}"
+                                               th:href="${item.url}">
                                                 <div class="card-body">
                                                     <div class="card-icon-content">
                                                         <p><strong th:text="${item.titolo}">Titolo</strong></p>
@@ -275,6 +295,32 @@
                                 <th:block th:utext="${section.text5}"></th:block>
                             </div>
                         </div>
+
+                        <!-- Galleria fotografica -->
+                        <th:block th:if="${section.galleryCheck == true and section.logo2 != null and section.logo2 != 'nofoto.jpg'}">
+                            <h4 id="art-par-07" class="mb-4">Galleria fotografica</h4>
+                            <div class="row variable-gutters mb-4">
+                                <div class="col-12">
+                                    <div class="it-carousel-wrapper it-carousel-landscape-abstract-three-cols splide popup-gallery" data-bs-carousel-splide>
+                                        <div class="splide__track">
+                                            <ul class="splide__list it-carousel-all">
+                                                <th:block th:each="immagine, iterStat : ${section.gallery}" th:if="${iterStat.index > 0}">
+                                                    <li class="splide__slide">
+                                                        <div class="it-single-slide-wrapper">
+                                                            <a th:href="@{|${config.imagesRepositoryWeb}${immagine.fullpath}|}">
+                                                                <img class="img-fluid"
+                                                                     th:src="@{|${config.imagesRepositoryWeb}${immagine.fullpath}|}"
+                                                                     th:alt="${immagine.didascalia}">
+                                                            </a>
+                                                        </div>
+                                                    </li>
+                                                </th:block>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </th:block>
 
                         <!-- Footer -->
                         <div class="row variable-gutters">

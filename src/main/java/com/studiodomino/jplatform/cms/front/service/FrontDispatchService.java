@@ -17,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -133,7 +135,6 @@ public class FrontDispatchService {
             // ===== 1. CARICA SEZIONE BASE =====
             Section section = contentService.findSectionById(sectionId)
                     .orElseThrow(() -> new IllegalArgumentException("Sezione non trovata: " + pid));
-
             log.debug("Sezione base caricata: id={}, titolo={}", section.getId(), section.getTitolo());
 
             // ===== 2. CARICA SECTION TYPE =====
@@ -146,9 +147,11 @@ public class FrontDispatchService {
             // ===== 3. DETERMINA ORDINAMENTO CONTENUTI =====
             String orderByContenuti = determineContentOrdering(section, filter.getOrdinamento());
             String maxOrdine = section.getMaxOrdineContenuti();
-            if (maxOrdine == null || maxOrdine.isEmpty()) {
-                maxOrdine = "0";
-            }
+            if (maxOrdine == null || maxOrdine.isEmpty()) maxOrdine = "0";
+
+            // Dichiarazione comune per filtri date
+            LocalDate today = LocalDate.now();
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
             // ===== 4. CARICA CONTENUTI =====
             List<DatiBase> contenuti;
@@ -170,13 +173,26 @@ public class FrontDispatchService {
             } else {
                 String whereCondition = buildContentWhereCondition(filter, section.getId());
                 contenuti = contentService.findContentsBySection(
-                        idSito,
-                        section.getId(),
-                        whereCondition,
-                        orderByContenuti,
-                        Integer.parseInt(maxOrdine)
-                );
+                        idSito, section.getId(), whereCondition, orderByContenuti, Integer.parseInt(maxOrdine));
             }
+
+            // Filtra contenuti per periodo di pubblicazione
+            contenuti = contenuti.stream().filter(item -> {
+                if (!"1".equals(item.getS3())) return true;
+                try {
+                    String s1 = item.getS1();
+                    String s2 = item.getS2();
+                    if (s1 != null && !s1.isEmpty()) {
+                        if (today.isBefore(LocalDate.parse(s1, fmt))) return false;
+                    }
+                    if (s2 != null && !s2.isEmpty()) {
+                        if (today.isAfter(LocalDate.parse(s2, fmt))) return false;
+                    }
+                } catch (Exception e) {
+                    return true;
+                }
+                return true;
+            }).collect(Collectors.toList());
 
             section.setContenuti(contenuti);
             log.debug("Contenuti caricati: {}", contenuti.size());
@@ -184,29 +200,51 @@ public class FrontDispatchService {
             // ===== 5. CARICA SOTTOSEZIONI =====
             if (loadSubsections) {
                 List<Section> subsections = contentService.findSubsections(
-                        idSito.toString(),
-                        section.getId().toString()
-                );
+                        idSito.toString(), section.getId().toString());
 
-                // Popola gallery per ogni sottosezione
-                for (Section sub : subsections) {
-                    popolaGallerySezione(sub);
-                }
+                subsections = subsections.stream().filter(sub -> {
+                    if (!"1".equals(sub.getS3())) return true;
+                    try {
+                        String s1 = sub.getS1();
+                        String s2 = sub.getS2();
+                        if (s1 != null && !s1.isEmpty()) {
+                            if (today.isBefore(LocalDate.parse(s1, fmt))) return false;
+                        }
+                        if (s2 != null && !s2.isEmpty()) {
+                            if (today.isAfter(LocalDate.parse(s2, fmt))) return false;
+                        }
+                    } catch (Exception e) {
+                        return true;
+                    }
+                    return true;
+                }).collect(Collectors.toList());
 
+                for (Section sub : subsections) popolaGallerySezione(sub);
                 section.setSubsection(subsections);
-                log.debug("Sottosezioni caricate: {}", subsections.size());
 
-                // Carica sottosezioni parent
                 if (section.getIdParent() != null && !section.getIdParent().isEmpty()
                         && !"0".equals(section.getIdParent())) {
                     List<Section> subsectionsParent = contentService.findSubsections(
-                            idSito.toString(),
-                            section.getIdParent()
-                    );
-                    // Popola gallery anche per le sottosezioni parent
-                    for (Section sub : subsectionsParent) {
-                        popolaGallerySezione(sub);
-                    }
+                            idSito.toString(), section.getIdParent());
+
+                    subsectionsParent = subsectionsParent.stream().filter(sub -> {
+                        if (!"1".equals(sub.getS3())) return true;
+                        try {
+                            String s1 = sub.getS1();
+                            String s2 = sub.getS2();
+                            if (s1 != null && !s1.isEmpty()) {
+                                if (today.isBefore(LocalDate.parse(s1, fmt))) return false;
+                            }
+                            if (s2 != null && !s2.isEmpty()) {
+                                if (today.isAfter(LocalDate.parse(s2, fmt))) return false;
+                            }
+                        } catch (Exception e) {
+                            return true;
+                        }
+                        return true;
+                    }).collect(Collectors.toList());
+
+                    for (Section sub : subsectionsParent) popolaGallerySezione(sub);
                     section.setSubsectionParent(subsectionsParent);
                     log.debug("Sottosezioni parent caricate: {}", subsectionsParent.size());
                 }
@@ -234,8 +272,7 @@ public class FrontDispatchService {
             popolaGallerySezione(section);
 
             // ===== 9. CARICA COMMENTI =====
-            List<Commento> commenti = commentoService.getCommentiConThread(
-                    section.getId().toString(), true);
+            List<Commento> commenti = commentoService.getCommentiConThread(section.getId().toString(), true);
             section.setCommenti(commenti);
             long numeroCommenti = commentoService.contaCommentiApprovati(section.getId().toString());
             section.setNumeroCommenti(Long.toString(numeroCommenti));
@@ -398,7 +435,7 @@ public class FrontDispatchService {
         if (statoParam != null && !statoParam.isEmpty() && !"-1".equals(statoParam)) {
             return statoParam.equals(stato);
         }
-        return "1".equals(stato) || "2".equals(stato) || "3".equals(stato);
+        return "1".equals(stato);
     }
 
     public boolean isPublished(DatiBase base, String statoParam) {
@@ -574,5 +611,31 @@ public class FrontDispatchService {
         } catch (Exception e) {
             log.error("Errore in trackClick", e);
         }
+    }
+
+    public boolean isInPeriodoPubblicazione(Content content) {
+        if (content == null) return true;
+        log.info("isInPeriodoPubblicazione: id={}, s3={}, s1={}, s2={}",
+                content.getId(), content.getS3(), content.getS1(), content.getS2());
+        if (!"1".equals(content.getS3())) return true; // illimitato
+
+        String s1 = content.getS1();
+        String s2 = content.getS2();
+        LocalDate oggi = LocalDate.now();
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        try {
+            if (s1 != null && !s1.isEmpty()) {
+                LocalDate inizio = LocalDate.parse(s1, fmt);
+                if (oggi.isBefore(inizio)) return false;
+            }
+            if (s2 != null && !s2.isEmpty()) {
+                LocalDate fine = LocalDate.parse(s2, fmt);
+                if (oggi.isAfter(fine)) return false;
+            }
+        } catch (Exception e) {
+            return true;
+        }
+        return true;
     }
 }

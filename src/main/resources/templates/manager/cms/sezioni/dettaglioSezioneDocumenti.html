@@ -6,6 +6,7 @@
   <form th:action="@{/admin/sezioni/save(storeId=${section.id})}"
         method="post"
         id="sezione"
+        name="sezione"
         class="form-bordered">
 
     <header class="page-header mb-2">
@@ -668,128 +669,57 @@
     </div>
   </div>
 
-  <script th:inline="javascript">
+  <script>
+    (function waitForJQ() {
+        if (typeof $ === 'undefined') { setTimeout(waitForJQ, 50); return; }
 
-    // ── AGGIUNTE ────────────────────────────────────────────────────────────
-
-    function InviaForm() {
-        const $form = $("#sezione");
-        if ($form[0].checkValidity() === false) {
-            if (typeof PNotify !== 'undefined') {
-                new PNotify({
-                    title: 'Attenzione!',
-                    text: 'Alcuni campi obbligatori richiedono un tuo intervento!',
-                    type: 'error',
-                    styling: 'bootstrap3'
-                });
+        window.InviaForm = function() {
+            var $form = $("#sezione");
+            if ($form[0].checkValidity() === false) {
+                if (typeof PNotify !== 'undefined') { new PNotify({ title: 'Attenzione!', text: 'Alcuni campi obbligatori richiedono un tuo intervento!', type: 'error', styling: 'bootstrap3' }); }
+                $form.addClass('was-validated'); return false;
             }
-            $form.addClass('was-validated');
-            return false;
+            $form.addClass('was-validated'); document.sezione.submit();
+        };
+        window.AttivaDataPubblicazione = function() { if ($('#s3').val() === '1') { $('#datePubblicazione').slideDown(); } else { $('#datePubblicazione').slideUp(); } };
+        window.AttivaLinkEsterno = function() { if ($('#menu2').val() === '2') { $('#linkEsterno').slideDown(); } else { $('#linkEsterno').slideUp(); } };
+        window.AttivaExtraTag = function() {
+            if ($('#regolaExtraTag1').val() === '1') { $('#ZonaExtraTag').slideDown(); $('#ZonaExtraTagOrdine').slideDown(); }
+            else { $('#ZonaExtraTag').slideUp(); $('#ZonaExtraTagOrdine').slideUp(); }
+        };
+        window.AttivaAutorizzazioniUtente = function() {
+            var tipoVisibilita = $('#privato').val();
+            if (tipoVisibilita === "1") { $('#GruppiAbilitati').fadeIn().css('display', 'flex'); $('#PermessiPersonalizzati').hide(); }
+            else if (tipoVisibilita === "2") { $('#GruppiAbilitati').hide(); $('#PermessiPersonalizzati').fadeIn().css('display', 'flex'); }
+            else { $('#GruppiAbilitati').hide(); $('#PermessiPersonalizzati').hide(); }
+        };
+        window.RimuoviUtenteAssociato = function(id) {
+            var $inputHidden = $('#utentiAssociatiString');
+            $inputHidden.val($inputHidden.val().replace('(' + id + ');', ''));
+            $('#' + id + ', #user-badge-' + id + ', #user-badge-parent-' + id).fadeOut(300, function() { $(this).remove(); });
+        };
+
+        AttivaAutorizzazioniUtente(); AttivaDataPubblicazione(); AttivaLinkEsterno(); AttivaExtraTag();
+        $('#privato').on('change', AttivaAutorizzazioniUtente); $('#s3').on('change', AttivaDataPubblicazione);
+        $('#menu2').on('change', AttivaLinkEsterno); $('#regolaExtraTag1').on('change', AttivaExtraTag);
+        $('#EreditaExtraTag').on('click', function(e) { e.preventDefault(); if (typeof ApplicaExtraTagContenuti === "function") ApplicaExtraTagContenuti(); });
+
+        var $form = $('#sezione');
+        var $status = $('.notifyZone');
+        if (typeof $form.autoSaveForm === "function") {
+            $form.autoSaveForm();
+            $form.on('beforeSave.autoSaveForm', function () {
+                if ($("#autosave").prop("checked") === false) return false;
+                $status.html('<span class="text-primary small"><i class="fas fa-sync fa-spin me-1"></i> Salvataggio...</span>');
+            });
+            $form.on('saveError.autoSaveForm', function () { $status.html('<span class="text-danger small">Errore!</span>'); });
+            $form.on('saveSuccess.autoSaveForm', function () {
+                var ora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                $status.html('<span class="text-success small"><i class="fas fa-check me-1"></i> Sincronizzato (' + ora + ')</span>');
+            });
         }
-        $form.addClass('was-validated');
-        document.sezione.submit();
-    }
-
-    function AttivaDataPubblicazione() {
-        if ($('#s3').val() === '1') {
-            $('#datePubblicazione').slideDown();
-        } else {
-            $('#datePubblicazione').slideUp();
-        }
-    }
-
-    function AttivaLinkEsterno() {
-        if ($('#menu2').val() === '2') {
-            $('#linkEsterno').slideDown();
-        } else {
-            $('#linkEsterno').slideUp();
-        }
-    }
-
-    function AttivaExtraTag() {
-        if ($('#regolaExtraTag1').val() === '1') {
-            $('#ZonaExtraTag').slideDown();
-            $('#ZonaExtraTagOrdine').slideDown();
-        } else {
-            $('#ZonaExtraTag').slideUp();
-            $('#ZonaExtraTagOrdine').slideUp();
-        }
-    }
-
-    // ── INVARIATO ───────────────────────────────────────────────────────────
-
-    function AttivaAutorizzazioniUtente() {
-      const tipoVisibilita = $('#privato').val();
-      const $divGruppi = $('#GruppiAbilitati');
-      const $divPersonalizzati = $('#PermessiPersonalizzati');
-
-      if (tipoVisibilita === "1") {
-        $divGruppi.fadeIn().css('display', 'flex');
-        $divPersonalizzati.hide();
-      } else if (tipoVisibilita === "2") {
-        $divGruppi.hide();
-        $divPersonalizzati.fadeIn().css('display', 'flex');
-      } else {
-        $divGruppi.hide();
-        $divPersonalizzati.hide();
-      }
-    }
-
-    function RimuoviUtenteAssociato(id) {
-      let $inputHidden = $('#utentiAssociatiString');
-      let valore = $inputHidden.val();
-
-      valore = valore.replace('(' + id + ');', '');
-      $inputHidden.val(valore);
-
-      $('#' + id + ', #user-badge-' + id + ', #user-badge-parent-' + id).fadeOut(300, function() {
-        $(this).remove();
-      });
-    }
-
-    $(document).ready(function () {
-      AttivaAutorizzazioniUtente();
-
-      // AGGIUNTA: chiamate dirette ora che le funzioni sono definite sopra
-      AttivaDataPubblicazione();
-      AttivaLinkEsterno();
-      AttivaExtraTag();
-
-      // AGGIUNTA: binding on change
-      $('#privato').on('change', AttivaAutorizzazioniUtente);
-      $('#s3').on('change', AttivaDataPubblicazione);
-      $('#menu2').on('change', AttivaLinkEsterno);
-      $('#regolaExtraTag1').on('change', AttivaExtraTag);
-
-      $('#EreditaExtraTag').on('click', function (e) {
-        e.preventDefault();
-        if (typeof ApplicaExtraTagContenuti === "function") ApplicaExtraTagContenuti();
-        return false;
-      });
-
-      const $form = $('#sezione');
-      const $status = $('.notifyZone');
-
-      if (typeof $form.autoSaveForm === "function") {
-        $form.autoSaveForm();
-
-        $form.on('beforeSave.autoSaveForm', function () {
-          if ($("#autosave").prop("checked") === false) return false;
-          $status.html('<span class="text-primary small"><i class="fas fa-sync fa-spin me-1"></i> Salvataggio...</span>');
-        });
-
-        $form.on('saveError.autoSaveForm', function () {
-          $status.html('<span class="text-danger small"><i class="fas fa-exclamation-circle me-1"></i> Errore!</span>');
-        });
-
-        $form.on('saveSuccess.autoSaveForm', function () {
-          const ora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          $status.html('<span class="text-success small"><i class="fas fa-check me-1"></i> Sincronizzato (' + ora + ')</span>');
-        });
-      }
-    });
+    })();
   </script>
-
 </th:block>
 </body>
 </html>

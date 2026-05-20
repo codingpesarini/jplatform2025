@@ -6,6 +6,7 @@
     <form th:action="@{/admin/sezioni/save}"
           method="post"
           id="sezione"
+          name="sezione"
           class="form-bordered">
 
         <header class="page-header mb-2">
@@ -605,125 +606,48 @@
     </div>
 
     <script>
+        (function waitForJQ() {
+            if (typeof $ === 'undefined') { setTimeout(waitForJQ, 50); return; }
 
-        // ── AGGIUNTE ────────────────────────────────────────────────────────────
-
-        function InviaForm() {
-            var $form = $("#sezione");
-            if ($form[0].checkValidity() === false) {
-                if (typeof PNotify !== 'undefined') {
-                    new PNotify({
-                        title: 'Attenzione!',
-                        text: 'Alcuni campi obbligatori richiedono un tuo intervento!',
-                        type: 'error',
-                        styling: 'bootstrap3'
-                    });
+            window.InviaForm = function() {
+                var $form = $("#sezione");
+                if ($form[0].checkValidity() === false) {
+                    if (typeof PNotify !== 'undefined') { new PNotify({ title: 'Attenzione!', text: 'Alcuni campi obbligatori richiedono un tuo intervento!', type: 'error', styling: 'bootstrap3' }); }
+                    $form.addClass('was-validated'); return false;
                 }
-                $form.addClass('was-validated');
-                return false;
-            }
-            $form.addClass('was-validated');
-            document.sezione.submit();
-        }
+                $form.addClass('was-validated'); document.sezione.submit();
+            };
+            window.AttivaDataPubblicazione = function() { if ($('#s3').val() === '1') { $('#datePubblicazione').slideDown(); } else { $('#datePubblicazione').slideUp(); } };
+            window.AttivaLinkEsterno = function() { if ($('#menu2').val() === '2') { $('#linkEsterno').slideDown(); } else { $('#linkEsterno').slideUp(); } };
+            window.AttivaExtraTag = function() {
+                if ($('#regolaExtraTag1').val() === '1') { $('#ZonaExtraTag').slideDown(); $('#ZonaExtraTagOrdine').slideDown(); }
+                else { $('#ZonaExtraTag').slideUp(); $('#ZonaExtraTagOrdine').slideUp(); }
+            };
+            window.gestisciVisibilitaGruppi = function() {
+                var tipoVisibilita = $('#privato').val();
+                if (tipoVisibilita === "1") { $('#GruppiAbilitati').fadeIn().css('display', 'flex'); $('#PermessiPersonalizzati').hide(); }
+                else if (tipoVisibilita === "2") { $('#GruppiAbilitati').hide(); $('#PermessiPersonalizzati').fadeIn().css('display', 'flex'); }
+                else { $('#GruppiAbilitati').hide(); $('#PermessiPersonalizzati').hide(); }
+            };
+            window.rimuoviUtente = function(id) { $("#user-badge-" + id).fadeOut(300, function() { $(this).remove(); }); };
 
-        function AttivaDataPubblicazione() {
-            if ($('#s3').val() === '1') {
-                $('#datePubblicazione').slideDown();
-            } else {
-                $('#datePubblicazione').slideUp();
-            }
-        }
+            gestisciVisibilitaGruppi(); AttivaDataPubblicazione(); AttivaLinkEsterno(); AttivaExtraTag();
+            $('#privato').on('change', gestisciVisibilitaGruppi); $('#s3').on('change', AttivaDataPubblicazione);
+            $('#menu2').on('change', AttivaLinkEsterno); $('#regolaExtraTag1').on('change', AttivaExtraTag);
+            $('#EreditaExtraTag').on('click', function(e) { e.preventDefault(); if (typeof ApplicaExtraTagContenuti === "function") ApplicaExtraTagContenuti(); });
 
-        function AttivaLinkEsterno() {
-            if ($('#menu2').val() === '2') {
-                $('#linkEsterno').slideDown();
-            } else {
-                $('#linkEsterno').slideUp();
-            }
-        }
-
-        function AttivaExtraTag() {
-            if ($('#regolaExtraTag1').val() === '1') {
-                $('#ZonaExtraTag').slideDown();
-                $('#ZonaExtraTagOrdine').slideDown();
-            } else {
-                $('#ZonaExtraTag').slideUp();
-                $('#ZonaExtraTagOrdine').slideUp();
-            }
-        }
-
-        // ── INVARIATO ───────────────────────────────────────────────────────────
-
-        function gestisciVisibilitaGruppi() {
-            var tipoVisibilita = $('#privato').val();
-            var $divGruppi = $('#GruppiAbilitati');
-            var $divPersonalizzati = $('#PermessiPersonalizzati');
-
-            if (tipoVisibilita === "1") {
-                $divGruppi.fadeIn().css('display', 'flex');
-                $divPersonalizzati.hide();
-            } else if (tipoVisibilita === "2") {
-                $divGruppi.hide();
-                $divPersonalizzati.fadeIn().css('display', 'flex');
-            } else {
-                $divGruppi.hide();
-                $divPersonalizzati.hide();
-            }
-        }
-
-        function rimuoviUtente(id) {
-            $("#user-badge-" + id).fadeOut(300, function() {
-                $(this).remove();
-            });
-        }
-
-        $(document).ready(function () {
-            gestisciVisibilitaGruppi();
-
-            // AGGIUNTA: chiamate dirette ora che le funzioni sono definite sopra
-            AttivaDataPubblicazione();
-            AttivaLinkEsterno();
-            AttivaExtraTag();
-
-            // AGGIUNTA: binding on change
-            $('#privato').on('change', gestisciVisibilitaGruppi);
-            $('#s3').on('change', AttivaDataPubblicazione);
-            $('#menu2').on('change', AttivaLinkEsterno);
-            $('#regolaExtraTag1').on('change', AttivaExtraTag);
-
-            $('#EreditaExtraTag').on('click', function (e) {
-                e.preventDefault();
-                if (typeof ApplicaExtraTagContenuti === "function") ApplicaExtraTagContenuti();
-                return false;
-            });
-
-            var $form = $('#sezione');
-            var $formStatusHolder = $('.notifyZone');
-
+            var $form = $('#sezione'), $status = $('.notifyZone');
             if (typeof $form.autoSaveForm === "function") {
                 $form.autoSaveForm();
-
-                $form.on('beforeSave.autoSaveForm', function (ev, $form, xhr) {
+                $form.on('beforeSave.autoSaveForm', function(ev, $form, xhr) {
                     if ($("#autosave").prop("checked") == false) return false;
-                    if ($form[0].checkValidity() === false) {
-                        if (typeof PNotify !== 'undefined') {
-                            new PNotify({ title: 'Attenzione!', text: 'Campi obbligatori mancanti!', type: 'error' });
-                        }
-                        return false;
-                    }
-                    $formStatusHolder.html('<i class="fas fa-sync fa-spin"></i> Salvataggio in corso...');
+                    if ($form[0].checkValidity() === false) { if (typeof PNotify !== 'undefined') { new PNotify({ title: 'Attenzione!', text: 'Campi obbligatori mancanti!', type: 'error' }); } return false; }
+                    $status.html('<i class="fas fa-sync fa-spin"></i> Salvataggio in corso...');
                 });
-
-                $form.on('saveError.autoSaveForm', function () {
-                    $formStatusHolder.html('<span class="text-danger">Errore salvataggio automatico</span>');
-                });
-
-                $form.on('saveSuccess.autoSaveForm', function () {
-                    var d = new Date();
-                    $formStatusHolder.html('<span class="text-success">Sincronizzato: ' + d.toLocaleTimeString() + '</span>');
-                });
+                $form.on('saveError.autoSaveForm', function() { $status.html('<span class="text-danger">Errore salvataggio automatico</span>'); });
+                $form.on('saveSuccess.autoSaveForm', function() { $status.html('<span class="text-success">Sincronizzato: ' + new Date().toLocaleTimeString() + '</span>'); });
             }
-        });
+        })();
     </script>
 </th:block>
 </body>

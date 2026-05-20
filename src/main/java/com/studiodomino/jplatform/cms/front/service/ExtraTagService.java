@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * ExtraTagService - Gestisce caricamento contenuti correlati
@@ -45,19 +46,22 @@ public class ExtraTagService {
 
         try {
             Integer idSito = appConfig.getSito().getId();
+            final String baseId = base.getId();
 
-            // Elabora i 10 possibili ExtraTag
             for (int i = 1; i <= 10; i++) {
                 String tagName = base.getExtraTag(i);
 
                 if (tagName != null && !tagName.isEmpty() && !"0".equals(tagName)) {
-                    // Carica contenuti con questo tag
                     List<DatiBase> contenuti = contentService.findContentsByExtraTag(
                             idSito.toString(),
                             tagName
                     );
 
-                    // Applica max se specificato
+                    // Escludi il documento corrente dai risultati
+                    contenuti = contenuti.stream()
+                            .filter(c -> !c.getId().equals(baseId))
+                            .collect(Collectors.toList());
+
                     if (max != null && !max.isEmpty()) {
                         try {
                             int maxItems = Integer.parseInt(max);
@@ -69,7 +73,6 @@ public class ExtraTagService {
                         }
                     }
 
-                    // Imposta nello slot corrispondente
                     extraTag.setExtraTagByNumber(i, contenuti);
 
                     log.debug("ExtraTag slot {}: caricati {} contenuti per tag '{}'",
@@ -107,8 +110,8 @@ public class ExtraTagService {
 
         try {
             Integer idSito = appConfig.getSito().getId();
+            final String sectionId = section.getId().toString();
 
-            // Elabora i 10 possibili ExtraTag
             for (int i = 1; i <= 10; i++) {
                 String tagName = section.getExtraTag(i);
 
@@ -117,6 +120,11 @@ public class ExtraTagService {
                             idSito.toString(),
                             tagName
                     );
+
+                    // Escludi la sezione corrente dai risultati
+                    contenuti = contenuti.stream()
+                            .filter(c -> !c.getId().equals(sectionId))
+                            .collect(Collectors.toList());
 
                     if (max != null && !max.isEmpty()) {
                         try {

@@ -126,14 +126,6 @@
                                     <i class="ti ti-file-plus me-1"></i> Nuova sezione
                                 </a>
 
-                                <form th:if="${previewSezione != null}"
-                                      th:action="@{/admin/sezioni/{id}/duplicate(id=${previewSezione.id})}"
-                                      method="post" style="display:inline;">
-                                    <button type="submit" class="btn btn-outline-secondary btn-sm">
-                                        <i class="ti ti-copy me-1"></i> Duplica
-                                    </button>
-                                </form>
-
                                 <a th:if="${previewSezione != null}"
                                    th:href="@{/admin/sezioni/{id}(id=${previewSezione.id})}"
                                    class="btn btn-outline-warning btn-sm">
@@ -253,7 +245,7 @@
                         <div id="tab_02" class="tab-pane fade" role="tabpanel">
                             <div class="d-flex flex-wrap gap-2 mb-3">
                                 <a th:if="${previewSezione != null}"
-                                   th:href="@{/admin/sezioni/new(id_parent=${previewSezione.id})}"
+                                   th:href="@{/admin/sezioni/new/{idParent}(idParent=${previewSezione.id})}"
                                    class="btn btn-outline-primary btn-sm">
                                     <i class="ti ti-file-plus me-1"></i> Nuova sottosezione
                                 </a>

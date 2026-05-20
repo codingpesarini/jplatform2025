@@ -6,6 +6,7 @@
   <form th:action="@{/admin/sezioni/save}"
         method="post"
         id="sezione"
+        name="sezione"
         class="form-bordered">
 
     <header class="page-header mb-2">
@@ -202,7 +203,7 @@
 
                 <div class="col-lg-6">
                   <label for="varchar1" class="col-form-label">Tipologia organizzazione</label>
-                  <select name="varchar1" id="varchar1" class="form-control obbligatorio" required>
+                  <select name="varchar1" id="varchar1" class="form-control obbligatorio">
                     <option value="">----- Seleziona Tipologia organizzazione -----</option>
                     <option value="Politica"       th:selected="${section.varchar1 == 'Politica'}">Politica</option>
                     <option value="Amministrativa" th:selected="${section.varchar1 == 'Amministrativa'}">Amministrativa</option>
@@ -664,70 +665,74 @@
 
   <script>
 
-    function InviaForm(formId) {
-        var $form = $('#' + formId);
-        if ($form[0].checkValidity() === false) {
-            $form.addClass('was-validated');
-            new PNotify({
-                title: 'Attenzione!',
-                text: 'Alcuni campi obbligatori del modulo richiedono un tuo intervento!',
-                type: 'error'
-            });
-            return false;
-        }
+    (function waitForJQ() {
+    if (typeof $ === 'undefined' || !document.getElementById('menu2')) {
+        setTimeout(waitForJQ, 50);
+        return;
+    }
+
+       window.InviaForm = function(formId) {
+    var $form = $('#' + formId);
+    if ($form[0].checkValidity() === false) {
         $form.addClass('was-validated');
-        $form[0].submit();
-    }
-
-    function RimuoviUtenteAssociato(id) {
-        var $hidden = $("#utentiAssociatiString");
-        var stringa = $hidden.val();
-        stringa = stringa.replace("(" + id + ");", "");
-        $hidden.val(stringa);
-        $("#user-" + id).fadeOut(300, function () { $(this).remove(); });
-    }
-
-    function AttivaAutorizzazioniUtente() {
-        var valore = $("#privato").val();
-        if (valore === "1") {
-            $("#GruppiAbilitati").slideDown();
-            $("#PermessiPersonalizzati").hide();
-        } else if (valore === "2") {
-            $("#GruppiAbilitati").hide();
-            $("#PermessiPersonalizzati").slideDown();
+        if (typeof PNotify !== 'undefined') {
+            new PNotify({ title: 'Attenzione!', text: 'Alcuni campi obbligatori del modulo richiedono un tuo intervento!', type: 'error' });
         } else {
-            $("#GruppiAbilitati").hide();
-            $("#PermessiPersonalizzati").hide();
+            showToast('Errore', 'Alcuni campi obbligatori del modulo richiedono un tuo intervento!', 'danger');
         }
+        return false;
     }
+    $form.addClass('was-validated');
+    $form[0].submit();
+};
 
-    function AttivaDataPubblicazione() {
-        if ($("#s3").val() === "1") {
-            $("#datePubblicazione").slideDown();
-        } else {
-            $("#datePubblicazione").slideUp();
-        }
-    }
+        window.RimuoviUtenteAssociato = function(id) {
+            var $hidden = $("#utentiAssociatiString");
+            var stringa = $hidden.val();
+            stringa = stringa.replace("(" + id + ");", "");
+            $hidden.val(stringa);
+            $("#user-" + id).fadeOut(300, function () { $(this).remove(); });
+        };
 
-    function AttivaLinkEsterno() {
-        if ($("#menu2").val() === "2") {
-            $("#linkEsterno").slideDown();
-        } else {
-            $("#linkEsterno").slideUp();
-        }
-    }
+        window.AttivaAutorizzazioniUtente = function() {
+            var valore = $("#privato").val();
+            if (valore === "1") {
+                $("#GruppiAbilitati").slideDown();
+                $("#PermessiPersonalizzati").hide();
+            } else if (valore === "2") {
+                $("#GruppiAbilitati").hide();
+                $("#PermessiPersonalizzati").slideDown();
+            } else {
+                $("#GruppiAbilitati").hide();
+                $("#PermessiPersonalizzati").hide();
+            }
+        };
 
-    function AttivaExtraTag() {
-        if ($("#regolaExtraTag1").val() === "1") {
-            $("#ZonaExtraTag").slideDown();
-            $("#ZonaExtraTagOrdine").slideDown();
-        } else {
-            $("#ZonaExtraTag").slideUp();
-            $("#ZonaExtraTagOrdine").slideUp();
-        }
-    }
+        window.AttivaDataPubblicazione = function() {
+            if ($("#s3").val() === "1") {
+                $("#datePubblicazione").slideDown();
+            } else {
+                $("#datePubblicazione").slideUp();
+            }
+        };
 
-    $(document).ready(function () {
+        window.AttivaLinkEsterno = function() {
+            if ($("#menu2").val() === "2") {
+                $("#linkEsterno").slideDown();
+            } else {
+                $("#linkEsterno").slideUp();
+            }
+        };
+
+        window.AttivaExtraTag = function() {
+            if ($("#regolaExtraTag1").val() === "1") {
+                $("#ZonaExtraTag").slideDown();
+                $("#ZonaExtraTagOrdine").slideDown();
+            } else {
+                $("#ZonaExtraTag").slideUp();
+                $("#ZonaExtraTagOrdine").slideUp();
+            }
+        };
 
         // --- Inizializzazione stato pagina ---
         AttivaAutorizzazioniUtente();
@@ -752,27 +757,20 @@
 
         if (typeof $form.autoSaveForm === "function") {
             $form.autoSaveForm();
-
             $form.on("beforeSave.autoSaveForm", function (ev, $form, xhr) {
                 if ($("#autosave").prop("checked") === false) return false;
                 if ($form[0].checkValidity() === false) {
-                    new PNotify({
-                        title: "Attenzione!",
-                        text: "Alcuni campi obbligatori richiedono un tuo intervento!",
-                        type: "error"
-                    });
+                    new PNotify({ title: "Attenzione!", text: "Alcuni campi obbligatori richiedono un tuo intervento!", type: "error" });
                     return false;
                 }
                 $formStatusHolder.html('<i class="fas fa-spinner fa-spin"></i> Salvataggio automatico...');
             });
-
             $form.on("saveError.autoSaveForm", function () {
-                $formStatusHolder.html('<span class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i> Errore salvataggio.</span>');
+                $formStatusHolder.html('<span class="text-danger">Errore salvataggio.</span>');
             });
-
             $form.on("saveSuccess.autoSaveForm", function () {
                 var ora = new Date().toLocaleTimeString();
-                $formStatusHolder.html('<span class="text-success"><i class="fas fa-check me-1"></i> Sincronizzato alle ' + ora + '</span>');
+                $formStatusHolder.html('<span class="text-success">Sincronizzato alle ' + ora + '</span>');
             });
         }
 
@@ -785,15 +783,12 @@
                     var id = ui.item.id;
                     var nome = ui.item.value;
                     var $hidden = $("#utentiAssociatiString");
-
                     if (!$hidden.val().includes("(" + id + ");")) {
                         $hidden.val($hidden.val() + "(" + id + ");");
                         $("#utenti").append(
                             '<div id="user-' + id + '" class="mb-1">' +
                             '<a href="javascript:void(0)" onclick="RimuoviUtenteAssociato(' + id + ')" class="text-danger me-2">' +
-                            '<i class="fas fa-trash-alt"></i></a> ' +
-                            '<span>' + nome + '</span>' +
-                            '</div>'
+                            '<i class="fas fa-trash-alt"></i></a> <span>' + nome + '</span></div>'
                         );
                     }
                     $(this).val("");
@@ -801,7 +796,9 @@
                 }
             });
         }
-    });
+
+    })();
+
   </script>
 
 </th:block>

@@ -6,6 +6,7 @@
   <form th:action="@{/admin/sezioni/save}"
         method="post"
         id="sezione"
+        name="sezione"
         class="form-bordered">
 
     <header class="page-header mb-2">
@@ -786,91 +787,89 @@
       </div>
     </div>
   </div>
-  <script th:inline="javascript">
 
+  <script>
 
-    function AttivaDataPubblicazione() {
-        if ($('#s3').val() === '1') {
-            $('#datePubblicazione').slideDown();
-        } else {
-            $('#datePubblicazione').slideUp();
+    (function waitForJQ() {
+        if (typeof $ === 'undefined') {
+            setTimeout(waitForJQ, 50);
+            return;
         }
-    }
 
-    function AttivaLinkEsterno() {
-        if ($('#menu2').val() === '2') {
-            $('#linkEsterno').slideDown();
-        } else {
-            $('#linkEsterno').slideUp();
-        }
-    }
+        window.AttivaDataPubblicazione = function() {
+            if ($('#s3').val() === '1') {
+                $('#datePubblicazione').slideDown();
+            } else {
+                $('#datePubblicazione').slideUp();
+            }
+        };
 
-    function AttivaExtraTag() {
-        if ($('#regolaExtraTag1').val() === '1') {
-            $('#ZonaExtraTag, #ZonaExtraTagOrdine').slideDown();
-        } else {
-            $('#ZonaExtraTag, #ZonaExtraTagOrdine').slideUp();
-        }
-    }
+        window.AttivaLinkEsterno = function() {
+            if ($('#menu2').val() === '2') {
+                $('#linkEsterno').slideDown();
+            } else {
+                $('#linkEsterno').slideUp();
+            }
+        };
 
-    function AttivaAutorizzazioniUtente() {
-        const valore = $('#privato').val();
-        const $divGruppi = $('#GruppiAbilitati');
-        const $divPersonalizzati = $('#PermessiPersonalizzati');
+        window.AttivaExtraTag = function() {
+            if ($('#regolaExtraTag1').val() === '1') {
+                $('#ZonaExtraTag, #ZonaExtraTagOrdine').slideDown();
+            } else {
+                $('#ZonaExtraTag, #ZonaExtraTagOrdine').slideUp();
+            }
+        };
 
-        if (valore === "1") {
-            $divGruppi.fadeIn().css('display', 'flex');
-            $divPersonalizzati.hide();
-        } else if (valore === "2") {
-            $divGruppi.hide();
-            $divPersonalizzati.fadeIn().css('display', 'flex');
-        } else {
-            $divGruppi.hide();
-            $divPersonalizzati.hide();
-        }
-    }
+        window.AttivaAutorizzazioniUtente = function() {
+            var valore = $('#privato').val();
+            var $divGruppi = $('#GruppiAbilitati');
+            var $divPersonalizzati = $('#PermessiPersonalizzati');
+            if (valore === "1") {
+                $divGruppi.fadeIn().css('display', 'flex');
+                $divPersonalizzati.hide();
+            } else if (valore === "2") {
+                $divGruppi.hide();
+                $divPersonalizzati.fadeIn().css('display', 'flex');
+            } else {
+                $divGruppi.hide();
+                $divPersonalizzati.hide();
+            }
+        };
 
-    // ── AZIONI FORM E UTENTI ───────────────────────────────────────────────
-
-    function InviaForm() {
-        const $form = $("#sezione");
-        if ($form[0].checkValidity() === false) {
-            if (typeof PNotify !== 'undefined') {
-                new PNotify({
-                    title: 'Attenzione!',
-                    text: 'Alcuni campi obbligatori richiedono un tuo intervento!',
-                    type: 'error',
-                    styling: 'bootstrap3'
-                });
+        window.InviaForm = function() {
+            var $form = $("#sezione");
+            if ($form[0].checkValidity() === false) {
+                if (typeof PNotify !== 'undefined') {
+                    new PNotify({
+                        title: 'Attenzione!',
+                        text: 'Alcuni campi obbligatori richiedono un tuo intervento!',
+                        type: 'error',
+                        styling: 'bootstrap3'
+                    });
+                }
+                $form.addClass('was-validated');
+                return false;
             }
             $form.addClass('was-validated');
-            return false;
-        }
-        $form.addClass('was-validated');
-        document.sezione.submit();
-    }
+            document.sezione.submit();
+        };
 
-    function RimuoviUtenteAssociato(id) {
-        const $input = $("#utentiAssociatiString");
-        let stringa = $input.val();
-        const ids = "(" + id + ");";
-        $input.val(stringa.replace(ids, ""));
+        window.RimuoviUtenteAssociato = function(id) {
+            var $input = $("#utentiAssociatiString");
+            var stringa = $input.val();
+            $input.val(stringa.replace("(" + id + ");", ""));
+            $("#" + id + ", #user-badge-" + id).fadeOut(300, function() {
+                $(this).remove();
+            });
+        };
 
-        $("#" + id + ", #user-badge-" + id).fadeOut(300, function() {
-            $(this).remove();
-        });
-    }
-
-    // ── INIZIALIZZAZIONE ───────────────────────────────────────────────────
-
-    $(document).ready(function() {
-        // Stato iniziale
+        // --- Inizializzazioni ---
         AttivaAutorizzazioniUtente();
         AttivaDataPubblicazione();
         AttivaLinkEsterno();
         AttivaExtraTag();
 
-        // Eventi Change
+        // --- Binding eventi ---
         $('#privato').on('change', AttivaAutorizzazioniUtente);
         $('#s3').on('change', AttivaDataPubblicazione);
         $('#menu2').on('change', AttivaLinkEsterno);
@@ -879,12 +878,11 @@
         $("#EreditaExtraTag").on('click', function(e) {
             e.preventDefault();
             if (typeof ApplicaExtraTagContenuti === "function") ApplicaExtraTagContenuti();
-            return false;
         });
 
-        // Integrazione AutoSave (se presente il plugin)
-        const $form = $('#sezione');
-        const $statusHolder = $('.notifyZone');
+        // --- AutoSave ---
+        var $form = $('#sezione');
+        var $statusHolder = $('.notifyZone');
 
         if (typeof $form.autoSaveForm === "function") {
             $form.autoSaveForm();
@@ -903,11 +901,12 @@
             });
 
             $form.on('saveSuccess.autoSaveForm', function () {
-                const ora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                var ora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                 $statusHolder.html('<span class="text-success small"><i class="fas fa-check-circle"></i> Sincronizzato ' + ora + '</span>');
             });
         }
-    });
+
+    })();
 
   </script>
 
