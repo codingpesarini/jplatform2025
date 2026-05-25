@@ -1,5 +1,6 @@
 <th:block th:fragment="content">
-    <section class="section bg-redbrown bg-red-gradient py-5 position-relative d-flex align-items-center overflow-hidden">
+    <section class="section bg-redbrown bg-red-gradient py-5 position-relative d-flex align-items-center overflow-hidden"
+             th:style="${section.info5 != null and !section.info5.isEmpty() and section.info5 != '0'} ? 'background-image: url(' + ${config.imagesRepositoryWeb} + ${section.info5} + '); background-size: cover; background-position: center;' : ''">
         <div class="container">
             <div class="row variable-gutters">
                 <div class="col-md-5">

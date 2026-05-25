@@ -304,7 +304,7 @@
                                     <div class="it-carousel-wrapper it-carousel-landscape-abstract-three-cols splide popup-gallery" data-bs-carousel-splide>
                                         <div class="splide__track">
                                             <ul class="splide__list it-carousel-all">
-                                                <th:block th:each="immagine, iterStat : ${section.gallery}" th:if="${iterStat.index > 0}">
+                                                <th:block th:each="immagine : ${section.gallery}">
                                                     <li class="splide__slide">
                                                         <div class="it-single-slide-wrapper">
                                                             <a th:href="@{|${config.imagesRepositoryWeb}${immagine.fullpath}|}">

@@ -69,6 +69,7 @@ public class SezioniController {
     @GetMapping({"/new", "/new/{idParent}"})
     public String newForm(
             @PathVariable(required = false) String idParent,
+            @RequestParam(value = "id_parent", required = false) String idParentParam,
             @RequestParam(value = "groupid", defaultValue = "0") String groupId,
             HttpServletRequest request, Model model) {
 
@@ -80,12 +81,13 @@ public class SezioniController {
             String idSite = String.valueOf(config.getIdSito());
             String today = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
 
+            String parentId = idParent != null ? idParent : (idParentParam != null ? idParentParam : "0");
+
             Section section = new Section();
             section.setId(null);
-            section.setIdParent(idParent != null ? idParent : "0");
+            section.setIdParent(parentId);
             section.setIdGruppo(groupId);
             section.setData(today);
-
             section.setSectionType(new SectionType());
 
             model.addAttribute("section", section);
@@ -125,14 +127,19 @@ public class SezioniController {
 
             String galleryString = section.getGalleryString();
             log.info("galleryString sezione {}: '{}'", section.getId(), galleryString);
+
             if (galleryString != null && !galleryString.isEmpty()) {
+                // Normalizza formato: converti "80;86" in "(80);(86);"
+                StringBuilder normalized = new StringBuilder();
                 List<Images> gallery = new ArrayList<>();
+
                 String[] parts = galleryString.split(";");
                 for (String part : parts) {
                     part = part.trim().replace("(", "").replace(")", "");
                     if (!part.isEmpty()) {
                         try {
                             Integer imgId = Integer.parseInt(part);
+                            normalized.append("(").append(imgId).append(");");
                             imagesService.findById(imgId).ifPresent(img -> {
                                 log.info("Immagine trovata: id={}, path={}", img.getId(), img.getFullpath());
                                 gallery.add(img);
@@ -140,6 +147,8 @@ public class SezioniController {
                         } catch (NumberFormatException ignored) {}
                     }
                 }
+
+                section.setGalleryString(normalized.toString());
                 section.setGallery(gallery);
             }
 
@@ -298,6 +307,7 @@ public class SezioniController {
                 db.setCreato(now);
                 db.setCreatoDa(operatore);
                 if (db.getClick() == null) db.setClick(0);
+                if (db.getPosition() == null) db.setPosition(0);
             } else {
                 db = contentService.findSectionById(form.getId(), idSite)
                         .orElseThrow(() -> new RuntimeException("Sezione non trovata"));

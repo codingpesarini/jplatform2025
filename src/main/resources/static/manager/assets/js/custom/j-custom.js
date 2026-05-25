@@ -1218,3 +1218,62 @@ function resetAnagraficaLeadCRM() {
         showToast('Completato', 'Anagrafica rimossa.');
     });
 }
+
+// ============================================================
+// GALLERY - Drag & Drop globale per tutte le sezioni
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    var divGallery = document.getElementById('divgallery');
+    if (!divGallery) return;
+
+    var draggingEl = null;
+
+    function abilitaDrag() {
+        divGallery.querySelectorAll('.float-left').forEach(function(el) {
+            el.setAttribute('draggable', 'true');
+            el.style.cursor = 'grab';
+        });
+    }
+
+    function aggiornaGalleryString() {
+        var galleryInput = document.getElementById('galleryString');
+        if (!galleryInput) return;
+        var newString = '';
+        divGallery.querySelectorAll('.float-left').forEach(function(el) {
+            if (el.id) newString += '(' + el.id + ');';
+        });
+        galleryInput.value = newString;
+    }
+
+    divGallery.addEventListener('dragstart', function(e) {
+        draggingEl = e.target.closest('.float-left');
+        if (draggingEl) draggingEl.style.opacity = '0.4';
+    });
+    divGallery.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        var target = e.target.closest('.float-left');
+        if (target && target !== draggingEl) target.style.outline = '2px dashed #0088cc';
+    });
+    divGallery.addEventListener('dragleave', function(e) {
+        var target = e.target.closest('.float-left');
+        if (target) target.style.outline = '';
+    });
+    divGallery.addEventListener('drop', function(e) {
+        e.preventDefault();
+        var target = e.target.closest('.float-left');
+        if (target && target !== draggingEl) {
+            target.style.outline = '';
+            divGallery.insertBefore(draggingEl, target);
+            aggiornaGalleryString();
+        }
+    });
+    divGallery.addEventListener('dragend', function() {
+        if (draggingEl) draggingEl.style.opacity = '1';
+        divGallery.querySelectorAll('.float-left').forEach(function(el) {
+            el.style.outline = '';
+        });
+    });
+
+    abilitaDrag();
+    new MutationObserver(abilitaDrag).observe(divGallery, { childList: true });
+});

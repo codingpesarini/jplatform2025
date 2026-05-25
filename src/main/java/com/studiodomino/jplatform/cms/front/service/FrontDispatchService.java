@@ -270,6 +270,11 @@ public class FrontDispatchService {
 
             // ===== 8. CARICA GALLERY SEZIONE CORRENTE =====
             popolaGallerySezione(section);
+            log.info("Gallery caricata per sezione {}: {} immagini, galleryCheck={}, logo2={}",
+                    section.getId(),
+                    section.getGallery() != null ? section.getGallery().size() : 0,
+                    section.getGalleryCheck(),
+                    section.getLogo2());
 
             // ===== 9. CARICA COMMENTI =====
             List<Commento> commenti = commentoService.getCommentiConThread(section.getId().toString(), true);

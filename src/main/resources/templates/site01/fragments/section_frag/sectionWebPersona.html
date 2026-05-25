@@ -1,7 +1,8 @@
 <th:block th:fragment="content">
 
   <!-- Header con background rosso -->
-  <section class="section bg-redbrown bg-red-gradient py-0 py-md-4 py-lg-5 position-relative d-flex align-items-center overflow-hidden">
+  <section class="section bg-redbrown bg-red-gradient py-5 position-relative d-flex align-items-center overflow-hidden"
+           th:style="${section.info5 != null and !section.info5.isEmpty() and section.info5 != '0'} ? 'background-image: url(' + ${config.imagesRepositoryWeb} + ${section.info5} + '); background-size: cover; background-position: center;' : ''">
     <div class="people-red-forms">
       <svg width="100%" height="100%" viewBox="0 0 535 360" version="1.1" xmlns="http://www.w3.org/2000/svg"
            xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/"
@@ -256,7 +257,7 @@
                     <div class="it-carousel-wrapper it-carousel-landscape-abstract-three-cols splide popup-gallery" data-bs-carousel-splide>
                       <div class="splide__track">
                         <ul class="splide__list it-carousel-all">
-                          <th:block th:each="immagine, iterStat : ${section.gallery}" th:if="${iterStat.index > 0}">
+                          <th:block th:each="immagine : ${section.gallery}">
                             <li class="splide__slide">
                               <div class="it-single-slide-wrapper">
                                 <a th:href="@{|${config.imagesRepositoryWeb}${immagine.fullpath}|}">

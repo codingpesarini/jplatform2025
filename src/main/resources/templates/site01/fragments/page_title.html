@@ -1,64 +1,55 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-
 <th:block th:fragment="sectionTitle">
-    <section class="page-title-big-typography md-py-0 top-space-margin">
+    <section class="page-title-big-typography md-py-0 top-space-margin"
+             th:style="${section != null and section.info5 != null and !section.info5.isEmpty() and section.info5 != '0'} ? 'background-image: url(' + ${config.imagesRepositoryWeb} + ${section.info5} + '); background-size: cover; background-position: center;' : ''">
         <div class="container">
             <div class="row align-items-center small-screen">
                 <div class="col-12 mb-3">
                     <ul class="breadcrumb breadcrumb-style-01 fs-16">
-
                         <li class="breadcrumb-item">
                             <a th:href="@{/front}">Home</a>
                         </li>
-
                         <li class="breadcrumb-item"
                             th:each="item : ${breadcrumb.items}">
                             <a th:href="${item.url}"
                                th:text="${item.titolo}">
                             </a>
                         </li>
-
                         <li class="breadcrumb-item active"
                             th:text="${breadcrumb.itemAttuale}">
                         </li>
-
                     </ul>
                 </div>
             </div>
         </div>
     </section>
 </th:block>
-
 <th:block th:fragment="documentTitle">
-    <section class="page-title-big-typography md-py-0 top-space-margin">
+    <section class="page-title-big-typography md-py-0 top-space-margin"
+             th:style="${post != null and post.info5 != null and !post.info5.isEmpty() and post.info5 != '0'} ? 'background-image: url(' + ${config.imagesRepositoryWeb} + ${post.info5} + '); background-size: cover; background-position: center;' : ''">
         <div class="container">
             <div class="row align-items-center small-screen">
                 <div class="col-12 mb-3">
                     <ul class="breadcrumb breadcrumb-style-01 fs-16">
-
                         <li class="breadcrumb-item">
                             <a th:href="@{/front}">Home</a>
                         </li>
-
                         <li class="breadcrumb-item"
                             th:each="item : ${breadcrumb.items}">
                             <a th:href="${item.url}"
                                th:text="${item.titolo}">
                             </a>
                         </li>
-
                         <li class="breadcrumb-item active"
                             th:text="${breadcrumb.itemAttuale}">
                         </li>
-
                     </ul>
                 </div>
             </div>
         </div>
     </section>
 </th:block>
-
 </body>
 </html>

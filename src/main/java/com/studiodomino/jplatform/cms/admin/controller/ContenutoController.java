@@ -235,6 +235,9 @@ public class ContenutoController {
                 if (documento.getPrivato() == null || documento.getPrivato().isBlank()) {
                     documento.setPrivato("0");  // default pubblico
                 }
+                if (documento.getPosition() == null || documento.getPosition().isBlank()) {
+                    documento.setPosition("0");
+                }
                 parseDataVisualizzata(documento);
 
                 DatiBase saved = contentService.saveContent(documento);

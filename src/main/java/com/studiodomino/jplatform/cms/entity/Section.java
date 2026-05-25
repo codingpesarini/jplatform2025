@@ -627,7 +627,7 @@ public class Section implements Serializable {
     public String getLogo2() {
         String foto = "nofoto.jpg";
         if (getGalleryCheck() && galleryList.size() >= 2) {
-            foto = galleryList.get(1).getFullpath();
+            foto = galleryList.get(2).getFullpath();
         }
         return foto;
     }
@@ -638,7 +638,7 @@ public class Section implements Serializable {
     public String getLogo3() {
         String foto = "nofoto.jpg";
         if (getGalleryCheck() && galleryList.size() >= 3) {
-            foto = galleryList.get(2).getFullpath();
+            foto = galleryList.get(3).getFullpath();
         }
         return foto;
     }

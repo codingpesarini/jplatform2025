@@ -5,7 +5,8 @@
 <div th:fragment="content">
 
     <!-- HERO -->
-    <section class="section bg-purplelight bg-purplegradient py-5 position-relative d-flex align-items-center overflow-hidden">
+    <section class="section bg-redbrown bg-red-gradient py-5 position-relative d-flex align-items-center overflow-hidden"
+             th:style="${section.info5 != null and !section.info5.isEmpty() and section.info5 != '0'} ? 'background-image: url(' + ${config.imagesRepositoryWeb} + ${section.info5} + '); background-size: cover; background-position: center;' : ''">
         <div class="purple-oval-forms">
             <!-- SVG identico -->
             <!-- (lo lascio invariato) -->
@@ -237,7 +238,7 @@
                                 <div class="it-carousel-wrapper it-carousel-landscape-abstract-three-cols splide popup-gallery" data-bs-carousel-splide>
                                     <div class="splide__track">
                                         <ul class="splide__list it-carousel-all">
-                                            <th:block th:each="immagine, iterStat : ${section.gallery}" th:if="${iterStat.index > 0}">
+                                            <th:block th:each="immagine : ${section.gallery}">
                                                 <li class="splide__slide">
                                                     <div class="it-single-slide-wrapper">
                                                         <a th:href="@{|${config.imagesRepositoryWeb}${immagine.fullpath}|}">
