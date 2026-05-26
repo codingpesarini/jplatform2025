@@ -40,21 +40,17 @@ public class FrontDispatchService {
     // ========================================
 
     public String resolveOrdinamento(String ordinamento, Site site) {
-        if (ordinamento != null && !ordinamento.isEmpty()) {
-            return ordinamento;
-        }
+        if (ordinamento != null && !ordinamento.isEmpty()) return ordinamento;
         String defaultOrder = site.getLibero(7);
         return (defaultOrder != null && !defaultOrder.isEmpty()) ? defaultOrder : "data desc";
     }
 
     public FrontContentFilter buildContentFilter(
-            String anno, String mese, String stato, String privato,
-            String my, String archivio, String orderBy,
+            String stato, String privato, String my,
+            String archivio, String orderBy,
             String sqlContenuto, UtenteEsterno utente) {
 
         return FrontContentFilter.builder()
-                .anno(anno)
-                .mese(mese)
                 .stato(stato)
                 .privato(privato)
                 .my(my)
@@ -69,20 +65,14 @@ public class FrontDispatchService {
     // UTILITY - GALLERY
     // ========================================
 
-    /**
-     * Parse stringa gallery — supporta sia virgola che punto e virgola come separatori
-     */
     private List<Images> parseGalleryString(String galleryString) {
-        if (galleryString == null || galleryString.trim().isEmpty()) {
-            return new ArrayList<>();
-        }
+        if (galleryString == null || galleryString.trim().isEmpty()) return new ArrayList<>();
         return Arrays.stream(galleryString.split("[,;]"))
                 .map(s -> s.trim().replace("(", "").replace(")", ""))
                 .filter(s -> !s.isEmpty())
                 .map(idStr -> {
                     try {
-                        Integer id = Integer.parseInt(idStr);
-                        return imagesService.findById(id).orElse(null);
+                        return imagesService.findById(Integer.parseInt(idStr)).orElse(null);
                     } catch (NumberFormatException e) {
                         log.warn("ID immagine non valido in gallery: {}", idStr);
                         return null;
@@ -92,16 +82,12 @@ public class FrontDispatchService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Popola gallery per una sezione
-     */
     private void popolaGallerySezione(Section section) {
         String gs = section.getGalleryString();
         if (gs != null && !gs.isEmpty()) {
             List<Images> gallery = parseGalleryString(gs);
             section.setGallery(gallery);
             section.setGalleryList(gallery);
-            log.debug("Gallery caricata per sezione {}: {} immagini", section.getId(), gallery.size());
         }
     }
 
@@ -111,9 +97,7 @@ public class FrontDispatchService {
 
     public Content getContentBase(String pid) {
         try {
-            Integer id = Integer.parseInt(pid);
-            log.debug("Caricamento Content base per id: {}", id);
-            return contentService.findContentEntityById(id).orElse(null);
+            return contentService.findContentEntityById(Integer.parseInt(pid)).orElse(null);
         } catch (NumberFormatException e) {
             log.error("ID non valido: {}", pid);
             return null;
@@ -132,182 +116,113 @@ public class FrontDispatchService {
         try {
             Integer sectionId = Integer.parseInt(pid);
 
-            // ===== 1. CARICA SEZIONE BASE =====
+            // 1. Sezione base
             Section section = contentService.findSectionById(sectionId)
                     .orElseThrow(() -> new IllegalArgumentException("Sezione non trovata: " + pid));
-            log.debug("Sezione base caricata: id={}, titolo={}", section.getId(), section.getTitolo());
 
-            // ===== 2. CARICA SECTION TYPE =====
+            // 2. SectionType
             if (section.getIdType() != null) {
                 section.setSectionType(contentService.getSectionTypeById(section.getIdType()));
-                log.debug("SectionType caricato: {}", section.getSectionType() != null ?
-                        section.getSectionType().getType() : "null");
             }
 
-            // ===== 3. DETERMINA ORDINAMENTO CONTENUTI =====
+            // 3. Ordinamento
             String orderByContenuti = determineContentOrdering(section, filter.getOrdinamento());
             String maxOrdine = section.getMaxOrdineContenuti();
             if (maxOrdine == null || maxOrdine.isEmpty()) maxOrdine = "0";
 
-            // Dichiarazione comune per filtri date
             LocalDate today = LocalDate.now();
             DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-            // ===== 4. CARICA CONTENUTI =====
+            // 4. Contenuti
             List<DatiBase> contenuti;
-            boolean isArgomento =
-                    section.getSectionType() != null
-                            && section.getSectionType().getType() != null
-                            && section.getSectionType().getType().equalsIgnoreCase("Argomento");
+            boolean isArgomento = section.getSectionType() != null
+                    && section.getSectionType().getType() != null
+                    && section.getSectionType().getType().equalsIgnoreCase("Argomento");
 
             if (isArgomento) {
                 String tag = section.getTitolo();
-                log.debug("SEZIONE ARGOMENTO: carico contenuti per TAG='{}'", tag);
                 contenuti = contentService.findContentsByTag(idSito.toString(), tag);
                 if ((contenuti == null || contenuti.isEmpty()) && section.getLabel() != null) {
-                    String tag2 = section.getLabel();
-                    log.debug("SEZIONE ARGOMENTO: 0 risultati con titolo, riprovo con LABEL='{}'", tag2);
-                    contenuti = contentService.findContentsByTag(idSito.toString(), tag2);
+                    contenuti = contentService.findContentsByTag(idSito.toString(), section.getLabel());
                 }
                 if (contenuti == null) contenuti = new ArrayList<>();
             } else {
                 String whereCondition = buildContentWhereCondition(filter, section.getId());
                 contenuti = contentService.findContentsBySection(
-                        idSito, section.getId(), whereCondition, orderByContenuti, Integer.parseInt(maxOrdine));
+                        idSito, section.getId(), whereCondition,
+                        orderByContenuti, Integer.parseInt(maxOrdine));
             }
 
-            // Filtra contenuti per periodo di pubblicazione
+            // 5. Filtro periodo pubblicazione
             contenuti = contenuti.stream().filter(item -> {
                 if (!"1".equals(item.getS3())) return true;
                 try {
-                    String s1 = item.getS1();
-                    String s2 = item.getS2();
-                    if (s1 != null && !s1.isEmpty()) {
-                        if (today.isBefore(LocalDate.parse(s1, fmt))) return false;
-                    }
-                    if (s2 != null && !s2.isEmpty()) {
-                        if (today.isAfter(LocalDate.parse(s2, fmt))) return false;
-                    }
-                } catch (Exception e) {
-                    return true;
-                }
+                    String s1 = item.getS1(), s2 = item.getS2();
+                    if (s1 != null && !s1.isEmpty() && today.isBefore(LocalDate.parse(s1, fmt))) return false;
+                    if (s2 != null && !s2.isEmpty() && today.isAfter(LocalDate.parse(s2, fmt)))  return false;
+                } catch (Exception e) { return true; }
                 return true;
             }).collect(Collectors.toList());
 
+            // 6. Filtro ricerca (q, dal, al) in memoria
+            contenuti = applySearchFilter(contenuti, filter);
+
             section.setContenuti(contenuti);
-            log.debug("Contenuti caricati: {}", contenuti.size());
+            log.debug("Contenuti dopo filtro ricerca: {}", contenuti.size());
 
-            // ===== 5. CARICA SOTTOSEZIONI =====
+            // 7. Sottosezioni
             if (loadSubsections) {
-                List<Section> subsections = contentService.findSubsections(
-                        idSito.toString(), section.getId().toString());
-
-                subsections = subsections.stream().filter(sub -> {
-                    if (!"1".equals(sub.getS3())) return true;
-                    try {
-                        String s1 = sub.getS1();
-                        String s2 = sub.getS2();
-                        if (s1 != null && !s1.isEmpty()) {
-                            if (today.isBefore(LocalDate.parse(s1, fmt))) return false;
-                        }
-                        if (s2 != null && !s2.isEmpty()) {
-                            if (today.isAfter(LocalDate.parse(s2, fmt))) return false;
-                        }
-                    } catch (Exception e) {
-                        return true;
-                    }
-                    return true;
-                }).collect(Collectors.toList());
-
-                for (Section sub : subsections) popolaGallerySezione(sub);
+                List<Section> subsections = filterByPeriod(
+                        contentService.findSubsections(idSito.toString(), section.getId().toString()),
+                        today, fmt);
+                subsections.forEach(this::popolaGallerySezione);
                 section.setSubsection(subsections);
 
                 if (section.getIdParent() != null && !section.getIdParent().isEmpty()
                         && !"0".equals(section.getIdParent())) {
-                    List<Section> subsectionsParent = contentService.findSubsections(
-                            idSito.toString(), section.getIdParent());
-
-                    subsectionsParent = subsectionsParent.stream().filter(sub -> {
-                        if (!"1".equals(sub.getS3())) return true;
-                        try {
-                            String s1 = sub.getS1();
-                            String s2 = sub.getS2();
-                            if (s1 != null && !s1.isEmpty()) {
-                                if (today.isBefore(LocalDate.parse(s1, fmt))) return false;
-                            }
-                            if (s2 != null && !s2.isEmpty()) {
-                                if (today.isAfter(LocalDate.parse(s2, fmt))) return false;
-                            }
-                        } catch (Exception e) {
-                            return true;
-                        }
-                        return true;
-                    }).collect(Collectors.toList());
-
-                    for (Section sub : subsectionsParent) popolaGallerySezione(sub);
+                    List<Section> subsectionsParent = filterByPeriod(
+                            contentService.findSubsections(idSito.toString(), section.getIdParent()),
+                            today, fmt);
+                    subsectionsParent.forEach(this::popolaGallerySezione);
                     section.setSubsectionParent(subsectionsParent);
-                    log.debug("Sottosezioni parent caricate: {}", subsectionsParent.size());
                 }
             }
 
-            // ===== 6. CARICA SEZIONE PADRE =====
+            // 8. Sezione padre
             if (section.getIdParent() != null && !section.getIdParent().isEmpty()
                     && !"0".equals(section.getIdParent())) {
                 try {
-                    Integer idParent = Integer.parseInt(section.getIdParent());
-                    Section parent = contentService.findSectionById(idParent).orElse(null);
-                    section.setSezionePadre(parent);
-                    log.debug("Sezione padre caricata: {}", parent != null ? parent.getTitolo() : "null");
+                    section.setSezionePadre(
+                            contentService.findSectionById(Integer.parseInt(section.getIdParent())).orElse(null));
                 } catch (NumberFormatException e) {
                     log.warn("ID parent non valido: {}", section.getIdParent());
                 }
             }
 
-            // ===== 7. CARICA ALLEGATI =====
+            // 9. Allegati
             List<Allegato> allegati = allegatoService.findAllegatiByDocumento(section.getId());
             section.setAllegati(allegati);
-            log.debug("Allegati caricati: {}", allegati.size());
 
-            // ===== 8. CARICA GALLERY SEZIONE CORRENTE =====
+            // 10. Gallery
             popolaGallerySezione(section);
-            log.info("Gallery caricata per sezione {}: {} immagini, galleryCheck={}, logo2={}",
-                    section.getId(),
-                    section.getGallery() != null ? section.getGallery().size() : 0,
-                    section.getGalleryCheck(),
-                    section.getLogo2());
 
-            // ===== 9. CARICA COMMENTI =====
-            List<Commento> commenti = commentoService.getCommentiConThread(section.getId().toString(), true);
+            // 11. Commenti
+            List<Commento> commenti = commentoService.getCommentiConThread(
+                    section.getId().toString(), true);
             section.setCommenti(commenti);
-            long numeroCommenti = commentoService.contaCommentiApprovati(section.getId().toString());
-            section.setNumeroCommenti(Long.toString(numeroCommenti));
-            log.debug("Commenti caricati: {}", numeroCommenti);
+            section.setNumeroCommenti(Long.toString(
+                    commentoService.contaCommentiApprovati(section.getId().toString())));
 
-            // ===== 10. UTENTI ASSOCIATI =====
-            if (section.getUtentiAssociatiString() != null && !section.getUtentiAssociatiString().isEmpty()) {
-                log.debug("Utenti associati: {}", section.getUtentiAssociatiString());
-            }
-
-            // ===== 11. CLICK TRACKING =====
+            // 12. Click tracking
             if (trackClick) {
                 contentService.incrementClick(section.getId(), idSito.toString());
-                Integer newClick = (section.getClick() != null ? section.getClick() : 0) + 1;
-                section.setClick(newClick);
-                log.debug("Click incrementato: {}", newClick);
+                section.setClick((section.getClick() != null ? section.getClick() : 0) + 1);
             }
 
-            // ===== 12. STATO ARCHIVIO =====
-            if (filter.getStato() != null && !"-1".equals(filter.getStato())) {
-                section.setStatoArchivio(filter.getStato());
-            } else {
-                section.setStatoArchivio("1");
-            }
-
-            log.info("Sezione completa caricata: id={}, contenuti={}, sottosezioni={}, allegati={}",
-                    section.getId(),
-                    contenuti.size(),
-                    section.getSubsection() != null ? section.getSubsection().size() : 0,
-                    allegati.size());
+            // 13. Stato archivio
+            section.setStatoArchivio(
+                    (filter.getStato() != null && !"-1".equals(filter.getStato()))
+                            ? filter.getStato() : "1");
 
             return section;
 
@@ -317,47 +232,169 @@ public class FrontDispatchService {
         }
     }
 
-    private String determineContentOrdering(Section section, String filterOrdering) {
-        if (section.getOrdineContenuti() != null && !section.getOrdineContenuti().isEmpty()) {
-            return section.getOrdineContenuti();
-        }
-        if (filterOrdering != null && !filterOrdering.isEmpty()) {
-            return filterOrdering;
-        }
-        return "data desc";
+    // ========================================
+    // FILTRO RICERCA IN MEMORIA (q, dal, al)
+    // ========================================
+
+    private List<DatiBase> applySearchFilter(List<DatiBase> contenuti, FrontContentFilter filter) {
+        String q   = filter.getQ();
+        String dal = filter.getDal();
+        String al  = filter.getAl();
+
+        boolean hasQ   = q   != null && !q.trim().isEmpty();
+        boolean hasDal = dal != null && !dal.trim().isEmpty();
+        boolean hasAl  = al  != null && !al.trim().isEmpty();
+
+        if (!hasQ && !hasDal && !hasAl) return contenuti;
+
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate dataDal = hasDal ? LocalDate.parse(dal, fmt) : null;
+        LocalDate dataAl  = hasAl  ? LocalDate.parse(al,  fmt) : null;
+        String qLower     = hasQ   ? q.trim().toLowerCase()    : null;
+
+        return contenuti.stream().filter(item -> {
+            if (hasQ) {
+                String titolo    = item.getTitolo()    != null ? item.getTitolo().toLowerCase()    : "";
+                String riassunto = item.getRiassunto() != null ? item.getRiassunto().toLowerCase() : "";
+                if (!titolo.contains(qLower) && !riassunto.contains(qLower)) return false;
+            }
+            if (dataDal != null && item.getDataSql() != null && item.getDataSql().isBefore(dataDal)) return false;
+            if (dataAl  != null && item.getDataSql() != null && item.getDataSql().isAfter(dataAl))   return false;
+            return true;
+        }).collect(Collectors.toList());
     }
 
-    private List<DatiBase> loadSectionContents(Section section, FrontContentFilter filter, Integer idSito) {
-        String whereCondition = buildContentWhereCondition(filter, section.getId());
-        String orderBy = filter.getOrdinamento() != null ? filter.getOrdinamento() : "data desc";
-        return contentService.findContentsBySection(idSito, section.getId(), whereCondition, orderBy, null);
+    // ========================================
+    // PAGINAZIONE LATO SERVER
+    // ========================================
+
+    public void buildPaginationServerSide(Section section, Configurazione configCore,
+                                          HttpServletRequest request, FrontContentFilter filter) {
+        try {
+            if (section == null || section.getContenuti() == null) {
+                section.setPaginaCorrente(0);
+                section.setTotalePagine(1);
+                configCore.setPaginationBar("");
+                return;
+            }
+
+            int pageSize     = resolvePageSize(section, configCore);
+            int totalItems   = section.getContenuti().size();
+            int totalePagine = totalItems == 0 ? 1 : (int) Math.ceil((double) totalItems / pageSize);
+
+            int paginaCorrente = filter.getPage();
+            if (paginaCorrente < 0)             paginaCorrente = 0;
+            if (paginaCorrente >= totalePagine) paginaCorrente = totalePagine - 1;
+
+            int fromIndex = paginaCorrente * pageSize;
+            int toIndex   = Math.min(fromIndex + pageSize, totalItems);
+
+            List<DatiBase> paginaContenuti = (fromIndex < totalItems)
+                    ? section.getContenuti().subList(fromIndex, toIndex)
+                    : new ArrayList<>();
+
+            section.setContenuti(paginaContenuti);
+            section.setPaginaCorrente(paginaCorrente);
+            section.setTotalePagine(totalePagine);
+
+            configCore.setItemsPage(String.valueOf(pageSize));
+            configCore.setPageNumber(String.valueOf(paginaCorrente + 1));
+            configCore.setStartItems(String.valueOf(fromIndex));
+            configCore.setEndItems(String.valueOf(toIndex));
+            configCore.setTotalPage(String.valueOf(totalePagine));
+
+            String paginationUrl = buildSeoPageUrl(section, filter);
+            configCore.setPaginationBar(
+                    generatePaginationHtml(paginaCorrente, totalePagine, paginationUrl));
+
+        } catch (Exception e) {
+            log.error("Errore in buildPaginationServerSide", e);
+            section.setPaginaCorrente(0);
+            section.setTotalePagine(1);
+            configCore.setPaginationBar("");
+        }
     }
+
+    public void buildPagination(Section section, Configurazione configCore,
+                                HttpServletRequest request) {
+        buildPaginationServerSide(section, configCore, request,
+                FrontContentFilter.builder().build());
+    }
+
+    private String buildSeoPageUrl(Section section, FrontContentFilter filter) {
+        String pid = section.getId().toString();
+        String q   = filter.getQ()   != null && !filter.getQ().isEmpty()   ? filter.getQ()   : null;
+        String dal = filter.getDal() != null && !filter.getDal().isEmpty() ? filter.getDal() : null;
+        String al  = filter.getAl()  != null && !filter.getAl().isEmpty()  ? filter.getAl()  : null;
+
+        if (q == null && dal == null && al == null) {
+            return "/front/" + pid + "/";
+        }
+        return "/front/" + pid + "/circolari/"
+                + (q   != null ? q   : "-") + "/"
+                + (dal != null ? dal : "-") + "/"
+                + (al  != null ? al  : "-") + "/";
+    }
+
+    private int resolvePageSize(Section section, Configurazione configCore) {
+        // Legge varchar6 della sezione (impostabile dall'admin nel tab "Altro")
+        String v6 = section.getVarchar6();
+        if (v6 != null && !v6.isEmpty()) {
+            try { return Integer.parseInt(v6.trim()); } catch (NumberFormatException ignored) {}
+        }
+        // Fallback: libero6 del sito
+        String l6 = configCore.getSito().getLibero(6);
+        if (l6 != null && !l6.isEmpty()) {
+            try { return Integer.parseInt(l6.trim()); } catch (NumberFormatException ignored) {}
+        }
+        return 20;
+    }
+
+    private String generatePaginationHtml(int paginaCorrente, int totalePagine, String baseUrl) {
+        if (totalePagine <= 1) return "";
+        StringBuilder html = new StringBuilder("<ul class=\"pagination\">");
+        if (paginaCorrente > 0) {
+            html.append("<li><a href=\"").append(baseUrl).append(paginaCorrente - 1)
+                    .append("\"><i class=\"fa fa-chevron-left\"></i></a></li>");
+        }
+        int startPage = Math.max(0, paginaCorrente - 5);
+        int endPage   = Math.min(totalePagine - 1, paginaCorrente + 4);
+        for (int i = startPage; i <= endPage; i++) {
+            if (i == paginaCorrente) {
+                html.append("<li class=\"active\"><a href=\"").append(baseUrl)
+                        .append(i).append("\">").append(i + 1).append("</a></li>");
+            } else {
+                html.append("<li><a href=\"").append(baseUrl)
+                        .append(i).append("\">").append(i + 1).append("</a></li>");
+            }
+        }
+        if (paginaCorrente < totalePagine - 1) {
+            html.append("<li><a href=\"").append(baseUrl).append(paginaCorrente + 1)
+                    .append("\"><i class=\"fa fa-chevron-right\"></i></a></li>");
+        }
+        html.append("</ul>");
+        return html.toString();
+    }
+
+    // ========================================
+    // DOCUMENTO
+    // ========================================
 
     public DatiBase loadDocument(String pid, String imagesRepositoryWeb) {
         try {
             Integer id = Integer.parseInt(pid);
-            log.debug("Caricamento documento per id: {}", id);
-
             DatiBase document = contentService.findDatiBaseById(id).orElse(null);
-
             if (document != null) {
-                List<Allegato> allegati = allegatoService.findAllegatiByDocumento(id);
-                document.setAllegati(allegati);
-
+                document.setAllegati(allegatoService.findAllegatiByDocumento(id));
                 List<Commento> commenti = commentoService.getCommentiConThread(id.toString(), true);
                 document.setCommenti(commenti);
-
-                long numeroCommenti = commentoService.contaCommentiApprovati(id.toString());
-                document.setNumeroCommenti(Long.toString(numeroCommenti));
-
+                document.setNumeroCommenti(Long.toString(
+                        commentoService.contaCommentiApprovati(id.toString())));
                 if (document.getGalleryString() != null && !document.getGalleryString().isEmpty()) {
-                    List<Images> gallery = parseGalleryString(document.getGalleryString());
-                    document.setGallery(gallery);
+                    document.setGallery(parseGalleryString(document.getGalleryString()));
                 }
             }
-
             return document;
-
         } catch (NumberFormatException e) {
             log.error("ID documento non valido: {}", pid);
             return null;
@@ -365,7 +402,7 @@ public class FrontDispatchService {
     }
 
     // ========================================
-    // BREADCRUMB E NAVIGAZIONE
+    // BREADCRUMB
     // ========================================
 
     public Breadcrumb getBreadcrumbs(String pid) {
@@ -385,7 +422,7 @@ public class FrontDispatchService {
     private Breadcrumb buildSectionBreadcrumb(Section section) {
         Breadcrumb breadcrumb = new Breadcrumb();
         breadcrumb.add("Home", "/");
-        breadcrumb.add(section.getTitolo(), "/front?pid=" + section.getId());
+        breadcrumb.add(section.getTitolo(), "/front/" + section.getId());
         return breadcrumb;
     }
 
@@ -394,39 +431,17 @@ public class FrontDispatchService {
         breadcrumb.add("Home", "/");
         if (base.getIdRoot() != null) {
             try {
-                Integer idRoot = Integer.parseInt(base.getIdRoot());
-                Section section = contentService.findSectionById(idRoot).orElse(null);
+                Section section = contentService.findSectionById(
+                        Integer.parseInt(base.getIdRoot())).orElse(null);
                 if (section != null) {
-                    breadcrumb.add(section.getTitolo(), "/front?pid=" + section.getId());
+                    breadcrumb.add(section.getTitolo(), "/front/" + section.getId());
                 }
             } catch (NumberFormatException e) {
                 log.warn("ID root non valido: {}", base.getIdRoot());
             }
         }
-        breadcrumb.add(base.getTitolo(), "/front?pid=" + base.getId());
+        breadcrumb.add(base.getTitolo(), "/front/" + base.getId());
         return breadcrumb;
-    }
-
-    // ========================================
-    // ARCHIVIO
-    // ========================================
-
-    public List<DatiBase> getArchivio(String pid, String anno, String mese, Integer idSito) {
-        try {
-            Integer sectionId = Integer.parseInt(pid);
-            StringBuilder where = new StringBuilder();
-            where.append(" AND (stato='1' OR stato='3') AND privato='0'");
-            if (anno != null && !anno.isEmpty() && !"-1".equals(anno)) {
-                where.append(" AND anno='").append(anno).append("'");
-            }
-            if (mese != null && !mese.isEmpty() && !"-1".equals(mese)) {
-                where.append(" AND mese='").append(mese).append("'");
-            }
-            return contentService.findContentsBySection(idSito, sectionId, where.toString(), "data desc", null);
-        } catch (NumberFormatException e) {
-            log.error("ID non valido per archivio: {}", pid);
-            return List.of();
-        }
     }
 
     // ========================================
@@ -437,9 +452,8 @@ public class FrontDispatchService {
         if (content == null) return false;
         String stato = content.getStato();
         if ("0".equals(stato) || "4".equals(stato)) return false;
-        if (statoParam != null && !statoParam.isEmpty() && !"-1".equals(statoParam)) {
+        if (statoParam != null && !statoParam.isEmpty() && !"-1".equals(statoParam))
             return statoParam.equals(stato);
-        }
         return "1".equals(stato);
     }
 
@@ -447,9 +461,8 @@ public class FrontDispatchService {
         if (base == null) return false;
         String stato = base.getStato();
         if ("0".equals(stato) || "4".equals(stato)) return false;
-        if (statoParam != null && !statoParam.isEmpty() && !"-1".equals(statoParam)) {
+        if (statoParam != null && !statoParam.isEmpty() && !"-1".equals(statoParam))
             return statoParam.equals(stato);
-        }
         return "1".equals(stato) || "3".equals(stato);
     }
 
@@ -457,6 +470,19 @@ public class FrontDispatchService {
         if (section == null) return false;
         String stato = section.getStato();
         return "1".equals(stato) || "3".equals(stato);
+    }
+
+    public boolean isInPeriodoPubblicazione(Content content) {
+        if (content == null) return true;
+        if (!"1".equals(content.getS3())) return true;
+        LocalDate oggi = LocalDate.now();
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        try {
+            String s1 = content.getS1(), s2 = content.getS2();
+            if (s1 != null && !s1.isEmpty() && oggi.isBefore(LocalDate.parse(s1, fmt))) return false;
+            if (s2 != null && !s2.isEmpty() && oggi.isAfter(LocalDate.parse(s2, fmt)))  return false;
+        } catch (Exception e) { return true; }
+        return true;
     }
 
     // ========================================
@@ -476,171 +502,58 @@ public class FrontDispatchService {
     }
 
     // ========================================
-    // PAGINAZIONE
-    // ========================================
-
-    public void buildPagination(Section section, Configurazione configCore, HttpServletRequest request) {
-        try {
-            if (section == null || section.getContenuti() == null) {
-                configCore.setPaginationBar("");
-                return;
-            }
-
-            String page = request.getParameter("page");
-            String mese = request.getParameter("mese");
-            String anno = request.getParameter("anno");
-            String url = buildPaginationUrl(section, mese, anno);
-
-            String itemsPerPage = configCore.getSito().getLibero(6);
-            if (itemsPerPage == null || itemsPerPage.isEmpty()) itemsPerPage = "10";
-
-            configCore.setItemsPage(itemsPerPage);
-            configCore.setPageNumber("1");
-            configCore.setStartItems("0");
-            configCore.setEndItems(itemsPerPage);
-
-            int itemPage = Integer.parseInt(itemsPerPage);
-            int totalItems = section.getContenuti().size();
-            int pagineIncomplete = (totalItems % itemPage > 0) ? 1 : 0;
-            int pagineTotali = (totalItems / itemPage) + pagineIncomplete;
-            if (pagineTotali == 0) pagineTotali = 1;
-
-            configCore.setTotalPage(String.valueOf(pagineTotali));
-            String paginationHtml = generatePaginationHtml(page, pagineTotali, url, configCore, totalItems, itemPage);
-            configCore.setPaginationBar(paginationHtml);
-
-        } catch (Exception e) {
-            log.error("Errore in buildPagination", e);
-            configCore.setPaginationBar("");
-        }
-    }
-
-    private String buildPaginationUrl(Section section, String mese, String anno) {
-        String baseUrl = "/front?pid=" + section.getId();
-        if (mese != null && !"-1".equals(mese)) {
-            return baseUrl + "&anno=" + anno + "&mese=" + mese + "&page=";
-        }
-        return baseUrl + "&page=";
-    }
-
-    private String generatePaginationHtml(String page, int pagineTotali, String url,
-                                          Configurazione configCore, int totalItems, int itemPage) {
-
-        StringBuilder html = new StringBuilder();
-        int currentPage = (page != null) ? Integer.parseInt(page) : 1;
-        configCore.setPageNumber(String.valueOf(currentPage));
-
-        int start = (currentPage - 1) * itemPage;
-        int end;
-        if (currentPage < pagineTotali) {
-            end = start + itemPage;
-        } else {
-            end = start + (totalItems % itemPage);
-            if (end == start) end = totalItems;
-        }
-
-        configCore.setStartItems(String.valueOf(start));
-        configCore.setEndItems(String.valueOf(end));
-
-        if (pagineTotali > 1) {
-            html.append("<ul class=\"pagination\">");
-            if (currentPage > 1) {
-                html.append("<li><a href=\"").append(url).append(currentPage - 1)
-                        .append("\"><i class=\"fa fa-chevron-left\"></i></a></li>");
-            }
-            int startPage = Math.max(1, currentPage - 5);
-            int endPage = Math.min(pagineTotali, currentPage + 4);
-            for (int i = startPage; i <= endPage; i++) {
-                if (i == currentPage) {
-                    html.append("<li class=\"active\"><a href=\"").append(url)
-                            .append(i).append("\">").append(i).append("</a></li>");
-                } else {
-                    html.append("<li><a href=\"").append(url)
-                            .append(i).append("\">").append(i).append("</a></li>");
-                }
-            }
-            if (currentPage < pagineTotali) {
-                html.append("<li><a href=\"").append(url).append(currentPage + 1)
-                        .append("\"><i class=\"fa fa-chevron-right\"></i></a></li>");
-            }
-            html.append("</ul>");
-        }
-
-        return html.toString();
-    }
-
-    // ========================================
-    // UTILITY - COSTRUZIONE SQL
-    // ========================================
-
-    private String buildContentWhereCondition(FrontContentFilter filter, Integer sectionId) {
-        StringBuilder where = new StringBuilder();
-
-        if (filter.getAnno() != null && filter.getMese() != null && !"-1".equals(filter.getMese())) {
-            where.append(" AND (stato='1' OR stato='3') AND privato='0'");
-            where.append(" AND anno='").append(filter.getAnno()).append("'");
-            where.append(" AND mese='").append(filter.getMese()).append("'");
-            return where.toString();
-        }
-
-        if (filter.getStato() != null && !"-1".equals(filter.getStato())) {
-            where.append(" AND stato='").append(filter.getStato()).append("'");
-            where.append(" AND privato='0'");
-            return where.toString();
-        }
-
-        if ("true".equals(filter.getMy()) && filter.getUtente() != null) {
-            where.append(" AND stato='1'");
-            where.append(" AND apertoda='").append(filter.getUtente().getId()).append("'");
-            return where.toString();
-        }
-
-        if ("true".equals(filter.getPrivato()) && filter.getUtente() != null) {
-            where.append(" AND stato='1' AND privato!='0'");
-            return where.toString();
-        }
-
-        where.append(" AND (stato='1' OR stato='3') AND privato='0'");
-        return where.toString();
-    }
-
-    // ========================================
     // TRACKING
     // ========================================
 
     public void trackClick(String frompid) {
         try {
-            if (frompid != null && !frompid.isEmpty()) {
+            if (frompid != null && !frompid.isEmpty())
                 log.debug("Tracking click from newsletter: {}", frompid);
-            }
         } catch (Exception e) {
             log.error("Errore in trackClick", e);
         }
     }
 
-    public boolean isInPeriodoPubblicazione(Content content) {
-        if (content == null) return true;
-        log.info("isInPeriodoPubblicazione: id={}, s3={}, s1={}, s2={}",
-                content.getId(), content.getS3(), content.getS1(), content.getS2());
-        if (!"1".equals(content.getS3())) return true; // illimitato
+    // ========================================
+    // UTILITY PRIVATE
+    // ========================================
 
-        String s1 = content.getS1();
-        String s2 = content.getS2();
-        LocalDate oggi = LocalDate.now();
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private String determineContentOrdering(Section section, String filterOrdering) {
+        if (section.getOrdineContenuti() != null && !section.getOrdineContenuti().isEmpty())
+            return section.getOrdineContenuti();
+        if (filterOrdering != null && !filterOrdering.isEmpty())
+            return filterOrdering;
+        return "data desc";
+    }
 
-        try {
-            if (s1 != null && !s1.isEmpty()) {
-                LocalDate inizio = LocalDate.parse(s1, fmt);
-                if (oggi.isBefore(inizio)) return false;
-            }
-            if (s2 != null && !s2.isEmpty()) {
-                LocalDate fine = LocalDate.parse(s2, fmt);
-                if (oggi.isAfter(fine)) return false;
-            }
-        } catch (Exception e) {
-            return true;
+    private String buildContentWhereCondition(FrontContentFilter filter, Integer sectionId) {
+        StringBuilder where = new StringBuilder();
+
+        if (filter.getStato() != null && !"-1".equals(filter.getStato())) {
+            return where.append(" AND stato='").append(filter.getStato())
+                    .append("' AND privato='0'").toString();
         }
-        return true;
+        if ("true".equals(filter.getMy()) && filter.getUtente() != null) {
+            return where.append(" AND stato='1'")
+                    .append(" AND apertoda='").append(filter.getUtente().getId()).append("'").toString();
+        }
+        if ("true".equals(filter.getPrivato()) && filter.getUtente() != null) {
+            return where.append(" AND stato='1' AND privato!='0'").toString();
+        }
+
+        return where.append(" AND (stato='1' OR stato='3') AND privato='0'").toString();
+    }
+
+    private List<Section> filterByPeriod(List<Section> sections, LocalDate today,
+                                         DateTimeFormatter fmt) {
+        return sections.stream().filter(sub -> {
+            if (!"1".equals(sub.getS3())) return true;
+            try {
+                String s1 = sub.getS1(), s2 = sub.getS2();
+                if (s1 != null && !s1.isEmpty() && today.isBefore(LocalDate.parse(s1, fmt))) return false;
+                if (s2 != null && !s2.isEmpty() && today.isAfter(LocalDate.parse(s2, fmt)))  return false;
+            } catch (Exception e) { return true; }
+            return true;
+        }).collect(Collectors.toList());
     }
 }

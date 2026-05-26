@@ -403,6 +403,9 @@ public class Section implements Serializable {
 
     private String locale = "it_IT";
 
+    private int paginaCorrente;
+    private int totalePagine;
+
     // ========================================
     // METODI GETTER CUSTOM - TITOLO
     // ========================================

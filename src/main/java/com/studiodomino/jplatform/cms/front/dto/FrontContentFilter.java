@@ -15,4 +15,8 @@ public class FrontContentFilter {
     private String ordinamento;
     private String sqlContenuto;
     private UtenteEsterno utente;
+    private String q;        // testo libero
+    private String dal;      // data inizio yyyy-MM-dd
+    private String al;       // data fine   yyyy-MM-dd
+    private int page;
 }
