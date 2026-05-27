@@ -40,7 +40,7 @@ public class UtenteService {
         Utente utente = utenteOpt.get();
 
         // Cripta password in input e confronta
-        String passwordCriptata = CryptBean.cryptString(password.toUpperCase());
+        String passwordCriptata = CryptBean.cryptString(password);
         if (!utente.getPassword().equals(passwordCriptata)) {
             return null; // Password errata
         }
@@ -76,7 +76,7 @@ public class UtenteService {
         }
 
         Utente utente = utenteOpt.get();
-        String passwordCriptata = CryptBean.cryptString(password.toUpperCase());
+        String passwordCriptata = CryptBean.cryptString(password);
 
         if (!utente.getPassword().equals(passwordCriptata)) {
             utente.setStatoaccesso(1); // Password errata
@@ -160,7 +160,7 @@ public class UtenteService {
      */
     @Transactional
     public Utente creaUtente(Utente utente) {
-        String passwordCriptata = CryptBean.cryptString(utente.getPassword().toUpperCase());
+        String passwordCriptata = CryptBean.cryptString(utente.getPassword());
         utente.setPassword(passwordCriptata);
 
         String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
@@ -194,7 +194,7 @@ public class UtenteService {
         Optional<Utente> utenteOpt = utenteRepository.findById(id);
         if (utenteOpt.isPresent()) {
             Utente utente = utenteOpt.get();
-            String passwordCriptata = CryptBean.cryptString(nuovaPassword.toUpperCase());
+            String passwordCriptata = CryptBean.cryptString(nuovaPassword);
             utente.setPassword(passwordCriptata);
             utenteRepository.save(utente);
         }

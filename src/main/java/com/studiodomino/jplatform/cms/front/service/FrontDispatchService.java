@@ -133,7 +133,7 @@ public class FrontDispatchService {
             LocalDate today = LocalDate.now();
             DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-            // 4. Contenuti
+            // 4. Contenuti con paginazione SQL
             List<DatiBase> contenuti;
             boolean isArgomento = section.getSectionType() != null
                     && section.getSectionType().getType() != null
@@ -146,11 +146,42 @@ public class FrontDispatchService {
                     contenuti = contentService.findContentsByTag(idSito.toString(), section.getLabel());
                 }
                 if (contenuti == null) contenuti = new ArrayList<>();
+                contenuti = contenuti.stream().filter(item -> {
+                    if (!"1".equals(item.getS3())) return true;
+                    try {
+                        String s1 = item.getS1(), s2 = item.getS2();
+                        if (s1 != null && !s1.isEmpty() && today.isBefore(LocalDate.parse(s1, fmt))) return false;
+                        if (s2 != null && !s2.isEmpty() && today.isAfter(LocalDate.parse(s2, fmt)))  return false;
+                    } catch (Exception e) { return true; }
+                    return true;
+                }).collect(Collectors.toList());
+                section.setContenuti(contenuti);
             } else {
-                String whereCondition = buildContentWhereCondition(filter, section.getId());
-                contenuti = contentService.findContentsBySection(
-                        idSito, section.getId(), whereCondition,
-                        orderByContenuti, Integer.parseInt(maxOrdine));
+                int pageSize = 20;
+                String v6 = section.getVarchar6();
+                if (v6 != null && !v6.isEmpty()) {
+                    try { pageSize = Integer.parseInt(v6.trim()); } catch (NumberFormatException ignored) {}
+                }
+                int page = filter.getPage() < 0 ? 0 : filter.getPage();
+
+                String q   = filter.getQ()   != null && !filter.getQ().isEmpty()   ? filter.getQ()   : null;
+                String dal = filter.getDal() != null && !filter.getDal().isEmpty() ? filter.getDal() : null;
+                String al  = filter.getAl()  != null && !filter.getAl().isEmpty()  ? filter.getAl()  : null;
+
+                LocalDate dataDal = null, dataAl = null;
+                DateTimeFormatter fmtSql = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                try { if (dal != null) dataDal = LocalDate.parse(dal, fmtSql); } catch (Exception ignored) {}
+                try { if (al  != null) dataAl  = LocalDate.parse(al,  fmtSql); } catch (Exception ignored) {}
+
+                org.springframework.data.domain.Page<DatiBase> contentPage =
+                        contentService.findContentsBySectionPaged(
+                                idSito, section.getId(), page, pageSize, q, dataDal, dataAl);
+
+                contenuti = new ArrayList<>(contentPage.getContent());
+                section.setContenuti(contenuti);
+                section.setTotalePagine((int) contentPage.getTotalPages());
+                section.setPaginaCorrente(page);
+                section.setTotaleContenuti((int) contentPage.getTotalElements());
             }
 
             // 5. Filtro periodo pubblicazione
@@ -163,12 +194,6 @@ public class FrontDispatchService {
                 } catch (Exception e) { return true; }
                 return true;
             }).collect(Collectors.toList());
-
-            // 6. Filtro ricerca (q, dal, al) in memoria
-            contenuti = applySearchFilter(contenuti, filter);
-
-            section.setContenuti(contenuti);
-            log.debug("Contenuti dopo filtro ricerca: {}", contenuti.size());
 
             // 7. Sottosezioni
             if (loadSubsections) {
@@ -278,29 +303,12 @@ public class FrontDispatchService {
                 return;
             }
 
-            int pageSize     = resolvePageSize(section, configCore);
-            int totalItems   = section.getContenuti().size();
-            int totalePagine = totalItems == 0 ? 1 : (int) Math.ceil((double) totalItems / pageSize);
-
-            int paginaCorrente = filter.getPage();
-            if (paginaCorrente < 0)             paginaCorrente = 0;
-            if (paginaCorrente >= totalePagine) paginaCorrente = totalePagine - 1;
-
-            int fromIndex = paginaCorrente * pageSize;
-            int toIndex   = Math.min(fromIndex + pageSize, totalItems);
-
-            List<DatiBase> paginaContenuti = (fromIndex < totalItems)
-                    ? section.getContenuti().subList(fromIndex, toIndex)
-                    : new ArrayList<>();
-
-            section.setContenuti(paginaContenuti);
-            section.setPaginaCorrente(paginaCorrente);
-            section.setTotalePagine(totalePagine);
+            int pageSize       = resolvePageSize(section, configCore);
+            int paginaCorrente = section.getPaginaCorrente();
+            int totalePagine   = section.getTotalePagine() > 0 ? section.getTotalePagine() : 1;
 
             configCore.setItemsPage(String.valueOf(pageSize));
             configCore.setPageNumber(String.valueOf(paginaCorrente + 1));
-            configCore.setStartItems(String.valueOf(fromIndex));
-            configCore.setEndItems(String.valueOf(toIndex));
             configCore.setTotalPage(String.valueOf(totalePagine));
 
             String paginationUrl = buildSeoPageUrl(section, filter);
@@ -555,5 +563,13 @@ public class FrontDispatchService {
             } catch (Exception e) { return true; }
             return true;
         }).collect(Collectors.toList());
+    }
+
+    private int resolvePageSizeStatic(Section section, Configurazione configCore) {
+        String v6 = section.getVarchar6();
+        if (v6 != null && !v6.isEmpty()) {
+            try { return Integer.parseInt(v6.trim()); } catch (NumberFormatException ignored) {}
+        }
+        return 20;
     }
 }

@@ -13,6 +13,10 @@ import com.studiodomino.jplatform.cms.repository.SectionTypeRepository;
 import com.studiodomino.jplatform.shared.entity.UtenteEsterno;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -644,7 +648,7 @@ public class ContentService {
                     if (t.isEmpty()) continue;
                     try {
                         Integer idRoot = Integer.parseInt(t);
-                        List<Content> one = contentRepository.findPublishedContentsBySection(
+                        List<Content> one = contentRepository.findPublishedContentsBySectionNoOrder(
                                 idSito.toString(), idRoot
                         );
                         contents.addAll(one);
@@ -707,6 +711,18 @@ public class ContentService {
                     case "data" -> compareStrings(c2.getData(), c1.getData());
                     case "data desc" -> compareStrings(c2.getData(), c1.getData());
                     case "data asc" -> compareStrings(c1.getData(), c2.getData());
+                    case "datasql desc" -> compareStrings(
+                            c2.getDatasql() != null ? c2.getDatasql().toString() : "",
+                            c1.getDatasql() != null ? c1.getDatasql().toString() : "");
+                    case "datasql asc" -> compareStrings(
+                            c1.getDatasql() != null ? c1.getDatasql().toString() : "",
+                            c2.getDatasql() != null ? c2.getDatasql().toString() : "");
+                    case "datasql desc, id asc" -> {
+                        int cmp = compareStrings(
+                                c2.getDatasql() != null ? c2.getDatasql().toString() : "",
+                                c1.getDatasql() != null ? c1.getDatasql().toString() : "");
+                        yield cmp != 0 ? cmp : compareIntegers(c1.getId(), c2.getId());
+                    }
                     case "position" -> compareIntegers(c1.getPosition(), c2.getPosition());
                     case "id" -> compareIntegers(c2.getId(), c1.getId());
                     case "id desc" -> compareIntegers(c2.getId(), c1.getId());
@@ -1054,5 +1070,32 @@ public class ContentService {
                 .orElseThrow(() -> new RuntimeException("Contenuto non trovato: " + id));
         content.setIdRoot(Integer.parseInt(nuovoRootId));
         contentRepository.save(content);
+    }
+
+    public org.springframework.data.domain.Page<DatiBase> findContentsBySectionPaged(
+            Integer idSito, Integer idRoot, int page, int pageSize,
+            String q, LocalDate dal, LocalDate al) {
+
+        org.springframework.data.domain.Pageable pageable =
+                org.springframework.data.domain.PageRequest.of(page, pageSize);
+
+        boolean hasFilter = (q != null && !q.isEmpty()) || dal != null || al != null;
+
+        if (hasFilter) {
+            String qParam = (q != null && !q.isEmpty()) ? q : "";
+            org.springframework.data.domain.Page<Content> contentPage =
+                    contentRepository.findVisibleContentsBySectionFilteredPaged(
+                            idSito.toString(), idRoot, qParam, dal, al, pageable);
+            List<DatiBase> items = datiBaseMapper.toDatiBaseList(contentPage.getContent());
+            return new org.springframework.data.domain.PageImpl<>(
+                    items, pageable, contentPage.getTotalElements());
+        } else {
+            org.springframework.data.domain.Page<Content> contentPage =
+                    contentRepository.findVisibleContentsBySectionPaged(
+                            idSito.toString(), idRoot, pageable);
+            List<DatiBase> items = datiBaseMapper.toDatiBaseList(contentPage.getContent());
+            return new org.springframework.data.domain.PageImpl<>(
+                    items, pageable, contentPage.getTotalElements());
+        }
     }
 }

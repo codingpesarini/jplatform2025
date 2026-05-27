@@ -389,6 +389,8 @@ public class Section implements Serializable {
     private Boolean emptySubsection;
     private Boolean emptyContenuti;
 
+    private int totaleContenuti;
+
     // ========================================
     // SONDAGGI (LEGACY)
     // ========================================

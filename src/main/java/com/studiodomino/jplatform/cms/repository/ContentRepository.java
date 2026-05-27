@@ -1,6 +1,8 @@
 package com.studiodomino.jplatform.cms.repository;
 
 import com.studiodomino.jplatform.cms.entity.Content;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -520,5 +522,51 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
             @Param("idParent") String idParent,
             @Param("stato") String stato,
             @Param("privato") String privato
+    );
+
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite AND c.idRoot = :idRoot " +
+            "AND (c.stato = '1' OR c.stato = '3') AND c.privato = '0'")
+    List<Content> findPublishedContentsBySectionNoOrder(
+            @Param("idSite") String idSite,
+            @Param("idRoot") Integer idRoot
+    );
+
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite AND c.idRoot = :idRoot " +
+            "AND (c.stato = '1' OR c.stato = '3') AND c.privato = '0' " +
+            "ORDER BY c.datasql DESC")
+    Page<Content> findVisibleContentsBySectionPaged(
+            @Param("idSite") String idSite,
+            @Param("idRoot") Integer idRoot,
+            Pageable pageable
+    );
+
+    @Query("SELECT COUNT(c) FROM Content c WHERE c.idSite = :idSite AND c.idRoot = :idRoot " +
+            "AND (c.stato = '1' OR c.stato = '3') AND c.privato = '0' " +
+            "AND (LOWER(c.titolo) LIKE LOWER(CONCAT('%', :q, '%')) " +
+            "OR LOWER(c.riassunto) LIKE LOWER(CONCAT('%', :q, '%'))) " +
+            "AND (:dal IS NULL OR c.datasql >= :dal) " +
+            "AND (:al IS NULL OR c.datasql <= :al)")
+    Long countVisibleContentsBySectionFiltered(
+            @Param("idSite") String idSite,
+            @Param("idRoot") Integer idRoot,
+            @Param("q") String q,
+            @Param("dal") LocalDate dal,
+            @Param("al") LocalDate al
+    );
+
+    @Query("SELECT c FROM Content c WHERE c.idSite = :idSite AND c.idRoot = :idRoot " +
+            "AND (c.stato = '1' OR c.stato = '3') AND c.privato = '0' " +
+            "AND (LOWER(c.titolo) LIKE LOWER(CONCAT('%', :q, '%')) " +
+            "OR LOWER(c.riassunto) LIKE LOWER(CONCAT('%', :q, '%'))) " +
+            "AND (:dal IS NULL OR c.datasql >= :dal) " +
+            "AND (:al IS NULL OR c.datasql <= :al) " +
+            "ORDER BY c.datasql DESC")
+    Page<Content> findVisibleContentsBySectionFilteredPaged(
+            @Param("idSite") String idSite,
+            @Param("idRoot") Integer idRoot,
+            @Param("q") String q,
+            @Param("dal") LocalDate dal,
+            @Param("al") LocalDate al,
+            Pageable pageable
     );
 }
