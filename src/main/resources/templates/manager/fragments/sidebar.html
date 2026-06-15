@@ -22,9 +22,10 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
-                            <img th:src="@{/manager/assets/img/user/avatar-1.jpg}"
+                            <img th:src="${config.amministratore.avatar}"
                                  alt="user-image"
-                                 class="user-avtar wid-45 rounded-circle" />
+                                 class="user-avtar wid-45 rounded-circle"
+                                 style="width:45px; height:45px; object-fit:cover;" />
                         </div>
                         <div class="flex-grow-1 ms-3 me-2">
                             <span th:text="${(config != null and config.amministratore != null) ? config.amministratore.nomeCompleto : 'Admin'}"> Admin </span>

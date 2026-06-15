@@ -4,7 +4,6 @@ import com.studiodomino.jplatform.cms.admin.service.EmailSenderService;
 import com.studiodomino.jplatform.shared.entity.Utente;
 import com.studiodomino.jplatform.shared.repository.UtenteRepository;
 import com.studiodomino.jplatform.shared.util.CryptBean;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -12,11 +11,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
@@ -66,8 +63,13 @@ public class RecuperoPasswordController {
             String token = generaToken();
             tokenStore.put(token, username.toLowerCase());
 
-            String baseUrl = request.getScheme() + "://" + request.getServerName()
-                    + ":" + request.getServerPort();
+            String forwardedHost = request.getHeader("X-Forwarded-Host");
+            if (forwardedHost != null && forwardedHost.contains(",")) {
+                forwardedHost = forwardedHost.split(",")[0].trim();
+            }
+            String baseUrl = forwardedHost != null
+                    ? request.getHeader("X-Forwarded-Proto") + "://" + forwardedHost
+                    : request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
             String link = baseUrl + "/recover-password/reset/" + token;
 
             // ── Log del link per test in locale ──────────────────────────────
@@ -229,7 +231,7 @@ public class RecuperoPasswordController {
 
         try {
             Utente utente = utenteOpt.get();
-            utente.setPassword(CryptBean.cryptString(nuovaPassword.toUpperCase()));
+            utente.setPassword(CryptBean.cryptString(nuovaPassword));
             utenteRepository.save(utente);
 
             tokenStore.remove(token);

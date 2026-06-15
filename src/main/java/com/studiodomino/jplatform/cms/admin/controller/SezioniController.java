@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -286,6 +287,7 @@ public class SezioniController {
         return ViewUtils.resolveProtectedTemplate("cms/front/previewSezioni");
     }
 
+    @CacheEvict(value = {"menuPubblico", "homePage", "tagCloud", "contenutiFront"}, allEntries = true)
     @PostMapping("/save")
     public String save(@ModelAttribute Section form, HttpServletRequest request, Model model) {
         HttpSession session = request.getSession();

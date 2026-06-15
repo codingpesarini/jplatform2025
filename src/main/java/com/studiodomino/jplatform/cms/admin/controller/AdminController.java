@@ -7,10 +7,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("/admin")
@@ -38,5 +40,12 @@ public class AdminController {
         model.addAttribute("config", configCore);
 
         return ViewUtils.resolveProtectedTemplate("front/dashboard");
+    }
+
+    @GetMapping("/ping")
+    @ResponseBody
+    public ResponseEntity<String> ping(HttpServletRequest request) {
+        request.getSession().setMaxInactiveInterval(600);
+        return ResponseEntity.ok("ok");
     }
 }

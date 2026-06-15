@@ -44,6 +44,11 @@ public class AmministratoriController {
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
 
+        // Solo admin e super admin possono vedere la lista
+        if (!config.getAmministratore().isAmministratore()) {
+            return "redirect:/admin/amministratori/" + config.getAmministratore().getId() + "/open";
+        }
+
         log.info("=== AMMINISTRATORI ELENCO === user: {}", config.getUsername());
 
         List<Utente> elenco = utenteRepository.findAll();
@@ -122,11 +127,16 @@ public class AmministratoriController {
     public String open(@PathVariable Integer id,
                        HttpServletRequest request, Model model) {
 
-        List<Gruppo> tuttiGruppi = gruppoRepository.findAll();
-
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
         if (!config.isLogged()) return "redirect:/login";
+
+        // Se non è admin può vedere solo il proprio profilo
+        if (!config.getAmministratore().isAmministratore()) {
+            id = config.getAmministratore().getId();
+        }
+
+        List<Gruppo> tuttiGruppi = gruppoRepository.findAll();
 
         Utente utente = utenteRepository.findById(id).orElse(null);
         if (utente == null) return "redirect:/admin/amministratori";
@@ -150,6 +160,10 @@ public class AmministratoriController {
         model.addAttribute("amministratoriUtente", utente);
         model.addAttribute("listaGruppi", tuttiGruppi);
 
+        // Se non è admin → template semplificato
+        if (!config.getAmministratore().isAmministratore()) {
+            return ViewUtils.resolveProtectedTemplate("admin/contenuti/dettaglioAmministratoreProfilo");
+        }
         return ViewUtils.resolveProtectedTemplate("admin/contenuti/dettaglioAmministratore");
     }
 
@@ -359,7 +373,8 @@ public class AmministratoriController {
             // Password
             if (newPassword != null && !newPassword.isEmpty()
                     && newPassword.equals(newPasswordRetype)) {
-                utenteDaSalvare.setPassword(newPassword);
+                utenteDaSalvare.setPassword(
+                        com.studiodomino.jplatform.shared.util.CryptBean.cryptString(newPassword));
                 log.info("Password aggiornata per utente id={}", utenteDaSalvare.getId());
             }
 
@@ -377,6 +392,12 @@ public class AmministratoriController {
             if (utenteDaSalvare.getIncarico()  == null) utenteDaSalvare.setIncarico("");
             if (utenteDaSalvare.getIndirizzo() == null) utenteDaSalvare.setIndirizzo("");
             if (utenteDaSalvare.getEmail()     == null) utenteDaSalvare.setEmail("");
+
+            // Cifra la password per il nuovo utente
+            if (utenteDaSalvare.getPassword() != null && !utenteDaSalvare.getPassword().isEmpty()) {
+                utenteDaSalvare.setPassword(
+                        com.studiodomino.jplatform.shared.util.CryptBean.cryptString(utenteDaSalvare.getPassword()));
+            }
 
             utenteDaSalvare.setRuoli1String(formatRuoliString(utenteDaSalvare.getRuoliA1()));
             utenteDaSalvare.setRuoli2String(formatRuoliString(utenteDaSalvare.getRuoliA2()));
@@ -407,6 +428,10 @@ public class AmministratoriController {
 
         model.addAttribute("config", config);
         model.addAttribute("listaGruppi", gruppoRepository.findAll());
+        // Se non è admin → template semplificato
+        if (!config.getAmministratore().isAmministratore()) {
+            return ViewUtils.resolveProtectedTemplate("admin/contenuti/dettaglioAmministratoreProfilo");
+        }
         return ViewUtils.resolveProtectedTemplate("admin/contenuti/dettaglioAmministratore");
     }
 

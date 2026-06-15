@@ -8,9 +8,9 @@
       data-pc-direction="ltr"
       data-pc-theme="light">
 
-    <!-- HEAD -->
-    <th:block th:replace="~{manager/fragments/head :: head}"></th:block>
-    <th:block layout:fragment="extra-css"></th:block>
+<!-- HEAD -->
+<th:block th:replace="~{manager/fragments/head :: head}"></th:block>
+<th:block layout:fragment="extra-css"></th:block>
 
 
 <body>
@@ -86,6 +86,68 @@
                     <div class="spinner-border text-info"></div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+<!-- Session Timeout Warning -->
+<script>
+    (function() {
+    const WARNING_MS = 9 * 60 * 1000;
+    const EXPIRE_MS  = 10 * 60 * 1000;
+    let warningTimer, expireTimer;
+
+    function resetTimers() {
+        clearTimeout(warningTimer);
+        clearTimeout(expireTimer);
+
+        warningTimer = setTimeout(function() {
+            document.getElementById('sessionWarningModal').style.display = 'flex';
+            let remaining = 60;
+            const countdown = document.getElementById('sessionCountdown');
+            countdown.textContent = remaining;
+            const interval = setInterval(function() {
+                remaining--;
+                countdown.textContent = remaining;
+                if (remaining <= 0) clearInterval(interval);
+            }, 1000);
+        }, WARNING_MS);
+
+        expireTimer = setTimeout(function() {
+            window.location.href = '/logout';
+        }, EXPIRE_MS);
+    }
+
+    resetTimers();
+
+    window.keepSession = function() {
+        fetch('/admin/ping').then(function() {
+            document.getElementById('sessionWarningModal').style.display = 'none';
+            resetTimers();
+        });
+    };
+})();
+</script>
+
+<!-- Session Warning Modal -->
+<div id="sessionWarningModal"
+     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.5); z-index:99999;
+            align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:8px; padding:30px;
+                max-width:400px; width:90%; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+        <h5 style="margin-bottom:15px;">
+            <i class="ti ti-clock" style="color:#f59e0b; font-size:1.5rem;"></i>
+            Sessione in scadenza
+        </h5>
+        <p>La pagina sta per scadere tra <strong><span id="sessionCountdown">60</span></strong> secondi.</p>
+        <p>Vuoi mantenere la sessione attiva?</p>
+        <div style="display:flex; gap:10px; justify-content:center; margin-top:20px;">
+            <button class="btn btn-primary" onclick="keepSession()">
+                Sì, mantieni sessione
+            </button>
+            <button class="btn btn-secondary" onclick="window.location.href='/admin/logout'">
+                No, esci
+            </button>
         </div>
     </div>
 </div>

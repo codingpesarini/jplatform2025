@@ -165,7 +165,9 @@
                                         <th:block th:if="${amministratoriUtente.password == null or amministratoriUtente.password == ''}">
                                             <label for="passwordNew" class="col-form-label">Password</label>
                                             <input type="password" name="password" id="passwordNew"
-                                                   class="form-control obbligatorio" required>
+                                                   class="form-control obbligatorio" required
+                                                   pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,15}$"
+                                                   title="Da 8 a 15 caratteri con almeno una minuscola, una maiuscola, una cifra e un carattere speciale">
                                             <code>[da 8 a 15 caratteri con almeno una minuscola, una maiuscola, una cifra e un carattere speciale]</code>
                                         </th:block>
                                         <th:block th:unless="${amministratoriUtente.password == null or amministratoriUtente.password == ''}">

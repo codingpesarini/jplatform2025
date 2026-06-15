@@ -13,6 +13,7 @@ import com.studiodomino.jplatform.cms.repository.SectionTypeRepository;
 import com.studiodomino.jplatform.shared.entity.UtenteEsterno;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -587,6 +588,7 @@ public class ContentService {
         }
     }
 
+    @Cacheable("tagCloud")
     public List<Tag> getTagCloud(String idSite) {
         log.debug("Caricamento tag cloud per sito: {}", idSite);
 
@@ -622,6 +624,7 @@ public class ContentService {
         return "tag-weight-" + calculateTagWeight(occorrenze);
     }
 
+    @Cacheable("contenutiFront")
     public List<DatiBase> getContenutiFront(
             Integer idSito,
             String fieldFilter,
@@ -750,6 +753,7 @@ public class ContentService {
     // METODI PER MENU E NAVIGAZIONE
     // ========================================
 
+    @Cacheable("menuPubblico")
     public List<Section> findPublicMenu(String idSite) {
         log.debug("=== COSTRUZIONE MENU PUBBLICO === sito: {}", idSite);
 
@@ -787,7 +791,7 @@ public class ContentService {
                 }
 
                 Section section = sectionMapper.toSection(content);
-                loadMenuSubsections(section, idSite, 10, 0);
+                loadMenuSubsections(section, idSite, 1, 0);  // era 10
                 menuSections.add(section);
             }
 
@@ -832,13 +836,14 @@ public class ContentService {
         List<Section> menuSections = sectionMapper.toSectionList(menuContents);
 
         for (Section section : menuSections) {
-            loadMenuSubsections(section, idSite, 10, 0);
+            loadMenuSubsections(section, idSite, 1, 0);  // era 10
         }
 
         log.debug("Private menu loaded: {} sections", menuSections.size());
         return menuSections;
     }
 
+    @Cacheable("homePage")
     public Section findHomePage(String idSite) {
         log.debug("Loading home page for site: {}", idSite);
 

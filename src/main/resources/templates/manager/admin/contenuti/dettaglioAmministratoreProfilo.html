@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="it"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{manager/layout/template}">
+<body>
+<div layout:fragment="content">
+
+  <form th:action="@{/admin/amministratori/save}"
+        method="post"
+        id="amministratoriUtente"
+        class="form-bordered">
+
+    <input type="hidden" name="id"           th:value="${amministratoriUtente.id}">
+    <input type="hidden" name="idsite"       th:value="${amministratoriUtente.idsite}">
+    <input type="hidden" name="statoaccesso" th:value="${amministratoriUtente.statoaccesso}">
+    <input type="hidden" name="profileImage" th:value="${amministratoriUtente.profileImage}">
+    <input type="hidden" name="avatarChanged" id="avatarChanged" value="0">
+    <input type="hidden" name="avatarNum"    id="avatarNum" value="0">
+    <input type="hidden" name="ruoli1String" th:value="${amministratoriUtente.ruoli1String}">
+    <input type="hidden" name="ruoli2String" th:value="${amministratoriUtente.ruoli2String}">
+    <input type="hidden" name="ruoli3String" th:value="${amministratoriUtente.ruoli3String}">
+    <input type="hidden" name="ruoli4String" th:value="${amministratoriUtente.ruoli4String}">
+    <input type="hidden" name="ruoli5String" th:value="${amministratoriUtente.ruoli5String}">
+    <!-- Tutti i role preservati come hidden -->
+    <input type="hidden" name="role1"  th:value="${amministratoriUtente.role1}">
+    <input type="hidden" name="role2"  th:value="${amministratoriUtente.role2}">
+    <input type="hidden" name="role3"  th:value="${amministratoriUtente.role3}">
+    <input type="hidden" name="role4"  th:value="${amministratoriUtente.role4}">
+    <input type="hidden" name="role5"  th:value="${amministratoriUtente.role5}">
+    <input type="hidden" name="role6"  th:value="${amministratoriUtente.role6}">
+    <input type="hidden" name="role7"  th:value="${amministratoriUtente.role7}">
+    <input type="hidden" name="role8"  th:value="${amministratoriUtente.role8}">
+    <input type="hidden" name="role9"  th:value="${amministratoriUtente.role9}">
+    <input type="hidden" name="role10" th:value="${amministratoriUtente.role10}">
+    <input type="hidden" name="role11" th:value="${amministratoriUtente.role11}">
+    <input type="hidden" name="role12" th:value="${amministratoriUtente.role12}">
+    <input type="hidden" name="role13" th:value="${amministratoriUtente.role13}">
+    <input type="hidden" name="role14" th:value="${amministratoriUtente.role14}">
+    <input type="hidden" name="role15" th:value="${amministratoriUtente.role15}">
+    <input type="hidden" name="role16" th:value="${amministratoriUtente.role16}">
+    <input type="hidden" name="role17" th:value="${amministratoriUtente.role17}">
+    <input type="hidden" name="role18" th:value="${amministratoriUtente.role18}">
+    <input type="hidden" name="role19" th:value="${amministratoriUtente.role19}">
+    <input type="hidden" name="role20" th:value="${amministratoriUtente.role20}">
+    <!-- Tutti gli l preservati come hidden -->
+    <input type="hidden" name="l1"  th:value="${amministratoriUtente.l1}">
+    <input type="hidden" name="l2"  th:value="${amministratoriUtente.l2}">
+    <input type="hidden" name="l3"  th:value="${amministratoriUtente.l3}">
+    <input type="hidden" name="l4"  th:value="${amministratoriUtente.l4}">
+    <input type="hidden" name="l5"  th:value="${amministratoriUtente.l5}">
+    <input type="hidden" name="l6"  th:value="${amministratoriUtente.l6}">
+    <input type="hidden" name="l7"  th:value="${amministratoriUtente.l7}">
+    <input type="hidden" name="l8"  th:value="${amministratoriUtente.l8}">
+    <input type="hidden" name="l9"  th:value="${amministratoriUtente.l9}">
+    <input type="hidden" name="l10" th:value="${amministratoriUtente.l10}">
+
+    <header class="page-header mb-2">
+      <div class="title-container mb-3">
+        <h2 style="border-left: 5px solid #0088cc; padding-left: 15px;">Il mio profilo</h2>
+      </div>
+      <div class="right-wrapper text-right" style="margin-left: auto; margin-right: 10%;">
+        <button type="button" class="mb-1 mt-1 mr-1 btn btn-sm btn-primary"
+                onclick="InviaForm('amministratoriUtente');">
+          <i class="fas fa-save"></i> <span class="btn-text">Salva</span>
+        </button>
+        <a th:href="@{/admin}" class="mb-1 mt-1 mr-1 btn btn-sm btn-danger">
+          <i class="fas fa-times-circle"></i> <span class="btn-text">Esci</span>
+        </a>
+      </div>
+    </header>
+
+    <div class="row" style="margin-top: -25px">
+      <div class="col-lg-12">
+        <div class="card shadow-sm border-0" style="border-radius: 15px; background: #fff; padding: 20px;">
+
+          <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item storeTab" role="presentation">
+              <a class="nav-link active" href="#tab_01" data-bs-toggle="tab">Dati anagrafici</a>
+            </li>
+            <li class="nav-item storeTab" role="presentation">
+              <a class="nav-link" href="#tab_02" data-bs-toggle="tab">Dati accesso</a>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+
+            <!-- TAB 01 — DATI ANAGRAFICI -->
+            <div id="tab_01" class="tab-pane active" role="tabpanel">
+              <fieldset class="border p-3 mb-4">
+                <legend class="float-none w-auto px-2">
+                  Dati anagrafici ID <span th:text="${amministratoriUtente.id}">0</span>
+                </legend>
+                <div class="row form-group">
+                  <div class="col-lg-6 text-center">
+                    <img id="avatar-img"
+                         th:src="${amministratoriUtente.avatar}"
+                         alt="Avatar" style="width:150px" class="img-thumbnail mb-2"><br>
+                    <a href="javascript:void(0);" onclick="apriModalAvatar()"
+                       class="btn btn-sm btn-light-primary mb-1">
+                      <i class="ti ti-upload"></i> Carica foto utente
+                    </a>
+                    <a href="javascript:void(0);"
+                       th:data-id="${amministratoriUtente.id}"
+                       onclick="cancellaAvatar(this.dataset.id)"
+                       class="btn btn-sm btn-light-danger mb-1">
+                      <i class="ti ti-trash"></i> Cancella foto
+                    </a>
+                  </div>
+                  <div class="col-lg-6">
+                    <label for="cognomeU" class="col-form-label">
+                      Cognome o denominazione <span class="required">*</span>
+                    </label>
+                    <input type="text" name="cognome" id="cognomeU"
+                           th:value="${amministratoriUtente.cognome}"
+                           class="form-control obbligatorio" required>
+                    <label for="nome" class="col-form-label">Nome</label>
+                    <input type="text" name="nome" id="nome"
+                           th:value="${amministratoriUtente.nome}"
+                           class="form-control">
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label for="email" class="col-form-label">Email</label>
+                    <input type="email" name="email" id="email"
+                           th:value="${amministratoriUtente.email}"
+                           class="form-control email">
+                  </div>
+                  <div class="col-lg-6">
+                    <label for="pec" class="col-form-label">PEC</label>
+                    <input type="text" name="pec" id="pec"
+                           th:value="${amministratoriUtente.pec}"
+                           class="form-control">
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label for="indirizzo" class="col-form-label">Via e numero civico, città</label>
+                    <input type="text" name="indirizzo" id="indirizzo"
+                           th:value="${amministratoriUtente.indirizzo}"
+                           class="form-control upper">
+                  </div>
+                  <div class="col-lg-6">
+                    <label for="incarico" class="col-form-label">Incarico</label>
+                    <input type="text" name="incarico" id="incarico"
+                           th:value="${amministratoriUtente.incarico}"
+                           class="form-control upper">
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-12">
+                    <label for="extra1" class="col-form-label">Definisci firma per email</label>
+                    <input type="text" name="extra1" id="extra1"
+                           th:value="${amministratoriUtente.extra1}"
+                           class="form-control">
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+            <!-- TAB 02 — DATI ACCESSO -->
+            <div id="tab_02" class="tab-pane" role="tabpanel">
+              <fieldset class="border p-3 mb-4">
+                <legend class="float-none w-auto px-2">Dati di accesso</legend>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label for="username" class="col-form-label">Username accesso</label>
+                    <input type="text" name="username" id="username"
+                           th:value="${amministratoriUtente.username}"
+                           class="form-control" readonly>
+                    <small class="text-muted">Lo username non può essere modificato</small>
+                  </div>
+                  <div class="col-lg-2">
+                    <th:block th:if="${amministratoriUtente.password == null or amministratoriUtente.password == ''}">
+                      <label for="passwordNew" class="col-form-label">Password</label>
+                      <input type="password" name="password" id="passwordNew"
+                             class="form-control obbligatorio" required
+                             pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,15}$"
+                             title="Da 8 a 15 caratteri con almeno una minuscola, una maiuscola, una cifra e un carattere speciale">
+                      <code>[da 8 a 15 caratteri con almeno una minuscola, una maiuscola, una cifra e un carattere speciale]</code>
+                    </th:block>
+                    <th:block th:unless="${amministratoriUtente.password == null or amministratoriUtente.password == ''}">
+                      <label for="passwordHidden" class="col-form-label">Modifica la password di accesso</label>
+                      <a href="javascript:void(0);" onclick="$('#nuovaPasswordAccesso').toggle()"
+                         class="btn btn-lg btn-default">Cambia password</a>
+                      <input type="hidden" name="password" id="passwordHidden"
+                             th:value="${amministratoriUtente.password}">
+                    </th:block>
+                  </div>
+                  <div class="col-lg-4">
+                    <label class="col-form-label">Stato attivazione</label>
+                    <input type="text" class="form-control" readonly
+                           th:value="${amministratoriUtente.statoaccesso == 1 ? 'Attivo' : 'Disattivo'}">
+                  </div>
+                </div>
+                <div class="row form-group" id="nuovaPasswordAccesso" style="display:none">
+                  <div class="col-lg-6">
+                    <p>Inserire la nuova password con i seguenti requisiti:</p>
+                    <code>[da 8 a 15 caratteri con almeno una minuscola, una maiuscola, una cifra e un carattere speciale]</code>
+                    <div class="text-danger" id="nuovaPasswordAccessoError"></div>
+                  </div>
+                  <div class="col-lg-3">
+                    <label for="newpassword" class="col-form-label">Inserire password</label>
+                    <input type="password" id="newpassword" name="newpassword" class="form-control">
+                  </div>
+                  <div class="col-lg-3">
+                    <label for="newpasswordretype" class="col-form-label">Inserire nuovamente password</label>
+                    <input type="password" id="newpasswordretype" name="newpasswordretype" class="form-control">
+                  </div>
+                </div>
+                <div class="row form-group">
+                  <div class="col-lg-6">
+                    <label class="form-label fw-bold">Gruppi associati</label>
+                    <select name="idGruppiArray" id="id_gruppi" multiple size="5" class="form-select shadow-sm">
+                      <option th:each="g : ${listaGruppi}"
+                              th:value="${g.id}" th:text="${g.nome}"
+                              th:selected="${amministratoriUtente.idGruppiArray != null and #arrays.contains(amministratoriUtente.idGruppiArray, g.id.toString())}">
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">Data di registrazione</label>
+                    <div class="form-control-plaintext border-bottom"
+                         th:text="${amministratoriUtente.datacreazione}">-</div>
+                  </div>
+                  <div class="col-lg-3">
+                    <label class="col-form-label">Ultimo accesso | IP | Totale</label>
+                    <div class="form-control-plaintext border-bottom">
+                      <span th:text="${amministratoriUtente.dataultimoaccesso}">-</span> |
+                      <span th:text="${amministratoriUtente.ipultimoaccesso}">-</span> |
+                      <span class="badge bg-secondary" th:text="${amministratoriUtente.numeroaccessi}">-</span>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </form>
+
+  <!-- Modal Avatar -->
+  <div class="modal fade" id="modalAvatar" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Foto profilo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <ul class="nav nav-tabs mb-3">
+            <li class="nav-item">
+              <a class="nav-link active" href="#avatarTabUpload" data-bs-toggle="tab">
+                <i class="ti ti-upload me-1"></i> Carica foto
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#avatarTabScegli" data-bs-toggle="tab">
+                <i class="ti ti-mood-smile me-1"></i> Scegli avatar
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#avatarTabWebcam" data-bs-toggle="tab">
+                <i class="ti ti-camera me-1"></i> Scatta foto
+              </a>
+            </li>
+          </ul>
+          <div class="tab-content">
+            <div id="avatarTabUpload" class="tab-pane fade show active">
+              <div class="mb-3">
+                <input type="file" id="avatarFileInput" class="form-control" accept="image/*">
+              </div>
+              <div id="avatarCropContainer" style="display:none;max-height:350px;overflow:hidden">
+                <img id="avatarImgPreview" src="" style="max-width:100%">
+              </div>
+              <div id="avatarPreviewBox" style="display:none;margin-top:15px">
+                <label class="form-label fw-bold">Anteprima</label><br>
+                <div class="overflow-hidden rounded-circle border d-inline-block" style="width:100px;height:100px">
+                  <div class="cropper-preview" style="width:100px;height:100px;overflow:hidden"></div>
+                </div>
+              </div>
+            </div>
+            <div id="avatarTabScegli" class="tab-pane fade">
+              <p class="text-muted mb-3">Clicca su un avatar per selezionarlo</p>
+              <div class="d-flex flex-wrap gap-3 justify-content-center">
+                <img th:each="i : ${#numbers.sequence(1, 10)}"
+                     th:src="@{'/manager/assets/img/user/avatar-' + ${i} + '.jpg'}"
+                     th:data-num="${i}"
+                     onclick="selezionaAvatarPredefinito(this)"
+                     class="rounded-circle border avatar-predefinito"
+                     style="width:80px;height:80px;cursor:pointer;object-fit:cover;transition:all 0.2s">
+              </div>
+            </div>
+            <div id="avatarTabWebcam" class="tab-pane fade">
+              <video id="webcamVideo" autoplay playsinline
+                     style="width:100%;max-height:300px;border-radius:8px;background:#000"></video>
+              <canvas id="webcamCanvas" style="display:none"></canvas>
+              <div class="mt-2 text-center">
+                <button type="button" class="btn btn-primary" onclick="scattaFoto()">
+                  <i class="fas fa-camera me-1"></i> Scatta
+                </button>
+                <button type="button" class="btn btn-secondary ms-2" id="btnRiscatta"
+                        style="display:none" onclick="riscattaFoto()">
+                  <i class="fas fa-redo me-1"></i> Riscatta
+                </button>
+              </div>
+              <div id="webcamPreview" style="display:none;margin-top:10px;text-align:center">
+                <img id="webcamSnapshot" src="" style="max-width:200px;border-radius:50%;border:3px solid #0d6efd">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+          <button type="button" class="btn btn-primary" id="btnSalvaAvatar"
+                  style="display:none" onclick="salvaAvatar()">
+            <i class="fas fa-save me-1"></i> Salva foto
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script th:inline="javascript">
+    var _avatarCropper = null;
+    var _avatarPredefinitaSelezionata = null;
+    var _avatarUtenteId = /*[[${amministratoriUtente.id}]]*/ 0;
+
+    function apriModalAvatar() {
+        window._webcamPhotoData = null;
+        _avatarCropper = null;
+        _avatarPredefinitaSelezionata = null;
+        document.getElementById('btnSalvaAvatar').style.display = 'none';
+        document.getElementById('avatarCropContainer').style.display = 'none';
+        document.getElementById('avatarPreviewBox').style.display = 'none';
+        document.getElementById('avatarFileInput').value = '';
+        document.querySelectorAll('.avatar-predefinito').forEach(function(img) {
+            img.style.border = '2px solid #dee2e6';
+            img.style.opacity = '1';
+        });
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAvatar')).show();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('avatarFileInput').addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            _avatarPredefinitaSelezionata = null;
+            window._webcamPhotoData = null;
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                var img = document.getElementById('avatarImgPreview');
+                img.src = ev.target.result;
+                document.getElementById('avatarCropContainer').style.display = '';
+                document.getElementById('avatarPreviewBox').style.display = '';
+                document.getElementById('btnSalvaAvatar').style.display = 'inline-block';
+                if (_avatarCropper) _avatarCropper.destroy();
+                _avatarCropper = new Cropper(img, {
+                    aspectRatio: 1, viewMode: 1,
+                    preview: '.cropper-preview', autoCropArea: 0.8
+                });
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+
+    function selezionaAvatarPredefinito(el) {
+        document.querySelectorAll('.avatar-predefinito').forEach(function(img) {
+            img.style.border = '2px solid #dee2e6';
+            img.style.opacity = '1';
+        });
+        el.style.border = '3px solid #0088cc';
+        el.style.opacity = '0.85';
+        _avatarPredefinitaSelezionata = el.src;
+        _avatarCropper = null;
+        window._webcamPhotoData = null;
+        document.getElementById('btnSalvaAvatar').style.display = 'inline-block';
+    }
+
+    function salvaAvatar() {
+        if (window._webcamPhotoData) {
+            fetch('/admin/filemanager/avatar/upload-base64', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: window._webcamPhotoData, idUtente: String(_avatarUtenteId), tipo: 'amministratore' })
+            }).then(function(r) { return r.text(); }).then(function(data) {
+                if (data === 'OK') {
+                    document.querySelector('input[name="profileImage"]').value = '1';
+                    document.querySelector('input[name="avatarChanged"]').value = '1';
+                    document.getElementById('avatar-img').src = window._webcamPhotoData;
+                    bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
+                    window._webcamPhotoData = null;
+                    showToast('Completato', 'Foto salvata. Ricordati di salvare il form.');
+                }
+            });
+            return;
+        }
+        if (_avatarPredefinitaSelezionata) {
+            var num = _avatarPredefinitaSelezionata.match(/avatar-(\d+)\.jpg/);
+            if (num) document.getElementById('avatarNum').value = num[1];
+            document.querySelector('input[name="profileImage"]').value = '0';
+            document.querySelector('input[name="avatarChanged"]').value = '1';
+            document.getElementById('avatar-img').src = _avatarPredefinitaSelezionata;
+            bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
+            _avatarPredefinitaSelezionata = null;
+            showToast('Completato', 'Avatar selezionato. Ricordati di salvare il form.');
+            return;
+        }
+        if (!_avatarCropper) return;
+        var canvas = _avatarCropper.getCroppedCanvas({ width: 300, height: 300 });
+        var base64 = canvas.toDataURL('image/jpeg', 0.85);
+        fetch('/admin/filemanager/avatar/upload-base64', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: base64, idUtente: String(_avatarUtenteId), tipo: 'amministratore' })
+        }).then(function(r) { return r.text(); }).then(function(data) {
+            if (data === 'OK') {
+                document.querySelector('input[name="profileImage"]').value = '1';
+                document.querySelector('input[name="avatarChanged"]').value = '1';
+                document.getElementById('avatar-img').src = base64;
+                bootstrap.Modal.getInstance(document.getElementById('modalAvatar')).hide();
+                showToast('Completato', 'Foto salvata. Ricordati di salvare il form.');
+            }
+        });
+    }
+
+    function cancellaAvatar(id) {
+        confirmAction('Eliminare la foto profilo?', function() {
+            fetch('/admin/filemanager/avatar/upload-base64', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: '', idUtente: String(id), tipo: 'amministratore' })
+            }).then(function() {
+                document.querySelector('input[name="profileImage"]').value = '0';
+                document.querySelector('input[name="avatarChanged"]').value = '1';
+                document.getElementById('avatar-img').src = '/manager/assets/img/user/avatar-1.jpg';
+                showToast('Completato', 'Foto eliminata. Ricordati di salvare il form.');
+            });
+        });
+    }
+  </script>
+
+</div>
+</body>
+</html>

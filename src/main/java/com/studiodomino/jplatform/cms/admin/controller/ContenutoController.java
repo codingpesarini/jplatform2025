@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -207,6 +208,7 @@ public class ContenutoController {
     // =====================================================================
     // SAVE
     // =====================================================================
+    @CacheEvict(value = {"menuPubblico", "homePage", "tagCloud", "contenutiFront"}, allEntries = true)
     @PostMapping("/save")
     public String save(@ModelAttribute DatiBase documento,
                        HttpServletRequest request, Model model) {
@@ -333,6 +335,41 @@ public class ContenutoController {
 
                 contentService.saveContent(db);
                 log.info("Contenuto salvato: id={}", db.getId());
+
+                String allegatoString = request.getParameter("allegatoString");
+                if (allegatoString != null && !allegatoString.isBlank()) {
+                    for (String part : allegatoString.split(";")) {
+                        part = part.trim().replaceAll("[()]", "");
+                        if (!part.isEmpty()) {
+                            try {
+                                Integer idAllegato = Integer.parseInt(part);
+                                allegatoService.collegaAllegato(
+                                        Integer.parseInt(db.getId()),
+                                        idAllegato,
+                                        operatore,
+                                        config.getAmministratore().getId().toString()
+                                );
+                            } catch (NumberFormatException e) {
+                                log.warn("allegatoString: id non valido '{}'", part);
+                            }
+                        }
+                    }
+                }
+
+                String scollegaString = request.getParameter("scollegaString");
+                if (scollegaString != null && !scollegaString.isBlank()) {
+                    for (String part : scollegaString.split(";")) {
+                        part = part.trim().replaceAll("[()]", "");
+                        if (!part.isEmpty()) {
+                            try {
+                                allegatoService.scollegaAllegato(Integer.parseInt(part));
+                            } catch (NumberFormatException e) {
+                                log.warn("scollegaString: id non valido '{}'", part);
+                            }
+                        }
+                    }
+                }
+
                 // --- AGGIUNTA DA INSERIRE QUI ---
                 if ("1".equals(documento.getTemp1())) {
                     Integer idRoot = parseIntSafe(db.getIdRoot());
