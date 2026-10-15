@@ -523,12 +523,37 @@ public class SezioniController {
         for (Section r : root) {
             try {
                 Section full = contentService.findSectionCompleteAdmin(r.getId(), idSite).orElse(r);
+                // findSectionCompleteAdmin popola solo il livello diretto delle sottosezioni (subaoo).
+                // L'albero (previewSezioni.html) supporta 4 livelli (aoo/subaoo/subsubaoo/subsubsubaoo):
+                // qui carichiamo ricorsivamente anche i due livelli successivi, altrimenti le
+                // sottosezioni di 2° livello risultano con subsection=null e non mostrano il "+"
+                // anche quando hanno davvero dei figli nel DB.
+                if (full.getSubsection() != null) {
+                    for (Section child : full.getSubsection()) {
+                        populateSubsectionsRecursive(child, idSite, 2);
+                    }
+                }
                 complete.add(full);
             } catch (Exception ex) {
                 complete.add(r);
             }
         }
         return complete;
+    }
+
+    /**
+     * Popola ricorsivamente il campo subsection di una sezione e dei suoi discendenti,
+     * fino a "remainingDepth" livelli aggiuntivi (usato per completare l'albero del
+     * "Titolario di classificazione" oltre al primo livello già caricato da
+     * findSectionCompleteAdmin).
+     */
+    private void populateSubsectionsRecursive(Section section, String idSite, int remainingDepth) {
+        if (section == null || section.getId() == null || remainingDepth <= 0) return;
+        List<Section> children = contentService.findAllSubsections(idSite, section.getId().toString());
+        section.setSubsection(children);
+        for (Section child : children) {
+            populateSubsectionsRecursive(child, idSite, remainingDepth - 1);
+        }
     }
 
     private List<Section> filterTreeByGroups(List<Section> sections, String userGroups) {

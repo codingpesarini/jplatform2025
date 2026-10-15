@@ -7,33 +7,45 @@
         /*]]>*/
     </script>
 
-<script th:src="@{|/${config.sito.path2}/js/bootstrap-italia.bundle.min.js|}"></script>
-<script th:src="@{|/${config.sito.path2}/js/customJs.js|}"></script>
-<script th:src="@{|/${config.sito.path2}/js/jportal/jportalBundleLibs.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/bootstrap-italia.bundle.min.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/customJs.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/jportal/jportalBundleLibs.js|}"></script>
     <script th:src="@{|/${config.sito.path2}/js/jportal/jportal.js|}"></script>
     <script th:src="@{|/${config.sito.path2}/js/jportal/jportalCalendar.js|}"></script>
-<script th:src="@{|/${config.sito.path2}/js/asb.js|}"></script>
-<script th:src="@{|/${config.sito.path2}/js/jquery.cookie.min.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/asb.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/jquery.cookie.min.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/bootstrap-italia.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/components/jquery-easing/jquery.easing.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/components/jquery.scrollto/jquery.scrollTo.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/components/ResponsiveDom/js/jquery.responsive-dom.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/components/jPushMenu/jpushmenu.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/components/perfect-scrollbar-master/perfect-scrollbar/js/perfect-scrollbar.jquery.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/components/vallenato.js-master/vallenato.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/components/responsive-tabs/js/jquery.responsiveTabs.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/components/fitvids/jquery.fitvids.js|}"></script>
+    <!--script src="@{|/${config.sito.path2}/js/components/sticky-kit-master/dist/sticky-kit.js"></script-->
+    <!--script src="@{|/${config.sito.path2}/js/components/jquery-match-height/dist/jquery.matchHeight.js"></script-->
+
+    <script th:src="@{|/${config.sito.path2}/js/components/clndr/json2.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/components/clndr/moment-2.8.3.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/components/clndr/underscore.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/components/clndr/clndr.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/components/clndr/it.js|}"></script>
+
+    <script th:src="@{|/${config.sito.path2}/js/components/leaflet/leaflet.js|}"></script>
+    <script th:src="@{|/${config.sito.path2}/js/scuole.js|}"></script>
+
+    <!-- Plugin cookie: caricato per ULTIMO, dopo tutti gli altri, così nessuno sovrascrive jQuery dopo di lui -->
     <script th:src="@{|/${config.sito.path2}/js/gdpr-cookie-master/js/jquery-eu-cookie-law-popup.js|}"></script>
-<script th:src="@{|/${config.sito.path2}/js/bootstrap-italia.js|}"></script>
-<script th:src="@{|/${config.sito.path2}/js/components/jquery-easing/jquery.easing.js|}"></script>
-<script th:src="@{|/${config.sito.path2}/js/components/jquery.scrollto/jquery.scrollTo.js|}"></script>
-<script th:src="@{|/${config.sito.path2}/js/components/ResponsiveDom/js/jquery.responsive-dom.js|}"></script>
-<script th:src="@{|/${config.sito.path2}/js/components/jPushMenu/jpushmenu.js|}"></script>
-<script th:src="@{|/${config.sito.path2}/js/components/perfect-scrollbar-master/perfect-scrollbar/js/perfect-scrollbar.jquery.js|}"></script>
-<script th:src="@{|/${config.sito.path2}/js/components/vallenato.js-master/vallenato.js|}"></script>
-<script th:src="@{|/${config.sito.path2}/js/components/responsive-tabs/js/jquery.responsiveTabs.js|}"></script>
-<script th:src="@{|/${config.sito.path2}/js/components/fitvids/jquery.fitvids.js|}"></script>
-<!--script src="@{|/${config.sito.path2}/js/components/sticky-kit-master/dist/sticky-kit.js"></script-->
-<!--script src="@{|/${config.sito.path2}/js/components/jquery-match-height/dist/jquery.matchHeight.js"></script-->
-
-<script th:src="@{|/${config.sito.path2}/js/components/clndr/json2.js|}"></script>
-<script th:src="@{|/${config.sito.path2}/js/components/clndr/moment-2.8.3.js|}"></script>
-<script th:src="@{|/${config.sito.path2}/js/components/clndr/underscore.js|}"></script>
-<script th:src="@{|/${config.sito.path2}/js/components/clndr/clndr.js|}"></script>
-<script th:src="@{|/${config.sito.path2}/js/components/clndr/it.js|}"></script>
-
-<script th:src="@{|/${config.sito.path2}/js/components/leaflet/leaflet.js|}"></script>
-<script th:src="@{|/${config.sito.path2}/js/scuole.js|}"></script>
-
+    <script>
+        $(document).euCookieLawPopup().init({
+            cookiePolicyUrl: '/front/2589/Cookie_Policy',
+            popupPosition: 'bottom',
+            colorStyle: 'default',
+            popupTitle: 'Questo sito utilizza cookies, presta il consenso!',
+            popupText: 'Questo sito utilizza dei cookies tecnici fondamentali e cookies statistici e di profilazione necessari per offrirti i nostri servizi.',
+            buttonContinueTitle: 'Continua',
+            buttonLearnmoreTitle: 'Leggi trattamento cookies'
+        });
+    </script>
 </th:block>

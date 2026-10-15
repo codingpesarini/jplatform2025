@@ -334,8 +334,8 @@
 
                       <li th:each="allegato : ${post.allegati}"
                           th:if="${allegato.id != -1}"
-                          th:id="${allegato.idDocallegati}">
-                        <div th:attr="id=${'boxallegato_' + allegato.idDocallegati}">
+                          th:id="${allegato.idDocAllegati}">
+                        <div th:attr="id=${'boxallegato_' + allegato.idDocAllegati}">
                           <a href="javascript:void(0);"
                              th:data-id="${allegato.idDocAllegati}"
                              th:data-allegato-id="${allegato.id}"

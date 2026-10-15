@@ -75,7 +75,7 @@ public class RegistroLead {
     @Column(name = "l10", length = 255) private String l10 = "";
 
     // Log HTML delle operazioni sul lead
-    @Column(name = "log", columnDefinition = "TEXT")
+    @Transient
     private String log = "";
 
     // =====================================================================

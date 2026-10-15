@@ -2,6 +2,11 @@
     <section class="section">
         <div class="hero-img d-none d-md-block">
 
+            <img class="d-block w-100"
+                 src="/site01/assets/bannerCastellabbateIginoBig.png"
+                 alt="Veduta Castellabate"
+                 style="max-height: 500px; object-fit: cover; object-position: bottom;">
+
             <!-- equivalente di: logic:iterate length="1" su contenutiFront10 -->
             <th:block th:if="${config != null
                        and config.contenutiFront10 != null
@@ -10,7 +15,7 @@
 
                 <img class="d-block w-100"
                      th:src="${config.imagesRepositoryWeb + articolo.logo}"
-                     th:alt="${articolo.titolo}" />
+                     th:alt="${articolo.titolo}">
 
                 <!-- nel JSP stampavi testo “raw”, quindi qui uso utext -->
                 <div class="carousel-caption d-none d-md-block"

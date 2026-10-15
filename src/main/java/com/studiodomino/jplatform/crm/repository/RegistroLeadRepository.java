@@ -77,8 +77,4 @@ public interface RegistroLeadRepository extends JpaRepository<RegistroLead, Long
     @Modifying
     @Query("UPDATE RegistroLead r SET r.stato = :stato WHERE r.id = :id")
     void updateStato(@Param("id") Long id, @Param("stato") String stato);
-
-    @Modifying
-    @Query("UPDATE RegistroLead r SET r.log = :log WHERE r.id = :id")
-    void updateLog(@Param("id") Long id, @Param("log") String log);
 }

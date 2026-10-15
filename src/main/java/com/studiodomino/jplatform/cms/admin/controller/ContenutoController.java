@@ -423,31 +423,23 @@ public class ContenutoController {
     // DELETE SINGOLO
     // =====================================================================
     @PostMapping("/{id}/delete")
-    public String delete(@PathVariable Integer id,
-                         HttpServletRequest request) {
+    @ResponseBody
+    public ResponseEntity<String> delete(@PathVariable Integer id,
+                                         HttpServletRequest request) {
 
         HttpSession session = request.getSession();
         Configurazione config = configurazioneService.getConfig(session);
-        if (!config.isLogged()) return "redirect:/login";
-
-        String idSite = String.valueOf(config.getIdSito());
-        String redirectTo = "/admin/sezioni";
+        if (!config.isLogged()) return ResponseEntity.status(401).body("KO");
 
         try {
-            // Recupero la sezione padre PRIMA di cancellare
-            DatiBase content = contentService.findContentById(id, idSite).orElse(null);
-            if (content != null && content.getIdRoot() != null && !content.getIdRoot().isBlank()) {
-                redirectTo = "/admin/sezioni/" + content.getIdRoot() + "/preview";
-            }
-
             contentService.deleteContent(id);
             log.info("Contenuto eliminato: id={}", id);
+            return ResponseEntity.ok("OK");
 
         } catch (Exception e) {
             log.error("Errore delete contenuto id={}", id, e);
+            return ResponseEntity.ok("KO");
         }
-
-        return "redirect:" + redirectTo;
     }
 
     // =====================================================================

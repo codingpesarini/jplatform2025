@@ -104,15 +104,15 @@
         });
 
         // =========================
-        // COOKIE POPUP (SAFE)
+        // COOKIE POPUP — ora gestito da scripts.html, non più qui
         // =========================
-        if (window.jQuery && typeof jQuery.fn.euCookieLawPopup === "function") {
-            try {
-                jQuery(document).euCookieLawPopup();
-            } catch (e) {
-                console.warn("Cookie popup non inizializzato:", e);
-            }
-        }
+        // if (window.jQuery && typeof jQuery.fn.euCookieLawPopup === "function") {
+        //     try {
+        //         jQuery(document).euCookieLawPopup().init();
+        //     } catch (e) {
+        //         console.warn("Cookie popup non inizializzato:", e);
+        //     }
+        // }
 
         // =========================
         // DEBUG

@@ -264,6 +264,64 @@
                         </div>
                     </th:block>
 
+                    <!-- PAGINAZIONE — solo Modalità 1 (Contenuti paginati a 20 per volta) -->
+                    <div class="col-12 mt-4"
+                         th:if="${section.menu5 == '1' and totalePagine != null and totalePagine > 1}">
+                        <div class="d-flex justify-content-center">
+                            <th:block th:with="
+                                urlBase='/front/' + ${section.id} + '/',
+                                start=${T(java.lang.Math).max(0, paginaCorrente - 2)},
+                                end=${T(java.lang.Math).min(totalePagine - 1, paginaCorrente + 2)}">
+
+                                <nav aria-label="Navigazione pagine documenti">
+                                    <ul class="pagination">
+
+                                        <!-- Precedente -->
+                                        <li class="page-item" th:classappend="${paginaCorrente == 0} ? 'disabled'">
+                                            <a class="page-link"
+                                               th:href="${urlBase + (paginaCorrente - 1)}"
+                                               aria-label="Pagina precedente">
+                                                <svg class="icon icon-primary" aria-hidden="true"><use href="#it-chevron-left"></use></svg>
+                                                <span class="d-none d-sm-inline">Precedente</span>
+                                            </a>
+                                        </li>
+
+                                        <!-- ... iniziale -->
+                                        <li class="page-item disabled" th:if="${start > 0}">
+                                            <span class="page-link">…</span>
+                                        </li>
+
+                                        <!-- Numeri -->
+                                        <th:block th:each="i : ${#numbers.sequence(start, end)}">
+                                            <li class="page-item" th:classappend="${i == paginaCorrente} ? 'active'">
+                                                <a class="page-link"
+                                                   th:href="${urlBase + i}"
+                                                   th:text="${i + 1}"
+                                                   th:attr="aria-current=${i == paginaCorrente} ? 'page' : null">1</a>
+                                            </li>
+                                        </th:block>
+
+                                        <!-- ... finale -->
+                                        <li class="page-item disabled" th:if="${end < totalePagine - 1}">
+                                            <span class="page-link">…</span>
+                                        </li>
+
+                                        <!-- Successiva -->
+                                        <li class="page-item" th:classappend="${paginaCorrente >= totalePagine - 1} ? 'disabled'">
+                                            <a class="page-link"
+                                               th:href="${urlBase + (paginaCorrente + 1)}"
+                                               aria-label="Pagina successiva">
+                                                <span class="d-none d-sm-inline">Successiva</span>
+                                                <svg class="icon icon-primary" aria-hidden="true"><use href="#it-chevron-right"></use></svg>
+                                            </a>
+                                        </li>
+
+                                    </ul>
+                                </nav>
+                            </th:block>
+                        </div>
+                    </div>
+
                     <div class="offset-md-1 col-md-12">
                         <div class="row">
                             <blockquote class="blockquote text-end">

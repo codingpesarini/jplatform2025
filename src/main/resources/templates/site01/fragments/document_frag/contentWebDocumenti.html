@@ -11,10 +11,8 @@
               Tipologia: <span th:text="${post.varchar1}">Tipo</span>
             </div>
             <h3 class="h4">Argomenti</h3>
-            <div class="badges">
-              <a data-element="topic-list"
-                 class="badge badge-sm badge-pill badge-outline-redbrown"
-                 th:text="${post.tagsCloud}">Tag</a>
+            <div class="badges" data-element="topic-list" th:utext="${post.tagsCloud}">
+              Tag
             </div>
           </div>
           <div class="article-description-mobile" th:utext="${post.riassunto}">

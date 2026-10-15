@@ -301,8 +301,8 @@
                     <ul id="sortableAllegato" class="list-unstyled">
                       <li th:each="allegato : ${post.allegati}"
                           th:if="${allegato.id != -1}"
-                          th:attr="id=${allegato.idDocallegati}">
-                        <div th:attr="id=${'boxallegato_' + allegato.idDocallegati}">
+                          th:attr="id=${allegato.idDocAllegati}">
+                        <div th:attr="id=${'boxallegato_' + allegato.idDocAllegati}">
                           <a href="javascript:void(0);"
                              th:data-id="${allegato.idDocAllegati}"
                              th:data-allegato-id="${allegato.id}"
@@ -373,7 +373,7 @@
             <!-- TAB 07 — ALTRO -->
             <div id="tab_07" class="tab-pane" role="tabpanel">
               <div class="row form-group">
-                <th:block th:each="i : ${#numbers.sequence(1, 10)}">
+                <th:block th:each="i : ${#numbers.sequence(5, 10)}">
                   <div class="col-lg-6 mb-3">
                     <div class="form-group">
                       <label class="col-form-label" th:for="|text${i}|">
